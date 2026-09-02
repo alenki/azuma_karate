@@ -1,0 +1,116 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 十 — Запись: hairline form fields on ink                     */
+/* ------------------------------------------------------------------ */
+.join-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.join-input {
+  height: 3rem;
+  padding: 0 0 0.5rem;
+  color: var(--color-bone);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-bone-2);
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: border-color var(--duration-fast) var(--ease-out);
+  appearance: none;
+}
+.join-input::placeholder {
+  color: color-mix(in oklab, var(--color-bone-2) 70%, transparent);
+}
+.join-input:focus {
+  outline: none;
+  border-bottom-color: var(--color-shu-lift);
+}
+.join-input:focus-visible {
+  outline: 2px solid var(--color-shu-lift);
+  outline-offset: 4px;
+}
+.join-input[aria-invalid="true"] {
+  border-bottom-color: var(--color-shu-lift);
+}
+.join-input--area {
+  height: auto;
+  min-height: 5rem;
+  padding-top: 0.5rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+/* the number field keeps tabular figures and no spinners */
+.join-input[type="number"] {
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+.join-input[type="number"]::-webkit-outer-spin-button,
+.join-input[type="number"]::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.join-error {
+  color: var(--color-shu-lift);
+}
+
+/* honeypot: off-screen, never focusable by pointer or tab */
+.join-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* The ensō drawn around the submit button                             */
+/* ------------------------------------------------------------------ */
+.join-enso {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(18rem, 100%);
+  aspect-ratio: 1 / 1;
+  margin-left: -1.5rem;
+}
+@media (min-width: 768px) {
+  .join-enso {
+    width: 17rem;
+  }
+}
+.join-enso__mark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.join-submit {
+  position: relative;
+  z-index: 1;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  color: var(--color-ink);
+  background: var(--color-bone);
+  border: 1px solid var(--color-bone);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.join-submit:hover:not(:disabled) {
+  background: var(--color-shu-lift);
+  border-color: var(--color-shu-lift);
+  color: var(--color-ink);
+}
+.join-submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.join-submit:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

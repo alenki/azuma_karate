@@ -1,0 +1,89 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 六 — Утро: the photo spread                                  */
+/* The chapter opens with a full-bleed plate, so the margin numeral    */
+/* moves down to the text block and sits level with the eyebrow.       */
+/* ------------------------------------------------------------------ */
+.morning {
+  --morning-plate-h: clamp(22rem, 52vw, 34rem);
+}
+@media (min-width: 768px) {
+  .morning {
+    --numeral-top: calc(var(--morning-plate-h) + 3rem);
+  }
+}
+@media (min-width: 1024px) {
+  .morning {
+    --morning-plate-h: clamp(360px, 62vh, 720px);
+    --numeral-top: calc(var(--morning-plate-h) + 4rem);
+  }
+}
+
+/* the plate: 4:5 on phones, a fixed-height full-bleed strip from tablets up */
+.morning-plate {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  background: var(--color-paper-2);
+}
+@media (min-width: 768px) {
+  .morning-plate {
+    aspect-ratio: auto;
+    height: var(--morning-plate-h);
+  }
+}
+
+/* parallax layer: taller than its frame so the ±6% travel never shows paper */
+.morning-plate__img {
+  position: absolute;
+  inset: -8% 0;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .morning-plate__img {
+    inset: 0;
+    will-change: auto;
+  }
+}
+
+/* caption: in flow under the plate on phones; from tablets up a paper
+   card pressed into the plate's bottom-left corner, its text aligned to
+   the column (the card itself bites 1rem into the gutter) */
+.morning-caption {
+  margin: 0;
+}
+.morning-card {
+  padding-top: 1rem;
+}
+@media (min-width: 768px) {
+  .morning-card__anchor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+  .morning-card {
+    pointer-events: auto;
+    background: var(--color-paper);
+    padding: 1rem;
+    max-width: 22rem;
+    margin-left: -1rem;
+  }
+}
+
+/* «Два адреса.» in ink, «Один путь.» a step back — as the hero's two lines */
+.morning-title > span + span {
+  color: var(--color-ink-2);
+}
+
+/* the one link in the meta line: hairline underline, red on hover */
+.morning-tg {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.morning-tg:hover {
+  color: var(--color-shu);
+}

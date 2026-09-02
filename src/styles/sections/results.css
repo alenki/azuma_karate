@@ -1,0 +1,83 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 五 — Хроника: the tally board                                */
+/* ------------------------------------------------------------------ */
+
+/* one counted row: label · 正 marks · the arabic number */
+.tally-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--color-rule-dark);
+}
+.tally-row:last-child {
+  border-bottom: 1px solid var(--color-rule-dark);
+}
+.tally-row__label {
+  grid-column: 1;
+}
+.tally-row__value {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.tally-row__marks {
+  grid-column: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 0.65rem;
+  margin-top: 0.35rem;
+}
+.tally__glyph {
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+}
+@media (min-width: 768px) {
+  .tally__glyph {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Season timeline                                                     */
+/* ------------------------------------------------------------------ */
+.timeline-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  padding-block: 1.5rem;
+  border-top: 1px solid var(--color-rule-dark);
+}
+@media (min-width: 768px) {
+  .timeline-row {
+    grid-template-columns: 12rem minmax(0, 1fr) 16rem;
+    align-items: baseline;
+    gap: 2rem;
+  }
+  .timeline-row__note {
+    text-align: right;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Athlete of the year                                                 */
+/* ------------------------------------------------------------------ */
+.best-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.best-strip__rule {
+  display: block;
+  width: min(12rem, 40%);
+  height: 2px;
+  background: var(--color-shu-lift);
+  transform-origin: left;
+}

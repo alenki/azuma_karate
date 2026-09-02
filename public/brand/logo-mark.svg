@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+  <!-- Placeholder recreation of the SK AZUMA brush mark (kicking figure). Replace with the client's vector logo. -->
+  <defs>
+    <mask id="sk-azuma-head-notch">
+      <rect width="100" height="100" fill="#fff"/>
+      <path d="M28 27 54 13" stroke="#000" stroke-width="3.2" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <g fill="currentColor">
+    <circle cx="42" cy="21" r="11.5" mask="url(#sk-azuma-head-notch)"/>
+    <path d="M38 47c11-15 32-25 56-23l-3.5 6.5C70 30 55 38 46 55c-2.5 3.5-8.5 2-8-8z"/>
+    <path d="M46 60c9-11 22-18 38-18l-3.8 6.5c-12 .8-21.5 6-28.5 15.5-3 3.5-7.5 1.5-5.7-4z"/>
+    <path d="M31 31c9.5-5 21 2 23 12 1.8 8.5-2.8 16.5-8 26L27.5 98l-4.6-6 14.5-31c1.3-3.8.3-7-2-9-5.5-5.4-6.2-13.4-4.4-21z"/>
+  </g>
+</svg>

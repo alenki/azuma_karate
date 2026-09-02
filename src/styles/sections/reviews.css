@@ -1,0 +1,74 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 七 — Слова родителей / Parents' words                        */
+/* ------------------------------------------------------------------ */
+
+/* The quote block is measured in its own em: 30ch of Prata at statement size,
+   so the attribution under it shares the quote's left edge exactly. */
+.reviews__figure {
+  font-size: var(--text-statement);
+  max-width: 30ch;
+  margin-inline: auto;
+}
+
+/* Japanese corner brackets 「 」— sized to one em of the quote (24px at 1.5rem,
+   40px at 2.5rem). Inline punctuation on phones; the opening bracket hangs
+   into the margin once there is a margin to hang into. */
+.reviews__bracket {
+  position: relative;
+  display: inline-block;
+  width: 1em;
+  height: auto;
+  vertical-align: top;
+}
+.reviews__bracket--open {
+  top: 0.02em;
+  margin-right: 0.06em;
+}
+.reviews__bracket--close {
+  top: 0.1em;
+  margin-left: 0.1em;
+}
+/* invisible twin used by the height sizer, so quotes never shift the page */
+.reviews__bracket--ghost {
+  aspect-ratio: 170 / 180;
+}
+@media (min-width: 768px) {
+  .reviews__bracket--open {
+    position: absolute;
+    left: -1.15em;
+    top: 0.02em;
+    margin: 0;
+  }
+}
+
+/* keyboard focus on the whole region sits outside the type, not on it */
+.reviews__region:focus-visible {
+  outline-offset: 1rem;
+}
+
+/* two hairline buttons sharing one rule; hover is a colour swap only */
+.reviews__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-rule);
+  color: var(--color-ink);
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+.reviews__btn + .reviews__btn {
+  margin-left: -1px;
+}
+.reviews__btn:hover {
+  z-index: 1;
+  color: var(--color-shu);
+  border-color: var(--color-ink);
+}
+.reviews__btn:active {
+  transform: translateY(1px);
+}

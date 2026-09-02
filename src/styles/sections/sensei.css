@@ -1,0 +1,44 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 四 — Тренер                                                 */
+/* The plate is printed in grayscale; a colour print lies on top and   */
+/* is exposed on hover, on keyboard focus inside the figure, or when   */
+/* the toggle under the plate is pressed (touch).                      */
+/* ------------------------------------------------------------------ */
+.sensei-plate__color {
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+.sensei-plate:hover .sensei-plate__color,
+.sensei-figure:focus-within .sensei-plate__color,
+.sensei-figure[data-colour="on"] .sensei-plate__color {
+  opacity: 1;
+}
+
+/* the hover hint is only printed where a pointer can hover */
+@media (hover: none) {
+  .sensei-hint {
+    display: none;
+  }
+}
+
+/* colour toggle: mono label with a hairline square that fills red when pressed */
+.sensei-toggle {
+  color: var(--color-ink);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.sensei-toggle:hover {
+  color: var(--color-shu);
+}
+.sensei-toggle__dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 1px solid currentColor;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+.sensei-toggle[aria-pressed="true"] .sensei-toggle__dot {
+  background: var(--color-shu);
+  border-color: var(--color-shu);
+}

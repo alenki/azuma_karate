@@ -1,0 +1,422 @@
+@import "tailwindcss";
+@import "../../styles/primitives.css";
+
+/* ------------------------------------------------------------------ */
+/* Design tokens — "Первая черта": paper, ink, one vermilion            */
+/* ------------------------------------------------------------------ */
+@theme {
+  /* paper */
+  --color-paper: #f3efe6;
+  --color-paper-2: #eae4d8;
+  --color-paper-3: #fbf9f4;
+  /* ink */
+  --color-ink: #151311;
+  --color-ink-2: #5a554e;
+  --color-ink-3: #a29b90;
+  --color-rule: #d8d2c6;
+  /* on ink */
+  --color-bone: #efe9dd;
+  --color-bone-2: #a8a196;
+  --color-rule-dark: #2b2724;
+  /* the brush */
+  --color-shu: #c41e2a;
+  --color-shu-lift: #e8404a; /* red for dark grounds, ≥4.5:1 on ink */
+  --color-accent: #c41e2a;
+
+  /* type */
+  --font-display: var(--font-prata), "Prata", "Times New Roman", serif;
+  --font-body: var(--font-golos), "Golos Text", "Segoe UI", system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", "Consolas", monospace;
+  --font-accent: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+
+  /* scale (clamp) */
+  --text-hero: clamp(2.9rem, 8.6vw, 8.25rem);
+  --text-chapter: clamp(2.25rem, 5.6vw, 5.5rem);
+  --text-statement: clamp(1.5rem, 2.6vw, 2.5rem);
+  --text-h3: clamp(1.25rem, 1.6vw, 1.625rem);
+  --text-lead: clamp(1.125rem, 1.4vw, 1.375rem);
+  --text-micro: 0.6875rem;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-brush: cubic-bezier(0.3, 0.02, 0.15, 1);
+  --ease-press: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 200ms;
+  --duration-base: 500ms;
+  --duration-reveal: 750ms;
+
+  /* layout */
+  --container: 82rem; /* 1312px */
+  --gutter: clamp(1.25rem, 4.4vw, 4rem);
+  --header-h: 5rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base — inside @layer base, so Tailwind utilities still win over it.  */
+/* (Unlayered rules beat layered ones, which would silently override    */
+/* every padding/colour utility applied to an element.)                 */
+/* ------------------------------------------------------------------ */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.55;
+    font-feature-settings: "kern", "liga";
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-shu);
+    color: var(--color-paper-3);
+  }
+
+  h1, h2, h3, h4 {
+    margin: 0;
+    font-weight: 400;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  img, svg, video {
+    display: block;
+    max-width: 100%;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Typographic roles                                                   */
+/* ------------------------------------------------------------------ */
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.t-hero {
+  font-size: var(--text-hero);
+}
+.t-chapter {
+  font-family: var(--font-display);
+  font-size: var(--text-chapter);
+  line-height: 1;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+.t-statement {
+  font-family: var(--font-display);
+  font-size: var(--text-statement);
+  line-height: 1.18;
+  text-wrap: balance;
+}
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.t-caption {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.t-accent {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 500;
+}
+.t-lead {
+  font-size: var(--text-lead);
+  line-height: 1.45;
+}
+
+/* wordmark stand-in */
+.wordmark {
+  font-family: var(--font-wordmark), "Unbounded", var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-shu);
+}
+.ground-ink .wordmark { color: var(--color-shu-lift); }
+.wordmark-tag {
+  font-family: var(--font-body);
+  font-weight: 500;
+  text-transform: lowercase;
+  color: var(--color-shu);
+}
+.ground-ink .wordmark-tag { color: var(--color-shu-lift); }
+
+/* photographic plates */
+.plate-bw {
+  filter: grayscale(1) sepia(0.12) contrast(1.05);
+}
+.plate-muted {
+  filter: saturate(0.72) contrast(1.02);
+}
+
+/* paper and ink grounds */
+.ground-paper {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  --color-accent: var(--color-shu);
+}
+.ground-ink {
+  background: var(--color-ink);
+  color: var(--color-bone);
+  --color-accent: var(--color-shu-lift);
+}
+
+/* hairline rule */
+.rule {
+  height: 1px;
+  background: var(--color-rule);
+}
+.ground-ink .rule {
+  background: var(--color-rule-dark);
+}
+
+/* container */
+.wrap {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* header */
+.site-header {
+  background: transparent;
+}
+.site-header--scrolled {
+  background: color-mix(in oklab, var(--color-paper) 92%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 var(--color-rule);
+}
+.site-header--open {
+  background: var(--color-paper);
+}
+.nav-link {
+  position: relative;
+  color: var(--color-ink);
+  padding-block: 0.25rem;
+  white-space: nowrap;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: var(--color-shu);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-base) var(--ease-out);
+}
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+.lang-toggle {
+  color: var(--color-ink);
+  padding: 0.5rem 0.25rem;
+}
+.lang-toggle__current {
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+  text-decoration-color: var(--color-shu);
+}
+.menu-toggle {
+  color: var(--color-ink);
+  min-height: 44px;
+  padding-inline: 0.5rem;
+}
+.menu__link {
+  color: var(--color-ink);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.menu__link:hover { color: var(--color-shu); }
+.menu__chapter { color: var(--color-ink); }
+.menu__chapter:hover { color: var(--color-shu); }
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 0.75rem 1rem;
+  transform: translateY(-200%);
+}
+.skip-link:focus { transform: none; }
+
+/* seal */
+.seal {
+  color: var(--color-shu);
+  mix-blend-mode: multiply;
+}
+.ground-ink .seal { color: var(--color-shu-lift); mix-blend-mode: normal; }
+.seal__text {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+/* timetable */
+.timetable__col--today {
+  background: var(--color-paper-3);
+}
+.timetable__cell { transition: opacity var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out); }
+.timetable__cell--hi { background: var(--color-paper-2); }
+.legend__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-ink-2);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.legend__btn--on, .legend__btn:hover { color: var(--color-ink); }
+.legend__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 1px solid var(--color-ink);
+  background: transparent;
+}
+.legend__btn--on .legend__dot { background: var(--color-shu); border-color: var(--color-shu); }
+
+/* accordion */
+.accordion__btn { color: var(--color-ink); }
+.accordion__btn:hover .accordion__q { color: var(--color-shu); }
+.accordion__q { transition: color var(--duration-fast) var(--ease-out); }
+.t-h3 { font-size: var(--text-h3); line-height: 1.25; }
+.font-display { font-family: var(--font-display); }
+
+/* footer */
+.footer-link {
+  color: var(--color-bone);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.footer-link:hover { color: var(--color-shu-lift); }
+.belt-swatch {
+  display: inline-block;
+  width: 2.25rem;
+  height: 0.5rem;
+  /* a bone hairline so the black belt still reads against the ink ground */
+  border: 1px solid color-mix(in oklab, var(--color-bone-2) 55%, transparent);
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 4px);
+}
+
+/* mobile bar */
+.mobile-bar {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: 0 -1px 0 var(--color-rule);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.mobile-bar__cta {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.mobile-bar__cta:active { background: var(--color-shu); }
+
+/* buttons */
+.btn-ink {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  border: 1px solid var(--color-ink);
+}
+.btn-ink:hover { background: var(--color-shu); border-color: var(--color-shu); color: var(--color-paper-3); }
+.ground-ink .btn-ink { background: var(--color-bone); color: var(--color-ink); border-color: var(--color-bone); }
+.ground-ink .btn-ink:hover { background: var(--color-shu-lift); border-color: var(--color-shu-lift); color: var(--color-ink); }
+.btn-outline {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-ink);
+}
+.btn-outline:hover { background: var(--color-ink); color: var(--color-paper); }
+.ground-ink .btn-outline { color: var(--color-bone); border-color: var(--color-bone-2); }
+.ground-ink .btn-outline:hover { background: var(--color-bone); color: var(--color-ink); border-color: var(--color-bone); }
+.btn-text {
+  color: var(--color-ink);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 0.2em;
+}
+.btn-text:hover { color: var(--color-shu); }
+.ground-ink .btn-text { color: var(--color-bone); }
+.ground-ink .btn-text:hover { color: var(--color-shu-lift); }
+.btn:active { transform: translateY(1px); }
+
+/* chapters */
+.chapter {
+  --binding: var(--gutter);
+}
+.chapter__numeral {
+  position: absolute;
+  top: var(--numeral-top, clamp(2rem, 6vw, 5rem));
+  left: clamp(0.75rem, 1.6vw, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-ink);
+  pointer-events: none;
+}
+.ground-ink .chapter__numeral { color: var(--color-bone); }
+.chapter__kanji {
+  width: clamp(1.5rem, 2.4vw, 2.25rem);
+  height: auto;
+}
+.chapter__folio {
+  writing-mode: vertical-rl;
+  color: var(--color-ink-2);
+}
+.ground-ink .chapter__folio { color: var(--color-bone-2); }
+@media (max-width: 767px) {
+  /* the binding margin does not exist on phones; chapters print their folio in flow */
+  .chapter__numeral { display: none; }
+}
+.folio-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.folio-inline .chapter__kanji { width: 1rem; }
+@media (min-width: 768px) {
+  .folio-inline { display: none; }
+}
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }

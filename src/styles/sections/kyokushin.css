@@ -1,0 +1,63 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 二 — «Киокушин»: a dictionary entry under a printed 極真     */
+/* ------------------------------------------------------------------ */
+
+.kyokushin {
+  --pad-top: clamp(5rem, 9vw, 9rem);
+  --pad-bottom: clamp(6rem, 10vw, 10rem);
+  --numeral-top: var(--pad-top);
+  --mark-w: 28vw;
+}
+@media (min-width: 1024px) {
+  .kyokushin {
+    --mark-w: clamp(8rem, 14vw, 15rem);
+  }
+}
+
+/* 極真 stacked top-right at 6%, bleeding off the edge; clipped by the section, never the body */
+.kyokushin__mark {
+  position: absolute;
+  top: clamp(1rem, 3vw, 3rem);
+  right: calc(var(--mark-w) * -0.16);
+  width: var(--mark-w);
+  display: flex;
+  flex-direction: column;
+  color: var(--color-ink);
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The headword. `.t-chapter` sits on the wrapper so the ghost phrase under it
+   shares every metric; the size is capped so «предельная истина» (9.7em in
+   Prata) holds one line in cols 1–7 beside the hung right column. */
+.kyokushin .kyokushin__headline {
+  font-size: clamp(2rem, 4.5vw, 4rem);
+}
+
+/* Ghost of the gloss: sizes the underline to the phrase, to the pixel */
+.kyokushin__underline {
+  position: absolute;
+  left: 0;
+  top: 1.24em; /* second line: one 1em line + LineReveal's 0.12em bleed above each line */
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+.kyokushin__ghost {
+  display: block;
+  visibility: hidden;
+}
+.kyokushin__stroke {
+  position: absolute;
+  left: -0.25em;
+  bottom: -0.55em;
+  width: calc(100% + 0.5em);
+  height: auto;
+}
+
+/* The couplet holds two clean lines in cols 8–12 in both languages */
+.kyokushin .kyokushin__couplet {
+  font-size: clamp(1.5rem, 2.3vw, 2.125rem);
+}
