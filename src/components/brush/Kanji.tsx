@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { cn } from "@/lib/cn";
+import { useStillness } from "@/lib/useStillness";
 import { kanji, type KanjiId } from "@/content/kanji";
 
 type KanjiProps = {
@@ -27,7 +28,7 @@ type KanjiProps = {
  */
 export function Kanji({ id, className, weight = 5.5, draw = false, delay = 0, perStroke = 0.18, color, label }: KanjiProps) {
   const glyph = kanji[id];
-  const reduced = useReducedMotion();
+  const reduced = useStillness();
   const ref = useRef<SVGSVGElement>(null);
   const inView = useInView(ref, { once: true, margin: "-10% 0px" as never });
   const animate = draw && !reduced;

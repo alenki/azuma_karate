@@ -72,40 +72,28 @@
     stopped scaling anyway.
 
     The width term is written in `vw` and not `cqw` because --band-h has to be
-    readable from the section (the phone mark overrides it, and --straddle is
-    built from it) and the container only exists inside the stage. The two
+    readable from the section (the phone mark overrides it, and the fold guard
+    is built from it) and the container only exists inside the stage. The two
     differ by the scrollbar, so the drawn stretch is off by about 2px of band
     height on a 2560 page — a tenth of a percent, and only ever in the safe
     direction.
   */
-  --band-h: clamp(8.5rem, max(21svh, calc((100vw + var(--band-bleed) - var(--gutter)) / 7.55)), 34rem);
+  /*
+    The mark's height. It no longer has to be tall enough to hold a readable
+    photograph, only to read as one loaded brush stroke at poster scale, so the
+    divisor rises from 7.55 to 10.5 and the ink stops being a band: 150px at
+    1512, 255px at 2560, against a native 5.48:1 silhouette. `preserveAspectRatio`
+    is "none", so this alone decides how hard the stroke is stretched — at 14
+    the drawn ratio is ~14:1, which is what a fast 一 across a whole sheet is.
+  */
+  --band-h: clamp(4.5rem, max(11svh, calc((100vw + var(--band-bleed) - var(--gutter)) / 14)), 15rem);
+  /* the paper between the headline's last line and the ink under it */
+  --band-gap: clamp(0.75rem, 1.6svh, 1.75rem);
   /* how far the dry tail runs past the right edge of the page */
   --band-bleed: 8vw;
-  /* Where the ink crosses the second line.
-     Measured, not guessed. Prata sets its baseline 0.8074em down a 0.98 line box
-     and its caps 0.0033em from the top, so the cap band is 0.804em tall and
-     starts 0.1633em below the box the stroke is positioned against (0.16em of
-     that is the mask bleed on the line). The band box is trimmed to the mark, and
-     the generator reports how far below that box the ink's top edge actually runs
-     where the headline crosses it — 7.8% for the wide mark, 4.8% for the narrow.
-     --seam is the fraction of the cap band left above the ink.
-
-     Note the seam is invariant to --band-h: the ink's top edge lands at
-     --straddle + --mark-top * --band-h = (0.804 * seam + 0.1633)em, and the
-     --band-h terms cancel. Making the band 199px instead of 189px at 1440
-     therefore does not move the seam — it only puts more ink below the line,
-     which the deck's padding-bottom already accounts for. Both marks were
-     re-checked at the new heights: the ink is ~58% of the band thick where the
-     headline crosses, so it still covers the 38% of the cap band that sits
-     below the seam at every width (115px of ink against 128px of cap at 1440,
-     205px against 228px at 2560). */
-  --seam: 0.62;
-  --mark-top: 0.078;
-  --straddle: calc((0.804 * var(--seam) + 0.1633) * 1em - var(--mark-top) * var(--band-h));
   /* the mask must not crop «у», «д» or the full stop */
   --line-bleed: 0.16em;
   --stroke: url("/brand/hero-stroke.svg");
-  --stroke-in: url("/brand/hero-stroke-in.svg");
 
   /*
     The fold guard.
@@ -141,8 +129,19 @@
     room. The floor keeps the expression from going negative (and dropping the
     whole declaration) on a very short window.
   */
-  --fold-fixed: calc(18rem + 7vw);
-  --fold-cap: calc((100svh - var(--fold-fixed) - 0.922 * var(--band-h)) / 1.642);
+  /*
+    Re-measured for the new register: the colophon column now carries the
+    photograph (a 2/1 plate on three columns) above its caption, which is the
+    largest single change to the non-headline stack since the guard was
+    written. Measured on the built page rather than derived: the non-headline
+    stack is 547px at 1512, which 27.5rem + 7vw meets with a few pixels to
+    spare, and the guard errs on the side of fitting.
+  */
+  --fold-fixed: calc(28rem + 7vw);
+  /* the headline stack is now 0.98em + 0.98em of type plus the mark and its
+     gap, which are additive rather than overlapping, so the coefficient is a
+     flat 1.96 and the mark is subtracted whole */
+  --fold-cap: calc((100svh - var(--fold-fixed) - var(--band-h) - var(--band-gap)) / 1.96);
 
   min-height: 100svh;
   display: flex;
@@ -152,7 +151,6 @@
 @media (max-width: 767px) {
   .hero {
     --stroke: url("/brand/hero-stroke-sm.svg");
-    --stroke-in: url("/brand/hero-stroke-sm-in.svg");
   }
 }
 
@@ -232,50 +230,19 @@
   will-change: transform;
 }
 
-/* The second line and the stroke share a box, so the ink always crosses the
-   words at the same height however many lines the first one wrapped to. */
+/* The second line and the stroke share a box, so the ink is always laid the
+   same distance under the words however many lines the first one wrapped to. */
 .hero__deck {
   position: relative;
   display: block;
-  padding-bottom: max(0px, calc(var(--straddle) + var(--band-h) - 0.98em));
+  padding-bottom: calc(var(--band-h) + var(--band-gap));
 }
 
-/* ---- the knockout ------------------------------------------------- */
-.hero__knockout {
-  position: relative;
-  display: block;
-  white-space: nowrap;
-}
-.hero__knockout-lit {
-  position: absolute;
-  inset: 0;
-  color: var(--color-bone);
-  -webkit-user-select: none;
-  user-select: none;
-  /* The same silhouette that cuts the plate, registered to the same box: this
-     element is inset:0 inside a block that is exactly the measure wide, which
-     is the same box `.hero__band` is `left: 0` inside — so `100%` in --band-w
-     resolves to the same length for the mask as it does for the band's width. */
-  -webkit-mask-image: var(--stroke-in);
-  mask-image: var(--stroke-in);
-  -webkit-mask-size: var(--band-w) var(--band-h);
-  mask-size: var(--band-w) var(--band-h);
-  /* The line's top margin collapses into the deck, so this copy starts one
-     --line-bleed below the box the stroke is positioned against. */
-  -webkit-mask-position: 0 calc(var(--straddle) - var(--line-bleed));
-  mask-position: 0 calc(var(--straddle) - var(--line-bleed));
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-}
-/* Forced colours flatten masks; print the line once, in the system ink. */
-@media (forced-colors: active) {
-  .hero__knockout-lit { display: none; }
-}
 
-/* ---- the stroke, and the plate inside it -------------------------- */
+/* ---- the stroke ---------------------------------------------------- */
 .hero__band {
   position: absolute;
-  top: var(--straddle);
+  bottom: 0;
   left: 0;
   width: var(--band-w);
   height: var(--band-h);
@@ -289,44 +256,6 @@
   mask-repeat: no-repeat;
 }
 
-.hero__band-plate {
-  position: absolute;
-  inset: 0;
-  display: block;
-  overflow: hidden;
-  -webkit-mask-image: var(--stroke-in);
-  mask-image: var(--stroke-in);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  background: var(--color-ink);
-}
-.hero__band-img {
-  position: absolute;
-  /* Headroom for the drift and the lean. Motion's percentage translations are
-     relative to this box, not to the band, so the insets have to clear
-     0.08 x 1.24 = 9.9% vertically and 0.012 x 1.06 = 1.3% horizontally. */
-  inset: -12% -3%;
-  display: block;
-}
-.hero__band-img img {
-  filter: grayscale(1) sepia(0.06) contrast(1.1) brightness(0.92);
-}
-/* A printed duotone wash: heaviest along the top edge, where the headline is
-   knocked out of the plate, and at the tail, where the lead and the button sit.
-   No blur, no glass — two hard gradients. */
-.hero__band-scrim {
-  position: absolute;
-  inset: 0;
-  display: block;
-  background:
-    linear-gradient(180deg, rgb(21 19 17 / 0.94) 0%, rgb(21 19 17 / 0.92) 13%, rgb(21 19 17 / 0.52) 27%, rgb(21 19 17 / 0.12) 52%, rgb(21 19 17 / 0.04) 74%, rgb(21 19 17 / 0.24) 100%),
-    linear-gradient(90deg, rgb(21 19 17 / 0.24) 0%, rgb(21 19 17 / 0) 20%, rgb(21 19 17 / 0) 76%, rgb(21 19 17 / 0.26) 100%);
-}
-.hero__band-grain {
-  opacity: 0.4;
-}
 
 /* ---- what is printed under the plate ------------------------------- */
 /* The plate's colophon on the left, the pitch on the right — the same
@@ -419,11 +348,37 @@
 .hero__tg:hover { color: var(--color-shu); border-color: var(--color-shu); }
 
 /* ---- colophon and folio ------------------------------------------- */
+/*
+  The photograph's own frame.
+
+  It used to live inside the brush stroke as a mask — 1443px of picture squeezed
+  into a 7.5:1 letterbox, which at screen resolution was grey mush that no
+  reader could identify as a dojo, let alone as karate. Given three columns and
+  a 2/1 crop it is 331x166 at 1512: small, but legible, captioned, and standing
+  on the same vertical as everything else in the register. It keeps the scroll
+  drift and the pointer lean the masked version had, so it still reads as
+  something set into the paper rather than pasted onto it.
+*/
 .hero__colophon {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.85rem;
+  margin: 0;
   color: var(--color-ink-2);
+}
+.hero__plate {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  background: var(--color-paper-2);
+}
+.hero__plate img {
+  filter: grayscale(1) sepia(0.08) contrast(1.06);
+}
+.hero__colophon-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
 }
 /* ink-3 is a 2.4:1 decorative tone — never under a line of 11px mono */
 .hero__hand { color: var(--color-ink-2); opacity: 0.85; }
@@ -563,10 +518,10 @@
   .hero {
     /* the narrow mark is 1011x378 (2.67:1) and is set by the fold, not by the
        width term — a phone has height to spare and no room to stretch */
-    --band-h: clamp(8rem, 22svh, 11rem);
+    /* the narrow mark is 1011x378 (2.67:1); a phone has height to spare and
+       no room to stretch, so the fold sets it rather than the width term */
+    --band-h: clamp(5rem, 13svh, 7.5rem);
     --band-bleed: 5vw;
-    --seam: 0.55;
-    --mark-top: 0.048;
   }
   /* only the second line has to hold one line; the first may wrap */
   .hero__title { font-size: calc(var(--measure) / var(--em-narrow)); }
@@ -575,7 +530,4 @@
   .hero__pitch { order: -1; }
   .hero__cta { display: flex; }
   .hero__cta-label { flex: 1; justify-content: center; }
-  .hero__band-scrim {
-    background: linear-gradient(180deg, rgb(21 19 17 / 0.84) 0%, rgb(21 19 17 / 0.24) 44%, rgb(21 19 17 / 0.3) 100%);
-  }
 }

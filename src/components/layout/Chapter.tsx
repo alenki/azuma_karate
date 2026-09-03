@@ -4,7 +4,7 @@ import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { Kanji } from "@/components/brush/Kanji";
 import type { KanjiId } from "@/content/kanji";
-import { useActiveChapter } from "./ChapterContext";
+import { useActiveChapter, useGroundReporter } from "./ChapterContext";
 
 export const CHAPTER_NUMERALS: KanjiId[] = ["ichi", "ni", "san", "shi", "go", "roku", "shichi", "hachi", "kyu", "ju"];
 
@@ -46,6 +46,9 @@ export function Chapter({ id, index, title, ground = "paper", className, numeral
     io.observe(el);
     return () => io.disconnect();
   }, [id, index, title, setActive]);
+
+  /* the header learns what is behind its bar from the same element */
+  useGroundReporter(ref, id, ground);
 
   const folio = String(index).padStart(2, "0");
   return (

@@ -63,7 +63,7 @@
 /*   2560       exact           427px                                  */
 /*                                                                      */
 /* Drift falls monotonically across every tier boundary (checked at     */
-/* 1774 where `--text-micro` unpins, 2100 where the wordmark tier       */
+/* 1774 where `--text-micro` unpins, 2200 where the wordmark tier       */
 /* starts, 2222 where the bar gap caps, 2258 where micro caps), so      */
 /* 1280–1334 is the only band off centre at all, and never by 25px.     */
 /*                                                                      */
@@ -114,6 +114,36 @@
      across the running head. */
 }
 
+/*
+  Under 380 the bar is genuinely full, and it is fullest with the contents
+  page OPEN: the handle then reads «ЗАКРЫТЬ», seven characters where «МЕНЮ»
+  is four, and the right band grows to 167px. Against the 280px trim a 320
+  sheet leaves, that gives the lockup 97px for 130.7px of wordmark — so the
+  last A of SK AZUMA sat on RU. (Worse before the mark came out of the
+  lockup: 178.7px into the same 97px.)
+
+  The furniture gives up air before the lockup gives up legibility, but not
+  all of it: the cluster's gap halves, the bar's own gap comes in 4px, and
+  only then does the wordmark step down — 12.8px is 99.6px of set text. The
+  two bands then clear each other by 14px at 320 with the page open, and by
+  38px with it shut. Nothing here applies at 380 and up, so the measured
+  band above is untouched.
+*/
+@media (max-width: 379px) {
+  .site-header__bar {
+    column-gap: 0.75rem;
+  }
+  .site-header__aside {
+    gap: 0.5rem;
+  }
+  .site-header__brand .wordmark {
+    font-size: 0.8rem;
+  }
+  .site-header__brand .wordmark-tag {
+    font-size: 0.5rem;
+  }
+}
+
 /* --- the centre band: the running head ----------------------------- */
 .site-header__head {
   display: none;
@@ -153,7 +183,7 @@
   137px at 1280 for a head needing 206px, and a printed head margin
   with no room for a running head printed none rather than a truncated
   one. Four labels and a text-only lockup give the band back 278px, so
-  the centre track now has 354px at 1280 — 148px of spare — and the
+  the centre track now has 339px at 1280 — 133px of spare — and the
   head is 24px off centre at worst. The rule that hid it is deleted:
   the balance turns positive below 1280, i.e. before the nav prints at
   all, so there is no longer a band to suppress.
@@ -183,8 +213,10 @@
   The box is built out of padding, not an absolutely-positioned
   expander: primitives.css draws `:focus-visible` on the border box, so
   a pseudo-element hit area would ring type that is not where the click
-  lands. 0.875rem either side of a 16px "EN" is exactly 44px, and the
-  wrapper keeps no gap of its own — that padding IS the air around the
+  lands. 0.875rem either side of "EN" comes to 43.84px — a sixth of a
+  pixel short — so `min-width` states the floor outright rather than
+  leaving it to the advance width of two letters. The wrapper keeps
+  no gap of its own — that padding IS the air around the
   rule, so the target is hit area rather than visible slack. The bar is
   `align-items: center`, so the extra height is taken symmetrically out
   of the 80px bar and nothing moves.
@@ -202,6 +234,7 @@
   align-items: center;
   justify-content: center;
   min-height: 44px;
+  min-width: 44px;
   padding-inline: 0.875rem;
 }
 
@@ -212,7 +245,9 @@
 /* 80px the wordmark and the buttons were drawn for until 2000, and     */
 /* only reaches 5.5rem at 2200 — the first width where the bar is       */
 /* visibly taller than the furniture standing in it. So 2200, not 1600, */
-/* is where the furniture takes its step; below it nothing changes.     */
+/* is where the WORDMARK takes its step; the cluster and the CTA take   */
+/* a smaller one at 1600, in the block directly below — and nothing    */
+/* else in the bar changes at any width between the two.                */
 /* The left band has been inside its half since 1334 (see the table     */
 /* above), with 318px of slack by 2290, so spending a few pixels on the */
 /* wordmark up here costs the running head nothing.                     */
@@ -358,7 +393,7 @@
 /*                                                                      */
 /* The size is still the smaller of two constraints, the sheet and the  */
 /* window — but which one binds has changed now the entries are four.   */
-/* Seven columns are 841px at 1600, 1028 at 1920 and 1371 at 2560, and  */
+/* Seven columns are 856px at 1600, 1046 at 1920 and 1394 at 2560, and  */
 /* the longest label is «Расписание» (10 characters of Prata ≈ 5.5em),  */
 /* so width has never been the ceiling. Height was: six ruled rows at   */
 /* 6vw did not fit the window, and 10vh was what pulled them back in.   */
@@ -366,7 +401,7 @@
 /* four spend 52vh — the window term now has ~26vh of slack it was      */
 /* never meant to hold, and at 10vh it would print four small entries   */
 /* in a column tuned for six. It rises to 14vh, which is above 6vw at   */
-/* all three canonical screens (135 vs 96 on 1600×900, 151 vs 115 on    */
+/* all three canonical screens (126 vs 96 on 1600×900, 151 vs 115 on    */
 /* 1920×1080, 202 vs 154 on 2560×1440), so the sheet is the binding     */
 /* term again and the window term is what it should always have been:   */
 /* the guard for a genuinely short viewport, where four rows at 6vw     */
@@ -517,10 +552,18 @@
   from 768 it registers on the trim like everything else on the sheet,
   instead of on a flat 40px that the gutter passed years ago.
 */
+/*
+  Moved off the colophon. At the foot of the sheet the stamp lay directly under
+  the colophon paragraph and the lockup — and 13px mono at 0.02em is the most
+  fragile text on the page to print a 270px glyph behind. The band beside the
+  aphorism is empty at every width (the aphorism is left-ranged and never
+  reaches half the trim), so the mark reads as a watermark on the chapter's
+  opening statement, which is what a stamp on a colophon page actually is.
+*/
 .footer__stamp {
   position: absolute;
   right: -1.5rem;
-  bottom: 1.5rem;
+  top: clamp(1.5rem, 4vw, 5rem);
   display: flex;
   gap: 0.5rem;
   opacity: 0.08;
@@ -532,7 +575,7 @@
 @media (min-width: 768px) {
   .footer__stamp {
     right: var(--gutter);
-    bottom: clamp(1.5rem, 2vw, 3.5rem);
+    top: clamp(2rem, 4vw, 6rem);
   }
 }
 

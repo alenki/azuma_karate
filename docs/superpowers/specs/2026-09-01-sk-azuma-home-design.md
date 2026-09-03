@@ -3,9 +3,85 @@
 
 | | |
 |---|---|
-| Version | 1.1 — 2026-09-03 — the sheet is the viewport (§2 Rhythm); v1.0 was a centred 82rem column |
+| Version | 1.2 — 2026-09-03 — execution rebuild (§0); v1.1 made the sheet the viewport; v1.0 was a centred 82rem column |
 | Scope | Home page only. Other pages exist as navigation targets. |
 | Status | Chosen by a three-judge panel (Awwwards juror, Nalchik parent, lead engineer) from five independent concepts; grafts from the runners-up applied. |
+
+---
+
+## 0. v1.2 — what changed, and why
+
+v1.1 was audited against the built page rather than against itself: every
+chapter was screenshotted at 1512×950 and 390×844, and eleven readers went
+through the source. The concept, the palette, the type stack and the chapter
+architecture all survived unchanged. The execution did not. This section
+records what moved, so the rest of the document can be read as written except
+where it is contradicted here.
+
+**The hero no longer carries the plate inside the stroke (§5.1).** The idea —
+"the photograph *is* the stroke's ink" — reads on a screen as a rendering
+fault: the plate was squeezed to ~7.5:1 and nothing in it was identifiable, the
+pressed head read as a badly-cut clipping path, and the dry tail's six bristle
+ribbons resolved as CRT scan lines. At 390px «удар» was clipped off the right
+edge. The stroke is now a pure vermilion mark laid under the headline and
+running off the right trim; the photograph has its own 2:1 frame in the
+register below. Consequently `--seam`, `--mark-top`, `--straddle` and the
+eroded `-in` silhouettes are gone, the headline is set once rather than twice,
+and `--fold-fixed` was re-measured (28rem + 7vw) against the register's new
+height. The generator's tail was retuned: `dry` 0.66 → 0.82, six gaps → three.
+
+**The header takes the ground it stands on (§4).** It stayed paper-92% over the
+three ink blocks — chapters 五 and 十 and the footer — for ~4,600px of scroll,
+which read as a bug. `ChapterContext` now also tracks the ground *behind the
+bar*, reported by a second observer whose root is a one-pixel line on the
+header's lower edge; the chapter observer fires at the viewport's centre and is
+half a screen too late for this. `.site-header--ink` restates the whole bar in
+the ink ramp.
+
+**One accent, enforced (§2, §6).** Two things broke the one-colour rule. The
+morning plate rendered as a full-colour orange sunset — `.plate-muted`'s
+`saturate(0.72)` dims a hue, it does not remove one — and is now pressed
+through a real duotone that maps luminance onto the line from `--color-ink` to
+`--color-paper`. The footer printed the seven Kyokushin belts as literal colour
+chips, five of them brand-foreign; the ranks are kept and drawn as a measured
+ladder that fills one seventh further per rank and resolves to solid at black,
+which is the aphorism above it made visible.
+
+**Marks land on what they mean (§3).** The ensō was ~250px around a 133×50
+button — a doughnut with a sticker in it; it is scaled to the button now. The
+programs circle cut through the «С» instead of ringing the «4». The sensei's
+seal was pulled up half its width into the biography and crossed the word
+«сам»; it stands level with the quote it signs.
+
+**The binding margin is a box, not an offset (§4).** The chapter numeral was
+placed by a fixed `left` plus a clamped width, and between roughly 1024 and
+1600 the two outgrew the gutter and printed the kanji over the running head in
+chapters 02, 06, 07, 09 and 10. `.chapter__numeral` is now `width:
+var(--binding)` with the glyph capped to what the margin can hold, so the
+collision is impossible at every width rather than tuned away at a few.
+
+**Pacing.** The page was ~35% dead vertical space (15,116px at 1512; `about`
+alone ran three viewports). Every gap is now editorial spacing between 41 and
+56px, and the chapters that abandoned half the sheet use it: `morning`'s empty
+row became the two addresses its title promises, and `results`' plate bleeds to
+the paper edge from 1024 rather than only from 1600.
+
+**Two real defects, found and fixed.** `Curtain`, `Brush`, `Seal` and `Kanji`
+let `useReducedMotion()` decide a Motion `initial` prop, which is serialised
+into the SSR markup — it answers `false` on the server and `true` on a
+reduced-motion client, and React refuses to patch mismatched `style`
+attributes, so plates stayed clipped shut and seals stayed at `opacity: 0` for
+exactly the readers who asked for less motion. `lib/useStillness.ts` answers
+`false` on both sides of hydration and flips after. Separately, the seal's
+`scale(1.3)` start state gave a 375px screen 6px of real horizontal scroll;
+`.sensei` clips its own axis, as `.morning` and the footer already did.
+
+**Also:** `scroll-margin-top` on `.chapter` (every in-page anchor landed the
+chapter title behind the fixed header); the schedule's two full-width stacked
+buttons, which read as text inputs, are an ink action with a ruled reference
+under it; the 押忍 watermark moved off the colophon it was printing through; the
+programs plates print on phones instead of being `display: none`, and bands 02
+and 03 no longer show two crops of the same photograph.
 
 ---
 
@@ -59,7 +135,7 @@ Chapters gain structure on a wide sheet rather than stretching: most carry a `mi
 
 ## 4. Global chrome
 
-- **Header** (fixed, `clamp(5rem, 4vw, 6.5rem)`, transparent → 92% paper with blur and a hairline after 24px of scroll; the bar stands on the page grid so the running head is centred on the sheet rather than wherever flex leaves it): wordmark lockup left (text only — there is no figurative mark); four mono links at ≥1280px («О клубе», «Расписание», «Галерея», «Контакты»); a running head «Глава 03 · Группы» (aria-live polite) at ≥1024px driven by the active chapter; a RU | EN toggle whose current locale is inert and whose other locale is the only link, either side of a hairline rule; «Записаться» ink button at ≥768px; «Меню» below 1280px opens a full-screen paper menu with Prata links, the chapter contents and contacts (Escape closes, scroll locked, Lenis stopped). A skip link is the first focusable element.
+- **Header** (fixed, `clamp(5rem, 4vw, 6.5rem)`, transparent → 92% paper with blur and a hairline after 24px of scroll; the bar stands on the page grid so the running head is centred on the sheet rather than wherever flex leaves it): wordmark lockup left (text only — there is no figurative mark); four mono links at ≥1280px («О клубе», «Расписание», «Галерея», «Контакты»); a running head «Глава 03 · Группы» (aria-live polite) at ≥1024px driven by the active chapter; a RU | EN toggle whose current locale is inert and whose other locale is the only link, either side of a hairline rule; «Записаться» ink button at ≥768px; «Меню» prints at every width and opens a full-screen paper menu with Prata links, the chapter contents and contacts (Escape closes, scroll locked, Lenis stopped). A skip link is the first focusable element.
 - **Mobile bar.** 56px sticky bottom bar with the live next session and «Записаться», shown after 60% of the first viewport, hidden while chapter ten or the footer is in view.
 - **Footer** (ink): the aphorism «Каждый чёрный пояс когда-то был белым.», the Kyokushin belt list with swatches, sections, contacts (address, coordinates 43°29′ N · 43°36′ E, phone, Telegram, Instagram, language link), the lockup with «Осу.», the colophon (fonts, KanjiVG credit, placeholder-photo note), and 押忍 printed at 8% in the corner.
 

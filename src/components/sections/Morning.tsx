@@ -64,7 +64,7 @@ export function Morning() {
       <div className="relative" ref={plateRef}>
         <Curtain className="morning-plate" duration={1.2}>
           <motion.div className="morning-plate__img" style={{ y }}>
-            <Photo slot="sunriseKick" grade="muted" sizes="100vw" />
+            <Photo slot="sunriseKick" grade="duotone" sizes="100vw" />
           </motion.div>
         </Curtain>
 
@@ -73,7 +73,8 @@ export function Morning() {
             <Reveal delay={0.5} y={14} className="morning-card">
               <p className="t-caption text-ink-2 morning-caption">{t.plateCaption[locale]}</p>
               <p className="t-mono mt-2 text-ink">
-                {t.sunriseLabel[locale]} · <time>{sunrise}</time>
+                {t.sunriseLabel[locale]} ·{" "}
+                {sunrise === "—" ? <span aria-hidden="true">—</span> : <time dateTime={sunrise}>{sunrise}</time>}
               </p>
             </Reveal>
           </div>
@@ -104,32 +105,56 @@ export function Morning() {
               className="block"
               delay={0.1}
               stagger={0.1}
-              lines={[t.title[locale].split(" ").slice(0, 2).join(" "), t.title[locale].split(" ").slice(2).join(" ")]}
+              lines={t.titleLines[locale]}
             />
           </h2>
 
-          <Reveal delay={0.35} className="morning__figure-col hidden lg:block">
+          <Reveal delay={0.25} className="morning__lead-col">
+            <p className="t-lead measure-lead text-ink-2">{t.body[locale]}</p>
+          </Reveal>
+
+          <Reveal delay={0.35} className="morning__figure-col">
             <figure className="m-0">
-              <Curtain className="aspect-[4/5]" duration={1}>
-                {/* the plate takes five columns of the field, then four from
-                    1600 and three from 2000 — roughly 38vw, 30vw and 22vw */}
-                <Photo slot="parkAlley" sizes="(min-width: 2000px) 24vw, (min-width: 1600px) 32vw, 40vw" />
+              <Curtain className="morning__figure-plate" duration={1}>
+                <Photo
+                  slot="parkAlley"
+                  sizes="(min-width: 2000px) 22vw, (min-width: 1600px) 26vw, (min-width: 1024px) 30vw, 100vw"
+                />
               </Curtain>
+              <figcaption className="t-caption mt-3 text-ink-quiet">{t.plateCaption[locale]}</figcaption>
             </figure>
           </Reveal>
 
-          <Reveal delay={0.25} className="morning__lead-col">
-            <p className="t-lead max-w-[58ch] text-ink-2">{t.body[locale]}</p>
-          </Reveal>
-
-          <Reveal delay={0.4} className="morning__meta-col">
-            <div className="rule" />
-            <p className="t-mono mt-4 text-ink-2">
-              {t.meta[locale].split("Telegram")[0]}
-              <a href={club.telegram} className="morning-tg" rel="noopener">
-                Telegram
-              </a>
-            </p>
+          {/*
+            «Два адреса» set as two facing register blocks, bottom-aligned with
+            the plate beside them. The chapter names both addresses now instead
+            of burying one of them in the lead.
+          */}
+          <Reveal delay={0.4} className="morning__places-col">
+            <ul className="morning__places" role="list">
+              {t.places.map((place, i) => {
+                const href = i === 0 ? club.mapsHref : club.telegram;
+                return (
+                  <li key={place.where.ru} className="morning__place">
+                    <div className="rule" />
+                    <p className="t-mono morning__place-kicker">{place.kicker[locale]}</p>
+                    <h3 className="t-h3 font-display morning__place-where">{place.where[locale]}</h3>
+                    <p className="t-caption morning__place-when">
+                      {i === 0 ? club.address[locale] : place.when![locale]}
+                    </p>
+                    <p className="morning__place-note">{place.note[locale]}</p>
+                    <a
+                      href={href}
+                      className="t-mono morning__place-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {place.linkLabel[locale]} <span aria-hidden="true">&#8594;</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
           </Reveal>
         </div>
       </div>

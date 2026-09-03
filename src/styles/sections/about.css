@@ -22,9 +22,11 @@
     white space at a height chosen for a 1312 column and a 2560 page then
     reads as a squashed strip. `--pad-top` tops out at 192px (8vw × 2400).
   */
-  --pad-top: clamp(5rem, 8vw, 12rem);
-  --pad-bottom: clamp(3.5rem, 6vw, 9rem);
-  --numeral-top: var(--pad-top);
+  --pad-top: clamp(3.5rem, 4.6vw, 7rem);
+  --pad-bottom: clamp(2.5rem, 3.6vw, 5.5rem);
+  /* the numeral hangs level with the first ENTRY, not with the running head:
+     at the head's own baseline the kanji crossed the «Г» of «ГЛАВА ВТОРАЯ». */
+  --numeral-top: calc(var(--pad-top) + 4.5rem);
 
   /*
     Everything in this chapter a reader actually reads at small size — the
@@ -58,7 +60,7 @@
     against a 2376px trim, where the longer (English) line measures 1877px.
     Re-check both languages here if the copy or the display face changes.
   */
-  --promise-size: min(clamp(2.125rem, 5.9vw, 10rem), calc((100vw - 2 * var(--gutter)) / 12.9));
+  --promise-size: clamp(2.5rem, 7.4vw, 10rem);
 
   /*
     Фиг. 02 fills its column slot rather than sitting inside it as a picture —
@@ -143,8 +145,7 @@
   position: relative;
   display: grid;
   gap: 3rem 0;
-  /* was capped at 6.5rem, reached at 1486; 9.5rem is reached at 2171 */
-  margin-top: clamp(3.5rem, 7vw, 9.5rem);
+  margin-top: clamp(2.5rem, 3.7vw, 5.5rem);
 }
 
 /* Below the spread breakpoint the two pages stack, and the reading order
@@ -208,14 +209,17 @@
   display: grid;
   gap: 2.5rem 0;
 }
-.about__way-body {
-  /* ceiling was reached at 1371; 4.5rem lands at 2057 */
-  margin-top: clamp(2rem, 3.5vw, 4.5rem);
+/* Below 1024 the entry is a single stacked column and its grid `gap` already
+   spaces these blocks; adding a margin there double-counted the rhythm. */
+@media (min-width: 1024px) {
+  .about__way-body {
+    margin-top: clamp(1.5rem, 2vw, 3rem);
+  }
 }
 
 .about__prose {
   margin-top: var(--prose-gap);
-  max-width: 46ch;
+  max-width: var(--measure-lead);
   color: var(--color-ink-2);
   /*
     46ch is the measure and it stays the measure — but a `ch` is only as wide
@@ -224,7 +228,7 @@
     island. The 0.95vw term crosses 17px at 1790, so nothing below that moves,
     and tops out at 22px — a 506px measure at 2560, still 46 characters.
   */
-  font-size: clamp(1.0625rem, 0.95vw, 1.375rem);
+  font-size: clamp(1.0625rem, 1.31vw, 1.5rem);
   line-height: 1.6;
 }
 
@@ -310,9 +314,9 @@
 }
 .azuma-fig__label--tree { top: 21%; }
 .azuma-fig__label--sun { top: 46%; }
-@media (min-width: 1024px) {
-  .azuma-fig__label { display: block; }
-}
+/* The labels ARE the diagram — without them the figure is three glyphs in a
+   box. They print at every width; only the leader shortens on a narrow frame. */
+.azuma-fig__label { display: block; }
 
 /* the legend: 木 + 日 = 東, registered in one shared 109-unit square so
    the sun appears in its true seat instead of being re-centred. It is set
@@ -361,8 +365,12 @@
 /* The ledger — a printed reference table, not a UI card             */
 /* ---------------------------------------------------------------- */
 .about__ledger-wrap {
-  margin-top: clamp(2.25rem, 3.4vw, 3rem);
-  max-width: 34rem;
+  max-width: var(--measure-lead);
+}
+@media (min-width: 1024px) {
+  .about__ledger-wrap {
+    margin-top: clamp(1.75rem, 2.4vw, 2.5rem);
+  }
 }
 @media (min-width: 1024px) {
   /* in the two-column body the ledger sets beside the prose, not under it */
@@ -466,8 +474,7 @@
   and 2468px at 2560, always one gutter short of the full viewport.
 */
 .about__plate {
-  /* ceiling was reached at 1333; 7.5rem lands at 2000 */
-  margin-top: clamp(3rem, 6vw, 7.5rem);
+  margin-top: clamp(2rem, 3vw, 4.5rem);
   width: calc(100% + var(--gutter));
   margin-right: calc(var(--gutter) * -1);
 }
@@ -477,6 +484,18 @@
 @media (min-width: 640px) {
   .about__plate .about__plate-img {
     aspect-ratio: 16 / 9;
+  }
+}
+/*
+  From the spread breakpoint the plate takes the 2/1 band a full-bleed
+  photograph wants — and a fold cap, because a plate a reader cannot see whole
+  is not a plate. At 1512 that is 1443/2 = 722px, held to 589px by 62vh on a
+  950-tall screen; the crop is `object-cover` at the manifest's focal point.
+*/
+@media (min-width: 1024px) {
+  .about__plate .about__plate-img {
+    aspect-ratio: 2 / 1;
+    max-height: 62vh;
   }
 }
 .about__plate-cap {
@@ -489,8 +508,8 @@
 .about__promise {
   /* the monument needs the paper around it to grow with it: the old
      9rem/7.5rem ceilings were both reached at ~1600 */
-  margin-top: clamp(4.5rem, 9vw, 13rem);
-  margin-bottom: clamp(4rem, 7.5vw, 11rem);
+  margin-top: clamp(3rem, 4.8vw, 7.5rem);
+  margin-bottom: clamp(2.5rem, 4.2vw, 6.5rem);
 }
 .about__promise-type {
   position: relative;
@@ -661,14 +680,16 @@
   .about__prose--way {
     grid-column: 1 / span 5;
   }
-  /* the ledger hangs under the specimen, both ranged to the sheet's edge */
+  /* the ledger hangs under the specimen, both ranged to the sheet's edge.
+     Four columns, not five: at five the dot leaders ran 430px and the table
+     read as a form to fill in rather than as a printed reference. */
   .about__ledger-wrap {
-    grid-column: 8 / span 5;
+    grid-column: 9 / -1;
   }
-  /* the rule sits on the midpoint of the two empty columns between them,
+  /* the rule sits on the midpoint of the empty columns between them,
      which is the centre of the void the two blocks leave */
   .about__gutter--way {
-    grid-column: 6 / span 2;
+    grid-column: 6 / span 3;
   }
 }
 
@@ -690,9 +711,17 @@
 /* filling the slot it is given, and makes the two entries read as    */
 /* recto and verso of one glossary rather than as two arrangements.   */
 /* ---------------------------------------------------------------- */
+/* On the spread the figure fills its column slot rather than sitting inside it
+   as a picture; the 28rem cap only ever made sense for the stacked layout. */
+@media (min-width: 1024px) {
+  .about {
+    --fig-max: none;
+  }
+}
+
 @media (min-width: 1600px) {
   .about {
-    --fig-max: 48rem;
+    --fig-max: none;
   }
 
   /* 01 · the name */

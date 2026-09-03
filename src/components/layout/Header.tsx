@@ -18,9 +18,12 @@ import { EASE_OUT_EXPO } from "@/components/ui/Reveal";
 
 const copy = {
   // `switchTo` is deliberately written in the language it switches TO — it is
-  // the accessible name of an element carrying `lang={other}`, so a screen
-  // reader speaks it in that language's voice. A two-letter code makes a poor
-  // accessible name; the sighted reader still sees only "EN".
+  // part of the accessible name of an element carrying `lang={other}`, so a
+  // screen reader speaks it in that language's voice. A two-letter code makes
+  // a poor accessible name on its own, but it is what the sighted reader sees,
+  // so the label EXTENDS the visible token rather than replacing it ("EN —
+  // Switch to English"): 2.5.3 Label in Name requires the name to contain the
+  // visible label, and a speech-input user says "click EN".
   ru: { menu: "Меню", close: "Закрыть", chapter: "Глава", contents: "Содержание", skip: "К содержанию", lang: "Язык", switchTo: "Switch to English" },
   en: { menu: "Menu", close: "Close", chapter: "Chapter", contents: "Contents", skip: "Skip to content", lang: "Language", switchTo: "Переключить на русский" },
 };
@@ -31,7 +34,7 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
   const { locale, href } = useLocale();
   const t = copy[locale];
   const other = otherLocale(locale);
-  const { active } = useActiveChapter();
+  const { active, ground } = useActiveChapter();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const lenis = useLenis();
@@ -133,9 +136,17 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
       </a>
       <header
         className={cn(
-          "site-header fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-500",
+          "site-header fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,color] duration-500",
           scrolled && !open && "site-header--scrolled",
           open && "site-header--open",
+          /*
+            The bar takes the ground of whatever is behind it. Without this a
+            cream header floats over the three ink blocks — chapters 五 and 十
+            and the footer — for ~4600px of the scroll, which reads as a bug
+            rather than as chrome. The menu is always paper, so an open menu
+            wins over the ground it happens to be standing on.
+          */
+          ground === "ink" && !open && "site-header--ink",
         )}
       >
         {/*
@@ -197,7 +208,7 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
                 lang={other}
                 prefetch={false}
                 className="lang-toggle__link"
-                aria-label={t.switchTo}
+                aria-label={`${other.toUpperCase()} — ${t.switchTo}`}
               >
                 {other.toUpperCase()}
               </Link>

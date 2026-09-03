@@ -440,14 +440,19 @@ const WIDE: Config = {
     [0.93, 87],
     [1.0, 74],
   ],
-  dry: 0.66,
+  /*
+    The dry tail, retuned. Six ribbons opening from t=0.5 rendered on screen as
+    six thin horizontal lines across the right third of the sheet — CRT scan
+    lines, not a brush lifting off paper. Three splits opening at t=0.72, with
+    the ragged edge starting at 0.82 instead of 0.66, read as ink running out.
+    The mark no longer carries a photograph, so it does not need the extra
+    ribbons to keep the plate from looking like a solid bar.
+  */
+  dry: 0.82,
   gaps: [
-    { t0: 0.5, t1: 0.985, u0: -0.08, u1: -0.6, w: 31, peak: 0.72 },
-    { t0: 0.56, t1: 1.0, u0: 0.16, u1: 0.54, w: 27, peak: 0.66 },
-    { t0: 0.65, t1: 0.965, u0: -0.4, u1: -0.86, w: 17, peak: 0.7 },
-    { t0: 0.62, t1: 1.0, u0: 0.46, u1: 0.85, w: 21, peak: 0.74 },
-    { t0: 0.735, t1: 0.995, u0: 0.02, u1: -0.16, w: 13, peak: 0.8 },
-    { t0: 0.82, t1: 1.0, u0: 0.66, u1: 0.3, w: 9, peak: 0.6 },
+    { t0: 0.72, t1: 1.0, u0: -0.1, u1: -0.52, w: 22, peak: 0.78 },
+    { t0: 0.79, t1: 1.0, u0: 0.24, u1: 0.6, w: 17, peak: 0.8 },
+    { t0: 0.88, t1: 1.0, u0: -0.5, u1: -0.84, w: 10, peak: 0.82 },
   ],
   headBulge: 44,
   samples: 300,
@@ -490,12 +495,10 @@ const NARROW: Config = {
     [0.88, 111],
     [1.0, 92],
   ],
-  dry: 0.66,
+  dry: 0.84,
   gaps: [
-    { t0: 0.54, t1: 0.985, u0: -0.06, u1: -0.58, w: 32, peak: 0.72 },
-    { t0: 0.6, t1: 1.0, u0: 0.2, u1: 0.56, w: 27, peak: 0.68 },
-    { t0: 0.7, t1: 1.0, u0: 0.5, u1: 0.86, w: 18, peak: 0.74 },
-    { t0: 0.78, t1: 0.99, u0: -0.36, u1: -0.72, w: 13, peak: 0.7 },
+    { t0: 0.76, t1: 1.0, u0: -0.08, u1: -0.5, w: 22, peak: 0.8 },
+    { t0: 0.85, t1: 1.0, u0: 0.28, u1: 0.62, w: 14, peak: 0.82 },
   ],
   headBulge: 40,
   samples: 220,

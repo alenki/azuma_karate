@@ -8,8 +8,12 @@ import { media, type MediaKey } from "@/content/media";
 type PhotoProps = Omit<ImageProps, "src" | "alt" | "width" | "height"> & {
   slot: MediaKey;
   className?: string;
-  /** `bw` prints the plate in the manual's grayscale grade. */
-  grade?: "bw" | "color" | "muted";
+  /**
+   * `bw` prints the plate in the manual's grayscale grade; `duotone` presses it
+   * in the page's own two inks (see ui/DuotoneDefs); `color` leaves it alone,
+   * which the manual allows for exactly one plate — the trophies.
+   */
+  grade?: "bw" | "color" | "duotone";
   /** Fill the parent (parent must be positioned and sized). */
   fill?: boolean;
 };
@@ -22,7 +26,7 @@ export function Photo({ slot, className, grade = "bw", fill = true, sizes, prior
   const { locale } = useLocale();
   const m = media[slot];
   const gradeClass =
-    grade === "bw" ? "plate-bw" : grade === "muted" ? "plate-muted" : undefined;
+    grade === "bw" ? "plate-bw" : grade === "duotone" ? "plate-duotone" : undefined;
   return (
     <Image
       src={m.src}

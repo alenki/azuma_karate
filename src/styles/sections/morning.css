@@ -25,13 +25,13 @@
     8rem of white under a 2560-wide page reads as a squashed strip.
   */
   --morning-pad-top: 3.5rem;
-  --morning-pad-bottom: 6rem;
+  --morning-pad-bottom: 4rem;
 }
 
 @media (min-width: 768px) {
   .morning {
     --morning-pad-top: 5rem;
-    --morning-pad-bottom: 8rem;
+    --morning-pad-bottom: 5rem;
     /*
       The numeral hangs level with the eyebrow. The eyebrow's own top edge is
       plate + pad-top + the 1px rule + 1rem, and the kanji here is only
@@ -79,13 +79,13 @@
 @media (min-width: 1600px) {
   .morning {
     --morning-pad-top: 6.5rem;
-    --morning-pad-bottom: 10.5rem;
+    --morning-pad-bottom: 6.5rem;
   }
 }
 @media (min-width: 2000px) {
   .morning {
     --morning-pad-top: 8rem;
-    --morning-pad-bottom: 13rem;
+    --morning-pad-bottom: 8rem;
   }
 }
 
@@ -95,7 +95,7 @@
 .morning-plate {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 5 / 4;
   background: var(--color-paper-2);
 }
 @media (min-width: 768px) {
@@ -193,8 +193,68 @@
 .morning__title-col,
 .morning__figure-col,
 .morning__lead-col,
-.morning__meta-col {
+.morning__places-col {
   grid-column: 1 / -1;
+}
+
+/* the park plate: portrait beside the type on the spread, landscape when it
+   runs the full trim on a phone */
+.morning__figure-plate {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--color-paper-2);
+}
+@media (min-width: 1024px) {
+  .morning__figure-plate {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* «Два адреса» — the two register blocks                            */
+/* ---------------------------------------------------------------- */
+.morning__places {
+  display: grid;
+  gap: clamp(2rem, 3.4vw, 3.25rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  /* the two addresses face each other, which is the chapter's whole title */
+  .morning__places {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--col-gap);
+  }
+}
+.morning__place-kicker {
+  margin-top: 0.85rem;
+  color: var(--color-shu);
+}
+.morning__place-where {
+  margin-top: 0.35rem;
+}
+.morning__place-when {
+  margin-top: 0.5rem;
+  color: var(--color-ink);
+}
+.morning__place-note {
+  margin-top: 0.75rem;
+  max-width: 30ch;
+  color: var(--color-ink-2);
+}
+.morning__place-link {
+  display: inline-block;
+  margin-top: 1.1rem;
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-rule);
+  padding-bottom: 0.35em;
+  transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+}
+.morning__place-link:hover {
+  color: var(--color-shu);
+  border-color: var(--color-shu);
 }
 
 @media (min-width: 768px) {
@@ -220,13 +280,22 @@
     /* the lead's first line sits on the title's cap height, not on its top */
     padding-top: 0.75rem;
   }
+  /*
+    Row two used to be a 714px portrait plate beside a 60px line of mono, so
+    seven of the twelve columns stood empty for the height of the plate. The
+    plate keeps four columns; the two addresses take the other seven and are
+    registered to the plate's FOOT, so the void that is left reads as the
+    margin above a caption rather than as a hole in the sheet.
+  */
   .morning__figure-col {
-    grid-column: 1 / span 5;
+    grid-column: 1 / span 4;
     grid-row: 2;
   }
-  .morning__meta-col {
-    grid-column: 7 / -1;
+  .morning__places-col {
+    grid-column: 6 / -1;
     grid-row: 2;
+    align-self: end;
+    padding-bottom: 0.25rem;
   }
 }
 
@@ -251,25 +320,19 @@
     margin-top: 5.5rem;
   }
   .morning__lead-col {
-    grid-column: 7 / span 4;
-  }
-  .morning__meta-col {
-    grid-column: 11 / -1;
-    grid-row: 1;
-    /* starts on the lead's line, so the hairline and the lead's first line
-       are set on the same vertical */
-    padding-top: 0.75rem;
-  }
-  .morning__figure-col {
-    grid-column: 1 / span 4;
+    grid-column: 7 / span 5;
   }
 }
 @media (min-width: 2000px) {
   .morning__body {
     margin-top: 7rem;
   }
+  /* the plate gives a column back rather than growing to 969px */
   .morning__figure-col {
     grid-column: 1 / span 3;
+  }
+  .morning__places-col {
+    grid-column: 5 / -1;
   }
 }
 
@@ -281,14 +344,4 @@
   color: var(--color-ink-2);
 }
 
-/* the one link in the meta line: hairline underline, red on hover */
-.morning-tg {
-  color: var(--color-ink);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.35em;
-  transition: color var(--duration-fast) var(--ease-out);
-}
-.morning-tg:hover {
-  color: var(--color-shu);
-}
+

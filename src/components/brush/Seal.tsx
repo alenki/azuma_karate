@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { useId } from "react";
 import { cn } from "@/lib/cn";
+import { useStillness } from "@/lib/useStillness";
 import { Kanji } from "@/components/brush/Kanji";
 
 /**
@@ -31,7 +32,7 @@ export function Seal({
   label?: string;
 }) {
   const id = useId().replace(/:/g, "");
-  const reduced = useReducedMotion();
+  const reduced = useStillness();
   const target = { scale: 1, rotate: -6, opacity: 1 };
   return (
     <motion.div
@@ -39,7 +40,7 @@ export function Seal({
       role={label ? "img" : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
-      initial={reduced ? target : { scale: 1.3, rotate: -8, opacity: 0 }}
+      initial={{ scale: 1.3, rotate: -8, opacity: 0 }}
       {...(trigger === "load" ? { animate: target } : { whileInView: target, viewport: { once: true, margin: "-10% 0px" } })}
       transition={{
         duration: reduced ? 0 : 0.32,

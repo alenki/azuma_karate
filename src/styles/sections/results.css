@@ -141,6 +141,17 @@
     /* the plate is dropped below the title's cap line, not levelled with it */
     padding-top: 2.5rem;
   }
+  /*
+    The plate runs to the paper edge from the spread breakpoint, not only from
+    1600 — 1512 is where this page is actually read, and at 16/10 inside the
+    trim the picture was 433px tall in a 640px row, leaving 207px of empty ink
+    under it. Bleeding right and squaring the crop fills the column with the
+    one colour photograph the manual allows itself.
+  */
+  .results__plate-frame {
+    margin-right: calc(var(--gutter) * -1);
+    aspect-ratio: 1 / 1;
+  }
 }
 
 /* the deck (title + lead) stays stacked over the ledger up to 1600; past

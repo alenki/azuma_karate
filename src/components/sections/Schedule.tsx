@@ -83,12 +83,19 @@ export function Schedule() {
             <p className="t-lead measure-lead text-pretty text-ink-2">{t.lead[locale]}</p>
           </Reveal>
 
+          {/*
+            One action and one route, not two blocks. Set full-width and stacked
+            they were a 74px outlined box above a 74px filled box, which reads as
+            two text inputs rather than as a button pair. The Telegram button is
+            the action; the map is a printed reference, so it is set as a ruled
+            link — the same distinction the rest of the manual makes.
+          */}
           <Reveal delay={0.45} y={20} className="schedule__actions">
-            <Button variant="outline" size="lg" href={club.mapsHref} plain className="w-full">
-              {t.route[locale]}
-            </Button>
-            <Button variant="ink" size="lg" href={club.telegram} plain className="w-full">
+            <Button variant="ink" size="lg" href={club.telegram} plain className="schedule__cta">
               {t.telegram[locale]}
+            </Button>
+            <Button variant="text" href={club.mapsHref} plain className="schedule__route t-mono">
+              {t.route[locale]} <span aria-hidden="true">&#8594;</span>
             </Button>
           </Reveal>
         </div>

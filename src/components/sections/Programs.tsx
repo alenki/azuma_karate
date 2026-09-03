@@ -33,7 +33,10 @@ const OPEN_UNITS = 3;
  * the club's own, consented images — see `public/media/placeholders/`.
  */
 const PLATES: Partial<Record<GroupId, MediaKey>> = {
-  "kids-7-11": "kidsYellowBelt",
+  /* a portrait source for a portrait box: 1067x1600 crops 0% here, where the
+     1600x1200 `kidsYellowBelt` lost 41% of its width to the cover crop — and a
+     different frame from band 03's, which `kidsSparringGear` is not. */
+  "kids-7-11": "kidKicksPad",
   /* NOT `kidsKumite` — chapter 二 prints that frame near-full-bleed to answer
      «полный контакт». `kidsPadsDrill` is the tighter crop of a different
      protected bout; at 1390x1600 it crops sideways in this box and so keeps
@@ -288,17 +291,24 @@ export function Programs() {
             <LineReveal
               as="span"
               className="block"
-              bleed={0.26}
+              bleed={0.42}
               label={null}
               lines={[
                 <span key="statement">
                   {t.title1[locale]}{" "}
-                  <span className="relative inline-block mx-[0.26em]">
+                  <span className="relative inline-block mx-[0.5em]">
                     {t.titleNumber}
-                    {/* the chapter's one brush mark, and the chart's origin */}
+                    {/*
+                      The chapter's one brush mark, and the chart's origin. The
+                      ring is drawn AROUND the digit, so it must clear the
+                      letters either side of it: at 1.8em over a 0.58em digit
+                      inset by 0.26em the ink ran through the «С» and touched
+                      «лет», and the annotation read as a collision. 1.5em on a
+                      0.5em inset leaves ~0.4em of paper on both sides.
+                    */}
                     <Brush
                       kind="circle"
-                      className="pointer-events-none absolute left-1/2 top-[46%] w-[1.8em] h-auto -translate-x-1/2 -translate-y-1/2 text-shu"
+                      className="pointer-events-none absolute left-1/2 top-[46%] w-[1.5em] h-auto -translate-x-1/2 -translate-y-1/2 text-shu"
                       delay={0.8}
                     />
                   </span>{" "}

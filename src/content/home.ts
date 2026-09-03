@@ -208,7 +208,34 @@ export const morning = {
     ru: "Вечером — зал на Кирова, 157. По выходным в восемь утра — парк: бег, камни, работа в парах на траве. Так тренировался Ояма, так тренируемся мы.",
     en: "Evenings — the hall at Kirova 157. Weekends at eight in the morning — the park: running, stones, partner work on the grass. That is how Oyama trained, and how we train.",
   },
-  meta: { ru: "Утренние · Сб, Вс · 08:00 · Точку сбора публикуем в Telegram", en: "Mornings · Sat, Sun · 08:00 · Meeting point posted on Telegram" },
+  /*
+    The chapter is called «Два адреса»; before this it named only one of them
+    in running prose. The two are now set as facing register blocks, from the
+    facts the site already holds — the hall from `club.address`, the morning
+    time from the timetable. Nothing here is invented: the meeting point is
+    still the one thing the club publishes per week, in Telegram.
+  */
+  places: [
+    {
+      kicker: { ru: "Вечером", en: "Evenings" },
+      where: { ru: "Зал", en: "The hall" },
+      note: { ru: "Кихон, ката, кумитэ в защите. Все группы по расписанию.", en: "Kihon, kata, kumite in protective gear. Every group, by the timetable." },
+      linkLabel: { ru: "Построить маршрут", en: "Get directions" },
+    },
+    {
+      kicker: { ru: "По выходным", en: "Weekends" },
+      where: { ru: "Парк", en: "The park" },
+      when: { ru: "Сб, Вс · 08:00", en: "Sat, Sun · 08:00" },
+      note: { ru: "Бег, камни, работа в парах на траве. Точку сбора публикуем каждую неделю.", en: "Running, stones, partner work on the grass. The meeting point is posted every week." },
+      linkLabel: { ru: "Написать в Telegram", en: "Message us on Telegram" },
+    },
+  ],
+  /* The break is set beside the copy, not computed by counting words — the old
+     `split(" ").slice(0, 2)` only worked while both languages had four. */
+  titleLines: {
+    ru: ["Два адреса.", "Один путь."],
+    en: ["Two addresses.", "One path."],
+  },
   sunriseLabel: { ru: "Восход сегодня", en: "Sunrise today" },
   plateCaption: { ru: "Илл. 06 — парк, восемь утра.", en: "Plate 06 — the park, eight in the morning." },
 };

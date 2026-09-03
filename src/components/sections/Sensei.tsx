@@ -116,7 +116,7 @@ export function Sensei() {
             </h2>
 
             <Reveal delay={0.3} className="sensei-rank">
-              <p className="t-statement mt-6 max-w-[22ch] text-ink-2">{t.rank[locale]}</p>
+              <p className="t-statement sensei-rank__line mt-6 max-w-[24ch]">{t.rank[locale]}</p>
             </Reveal>
 
             {/* the decree is summarised in one caption line — never typeset as a
@@ -131,15 +131,17 @@ export function Sensei() {
               <p className="t-lead mt-8 max-w-[60ch]">{t.bio[locale]}</p>
             </Reveal>
 
-            {/* quote at the left; the seal pressed at the right edge, its top
-                biting ~30% into the bio's last line; the signature under it */}
+            {/* quote at the left, seal pressed at the right edge and standing
+                level with it. A seal may overlap a rule or a margin; it may not
+                overlap running text, and pulled up by half its width it sat on
+                the third line of the biography above. */}
             <div className="sensei-quote-row mt-8 grid grid-cols-[1fr_auto] items-start gap-x-6 md:gap-x-8">
               <Reveal delay={0.5}>
                 <blockquote className="sensei-quote t-accent text-[1.5rem] leading-[1.2] md:text-[2rem]">
                   <p>{t.quote[locale]}</p>
                 </blockquote>
               </Reveal>
-              <div className="sensei-stamp -mt-16 flex flex-col items-end md:-mt-20">
+              <div className="sensei-stamp flex flex-col items-end">
                 <Seal className="sensei-seal w-28 md:w-40" delay={0.7} />
                 <Reveal delay={0.55} className="mt-2">
                   <p className="sensei-signature t-accent text-right text-[1.25rem] leading-none text-shu">{t.signature[locale]}</p>

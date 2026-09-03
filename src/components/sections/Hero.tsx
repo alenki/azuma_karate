@@ -129,44 +129,33 @@ export function Hero() {
           </span>
 
           <span className="hero__deck" aria-hidden="true">
-            {/* the first stroke: vermilion, with the plate flooding in behind it */}
-            <motion.span
-              className="hero__band"
-              initial={{ clipPath: wipe(0) }}
-              animate={{ clipPath: wipe(1) }}
-              transition={{ duration: d(1.15), delay: d(0.42), ease: EASE_BRUSH }}
-            >
-              <motion.span
-                className="hero__band-plate"
-                initial={{ clipPath: wipe(0) }}
-                animate={{ clipPath: wipe(1) }}
-                transition={{ duration: d(1.2), delay: d(0.66), ease: EASE_BRUSH }}
-              >
-                <motion.span className="hero__band-img" style={{ y: driftY, x: leanX }}>
-                  {/* The band is 104.4vw of the sheet and this box is inset -3%
-                      on each side for the lean, so the file is asked for 112vw
-                      rather than the 110vw the old 82rem column needed. */}
-                  <Photo slot="heroStroke" grade="color" sizes="112vw" preload fetchPriority="high" />
-                </motion.span>
-                <span className="hero__band-scrim" />
-                <span className="grain hero__band-grain" />
-              </motion.span>
-            </motion.span>
-
-            {/* the second line, set twice: ink on the paper, bone in the ink */}
             <span className="hero__line">
               <motion.span
                 className="hero__line-in"
                 initial={RISE}
                 animate={SET}
-                transition={{ duration: d(1.1), delay: d(0.72), ease: EASE_OUT_EXPO }}
+                transition={{ duration: d(1.1), delay: d(0.4), ease: EASE_OUT_EXPO }}
               >
-                <span className="hero__knockout">
-                  {line2}
-                  <span className="hero__knockout-lit">{line2}</span>
-                </span>
+                {line2}
               </motion.span>
             </span>
+
+            {/*
+              The first stroke. It is the mark and nothing else now: pure
+              vermilion, laid straight across the sheet under the headline and
+              running off the right trim. It used to carry the hero photograph
+              inside it as a mask — an idea that read, at screen resolution, as
+              a torn JPEG: the plate was squeezed to 7.5:1 and unreadable, and
+              the dry tail's bristle ribbons looked like scan lines. The
+              photograph now has its own frame in the register below, where it
+              can be seen, and the brush is allowed to be a brush.
+            */}
+            <motion.span
+              className="hero__band"
+              initial={{ clipPath: wipe(0) }}
+              animate={{ clipPath: wipe(1) }}
+              transition={{ duration: d(1.15), delay: d(0.62), ease: EASE_BRUSH }}
+            />
           </span>
         </h1>
 
@@ -183,10 +172,17 @@ export function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: d(0.85), delay: d(1.05), ease: EASE_OUT_EXPO }}
       >
-        <div className="hero__colophon">
-          <p className="t-caption">{hero.plateCaption[locale]}</p>
-          <p className="t-mono hero__hand">{hero.hand[locale]}</p>
-        </div>
+        <figure className="hero__colophon">
+          {/* the photograph, at last legible: its own frame, its own crop, its
+              own caption — and the LCP element of the page */}
+          <motion.div className="hero__plate" style={{ y: driftY, x: leanX }}>
+            <Photo slot="heroStroke" sizes="(min-width: 1440px) 24vw, (min-width: 640px) 34vw, 92vw" preload fetchPriority="high" />
+          </motion.div>
+          <figcaption className="hero__colophon-text">
+            <p className="t-caption">{hero.plateCaption[locale]}</p>
+            <p className="t-mono hero__hand">{hero.hand[locale]}</p>
+          </figcaption>
+        </figure>
         {/* The lead and the offer are one block until the sheet is wide enough
             to range them on two verticals of their own; from 1440 `.hero__pitch`
             is `display: contents` and its two halves are placed straight onto

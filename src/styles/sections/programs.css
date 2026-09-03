@@ -58,7 +58,11 @@
      languages — EN «Adults» carries two time lines and is only 3 units wide.
      If a note grows the band grows with it; the scale then stops being
      uniform, which is safe but is the thing to re-check after a copy edit. */
-  --year: 3.5rem;
+  /* the base tier had the LARGEST unit of any tier below 1600 — 27% bigger
+     than the 768 tier — which is why the chapter inflated on a phone instead
+     of compacting. 46px still clears band 04's 124.7px of content over three
+     years with 13px to spare. */
+  --year: 2.875rem;
   --axis-w: 2.5rem;
   --rail-w: 0rem;
   --chart-gap: 0.875rem;
@@ -649,9 +653,19 @@
   bottom: 0;
   width: var(--plate-w);
 }
+/*
+  On a phone the plate comes out of the band's corner and into flow at its
+  foot, rather than being deleted: absolutely positioned it would cover the
+  row's own type, but the band has spare paper below the note and a 3:2 plate
+  fits it. Hiding it left chapter 三 with no picture of a child training at all
+  on the screen most parents open it on.
+*/
 @media (max-width: 767.98px) {
   .chart .band__plate {
-    display: none;
+    position: static;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    margin-top: 1rem;
   }
 }
 
@@ -660,7 +674,10 @@
 /* ---------------------------------------------------------------- */
 .band--rail {
   grid-column: 1 / -1;
-  grid-row: 5;
+  /* supplied by the JSX from `groups.length`, so adding or removing a group
+     cannot collide with a hardcoded row — which is what the note at the top of
+     Zone B promises and what `grid-row: 5` quietly broke */
+  grid-row: var(--row);
   min-height: 0;
   /* the chart closes on its own dotted rule; the rail is stated after it, so
      it needs clear paper or the two sets of rules collide */
@@ -779,9 +796,12 @@
     min-height: 0;
   }
   .band--rail .rail__plate {
-    aspect-ratio: auto;
-    flex: 1;
-    min-height: 12rem;
+    /* the source's own 0.562 proportion, so nothing is cropped and the plate
+       cannot stretch to whatever height the four bands happen to leave — at
+       `flex: 1` it became a 1:2.35 vertical letterbox with no aspect discipline */
+    aspect-ratio: 9 / 16;
+    flex: none;
+    min-height: 0;
   }
   /* the rail's own line, running the full height of all four bands */
   .band--rail::before {

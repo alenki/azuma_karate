@@ -51,25 +51,29 @@ a pressed head, thinning belly and lifted tail) and revealed through an SVG
 mask, so the ink appears under the bristles rather than fading in. The kanji
 and the 正 tally use KanjiVG stroke-order data (CC BY-SA 3.0, Ulrich Apel).
 
-Chapter one carries the same mark at poster scale, and the hero photograph
-lives *inside* it. `scripts/gen-hero-stroke.ts` writes four silhouettes into
-`public/brand/` — a wide mark and a short thick one for phones, each with a
-copy eroded by a couple of units:
+Chapter one carries the same mark at poster scale, laid straight across the
+sheet under the headline and running off the right trim.
+`scripts/gen-hero-stroke.ts` writes the silhouettes into `public/brand/` — a
+wide mark and a short thick one for phones:
 
 ```bash
 npx tsx scripts/gen-hero-stroke.ts        # regenerate the hero's 一
 HERO_PROOF_DIR=./proofs npx tsx scripts/gen-hero-stroke.ts   # + PNG proof sheets
 ```
 
-CSS masks the plate to the eroded silhouette and the stroke itself to the outer
-one, so a hairline of vermilion survives around the whole gesture and the
-bristle traces too thin to hold an image stay pure pigment. The headline's
-second line is set twice in the same box — once in ink, once in bone masked to
-that same silhouette — so the same words print black above the stroke and light
-inside it, cut on exactly the contour the brush left. If the headline copy or
-the display face changes, re-measure `heroFit` in `src/content/home.ts`: the
-hero divides the measure by those numbers to set the type to the exact width
-in both languages.
+The stroke is the mark and nothing else: pure vermilion, masked from that
+silhouette. An earlier version carried the hero photograph *inside* it, and it
+did not survive contact with a screen — the plate was squeezed to 7.5:1 and
+unreadable, and the dry tail's six bristle ribbons rendered as scan lines. The
+photograph now has its own 2:1 frame in the register below, where it can
+actually be seen, and the tail is three splits opening at 72% of the stroke
+rather than six at 50%.
+
+If the headline copy or the display face changes, re-measure `heroFit` in
+`src/content/home.ts`: the hero divides the measure by those numbers to set the
+type to the exact width in both languages. The chapter is exactly `100svh`, and
+`--fold-fixed` in `hero.css` is the measured height of everything that is *not*
+the headline — re-measure it if the register gains or loses a row.
 
 ## Before this can go live
 
@@ -96,6 +100,12 @@ Everything below is a placeholder and needs the client's confirmation:
   season timeline (`src/content/home.ts`).
 - **Reviews.** The three parent quotes are illustrative. Real quotes need
   written consent, as do photographs of children.
+- **The morning plate.** It is graded through a real duotone
+  (`src/components/ui/DuotoneDefs.tsx`) that maps the image's luminance onto the
+  line from `--color-ink` to `--color-paper`, so a photograph is printed in the
+  two inks the page uses rather than merely desaturated. The client's own
+  photograph passes through the same filter, so nothing in a replacement can
+  introduce a second hue.
 - **Sign-up form.** It validates and simulates success; it has no backend yet.
   The Telegram link is the working route in the meantime.
 

@@ -350,9 +350,7 @@
   .sensei-seal {
     width: var(--seal-size);
   }
-  .sensei-stamp {
-    margin-top: calc(var(--seal-size) * -0.5);
-  }
+  /* no negative pull: the seal stands level with the quote it signs. */
   .sensei-signature {
     font-size: clamp(1.25rem, 1.1vw, 1.75rem);
   }
@@ -387,4 +385,50 @@
 .sensei-figure:focus-within .sensei-plate__color,
 .sensei-figure[data-colour="on"] .sensei-plate__color {
   opacity: 1;
+}
+
+
+/* ------------------------------------------------------------------ */
+/* The rank                                                            */
+/*                                                                     */
+/* «Мастер спорта международного класса» is the fact a parent is        */
+/* actually weighing, and it was set in --color-ink-2, the same tone as */
+/* the folios and the figure list. It prints in full ink now and is     */
+/* ruled off above like an award line rather than like a caption.       */
+/* ------------------------------------------------------------------ */
+.sensei-rank__line {
+  color: var(--color-ink);
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--color-rule);
+}
+
+/*
+  Below the spread the seal stops sharing a row with the quote: at 390 the
+  fixed seal track left the Cormorant italic 55% of the trim and four savagely
+  ragged lines. The quote takes the full measure and the seal is pressed under
+  it, ranged right, where a signature belongs.
+*/
+@media (max-width: 767px) {
+  .sensei-quote-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sensei-stamp {
+    margin-top: 1.75rem;
+    align-items: flex-end;
+  }
+}
+
+
+/*
+  The seal is pressed from `scale(1.3)`, and until it is scrolled into view it
+  sits at that start state — 164px of bounding box for a 112px stamp, ranged to
+  the trim, which put 6px of it past the paper edge and gave the document a real
+  6px of horizontal scroll on a 375px screen. (`body { overflow-x: clip }` does
+  not stop the document scrolling sideways when a child bleeds past the page —
+  the same note the hero's stage carries.) The chapter clips its own axis, the
+  way `.morning` and the footer already do; nothing is lost, because the mark's
+  rest state is well inside the trim.
+*/
+.sensei {
+  overflow-x: clip;
 }

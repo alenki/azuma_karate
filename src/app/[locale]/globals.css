@@ -224,8 +224,17 @@
 .plate-bw {
   filter: grayscale(1) sepia(0.12) contrast(1.05);
 }
-.plate-muted {
-  filter: saturate(0.72) contrast(1.02);
+/*
+  The morning spread's grade. `saturate(0.72)` kept 72% of the chroma, so a
+  full-colour sunrise stayed a full-colour sunrise — a second dominant hue on a
+  page whose whole premise is paper, ink and one vermilion. This maps the
+  plate's luminance onto the line from ink to paper instead, so a photograph is
+  printed in the two inks the page is already using. `grayscale(1)` leads so
+  that a browser which cannot resolve the filter reference still degrades to a
+  monochrome plate rather than to the original colour. See ui/DuotoneDefs.
+*/
+.plate-duotone {
+  filter: grayscale(1) contrast(1.04) url("#duotone-paper-ink");
 }
 
 /* paper and ink grounds */
@@ -299,6 +308,72 @@
 }
 .site-header--open {
   background: var(--color-paper);
+}
+
+/* ------------------------------------------------------------------ */
+/* The bar over an ink chapter                                         */
+/*                                                                     */
+/* The header is furniture printed on the page, not a panel floating   */
+/* above it, so it takes the ground it stands on. Everything in the    */
+/* bar is re-stated in the ink ramp — including the accent, which      */
+/* becomes `--color-shu-lift`, the only red that clears 4.5:1 on ink.   */
+/* The bar is transparent until it is scrolled, so an unscrolled ink    */
+/* header simply inherits the chapter's own black.                      */
+/* ------------------------------------------------------------------ */
+.site-header--ink {
+  color: var(--color-bone);
+}
+.site-header--ink.site-header--scrolled {
+  background: color-mix(in oklab, var(--color-ink) 92%, transparent);
+  box-shadow: 0 1px 0 var(--color-rule-dark);
+}
+.site-header--ink .wordmark,
+.site-header--ink .wordmark-tag {
+  color: var(--color-shu-lift);
+}
+.site-header--ink .nav-link,
+.site-header--ink .menu-toggle,
+.site-header--ink .lang-toggle {
+  color: var(--color-bone);
+}
+/*
+  The running head is printed with a `text-ink-2` utility, which is #5A554E —
+  6.4:1 on paper but 2.1:1 on ink. A utility beats an unlayered rule on the
+  parent, so the ink ramp's own secondary tone has to be set on the element
+  itself and marked, which is the one place in this file that earns it.
+*/
+.site-header--ink .site-header__head-text {
+  color: var(--color-bone-2) !important;
+}
+.site-header--ink .nav-link::after {
+  background: var(--color-shu-lift);
+}
+.site-header--ink .lang-toggle__current {
+  text-decoration-color: var(--color-shu-lift);
+}
+.site-header--ink .lang-toggle__rule {
+  background: var(--color-rule-dark);
+}
+.site-header--ink .lang-toggle__link {
+  /* #A8A196 on #151311 is 6.6:1 — the ink ramp's own secondary text tone */
+  color: var(--color-bone-2);
+}
+.site-header--ink .lang-toggle__link:hover {
+  color: var(--color-shu-lift);
+}
+/* the CTA inverts with the ground: ink-on-paper becomes bone-on-ink */
+.site-header--ink .btn-ink {
+  background: var(--color-bone);
+  color: var(--color-ink);
+  border-color: var(--color-bone);
+}
+.site-header--ink .btn-ink:hover {
+  background: var(--color-shu-lift);
+  border-color: var(--color-shu-lift);
+  color: var(--color-ink);
+}
+.site-header--ink :where(a, button):focus-visible {
+  outline-color: var(--color-shu-lift);
 }
 .nav-link {
   position: relative;
@@ -420,13 +495,24 @@
   transition: color var(--duration-fast) var(--ease-out);
 }
 .footer-link:hover { color: var(--color-shu-lift); }
+/*
+  The belt ladder's rule. A track in the ink ramp with a bone fill that reaches
+  `--fill` of the way across — one seventh further per rank, solid at black.
+  No dye, no second hue: the distance IS the rank.
+*/
 .belt-swatch {
+  position: relative;
   display: inline-block;
-  width: 2.25rem;
-  height: 0.5rem;
-  /* a bone hairline so the black belt still reads against the ink ground */
-  border: 1px solid color-mix(in oklab, var(--color-bone-2) 55%, transparent);
-  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 4px);
+  width: 2.75rem;
+  height: 0.4rem;
+  background: color-mix(in oklab, var(--color-bone-2) 22%, transparent);
+}
+.belt-swatch::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--fill, 0%);
+  background: var(--color-bone);
 }
 
 /* mobile bar */
@@ -472,13 +558,30 @@
 /* chapters */
 .chapter {
   --binding: var(--gutter);
+  /*
+    The header is fixed, so an anchor jump would otherwise land the chapter's
+    own title behind it. One declaration here covers every in-page link on the
+    site — the nav, the contents menu, the mobile bar and each chapter's own
+    "see also" links — and the extra 1.5rem keeps the running head clear of the
+    bar rather than flush against it.
+  */
+  scroll-margin-top: calc(var(--header-h) + 1.5rem);
 }
 .chapter__numeral {
   position: absolute;
   top: var(--numeral-top, clamp(2rem, 6vw, 5rem));
-  /* the binding margin. The numeral must end clear of the trim: at 2560 it
-     starts 24px in, is 44px wide, and the gutter is 92px — 24px of paper. */
-  left: clamp(0.75rem, 1.6vw, 1.5rem);
+  /*
+    The numeral lives IN the binding margin, not merely near it. Given a fixed
+    `left` and a `clamp()` width, the glyph's right edge and the trim grow at
+    different rates, and between roughly 1024 and 1600 the kanji crossed the
+    trim and printed on top of the running head — 二 through the «Г» of «ГЛАВА
+    ВТОРАЯ», and the same in chapters 06, 07, 09 and 10. Binding the box to the
+    gutter makes the collision impossible at every width instead of tuned away
+    at a few: the glyph is capped to what the margin can actually hold.
+  */
+  left: 0;
+  width: var(--binding);
+  padding-inline: 0.25rem 0.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -488,7 +591,7 @@
 }
 .ground-ink .chapter__numeral { color: var(--color-bone); }
 .chapter__kanji {
-  width: clamp(1.5rem, 2.4vw, 2.75rem);
+  width: min(clamp(1.5rem, 2.4vw, 2.75rem), calc(var(--binding) - 0.75rem));
   height: auto;
 }
 .chapter__folio {

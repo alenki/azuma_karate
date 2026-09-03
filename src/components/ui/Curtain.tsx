@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { motion, useInView } from "motion/react";
 import { useRef, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { useStillness } from "@/lib/useStillness";
 import { EASE_OUT_EXPO } from "./Reveal";
 
 type CurtainProps = {
@@ -35,7 +36,7 @@ const INSET: Record<NonNullable<CurtainProps["from"]>, string> = {
 export function Curtain({ children, className, delay = 0, duration = 1.1, from = "bottom", scale = 1.06, mode = "view", margin = "-12% 0px -8% 0px" }: CurtainProps) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: margin as never });
-  const reduced = useReducedMotion();
+  const reduced = useStillness();
   const shown = mode === "load" || inView;
   const closed = INSET[from];
   const open = "inset(0% 0% 0% 0%)";
@@ -43,13 +44,13 @@ export function Curtain({ children, className, delay = 0, duration = 1.1, from =
     <div ref={ref} className={cn("relative overflow-hidden", className)}>
       <motion.div
         className="absolute inset-0"
-        initial={{ clipPath: reduced ? open : closed }}
+        initial={{ clipPath: closed }}
         animate={{ clipPath: shown || reduced ? open : closed }}
         transition={{ duration: reduced ? 0 : duration, delay: reduced ? 0 : delay, ease: EASE_OUT_EXPO }}
       >
         <motion.div
           className="absolute inset-0"
-          initial={{ scale: reduced ? 1 : scale }}
+          initial={{ scale }}
           animate={{ scale: shown || reduced ? 1 : scale }}
           transition={{ duration: reduced ? 0 : duration * 1.4, delay: reduced ? 0 : delay, ease: EASE_OUT_EXPO }}
         >

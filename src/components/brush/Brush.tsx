@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { motion, useInView } from "motion/react";
 import { useId, useRef } from "react";
 import { cn } from "@/lib/cn";
+import { useStillness } from "@/lib/useStillness";
 import { brushMarks, type BrushKind } from "./marks";
 
 export const EASE_BRUSH = [0.3, 0.02, 0.15, 1] as const;
@@ -61,7 +62,7 @@ export function Brush({
 }: BrushProps) {
   const mark = brushMarks[kind];
   const id = useId().replace(/:/g, "");
-  const reduced = useReducedMotion();
+  const reduced = useStillness();
   const ref = useRef<SVGSVGElement>(null);
   const inView = useInView(ref, { once: true, margin: margin as never });
   const total = duration ?? DURATIONS[kind];
@@ -106,7 +107,7 @@ export function Brush({
                 strokeWidth={mark.thick * 1.25}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                initial={reduced || trigger === "load" ? (drawing ? drawn : hidden) : hidden}
+                initial={trigger === "load" && drawing ? drawn : hidden}
                 animate={drawing ? drawn : hidden}
                 transition={transition}
               />

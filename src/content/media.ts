@@ -154,6 +154,13 @@ export const media = {
     ru: "Дети в шлемах и защите в учебном бою",
     en: "Children in headgear and body protection during a practice bout",
   }, "50% 35%"),
+  /* a 1067x1600 portrait, and — unlike `kidsSparringGear` — not another crop of
+     the same frame as `kidsPadsDrill`, so two adjacent bands of chapter 三 no
+     longer print the same photograph twice. */
+  kidKicksPad: ph("kid-kicks-pad-coach.jpg", 1067, 1600, {
+    ru: "Ребёнок отрабатывает удар по лапе, которую держит тренер",
+    en: "A child kicking a pad held by the coach",
+  }, "50% 35%"),
   kidsSparringGear: ph("kids-sparring-gear.jpg", 1066, 1600, {
     ru: "Дети в защитной экипировке на тренировке",
     en: "Children in protective gear at training",

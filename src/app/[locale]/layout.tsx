@@ -5,6 +5,7 @@ import { isLocale, locales, type Locale } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 import { MotionProvider } from "@/components/providers/MotionProvider";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
+import { DuotoneDefs } from "@/components/ui/DuotoneDefs";
 import "./globals.css";
 
 /* Display: a single-weight Cyrillic-native serif — the printed manual has no bold. */
@@ -79,6 +80,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
       className={`${prata.variable} ${golos.variable} ${plexMono.variable} ${cormorant.variable} ${unbounded.variable} antialiased`}
     >
       <body>
+        <DuotoneDefs />
         <LocaleProvider locale={typedLocale}>
           <MotionProvider>
             <SmoothScroll>{children}</SmoothScroll>
