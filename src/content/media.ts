@@ -7,6 +7,16 @@ import type { Locale } from "@/i18n/config";
  * photography can replace the Wikimedia Commons placeholders by editing this
  * file only. Credits for the placeholders live in
  * `public/media/placeholders/CREDITS.md`. All entries below are placeholders.
+ *
+ * `placeholder: true` is the photographic form of the PENDING FACTS convention
+ * stated in `home.ts`: the slot is reserved and its shape is known, but what
+ * fills it is not the club's yet. A consumer may use it to hold back anything
+ * that would assert the photograph is the club's own — a caption naming a
+ * person, a place or an event, or a credit line.
+ *
+ * Alt texts here carry no bound spaces (the BOUND SPACES rule in `home.ts`
+ * applies to typeset copy only). Alt text is never set in a box, so it has no
+ * line to break, and U+00A0 buys a screen reader nothing.
  */
 export type MediaSlot = {
   src: string;

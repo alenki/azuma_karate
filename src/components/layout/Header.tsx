@@ -5,7 +5,7 @@ import "@/styles/sections/chrome.css";
 import Link from "next/link";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useLenis } from "lenis/react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/cn";
 import { localeHref, otherLocale } from "@/i18n/config";
 import { useLocale } from "@/i18n/LocaleProvider";
@@ -14,7 +14,7 @@ import { club } from "@/content/schedule";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { useActiveChapter } from "./ChapterContext";
-import { EASE_OUT_EXPO } from "@/components/ui/Reveal";
+import { EASE_OUT } from "@/lib/ease";
 
 const copy = {
   // `switchTo` is deliberately written in the language it switches TO — it is
@@ -29,6 +29,35 @@ const copy = {
 };
 
 export type ChapterLink = { id: string; index: number; title: string };
+
+/*
+  THE FOUR PRINTED SECTIONS ARE CHAPTERS, NOT ROUTES.
+
+  `navItems` points at /about, /schedule, /gallery and /contacts. The app has
+  exactly one route — this is the home page, by design, in this phase — so all
+  four were 404s, and they are printed three times over (the bar, the contents
+  page, the colophon): twelve live-looking links in the manual's own furniture
+  leading to Next's default error screen, in system sans, with no paper and no
+  ink on it.
+
+  Until those routes ship, each label is re-pointed at the chapter that already
+  answers it. «Галерея» goes to 五 Хроника, which is where the plates are, and
+  «Контакты» to 十 Запись, which is where a reader who wants the club is
+  actually going. The map lives here rather than in `content/nav` because it is
+  not a fact about the club — it is a fact about which pages exist this month,
+  and it is deleted the day they do.
+*/
+const SECTION_ANCHOR: Record<string, string> = {
+  "/about": "about",
+  "/schedule": "schedule",
+  "/gallery": "results",
+  "/contacts": "join",
+};
+
+/** The chapter id a printed section label points at. Shared with the colophon. */
+export function sectionAnchor(routeHref: string): string {
+  return SECTION_ANCHOR[routeHref] ?? routeHref.replace(/^\//, "");
+}
 
 export function Header({ chapters }: { chapters: ChapterLink[] }) {
   const { locale, href } = useLocale();
@@ -161,13 +190,23 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
               <Logo />
             </Link>
 
-            {/* prefetch is off on nav links: those routes ship in a later phase */}
+            {/* in-page anchors, not routes — see SECTION_ANCHOR above. Because
+                they are anchors they can also say where the reader is, which
+                four dead links could not. */}
             <nav aria-label={locale === "ru" ? "Основная навигация" : "Primary"} className="hidden xl:flex items-center gap-7">
-              {navItems.map((item) => (
-                <Link key={item.href} href={href(item.href)} prefetch={false} className="nav-link t-mono">
-                  {item.label[locale]}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const id = sectionAnchor(item.href);
+                return (
+                  <a
+                    key={item.href}
+                    href={`#${id}`}
+                    className="nav-link t-mono"
+                    aria-current={active?.id === id ? "location" : undefined}
+                  >
+                    {item.label[locale]}
+                  </a>
+                );
+              })}
             </nav>
           </div>
 
@@ -180,7 +219,7 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.35, ease: EASE_OUT_EXPO }}
+                  transition={{ duration: 0.35, ease: EASE_OUT }}
                 >
                   {t.chapter} {String(active.index).padStart(2, "0")} · {active.title}
                 </motion.span>
@@ -232,7 +271,29 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
               aria-controls={menuId}
               onClick={() => setOpen((v) => !v)}
             >
-              {open ? t.close : t.menu}
+              {/*
+                The handle's mark is the manual's binding: one hairline per
+                chapter, stacked like the edges of ten leaves, with the chapter
+                the reader is in drawn full length. So the control says both
+                what it opens and where the reader is — and it says the second
+                by length and weight, never by hue (1.4.1, and red has three
+                jobs on this page and this is not one of them).
+
+                `--i` is the leaf's index, which is what lets the stack close
+                onto its first leaf when the contents page opens: see
+                chrome.css §2a. Ornament, so the whole stack is aria-hidden and
+                the accessible name is the word beside it.
+              */}
+              <span className="menu-toggle__binding" aria-hidden="true">
+                {chapters.map((c, i) => (
+                  <span
+                    key={c.id}
+                    style={{ "--i": i } as CSSProperties}
+                    className={cn("menu-toggle__leaf", active?.id === c.id && "menu-toggle__leaf--here")}
+                  />
+                ))}
+              </span>
+              <span className="menu-toggle__label">{open ? t.close : t.menu}</span>
             </button>
           </div>
         </div>
@@ -251,7 +312,7 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.35, ease: EASE_OUT_EXPO }}
+            transition={{ duration: 0.35, ease: EASE_OUT }}
           >
             {/*
               The contents page. Three blocks — the entries, the ten chapters,
@@ -266,13 +327,13 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
                     key={item.href}
                     initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.05 + i * 0.05, ease: EASE_OUT_EXPO }}
+                    transition={{ duration: 0.7, delay: 0.05 + i * 0.05, ease: EASE_OUT }}
                     className="border-b border-rule"
                   >
-                    <Link href={href(item.href)} prefetch={false} className="menu__link t-display" onClick={() => setOpen(false)}>
+                    <a href={`#${sectionAnchor(item.href)}`} className="menu__link t-display" onClick={() => setOpen(false)}>
                       <span className="menu__index t-mono">{String(i + 1).padStart(2, "0")}</span>
                       {item.label[locale]}
-                    </Link>
+                    </a>
                   </motion.div>
                 ))}
               </nav>

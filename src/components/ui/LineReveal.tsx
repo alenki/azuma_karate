@@ -3,7 +3,7 @@
 import { motion, useInView } from "motion/react";
 import { useRef, type ElementType, type ReactNode, type Ref } from "react";
 import { cn } from "@/lib/cn";
-import { EASE_OUT_EXPO } from "./Reveal";
+import { EASE_OUT } from "@/lib/ease";
 
 type LineRevealProps = {
   /** One entry per visual line. Entries can be strings or rich nodes. */
@@ -19,6 +19,8 @@ type LineRevealProps = {
   duration?: number;
   mode?: "load" | "view";
   margin?: string;
+  /** How much of the block must be inside `margin` before the lines run. */
+  amount?: number | "some" | "all";
   /** Extra vertical padding so descenders are not clipped by the mask, in em. */
   bleed?: number;
   id?: string;
@@ -39,6 +41,11 @@ type LineRevealProps = {
  * And the animated lines are hidden from assistive technology, with the full
  * text exposed once in a visually hidden span — never as an `aria-label`,
  * which would silently win over the real content.
+ *
+ * Nothing here sets `will-change` by hand. Motion adds the hint for the life
+ * of the transform and drops it again; the class that used to be hardcoded
+ * here promoted sixteen large display lines to permanent compositor layers
+ * for a rise that is over in the first second of their chapter.
  */
 export function LineReveal({
   lines,
@@ -50,12 +57,13 @@ export function LineReveal({
   duration = 1.1,
   mode = "view",
   margin = "-12% 0px -8% 0px",
+  amount,
   bleed = 0.12,
   id,
   label,
 }: LineRevealProps) {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: margin as never });
+  const inView = useInView(ref, { once: true, margin: margin as never, amount });
   const shown = mode === "load" ? true : inView;
 
   const derived = lines.map((l) => (typeof l === "string" ? l : "")).join(" ").trim();
@@ -73,10 +81,10 @@ export function LineReveal({
           style={{ paddingBlock: `${bleed}em`, marginBlock: `-${bleed}em` }}
         >
           <motion.span
-            className="block origin-left will-change-transform"
+            className="block origin-left"
             initial={{ y: "112%", rotate: 1.5 }}
             animate={shown ? { y: "0%", rotate: 0 } : { y: "112%", rotate: 1.5 }}
-            transition={{ duration, delay: delay + i * stagger, ease: EASE_OUT_EXPO }}
+            transition={{ duration, delay: delay + i * stagger, ease: EASE_OUT }}
           >
             {line}
           </motion.span>

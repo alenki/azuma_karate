@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="SK AZUMA">
+  <!--
+    The first stroke — 一 — on the sheet. The page is named after this mark and
+    it is the only thing on the page that is vermilion, so it is also the whole
+    icon: paper edge to edge, one stroke pressed across it.
+
+    Drawn by hand rather than taken from `public/brand/hero-stroke.svg` or from
+    `brushMarks.ichi`, both of which are real brush outlines with a dry bristle
+    tail. At 16px a bristle tail is a row of sub-pixel slivers and reads as a
+    frayed edge, not as ink; and both marks are 5.5:1 or wider, which in a
+    square tile leaves a 2px bar. So this is the same gesture cut for the size:
+    ~5.5 units of thickness (2.7px at 16px), a blunt pressed head on the left,
+    one dry release on the right, and the slight rise to the right that a 一
+    always has. Solid, no interior detail — nothing here can drop out.
+
+    Paper ground on purpose, in both colour schemes: the icon is a sheet with a
+    mark on it, and a transparent tile would put vermilion straight onto the
+    browser's own dark chrome at 2.1:1.
+  -->
+  <rect width="32" height="32" fill="#f3efe6" />
+  <path
+    fill="#c41e2a"
+    d="M4.9 14.2
+       C9 13.7 13 13.55 17 13.45
+       C21 13.35 25 12.95 28.6 12.3
+       C29.5 12.15 29.7 12.75 29.3 13.2
+       C27.6 14.7 25.5 15.8 22.5 16.9
+       C17 18.4 10 19.3 4.6 19.9
+       C3.35 20.05 2.95 18.8 3 17.4
+       C3.05 15.9 3.7 14.6 4.9 14.2 Z"
+  />
+</svg>

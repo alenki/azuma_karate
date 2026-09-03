@@ -3,27 +3,42 @@
 /*                                                                      */
 /* The page's first ink spread. Its subject is a COUNT, so the chapter   */
 /* is set as a ledger page: three counted rows, a season listed as a     */
-/* printed timeline, and one closing note. Now that the sheet is the     */
-/* viewport, the composition changes shape twice as the paper grows      */
-/* instead of stretching one layout drawn for a 1312 column:             */
+/* printed timeline, and a colophon that closes it. Now that the sheet   */
+/* is the viewport, the composition changes shape twice as the paper     */
+/* grows instead of stretching one layout drawn for a 1312 column:       */
 /*                                                                      */
-/*   < 768   one column. Every row stacks; no binding margin exists.     */
+/*   < 1024  one column. Every row stacks; no binding margin exists.     */
 /*   ≥ 1024  two fields on the shared twelve-column page grid — the      */
-/*           ledger in 1–6, the one colour plate in 8–12.                */
+/*           ledger in 1–6, the plate in 8–12.                           */
 /*   ≥ 1600  the deck leaves the ledger column: the title runs across    */
 /*           1–7, the lead stands alone in 9–12 on the title's baseline, */
-/*           and the counted rows become single LEDGER LINES —           */
-/*           label · 正 marks · numeral, all on one baseline — instead   */
-/*           of a label stacked over its marks. The plate drops its      */
-/*           trim on the right and bleeds to the paper edge.             */
+/*           and the counted rows become single LEDGER LINES — a label   */
+/*           rail, then the count on one baseline — instead of a label   */
+/*           stacked over its marks. The plate drops its trim on the     */
+/*           right and bleeds to the paper edge.                         */
 /*                                                                      */
-/* Three things must survive any later edit:                             */
+/* THE COUNT IS ONE RUN. The 正 marks and the arabic figure are items of */
+/* the same wrapping flex line, because a ledger writes the total at the */
+/* END of the strokes. The figure used to be ranged to the far trim,     */
+/* which printed every count twice at full weight with half a sheet of   */
+/* black between the two halves, and left a two-glyph orphan on a phone  */
+/* because the numeral was holding a column the marks needed. What the   */
+/* run leaves over is a rag on the right, and the rag is the point: the  */
+/* length of the run IS the size of the count.                           */
+/*                                                                      */
+/* Four things must survive any later edit:                              */
 /*   · Quiet type on this ground is --color-bone-2 (5.6:1 on ink);       */
 /*     --color-bone is the loud one. --color-ink-3 never appears here.   */
 /*   · Every hairline on the ink ground is --color-rule-dark.            */
+/*   · The chapter spends its vermilion ONCE, on the sensei's mark under */
+/*     the closing record. A tally is not a mark the sensei is making,   */
+/*     it is a count, so it is set in the ink ramp: complete fives quiet, */
+/*     the open five loud. That tone only backs up a difference the      */
+/*     reader can already see — the last character is unfinished — so    */
+/*     nothing here is signalled by colour.                              */
 /*   · The 正 marks are aria-hidden ornament — the count is announced    */
-/*     once, by the sr-only label on the arabic numeral. Growing the     */
-/*     glyphs must never turn them into content.                         */
+/*     once, by the label and the figure beside them, both real text.    */
+/*     Growing the glyphs must never turn them into content.             */
 /* ------------------------------------------------------------------ */
 
 .results {
@@ -36,20 +51,35 @@
   */
   --pad-block: 7rem;
 
-  /* the counted row's three parts, sized against the field they stand in
-     rather than against the old column — see .tally-row below */
-  --tally-glyph: 2rem;
-  --tally-gap-x: 0.65rem;
+  /*
+    The counted row's three parts, sized against the FIELD the run has to fit
+    in rather than against taste. The worst case is 41 — eight 正 plus a
+    one-stroke partial, NINE glyphs — followed by a two-figure numeral, and
+    the run may not need a second line to hold it:
+
+      390   trim 350. 9×24 + 8×6 + 11 + 42 = 319.
+      1024  ledger field 467 (six of twelve columns).
+            9×32 + 8×10 + 19 + 53 = 440.
+      1600  ledger field 656 (seven columns, less the label rail and its
+            gap). 9×44 + 8×12 + 22 + 72 = 586.
+      2560  field 1074, glyphs at their 3.5rem ceiling: 709.
+
+    `flex-wrap` on the run is still the safety net — a count the club grows
+    past those numbers breaks to a second line rather than out of its column.
+  */
+  --tally-glyph: clamp(1.5rem, 6.2vw, 2.25rem);
+  --tally-gap-x: clamp(0.45rem, 1.6vw, 0.65rem);
   --tally-gap-y: 0.5rem;
   /*
-    The chapter's monument. The numerals are the one thing on this page that
-    is allowed to be genuinely big on a full-bleed sheet, so they leave the
-    `.t-chapter` role behind and take their own step: the floor (2.25rem) and
-    the crossover (562px) are `.t-chapter`'s exactly, so nothing at phone
-    width moves, and above that they run one notch ahead of the chapter title
-    — 102px at 1600, 164px at 2560 against the title's 90px and 143px.
+    The figure is set in the mono, not in the display face, and it is no longer
+    a monument. Two reasons, and both are about the same three numbers being
+    the chapter's whole argument: Prata's 1 is a bare stem with a foot serif
+    and no flag, so «41» at display size reads as «4l»; and a figure printed a
+    column away from its own marks at ninety pixels reduces the tally the lead
+    promises to wallpaper. Plex Mono's figures are flagged, tabular, and they
+    tie the numeral to the counted strokes it stands at the end of.
   */
-  --tally-num: clamp(2.25rem, 6.4vw, 10.5rem);
+  --tally-num: clamp(2.25rem, 9vw, 3rem);
 
   /* the binding numeral is registered to the chapter's first rule instead of
      floating at the default 5rem while the type starts 266px down */
@@ -58,30 +88,37 @@
 @media (min-width: 768px) {
   .results {
     --pad-block: clamp(10rem, 10.4vw, 17rem);
-    --tally-glyph: 2.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  /* the ledger leaves the full trim for a six-column field, so the run has
+     LESS room here than it had at 900 — the glyph shrinks with the field */
+  .results {
+    --tally-glyph: clamp(2rem, 2.5vw, 2.25rem);
+    --tally-num: clamp(2.75rem, 3.4vw, 3.25rem);
   }
 }
 @media (min-width: 1600px) {
   .results {
-    /* in a ledger LINE the marks sit beside a ~100px numeral, where a 2.5rem
-       glyph reads as a speck. The longest count is 41 — eight 正 plus a
-       one-stroke partial, NINE glyphs — so the size is bounded by the marks
-       field, not by taste; see the arithmetic on .tally-row below. */
-    --tally-glyph: 3rem;
+    /* in a ledger LINE the marks sit beside the figure on one baseline, where
+       a 2.25rem glyph reads as a speck against a 60px numeral */
+    --tally-glyph: clamp(2.75rem, 2.6vw, 3.5rem);
     --tally-gap-x: 0.75rem;
     --tally-gap-y: 0.6rem;
-  }
-}
-@media (min-width: 2000px) {
-  .results {
-    --tally-glyph: 3.5rem;
-    --tally-gap-x: 0.9rem;
-    --tally-gap-y: 0.7rem;
+    --tally-num: clamp(3.75rem, 3.4vw, 4.75rem);
   }
 }
 
 .results__sheet {
-  padding-block: var(--pad-block);
+  /*
+    Asymmetric on purpose. The head of the chapter opens on blank paper above
+    its rule; the foot now closes on a colophon — hairline, folio, the season's
+    record and the sensei's mark — so the sheet no longer needs 160px of empty
+    ink under the last line to feel finished. It needed it when the chapter
+    simply ran off the bottom.
+  */
+  padding-top: var(--pad-block);
+  padding-bottom: clamp(4rem, 5.2vw, 8rem);
 }
 
 /* ------------------------------------------------------------------ */
@@ -111,9 +148,20 @@
   flex-direction: column;
   margin-top: 3.5rem;
 }
+/*
+  The board closes itself on its last row. The hairline used to hang off
+  `.tally-row:last-child`, which now matches EVERY row — the rows come into
+  register, so each one is an only child of the wrapper the animation put
+  around it. The last wrapper is what "last row" means here, and hanging the
+  rule inside it also keeps the rule with the row it closes: on the board
+  itself it would print half a second before the row arrived under it.
+*/
+.results__board > :last-child .tally-row {
+  border-bottom: 1px solid var(--color-rule-dark);
+}
 
 /* ------------------------------------------------------------------ */
-/* The one colour plate                                                */
+/* The chapter's plate                                                 */
 /* ------------------------------------------------------------------ */
 .results__plate {
   margin: 0;
@@ -146,7 +194,7 @@
     1600 — 1512 is where this page is actually read, and at 16/10 inside the
     trim the picture was 433px tall in a 640px row, leaving 207px of empty ink
     under it. Bleeding right and squaring the crop fills the column with the
-    one colour photograph the manual allows itself.
+    chapter's one photograph.
   */
   .results__plate-frame {
     margin-right: calc(var(--gutter) * -1);
@@ -203,101 +251,78 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* One counted row: label · 正 marks · the arabic number               */
+/* One counted row: the label, then 正 marks ending in the figure      */
 /* ------------------------------------------------------------------ */
 .tally-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  gap: 0.5rem 1.5rem;
-  /* 1.3vw reaches 1.25rem at 1538, so the row keeps its printed 20px up to
-     the width it was drawn for and only opens out past it */
-  padding-block: clamp(1.25rem, 1.3vw, 2.5rem);
+  /*
+    1.3vw reached the printed 20px at 1538 and stopped there. The rows carry a
+    ~60px figure now rather than a ~100px one, so the board is shorter than the
+    plate beside it at every width past 1600; the padding takes that height
+    back as air inside the ledger instead of leaving it as a gap under it.
+  */
+  padding-block: clamp(1.25rem, 2vw, 3rem);
   border-top: 1px solid var(--color-rule-dark);
 }
-.tally-row:last-child {
-  border-bottom: 1px solid var(--color-rule-dark);
-}
 .tally-row__label {
-  grid-column: 1;
+  color: var(--color-bone-2);
 }
-/*
-  The numeral no longer carries the `.t-chapter` role — it has its own step
-  (--tally-num) — so it restates the role's face and metrics here rather than
-  relying on source order between this file and globals.css, where the two
-  selectors would have identical specificity.
-*/
-.tally-row__value {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
-  font-family: var(--font-display);
-  font-size: var(--tally-num);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.005em;
-  line-height: 1;
-}
-.tally-row__marks {
-  grid-column: 1;
+.tally-row__count {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  /* the figure sits ON the line the marks sit on: a flex item with no line box
+     of its own — an <svg> — takes its bottom edge as its baseline, so the
+     glyphs stand on the figure's baseline rather than floating beside it */
+  align-items: baseline;
   gap: var(--tally-gap-y) var(--tally-gap-x);
-  margin-top: 0.35rem;
+  margin-top: 0.5rem;
 }
 .tally__glyph {
   display: block;
-  width: var(--tally-glyph);
-  height: var(--tally-glyph);
+  overflow: visible;
+  inline-size: var(--tally-glyph);
+  block-size: var(--tally-glyph);
   flex: none;
+  /* a completed five is settled matter, and there are up to eight of them in a
+     row: quiet, or the board becomes a texture that shouts */
+  color: var(--color-bone-2);
+}
+/* …and the five still being cut is the live edge of the count */
+.tally__glyph--open {
+  color: var(--color-bone);
+}
+.tally-row__value {
+  /* a word space, not a mark space: the figure is the end of the phrase the
+     strokes spell, so it is set further off than the glyphs are from each
+     other but no further */
+  margin-left: calc(var(--tally-gap-x) * 0.8);
+  font-family: var(--font-mono);
+  font-size: var(--tally-num);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--color-bone);
 }
 
 @media (min-width: 1600px) {
   /*
-    The ledger line. The label stops being a caption above its marks and
-    becomes the row's first field, so label, count and numeral share one
+    The ledger line. The label stops being a caption above its count and
+    becomes the row's first field, so label, marks and figure share one
     baseline across seven columns.
 
-    The rail is 10vw (176px at 1600, 256px at 2560). The longest label in
-    either language, «АТТЕСТАЦИЙ СДАНО», measures ~126px at 1600 and ~161px
-    at 2560 in mono at 0.12em tracking, so it never wraps; the 11rem floor
-    holds that clearance should the vw term ever apply below 1600.
-
-    The marks field is what is left: board − rail − 48px of column gaps −
-    the numeral. The worst case is 41 = eight 正 plus a one-stroke partial,
-    NINE glyphs, and it is deliberately allowed to wrap:
-
-      1600  board 856 − 176 − 48 − ~122  = 510 field vs 528 of marks → two
-            lines, ~108px tall, which is the same height as the 102px
-            numeral beside it, so the row still reads as one line of the
-            ledger rather than as a broken one.
-      1920  board 1028 − 192 − 48 − ~147 = 641 field vs 528 → one line.
-      2560  board 1371 − 256 − 48 − ~197 = 870 field vs 611 (3.5rem
-            glyphs) → one line, with room for the count to keep growing.
-
-    So the glyph is sized by the field, never by taste: `flex-wrap` on the
-    marks is the safety net, and it can never push the row wider than the
-    `minmax(0, 1fr)` track.
+    The rail is 10vw (176px at 1600 by way of the floor, 256px at 2560). The
+    longest label in either language, «АТТЕСТАЦИЙ СДАНО», measures ~126px at
+    1600 and ~161px at 2560 in mono at 0.12em tracking, so it never wraps; the
+    11rem floor holds that clearance should the vw term ever apply below 1600.
   */
   .tally-row {
-    grid-template-columns: clamp(11rem, 10vw, 20rem) minmax(0, 1fr) auto;
-    align-items: center;
+    display: grid;
+    grid-template-columns: clamp(11rem, 10vw, 20rem) minmax(0, 1fr);
+    align-items: baseline;
     column-gap: 1.5rem;
   }
-  .tally-row__label {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .tally-row__marks {
-    grid-column: 2;
-    grid-row: 1;
-    align-items: center;
+  .tally-row__count {
     margin-top: 0;
-  }
-  .tally-row__value {
-    grid-column: 3;
-    grid-row: 1;
-    text-align: right;
   }
 }
 
@@ -305,13 +330,16 @@
 /* Season timeline                                                     */
 /* ------------------------------------------------------------------ */
 .results__timeline {
-  margin-top: 5rem;
+  /*
+    The chronicle is the ledger's evidence, not a new subject, so it is set
+    close under it. It used to stand 110px off at 1512 and 176px off at 2560,
+    which read as a missing section rather than as the next table.
+  */
+  margin-top: 3.5rem;
 }
 @media (min-width: 768px) {
   .results__timeline {
-    /* 7.3vw reaches the printed 7rem (the old mt-28) at 1535 and then grows
-       with the sheet: 140px at 1920, 176px from 2411 up */
-    margin-top: clamp(7rem, 7.3vw, 11rem);
+    margin-top: clamp(4.5rem, 4.8vw, 7.5rem);
   }
 }
 
@@ -326,7 +354,8 @@
   /*
     768–1023 keeps the fixed rails it was drawn with: at this width the page
     grid's columns are only ~45px, and a two-column date rail (105px) is too
-    tight for «FEBRUARY 2026» once mono tracking is counted.
+    tight for «FEBRUARY 2026» once mono tracking is counted. The three fields
+    place themselves in source order, so nothing has to be addressed here.
   */
   .timeline-row {
     grid-template-columns: 12rem minmax(0, 1fr) 16rem;
@@ -348,6 +377,12 @@
     date 1–2 · title 3–8 · note 9–12. The note keeps four columns up to 1600
     (306px at 1024, 383px at 1280) so the longest Russian note, «41 ученик,
     первые оранжевые пояса» (≈231px), still sets on one line as it does now.
+
+    The columns are addressed BY POSITION rather than by `.timeline-row__*`,
+    because the row comes into register field by field and <Register> wraps
+    each field in an element of its own: the class still carries the type, the
+    wrapper carries the placement. The type classes stay on the fields, where
+    `text-align` and a measure belong.
   */
   .timeline-row {
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -356,18 +391,22 @@
     /* 1.6vw reaches the printed 1.5rem at 1500, so nothing below it moves */
     padding-block: clamp(1.5rem, 1.6vw, 2.75rem);
   }
-  .timeline-row__date {
+  .timeline-row > :nth-child(1) {
     grid-column: 1 / span 2;
   }
-  .timeline-row__title {
+  .timeline-row > :nth-child(2) {
     grid-column: 3 / span 6;
+  }
+  .timeline-row > :nth-child(3) {
+    grid-column: 9 / span 4;
+    justify-self: end;
+  }
+  .timeline-row__title {
     /* insurance only: no current title reaches 46ch, but a field this wide
        must never be allowed to set a heading 200 characters long */
     max-width: var(--measure-lead);
   }
   .timeline-row__note {
-    grid-column: 9 / span 4;
-    justify-self: end;
     max-width: var(--measure-caption);
     text-align: right;
   }
@@ -375,39 +414,40 @@
 @media (min-width: 1600px) {
   /* past 1600 the note has more sheet than it needs, so the column it does
      not use goes to the title — date 1–2 · title 3–9 · note 10–12 */
-  .timeline-row__title {
+  .timeline-row > :nth-child(2) {
     grid-column: 3 / span 7;
   }
-  .timeline-row__note {
+  .timeline-row > :nth-child(3) {
     grid-column: 10 / span 3;
   }
 }
 
 /* ------------------------------------------------------------------ */
-/* Athlete of the year                                                 */
+/* The closing record, set in the chapter's colophon                   */
+/*                                                                     */
+/* «Лучший спортсмен года» used to be a lone red mono line over a 2px   */
+/* vermilion box animated on scaleX — a rule impersonating a brush,     */
+/* with 250px of empty ink under it to the foot of the sheet. It is the */
+/* season's last fact, so it is set where a book puts its last facts:   */
+/* in the colophon, beside the folio, under the sensei's own mark.      */
 /* ------------------------------------------------------------------ */
-.results__best {
-  margin-top: 3rem;
+.results__record {
+  /* the note slot is quiet by default (bone-2); this one is a record, so it
+     takes the loud tone — it is the line the mark below it is drawn under */
+  color: var(--color-bone);
 }
-@media (min-width: 1024px) {
-  .results__best {
-    /* 3.2vw reaches the printed 3rem at 1500 — unchanged below it */
-    margin-top: clamp(3rem, 3.2vw, 5.5rem);
-  }
-}
-.best-strip {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.best-strip__rule {
+.results__record-mark {
+  --mark-w: clamp(7rem, 9vw, 11rem);
   display: block;
-  /* the closing red rule was 12rem against a 1312 column — ~15% of it. The
-     vw term holds it there as the sheet grows (14vw = 192px at 1372, 358px
-     at 2560) while `min(…, 40%)` keeps it a short mark, never a divider,
-     on a phone. */
-  width: min(clamp(12rem, 14vw, 24rem), 40%);
-  height: 2px;
-  background: var(--color-shu-lift);
-  transform-origin: left;
+  inline-size: var(--mark-w);
+  /* the mark's own proportions: an 800 × 70 viewBox */
+  block-size: calc(var(--mark-w) * 70 / 800);
+  margin-top: 0.55rem;
+  /*
+    The chapter's one vermilion, and the only place in it where red is doing
+    the job the rota reserves for it: a mark the sensei made. Everything that
+    was red before this — the tally, the record's line — was informational, and
+    is now set in the ink ramp.
+  */
+  color: var(--color-shu-lift);
 }

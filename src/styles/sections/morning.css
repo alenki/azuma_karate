@@ -118,9 +118,17 @@
   inset: -8% 0;
   will-change: transform;
 }
+/*
+  Stillness is pinned HERE rather than branched in the component. The server
+  renders scroll progress 0, so a JS branch would serialise translateY(-6%)
+  into the markup and hydrate it against a client `0%`; `transform: none` on
+  the layer seats it with nothing to mismatch. The overhang stays — the layer
+  is cropped by its frame either way, and dropping it would flash paper at the
+  foot of the plate for the frame between paint and hydration.
+*/
 @media (prefers-reduced-motion: reduce) {
   .morning-plate__img {
-    inset: 0;
+    transform: none !important;
     will-change: auto;
   }
 }
@@ -189,7 +197,7 @@
 }
 
 /* Below the spread breakpoint every block runs the whole field, in the order
-   a reader meets them: title, plate, lead, meta. */
+   a reader meets them: title, lead, the two addresses, the plate. */
 .morning__title-col,
 .morning__figure-col,
 .morning__lead-col,
@@ -197,22 +205,13 @@
   grid-column: 1 / -1;
 }
 
-/* the park plate: portrait beside the type on the spread, landscape when it
-   runs the full trim on a phone */
-.morning__figure-plate {
-  position: relative;
-  aspect-ratio: 3 / 2;
-  overflow: hidden;
-  background: var(--color-paper-2);
-}
-@media (min-width: 1024px) {
-  .morning__figure-plate {
-    aspect-ratio: 4 / 5;
-  }
-}
-
 /* ---------------------------------------------------------------- */
-/* «Два адреса» — the two register blocks                            */
+/* «Два адреса. Один путь.» — hall · path · park                     */
+/*                                                                   */
+/* Three fields, one hairline across all of them. The two addresses  */
+/* are one <ul> that spans the whole field and prints only in its    */
+/* outer columns; the plate stands in the gap between them. See the  */
+/* note in Morning.tsx for why the list is not split in two.         */
 /* ---------------------------------------------------------------- */
 .morning__places {
   display: grid;
@@ -228,9 +227,15 @@
     gap: var(--col-gap);
   }
 }
+.morning__place {
+  min-width: 0;
+}
 .morning__place-kicker {
   margin-top: 0.85rem;
-  color: var(--color-shu);
+  /* «ВЕЧЕРОМ» / «ПО ВЫХОДНЫМ» were vermilion, which on this page belongs to
+     the brush and the seal and to nothing else. They are quiet marks, so they
+     take the quiet ink — the lightest tone that is still legal for text. */
+  color: var(--color-ink-quiet);
 }
 .morning__place-where {
   margin-top: 0.35rem;
@@ -241,20 +246,74 @@
 }
 .morning__place-note {
   margin-top: 0.75rem;
-  max-width: 30ch;
+  max-width: 34ch;
   color: var(--color-ink-2);
 }
+
+/*
+  The exits. Same device as the chapter foot's links: the label carries the
+  rule, the rule doubles under the pointer and under focus, and the arrow
+  steps. The whole anchor is 44px tall — it used to be a 20px strip of text
+  with a border under it, which is not a tap target.
+*/
 .morning__place-link {
-  display: inline-block;
-  margin-top: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  margin-top: 0.85rem;
   color: var(--color-ink);
-  border-bottom: 1px solid var(--color-rule);
-  padding-bottom: 0.35em;
-  transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
 }
-.morning__place-link:hover {
-  color: var(--color-shu);
-  border-color: var(--color-shu);
+.morning__place-link-label {
+  border-bottom: 1px solid var(--color-rule-strong);
+  padding-bottom: 0.2em;
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+}
+.morning__place-link:hover .morning__place-link-label,
+.morning__place-link:focus-visible .morning__place-link-label {
+  border-bottom-color: currentColor;
+  box-shadow: 0 2px 0 -1px currentColor;
+}
+.morning__place-arrow {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.morning__place-link:hover .morning__place-arrow,
+.morning__place-link:focus-visible .morning__place-arrow {
+  transform: translateX(0.25rem);
+}
+/* the doubled rule is a state, not an animation: it still prints when the
+   reader has asked for stillness. Only the thing that MOVES is withdrawn. */
+@media (prefers-reduced-motion: reduce) {
+  .morning__place-arrow {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The path — the second plate                                       */
+/* ---------------------------------------------------------------- */
+.morning__figure {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-width: 0;
+}
+/* only the plate may take up slack; a 1px hairline and a caption that a flex
+   column is free to squash are two bugs waiting for a narrow column */
+.morning__figure > .rule,
+.morning__figure-cap {
+  flex: none;
+}
+.morning__figure-plate {
+  /* the 0.85rem is the kickers' own drop from the hairline, so the plate's
+     top edge and the two mono kickers beside it start on one line */
+  margin-top: 0.85rem;
+  aspect-ratio: 3 / 2;
+  background: var(--color-paper-2);
+}
+.morning__figure-cap {
+  margin-top: 0.85rem;
+  color: var(--color-ink-quiet);
 }
 
 @media (min-width: 768px) {
@@ -265,9 +324,25 @@
 
 /*
   The spread. Two rows of the shared field: the title and the lead face each
-  other across the empty sixth column, and the park plate and the meta line
-  stand on the row beneath them — so the plate's top edge and the hairline
-  above the meta print on the same line across the sheet.
+  other across the empty sixth column, and the chapter's figure stands on the
+  row beneath — hall (1–4), path (5–8), park (9–12), all three opening on the
+  same hairline.
+
+  The plate has no aspect ratio here. It STRETCHES to the row, which is sized
+  by the taller of the two address blocks or by the plate's own floor, so the
+  three fields close level and the row cannot contain a void. The old figure
+  was a 4:5 portrait in four columns — 480px at 1024 and 956px at 2560 — set
+  beside two ~330px register blocks that were then aligned to its foot: about
+  half a screen of blank paper in the middle of the sheet, which is the one
+  thing this chapter was reported for.
+
+  The floor grows with the sheet so the plate stays a plate — 240px at 1024,
+  416px at 2560 — but it is deliberately kept CLOSE to the height a register
+  block reaches (about 215px at 1024, 240px at 2560), because every pixel the
+  floor adds above that is paper printed beside the addresses. Measured, the
+  plate lands between 1.28:1 and 1.36:1 at every tier: a steady landscape crop
+  the 1600×1066 source carries, and one that reads as chosen rather than as
+  whatever the Russian happened to wrap to.
 */
 @media (min-width: 1024px) {
   .morning__title-col {
@@ -280,40 +355,50 @@
     /* the lead's first line sits on the title's cap height, not on its top */
     padding-top: 0.75rem;
   }
-  /*
-    Row two used to be a 714px portrait plate beside a 60px line of mono, so
-    seven of the twelve columns stood empty for the height of the plate. The
-    plate keeps four columns; the two addresses take the other seven and are
-    registered to the plate's FOOT, so the void that is left reads as the
-    margin above a caption rather than as a hole in the sheet.
-  */
-  .morning__figure-col {
-    grid-column: 1 / span 4;
+
+  .morning__places-col {
+    grid-column: 1 / -1;
     grid-row: 2;
   }
-  .morning__places-col {
-    grid-column: 6 / -1;
+  .morning__places {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 0;
+  }
+  .morning__places > .morning__place:first-child {
+    grid-column: 1 / span 4;
+    grid-row: 1;
+  }
+  .morning__places > .morning__place:last-child {
+    grid-column: 9 / -1;
+    grid-row: 1;
+  }
+
+  .morning__figure-col {
+    grid-column: 5 / span 4;
     grid-row: 2;
-    align-self: end;
-    padding-bottom: 0.25rem;
+    align-self: stretch;
+  }
+  .morning__figure-plate {
+    aspect-ratio: auto;
+    flex: 1 1 auto;
+    min-height: clamp(15rem, 17vw, 26rem);
   }
 }
 
 /*
   Wide sheet: the block gains a third field instead of stretching the two it
-  has. At 2560 the old six-column body was 1170px wide holding a 58ch lead of
-  ~754px — 400px of the sheet doing nothing. So the lead drops to four
-  columns (768px at 2560, where its own 58ch cap takes over, and 479px ≈ 43
-  characters at 1600) and the meta line — days, time, and the one link in the
-  chapter — becomes a margin note ruled to the right trim. Two columns is
-  227px at 1600 and 366px at 2560: two lines of mono in either language, the
-  longest unbroken word being «публикуем» at 59px.
+  has. At 2560 the old six-column body was 1170px wide holding a 46ch lead of
+  ~750px — 400px of the sheet doing nothing. So the lead drops to five columns
+  and leaves the twelfth as margin.
 
-  The park plate gives a column back at the same time. Five columns of a 2560
-  sheet is 969px, and at 4:5 that is a 1211px portrait — taller than the
-  spread it is supposed to echo. At four columns it is 768×960, and at three
-  (below) 567×709 against a spread of 893: a quarter of the plate above it by
-  area, which is what a secondary plate should be.
+  The figure loosens at the same time. Four adjacent four-column fields are
+  separated only by the 36px column gap, which is close quarters for a
+  photograph standing between two blocks of type; from 1600 the addresses take
+  three columns each and column 4 and column 9 are left empty, so the plate is
+  ruled off on both sides by paper rather than by a gutter. Three columns is
+  353px at 1600 and 564px at 2560 — the addresses' longest note, «Точку сбора
+  публикуем каждую неделю.», still sets in two lines.
 */
 @media (min-width: 1600px) {
   .morning__body {
@@ -322,26 +407,15 @@
   .morning__lead-col {
     grid-column: 7 / span 5;
   }
+  .morning__places > .morning__place:first-child {
+    grid-column: 1 / span 3;
+  }
+  .morning__places > .morning__place:last-child {
+    grid-column: 10 / -1;
+  }
 }
 @media (min-width: 2000px) {
   .morning__body {
     margin-top: 7rem;
   }
-  /* the plate gives a column back rather than growing to 969px */
-  .morning__figure-col {
-    grid-column: 1 / span 3;
-  }
-  .morning__places-col {
-    grid-column: 5 / -1;
-  }
 }
-
-/* «Два адреса.» in ink, «Один путь.» a step back — as the hero's two lines.
-   The selector has to go two levels down: <LineReveal as="span"> puts its own
-   block span between the heading and the masked lines, so `> span + span` on
-   the heading matched nothing and both lines were printing in ink. */
-.morning-title > span > span + span {
-  color: var(--color-ink-2);
-}
-
-

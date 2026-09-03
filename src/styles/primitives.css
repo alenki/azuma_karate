@@ -1,11 +1,41 @@
 /* ------------------------------------------------------------------ */
 /* Film grain                                                          */
+/*                                                                     */
+/* The old primitive was arithmetically inert. `feTurbulence` at        */
+/* baseFrequency 0.9 puts every feature at about one pixel, and         */
+/* soft-light — whose effect scales with base × (1 − base) — is at its   */
+/* weakest at exactly the two values this page is printed in. Uncorrelated */
+/* per-pixel noise at 35% of a blend that near-vanishes on both grounds  */
+/* measured about ±1/255: it cost a compositing layer over two full      */
+/* chapters and returned nothing visible.                               */
+/*                                                                      */
+/* It is rebuilt in two layers, on the operator that actually bites on a */
+/* dark ground: a coarse cloud for the unevenness of the pull and a fine  */
+/* tooth for the surface, screened back in.                              */
+/*                                                                       */
+/* The amplitude is set by a contrast budget, not by taste, and it is a   */
+/* tight one. `--color-shu-lift` is 4.65:1 on flat ink — it was chosen as */
+/* the darkest red that clears 4.5:1 there, so it has 0.15 of headroom    */
+/* and screen spends headroom. Measured: slopes of 0.021 and 0.015 lift   */
+/* the worst pixel from #151311 to #1D1B19, where bone is 14.2:1, bone-2  */
+/* 6.7:1 and the lifted vermilion 4.30:1. That last number is why         */
+/* --color-shu-lift moved to #EC4A54 (5.01:1 flat, 4.64:1 on the worst    */
+/* grained pixel): a token documented as "≥4.5:1 on ink" has to still be  */
+/* true once the ink has a surface. An earlier pass at 0.07/0.05 lifted   */
+/* the ground to #302F2D — charcoal, not ink, and it read as compression  */
+/* noise rather than as paper, because the eye resolves luminance         */
+/* variation in the shadows far better than in the highlights.            */
+/*                                                                      */
+/* It stays on the dark chapters only. On paper the stock is painted     */
+/* into the ground itself (globals.css → .ground-paper), which needs no  */
+/* extra element and no blend layer over a 14 000px page.                */
 /* ------------------------------------------------------------------ */
 .grain {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 240px 240px;
-  mix-blend-mode: soft-light;
-  opacity: 0.35;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='t' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.021' intercept='0'/%3E%3CfeFuncG type='linear' slope='0.021' intercept='0'/%3E%3CfeFuncB type='linear' slope='0.021' intercept='0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.16' numOctaves='4' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.015' intercept='0'/%3E%3CfeFuncG type='linear' slope='0.015' intercept='0'/%3E%3CfeFuncB type='linear' slope='0.015' intercept='0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
+  background-size: 160px 160px, 520px 520px;
+  mix-blend-mode: screen;
 }
 
 /* ------------------------------------------------------------------ */
@@ -47,6 +77,17 @@
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--color-accent, #d3122a);
   outline-offset: 3px;
+}
+/*
+  On a dark chapter the accent is #C41E2A against #151311 — 2.1:1, under the
+  3:1 a focus indicator has to clear (1.4.11). `.ground-ink` already re-points
+  --color-accent at the lifted vermilion, but the footer and any element that
+  escapes a chapter's subtree do not inherit it, so the ink ramp is named here
+  too rather than relied upon.
+*/
+.ground-ink :where(a, button, input, select, textarea, [tabindex]):focus-visible,
+.footer :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline-color: var(--color-shu-lift);
 }
 
 /* ------------------------------------------------------------------ */

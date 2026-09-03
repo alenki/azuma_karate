@@ -4,7 +4,8 @@ import { motion } from "motion/react";
 import { useId } from "react";
 import { cn } from "@/lib/cn";
 import { useStillness } from "@/lib/useStillness";
-import { Kanji } from "@/components/brush/Kanji";
+import { KanjiStrokes } from "@/components/brush/Kanji";
+import { pressVariant, seedHash, sealPress } from "@/components/ui/PressDefs";
 
 /**
  * The club's circular seal (印), pressed onto the page: outer ring, the club's
@@ -17,22 +18,32 @@ import { Kanji } from "@/components/brush/Kanji";
  * Chapter 02 teaches the reader that 東 = Азума = east; this is where that is
  * cashed in. Printed, never drawn — the only hand-made mark in this manual is
  * the sensei's brush, and a seal is a press.
+ *
+ * Which means the press has to reach all of it. The whole device — ring, inner
+ * ring, legend and 東 — sits inside ONE filtered group, so the stone bites the
+ * type as unevenly as it bites the circles; the centre glyph is drawn into the
+ * SVG rather than floated over it in a div, which is the only way it can be
+ * under the same filter. A seal with a rough ring and crisp type is a logo.
  */
 export function Seal({
   className,
   delay = 0,
   trigger = "view",
   text = "SK AZUMA · КИОКУШИНКАЙ КАРАТЭ · НАЛЬЧИК · ",
+  seed,
   label,
 }: {
   className?: string;
   delay?: number;
   trigger?: "view" | "load";
   text?: string;
+  /** Which impression of the stone this is; defaults to the instance's own id. */
+  seed?: number | string;
   label?: string;
 }) {
   const id = useId().replace(/:/g, "");
   const reduced = useStillness();
+  const press = sealPress(pressVariant(seedHash(seed ?? id)));
   const target = { scale: 1, rotate: -6, opacity: 1 };
   return (
     <motion.div
@@ -52,24 +63,24 @@ export function Seal({
       <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full">
         <defs>
           <path id={`${id}-ring`} d="M100,100 m-72,0 a72,72 0 1,1 144,0 a72,72 0 1,1 -144,0" />
-          <filter id={`${id}-rough`} x="-5%" y="-5%" width="110%" height="110%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="5" result="n" />
-            <feDisplacementMap in="SourceGraphic" in2="n" scale="1.6" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
         </defs>
-        <g filter={`url(#${id}-rough)`} fill="none" stroke="currentColor">
-          <circle cx="100" cy="100" r="94" strokeWidth="5" />
-          <circle cx="100" cy="100" r="52" strokeWidth="2.5" />
+        <g filter={`url(#${press})`}>
+          <g fill="none" stroke="currentColor">
+            <circle cx="100" cy="100" r="94" strokeWidth="5" />
+            <circle cx="100" cy="100" r="52" strokeWidth="2.5" />
+          </g>
+          <text className="seal__text" fill="currentColor" fontSize="12.5" letterSpacing="2.2">
+            <textPath href={`#${id}-ring`} startOffset="0">
+              {text}
+            </textPath>
+          </text>
+          {/* the device, seated at 43% of the seal: 109 KanjiVG units scaled to
+              86 of the seal's 200, centred on the same point as the rings */}
+          <g transform="translate(100 100) scale(0.789) translate(-54.5 -54.5)">
+            <KanjiStrokes id="azuma" weight={5} />
+          </g>
         </g>
-        <text className="seal__text" fill="currentColor" fontSize="12.5" letterSpacing="2.2">
-          <textPath href={`#${id}-ring`} startOffset="0">
-            {text}
-          </textPath>
-        </text>
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Kanji id="azuma" className="h-[43%] w-[43%]" weight={5} label={null} />
-      </div>
     </motion.div>
   );
 }

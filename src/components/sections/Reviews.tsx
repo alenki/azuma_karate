@@ -2,93 +2,108 @@
 
 import "@/styles/sections/reviews.css";
 
-import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useState, type KeyboardEvent } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
 import type { Locale } from "@/i18n/config";
 import { chapters, reviews } from "@/content/home";
 import { Chapter } from "@/components/layout/Chapter";
+import { ChapterFoot } from "@/components/layout/ChapterFoot";
 import { Brush } from "@/components/brush/Brush";
 import { Kanji } from "@/components/brush/Kanji";
 import { LineReveal } from "@/components/ui/LineReveal";
-import { Reveal, EASE_OUT_EXPO } from "@/components/ui/Reveal";
+import { Register, Reveal, Settle } from "@/components/ui/Reveal";
 
 const chapter = chapters.find((c) => c.id === "reviews")!;
 const HEADING_ID = "reviews-title";
+/** the chapter's own two digits, printed at the head of every entry below */
+const FOLIO = String(chapter.index).padStart(2, "0");
 
 type ReviewItem = (typeof reviews.items)[number];
 
 /**
- * One quote, set as the chapter's monument.
+ * One testimony, set as a ruled entry of the manual.
  *
- * The same markup is printed twice: once live, and once per item inside the
- * height sizer, where it is invisible and only there to reserve the tallest
- * quote's height (see `reviews.css`). The ghost prints an empty box of the
- * bracket's own proportion instead of the drawn mark — a hidden `Brush` would
- * mount three more animated SVGs to draw something nobody can see.
+ * Every entry opens exactly the way the chapter does — a hairline across the
+ * whole trim with a counted mark at each end: the plate number «07 · 01» at
+ * the binding and the parent's group at the fore-edge. That rule is the
+ * composition's spine: it carries ink into the outer columns on all three
+ * rows, so the testimony underneath is free to sit wherever the walk wants it
+ * without leaving the sheet's edges bare.
+ *
+ * The testimony itself is then indented and sized BY THE ENTRY (`--col-a`,
+ * `--col-b`, `--size` in `reviews.css`), which is what turns three quotes into
+ * a spread rather than a stack.
+ *
+ * The plate number is `aria-hidden` for the same reason the colophon's folio
+ * is: <Chapter> already announces "Что говорят дома — 07" once, and three more
+ * readings of those two digits inside it are noise. The group beside it is
+ * read, so it stays.
  */
-function QuoteBody({ item, locale, ghost = false }: { item: ReviewItem; locale: Locale; ghost?: boolean }) {
+function Testimony({ item, locale, n }: { item: ReviewItem; locale: Locale; n: number }) {
   return (
-    <>
-      <blockquote className="relative m-0">
-        {ghost ? (
-          <span className="reviews__bracket reviews__bracket--ghost reviews__bracket--open" />
-        ) : (
-          <Brush
-            kind="bracketL"
-            className="reviews__bracket reviews__bracket--open text-shu"
-            trigger="load"
-            delay={0.1}
-          />
-        )}
-        <span className="t-statement reviews__quote">{item.quote[locale]}</span>
-        {ghost ? (
-          <span className="reviews__bracket reviews__bracket--ghost reviews__bracket--close" />
-        ) : (
-          <Brush
-            kind="bracketR"
-            className="reviews__bracket reviews__bracket--close text-shu"
-            trigger="load"
-            delay={0.55}
-          />
-        )}
+    <figure className={`reviews__item reviews__item--${n + 1} m-0`}>
+      <div className="rule reviews__entry-rule" />
+      <Register className="reviews__entry-head" delay={0.05} stagger={0.08} duration={0.6} x={-12}>
+        <span className="t-mono reviews__quiet" aria-hidden="true">
+          {FOLIO}
+          {" · "}
+          {String(n + 1).padStart(2, "0")}
+        </span>
+        <span className="t-mono reviews__quiet">{item.group[locale]}</span>
+      </Register>
+
+      {/* The brackets are the anchor's own children, so the hang is measured
+          from the text block and not from the entry's track: `relative` has to
+          sit on the element the type actually starts at. */}
+      <blockquote className="reviews__quote-block m-0">
+        <Reveal className="relative" y={18} duration={0.85} delay={0.05}>
+          <Brush kind="bracketL" className="reviews__bracket reviews__bracket--open" delay={0.15} />
+          <span className="t-statement reviews__quote">{item.quote[locale]}</span>
+          <Brush kind="bracketR" className="reviews__bracket reviews__bracket--close" delay={0.7} />
+        </Reveal>
       </blockquote>
+
       <figcaption className="reviews__caption">
-        <p className="t-caption text-ink">{item.who[locale]}</p>
-        <p className="t-mono reviews__quiet mt-1">{item.group[locale]}</p>
+        <Settle delay={0.85}>
+          <p className="t-caption reviews__who">{item.who[locale]}</p>
+        </Settle>
       </figcaption>
-    </>
+    </figure>
   );
 }
 
 /**
  * Chapter 七 / 07 — «Слова родителей».
  *
- * One quote at a time, large, with the chapter's brush marks: Japanese corner
- * brackets drawn around it — the opening one first, the closing one after the
- * words have landed. Switching quotes remounts the pair, so the brush draws
- * them again by hand. Nothing advances on its own.
+ * All three testimonies, printed. This chapter used to be a carousel: one
+ * quote on the sheet, an «01 / 03» counter and two bordered arrow boxes — the
+ * only bordered box in the manual — with the other two thirds of the club's
+ * testimony behind a next button, and a hidden sizer holding the cell open at
+ * the height of the longest quote so the two shorter ones each reserved a gap
+ * the reader could not account for. A printed manual does not page through its
+ * own testimonials, and the mechanism was also what emptied the sheet: the
+ * chapter carried the lowest ink coverage on the page, with its right third
+ * and bottom fifth blank.
  *
- * On the full-viewport sheet the chapter is composed as a page and not as a
- * centred card: running head and title on the trim, the quote indented two
- * columns so the opening bracket has a margin to hang in, the arrows and the
- * counter at the far right on the attribution's line, and a closing hairline
- * across the whole trim holding the two ends together. The measurements and
- * the reasons are in `reviews.css`.
+ * So the chapter is a spread now. Three ruled entries down the sheet, each
+ * opened by a hairline that runs the full trim, with the testimony indented
+ * differently under each and set one size smaller than the one above it — the
+ * first is the chapter's monument, the second and third are its corroboration.
+ * The indents walk left → right → left, so the eye crosses the page three
+ * times instead of reading a column, and nothing is hidden behind a control.
+ *
+ * Motion follows the reading rather than repeating one gesture: the entry's
+ * head comes into <Register> along its rule, the quote arrives with <Reveal>,
+ * the sensei's brackets are drawn around it by hand — the opening one before
+ * the words, the closing one after they have landed — and the attribution is
+ * <Settle>d under it like a caption under a plate.
+ *
+ * The brackets are ink, not vermilion. They are aria-hidden ornament, and six
+ * red marks on one sheet is a brand colour rather than an accent; red on this
+ * page belongs to the sensei's own strokes and the seal.
  */
 export function Reviews() {
   const { locale } = useLocale();
   const t = reviews;
-  const [i, setI] = useState(0);
-  const count = t.items.length;
-  const item = t.items[i];
-
-  const go = useCallback((step: number) => setI((prev) => (prev + step + count) % count), [count]);
-
-  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
-    if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
-  };
 
   return (
     <Chapter
@@ -101,72 +116,27 @@ export function Reviews() {
       <div className="wrap reviews__inner">
         {/* ---- running head ---- */}
         <div className="rule" />
-        <Reveal delay={0.1} y={12} duration={0.8} className="flex items-baseline justify-between gap-6 pt-4">
+        <Register className="reviews__head" delay={0.1} stagger={0.08} duration={0.7} x={-12}>
           <p className="t-mono text-ink-2">{t.eyebrow[locale]}</p>
           <span className="folio-inline t-mono">
-            <Kanji id="shichi" className="chapter__kanji" label={null} /> 07
+            <Kanji id="shichi" className="chapter__kanji" label={null} /> {FOLIO}
           </span>
-        </Reveal>
+        </Register>
 
         <h2 id={HEADING_ID} className="reviews__title t-chapter">
           <LineReveal as="span" className="block" lines={[t.title[locale]]} />
         </h2>
 
-        {/* ---- the quote, and the controls at the other end of the sheet ----
-            The twelve-column field and both blocks' places on it are set in
-            `reviews.css` (`.reviews__region`), not here. */}
-        <div
-          className="reviews__region"
-          role="group"
-          aria-roledescription={locale === "ru" ? "отзывы" : "reviews"}
-          aria-label={t.title[locale]}
-          tabIndex={0}
-          onKeyDown={onKeyDown}
-        >
-          <div className="reviews__stack">
-            {/* The height sizer: every quote at once, invisible and out of the
-                accessibility tree, so switching quotes never shifts the page
-                and the controls always meet the attribution's line. */}
-            <div className="reviews__sizer" aria-hidden="true">
-              {t.items.map((ghostItem, n) => (
-                <figure key={n} className="reviews__figure m-0">
-                  <QuoteBody item={ghostItem} locale={locale} ghost />
-                </figure>
-              ))}
-            </div>
-
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.figure
-                key={i}
-                className="reviews__figure reviews__figure--live m-0"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.3, ease: EASE_OUT_EXPO }}
-              >
-                <QuoteBody item={item} locale={locale} />
-              </motion.figure>
-            </AnimatePresence>
-          </div>
-
-          {/* ---- controls ---- */}
-          <div className="reviews__nav">
-            <div className="flex">
-              <button type="button" className="reviews__btn" onClick={() => go(-1)} aria-label={t.prev[locale]}>
-                <span aria-hidden="true">←</span>
-              </button>
-              <button type="button" className="reviews__btn" onClick={() => go(1)} aria-label={t.next[locale]}>
-                <span aria-hidden="true">→</span>
-              </button>
-            </div>
-            <p className="t-mono reviews__quiet" aria-live="polite">
-              {String(i + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
-            </p>
-          </div>
+        {/* ---- the spread ----
+            Each entry's place on the twelve-column field is set in
+            `reviews.css` (`.reviews__item--1|2|3`), not here. */}
+        <div className="reviews__spread">
+          {t.items.map((item, n) => (
+            <Testimony key={n} item={item} locale={locale} n={n} />
+          ))}
         </div>
 
-        {/* the rule the attribution and the controls both hang off */}
-        <div className="rule reviews__rule-close" />
+        <ChapterFoot index={chapter.index} />
       </div>
     </Chapter>
   );

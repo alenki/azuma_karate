@@ -33,7 +33,8 @@ const SUN = [1, 2, 3, 4];
 /**
  * How far the sun must fall to clear a `0 0 109 109` frame. The 日 subset's
  * bounding box starts at y = 33.79; half a 2.4 stroke width puts its visual
- * top at 32.59, so 109 − 32.59 = 76.4 hides it exactly. 78 buys a margin.
+ * top at 32.59, so 109 − 32.59 = 76.4 hides it exactly. 78 buys a margin, and
+ * flat caps only ever shrink that box, never grow it.
  */
 const SUN_SET = 78;
 
@@ -47,9 +48,25 @@ if (process.env.NODE_ENV !== "production" && strokes.length !== 8) {
 
 type Weights = { tree?: number; ghost?: number; sun?: number };
 
+/**
+ * The subset, drawn as measured line-work.
+ *
+ * `butt` caps, and that is the whole difference between a figure and a
+ * tracing-app export. A KanjiVG centreline stroked at one width with round
+ * caps puts a hemisphere on both ends of every stroke: at 20px in the binding
+ * margin nobody can see it, but this plate runs to 768px, where each stroke
+ * became a uniform tube with two domed ends — neither written (no wedge entry,
+ * no swell and release, no tapered 撇) nor printed. Cut flat, the same
+ * centreline reads as what it is: a construction drawing, where every stroke
+ * weighs the same BECAUSE the reader is being asked to count them into 木 and
+ * 日. Joins stay round, so the 横折 corner inside 日 does not spike.
+ *
+ * The modulated, written voice of these glyphs lives in <Kanji profile="brush">
+ * and is used everywhere the kanji are type rather than diagram.
+ */
 function Strokes({ idx, width, className }: { idx: number[]; width: number; className?: string }) {
   return (
-    <g className={className} fill="none" stroke="currentColor" strokeWidth={width} strokeLinecap="round" strokeLinejoin="round">
+    <g className={className} fill="none" stroke="currentColor" strokeWidth={width} strokeLinecap="butt" strokeLinejoin="round">
       {idx.map((i) => (
         <path key={i} d={strokes[i]} />
       ))}

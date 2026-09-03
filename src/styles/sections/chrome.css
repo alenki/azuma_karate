@@ -1,21 +1,164 @@
 /* ------------------------------------------------------------------ */
-/* Chrome — the head margin, the contents page, the colophon           */
+/* Chrome — the press, the head margin, the contents page, the colophon */
 /*                                                                      */
-/* The three pieces of furniture that are not chapters: the running     */
-/* head printed across the top of every sheet, the contents page that   */
-/* head opens, and the colophon at the foot. The paint for all of it —  */
-/* `.site-header*`, `.nav-link`, `.lang-toggle*`, `.menu__link`,        */
-/* `.menu__chapter`, `.skip-link`, `.footer-link`, `.belt-swatch`,      */
-/* `.mobile-bar*` — lives in globals.css and is NOT repeated here.      */
-/* This file only does what globals.css cannot: lay that furniture out  */
-/* on a sheet that is now the whole viewport, and give it the wide      */
-/* tiers a 2560 trim needs.                                             */
+/* The pieces of furniture that are not chapters: the control the whole */
+/* page is asking the reader to use, the running head printed across    */
+/* the top of every sheet, the contents page that head opens, the bar   */
+/* pinned to the foot of a phone, and the colophon at the end.          */
 /*                                                                      */
-/* One rule governs the whole file: the chrome is furniture, not a      */
-/* chapter. It gains air and a little scale on a wide sheet, never      */
-/* extra weight — the only thing on the page allowed to grow loud is    */
-/* the manual itself.                                                   */
+/* Most of the paint — `.site-header*`, `.nav-link`, `.lang-toggle*`,   */
+/* `.menu__link`, `.menu__chapter`, `.skip-link`, `.footer-link`,       */
+/* `.mobile-bar`, `.btn-text` — lives in globals.css and is NOT         */
+/* repeated here. Three things in this file are the exception, and they */
+/* are marked where they appear: `.btn-press`, `.menu-toggle__*` and    */
+/* `.belt-wedge*` are new objects with no globals.css block to extend,  */
+/* and paint that lives next to its own layout is better than paint     */
+/* split across two files for the sake of a filing rule.                */
+/*                                                                      */
+/* One rule governs the rest: the chrome is furniture, not a chapter.   */
+/* It gains air and a little scale on a wide sheet, never extra weight  */
+/* — the only thing on the page allowed to grow loud is the manual.     */
 /* ------------------------------------------------------------------ */
+
+/* ================================================================== */
+/* 0 · THE PRESS — the primary control                                 */
+/*                                                                      */
+/* One object, four call sites. The hero had a considered CTA and       */
+/* every other instance of the same action was a flat black rectangle;  */
+/* this is the hero's object promoted, so the header, the contents      */
+/* page, the schedule and the mobile bar all print the control that     */
+/* was actually designed. See ui/Button.tsx for the argument.           */
+/*                                                                      */
+/* THE SIZE SYSTEM IS ONE CUSTOM PROPERTY. `--press-h` is the ink       */
+/* half's height floor and the seal's edge at once, because the seal is */
+/* square — so a call site raises the control by setting one value and  */
+/* the two halves cannot fall out of register. 2.75rem is the 44px hit  */
+/* target, which is the floor everywhere and the whole size in the      */
+/* header bar until 1600.                                               */
+/* ================================================================== */
+.btn-press {
+  --press-h: 2.75rem;
+  --press-pad: clamp(0.9rem, 1.5vw, 1.5rem);
+  display: inline-flex;
+  align-items: stretch;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+/* the size the hero drew: 56px at 1600, 80px at 2080, and below 1600 the
+   calc term is under the floor, so nothing that already worked moves */
+.btn-press--lg {
+  --press-h: clamp(3.5rem, calc(5vw - 24px), 5rem);
+}
+
+/* the ink pass */
+.btn-press__label {
+  /* `1 1 auto`, not `1`: the control is `inline-flex`, so its own width is
+     shrink-to-fit, and a `0%` basis leaves the label with no content
+     contribution to shrink-to-fit from. With `auto` the label is its label in
+     the header bar and still fills the row when a call site stretches the
+     control (the mobile bar, the schedule's stacked action). */
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--press-h);
+  padding-inline: var(--press-pad);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  white-space: nowrap;
+  /* declared transparent at rest so the hairline fades in on hover without
+     the box's own metrics changing — no reflow inside a fixed bar */
+  box-shadow: inset 0 0 0 1px transparent;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+/* The red pass. The arrow tile is the seal: vermilion, pressed on the plate
+   the way a hanko is pressed on a print, with the hairline a carved stone
+   seal leaves. It is one of the three jobs red has on this page. */
+.btn-press__seal {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--press-h);
+  background: var(--color-shu);
+  color: var(--color-paper-3);
+  box-shadow: inset 0 0 0 1px rgb(251 249 244 / 0.3);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+.btn-press__arrow {
+  display: block;
+  font-size: clamp(1rem, 0.9vw, 1.375rem);
+  line-height: 1;
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+/*
+  The two halves swap. `:active` is listed beside `:hover` because a thumb
+  never hovers: on the mobile bar the pointer state IS the press state, and a
+  control whose only feedback is a hover is a control with no feedback on the
+  device it spends most of its life on. `:where()` keeps the pseudo out of the
+  specificity sum so the ground overrides below stay a single class ahead.
+*/
+.btn-press:where(:hover, :active) .btn-press__label {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: inset 0 0 0 1px var(--color-ink);
+}
+.btn-press:where(:hover, :active) .btn-press__seal {
+  background: var(--color-shu-lift);
+}
+.btn-press:hover .btn-press__arrow {
+  transform: translateX(0.28rem);
+}
+
+/*
+  On ink. The control is furniture like the bar around it, so it takes the
+  ground it stands on: the ink half inverts to bone, and the seal steps up to
+  `--color-shu-lift`, which is 5.01:1 on #151311 where `--color-shu` is 3.13:1
+  — the deep vermilion goes muddy on a black page and the lifted one does not.
+  `.mobile-bar--ink` is listed by hand because the bar is rendered outside
+  <main> and can never inherit `.ground-ink`.
+*/
+.ground-ink .btn-press__label,
+.site-header--ink .btn-press__label,
+.mobile-bar--ink .btn-press__label {
+  background: var(--color-bone);
+  color: var(--color-ink);
+}
+.ground-ink .btn-press:where(:hover, :active) .btn-press__label,
+.site-header--ink .btn-press:where(:hover, :active) .btn-press__label,
+.mobile-bar--ink .btn-press:where(:hover, :active) .btn-press__label {
+  /* transparent, not `--color-ink`: the scrolled bar is 92% ink and an opaque
+     block would print as a darker patch inside it */
+  background: transparent;
+  color: var(--color-bone);
+  box-shadow: inset 0 0 0 1px var(--color-bone);
+}
+.ground-ink .btn-press__seal,
+.site-header--ink .btn-press__seal,
+.mobile-bar--ink .btn-press__seal {
+  background: var(--color-shu-lift);
+}
+/* the seal always BRIGHTENS under the pointer, on either ground — on paper by
+   stepping shu → shu-lift, and here by taking the lift a little further */
+.ground-ink .btn-press:where(:hover, :active) .btn-press__seal,
+.site-header--ink .btn-press:where(:hover, :active) .btn-press__seal,
+.mobile-bar--ink .btn-press:where(:hover, :active) .btn-press__seal {
+  background: color-mix(in oklab, var(--color-shu-lift) 78%, var(--color-bone));
+}
+
+/* the colour swap survives; only the movement goes */
+@media (prefers-reduced-motion: reduce) {
+  .btn-press,
+  .btn-press__arrow {
+    transition: none;
+  }
+  .btn-press:hover .btn-press__arrow {
+    transform: none;
+  }
+}
 
 /* ================================================================== */
 /* 1 · THE HEAD MARGIN                                                 */
@@ -75,6 +218,14 @@
 /* width (311px at 1280 against a 468px half-share) — and it is the     */
 /* band carrying the two hit targets, so that is where the wide tier    */
 /* spends itself.                                                       */
+/*                                                                      */
+/* THE RIGHT BAND, RE-MEASURED. It grew twice in this pass: the CTA     */
+/* gained its seal (a square of `--press-h`, so 44px at 1280) and the   */
+/* contents handle gained the binding stack (20px plus its 8px gap).    */
+/* 311 + 44 + 28 = 383px at 1280 against the same 468px half-share, so  */
+/* the head is still centred and the drift table above stands unchanged */
+/* — the right band has never been the binding term. Below 480 the      */
+/* binding stack is not printed at all: see the note on it in §2.        */
 /* ================================================================== */
 
 .site-header__bar {
@@ -189,6 +340,18 @@
   all, so there is no longer a band to suppress.
 */
 
+/*
+  The four printed labels are anchors into the manual now, not routes into a
+  site that does not exist (Header.tsx), so they can say where the reader is.
+  `aria-current="location"` is the ARIA token for a position WITHIN a page —
+  `page` would claim the reader had navigated somewhere — and the mark is
+  globals.css's own hairline, drawn rather than wiped on: the state is already
+  true when the label prints, so there is nothing to animate.
+*/
+.nav-link[aria-current="location"]::after {
+  transform: scaleX(1);
+}
+
 /* --- the right band: language, CTA, contents ----------------------- */
 .site-header__aside {
   display: flex;
@@ -257,9 +420,12 @@
   .site-header__aside {
     gap: 2rem;
   }
+  /* the CTA is the press now, so its size is `--press-h` — one value for the
+     label's height and the seal's edge, instead of a `min-height` that the
+     square half would not have read */
   .site-header__cta {
-    min-height: 3rem;
-    padding-inline: 1.75rem;
+    --press-h: 3rem;
+    --press-pad: 1.75rem;
   }
 }
 
@@ -271,8 +437,10 @@
     font-size: clamp(0.58rem, 0.44vw, 0.75rem);
   }
   .site-header__cta {
-    min-height: 3.5rem;
-    padding-inline: 2rem;
+    --press-h: 3.5rem;
+    --press-pad: 2rem;
+  }
+  .site-header__cta .btn-press__label {
     font-size: 0.8125rem;
   }
 }
@@ -288,6 +456,122 @@
 /* a contents page. Four entries ruled down the left, the ten chapters  */
 /* and the club's particulars standing on the page grid to the right.   */
 /* ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* 2a · THE HANDLE                                                     */
+/*                                                                      */
+/* The only route into the contents, and it was the least-marked thing  */
+/* in the bar: a bare word in the same mono, size, tracking and ink as  */
+/* the four nav labels beside it, with no rule, no glyph and no hover   */
+/* mark, standing next to the loudest object in the header. The table   */
+/* of contents was quieter than the sign-up button on a page organised  */
+/* entirely around chapters.                                            */
+/*                                                                      */
+/* Its mark is the manual's own binding: ten hairlines stacked like the */
+/* edges of ten leaves, one per chapter, with the chapter the reader is */
+/* in drawn full length and in full ink. So the handle states both what */
+/* it opens and where the reader is, and it states the second one by    */
+/* LENGTH and WEIGHT — never by hue. Opening it closes the stack onto   */
+/* its first leaf: the book shut.                                       */
+/*                                                                      */
+/* Not printed below 480. The stack costs the right band 28px, and at   */
+/* 390 with the contents page open («ЗАКРЫТЬ» is seven characters where */
+/* «МЕНЮ» is four) the bar clears its two bands by only 11px — so on    */
+/* the narrowest sheets the handle stays the bare word it is today      */
+/* rather than pushing the lockup off the trim. It is `aria-hidden`     */
+/* ornament, so nothing is lost but the mark.                           */
+/* ------------------------------------------------------------------ */
+.menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.menu-toggle__binding {
+  display: none;
+  flex-direction: column;
+  /* 10 leaves × 1px + 9 gaps × 1px = 19px, whatever the chapter count —
+     which is also why the collapse below can be a flat -2px per index */
+  gap: 1px;
+  width: 1.25rem;
+  flex: none;
+}
+@media (min-width: 480px) {
+  .menu-toggle__binding {
+    display: flex;
+  }
+}
+.menu-toggle__leaf {
+  height: 1px;
+  width: 55%;
+  /* ornament, never text: `--color-ink-3` is 2.4:1 on paper and this is the
+     one kind of mark it is legal for */
+  background: var(--color-ink-3);
+  transition:
+    width var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-base) var(--ease-out);
+}
+.menu-toggle__leaf--here {
+  width: 100%;
+  background: var(--color-ink);
+}
+.menu-toggle:hover .menu-toggle__leaf {
+  background: var(--color-ink-quiet);
+}
+.menu-toggle:hover .menu-toggle__leaf--here {
+  background: var(--color-ink);
+}
+/* the label rules itself under, the same mark `.nav-link` makes and with the
+   same transparent-at-rest underline the contents entries use */
+.menu-toggle__label {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.35em;
+  transition: text-decoration-color var(--duration-fast) var(--ease-out);
+}
+.menu-toggle:hover .menu-toggle__label,
+.menu-toggle[aria-expanded="true"] .menu-toggle__label {
+  text-decoration-color: currentColor;
+}
+/*
+  Open. Every leaf slides onto the first one's line and fades; the first goes
+  full length and full ink. Leaf i sits at y = 2i px (1px tall, 1px gap), so
+  `-2i` puts each exactly on leaf 0 — the stack closes rather than merely
+  disappearing. Nothing reflows: the leaves stay in flow at 19px.
+*/
+.menu-toggle[aria-expanded="true"] .menu-toggle__leaf {
+  opacity: 0;
+  transform: translateY(calc(var(--i) * -2px));
+}
+.menu-toggle[aria-expanded="true"] .menu-toggle__leaf:first-child {
+  opacity: 1;
+  transform: none;
+  width: 100%;
+  background: var(--color-ink);
+}
+/* the open state is legible without the travel — the stack is simply one rule */
+@media (prefers-reduced-motion: reduce) {
+  .menu-toggle__leaf {
+    transition: none;
+  }
+}
+/* on ink. The open panel is always paper (Header.tsx drops `--ink` when the
+   contents page is up), so only the closed states need restating here. */
+.site-header--ink .menu-toggle__leaf {
+  background: color-mix(in oklab, var(--color-bone-2) 55%, transparent);
+}
+.site-header--ink .menu-toggle:hover .menu-toggle__leaf {
+  background: var(--color-bone-2);
+}
+/* last, and the hover form is restated: `--here` alone is one class short of
+   the hover rule above it and would lose the reader's own line under the
+   pointer, which is the one line that must not move */
+.site-header--ink .menu-toggle__leaf--here,
+.site-header--ink .menu-toggle:hover .menu-toggle__leaf--here {
+  background: var(--color-bone);
+}
 
 .menu {
   /*
@@ -508,10 +792,57 @@
   flex-direction: column;
   gap: 0.75rem;
 }
-.footer__belt {
+/* ------------------------------------------------------------------ */
+/* The step wedge                                                      */
+/*                                                                      */
+/* The seven ranks were seven progress bars — a 44 × 6.4px track with   */
+/* an absolutely-positioned fill at 14.3%, 28.6% … 100% — which is the  */
+/* CV skill meter, seven of them stacked, and it was the colophon's     */
+/* only ornament. It also read wrong: a 10 кю is not 14% of a black     */
+/* belt, and «за один шаг» is not what a grade measures.                */
+/*                                                                      */
+/* A printer has a truer mark for graduated ink, and the page is a      */
+/* printed manual: the step wedge, the strip of flat patches run down   */
+/* the margin of a sheet so the press can be read off it. Seven         */
+/* patches, butted into ONE continuous band, stepping from bone at the  */
+/* white belt to solid ink at 黒帯. The rank is the position in the     */
+/* band, not a distance travelled along a bar — and the aphorism        */
+/* printed above it, «Каждый чёрный пояс когда-то был белым», is        */
+/* literally the strip's two ends.                                      */
+/*                                                                      */
+/* The last patch is the ground exactly: at full density the ink and    */
+/* the page are the same black, which is the point and not a missing    */
+/* cell. The band's hairline is what states its extent, and it is drawn */
+/* ONCE around the whole strip — a rule per patch would print six lines */
+/* that are not steps. The leading between ranks is padding inside each */
+/* row rather than a gap between them, because a gap would break the    */
+/* band into seven swatches again.                                      */
+/* ------------------------------------------------------------------ */
+.belt-wedge {
+  --wedge-w: 2.75rem;
+  position: relative;
   display: flex;
+  flex-direction: column;
+}
+.belt-wedge::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: var(--wedge-w);
+  box-shadow: inset 0 0 0 1px var(--color-rule-dark);
+  pointer-events: none;
+}
+.belt-wedge__rank {
+  display: grid;
+  grid-template-columns: var(--wedge-w) 1fr auto;
   align-items: center;
-  gap: 1rem;
+  column-gap: 1rem;
+  padding-block: 0.45rem;
+}
+.belt-wedge__cell {
+  align-self: stretch;
+  background: color-mix(in oklab, var(--color-ink) var(--tone, 0%), var(--color-bone));
 }
 
 .footer__rule {
@@ -609,23 +940,18 @@
   .footer__col--contacts {
     grid-column: 8 / span 3;
   }
-  /* with a slot wider than the row, the kyu range becomes the list's
-     second vertical instead of trailing the colour name off into space
-     — the belts read as the little table they are */
-  .footer__belt {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-  }
 }
 
 @media (min-width: 1600px) {
-  /* extends, does not restyle, the shared `.belt-swatch`: the hairline,
-     the hatch and the colour stay in globals.css where every ground
-     shares them, and only the size follows the sheet — a 36×8 swatch
-     beside 16px type on a 2376px trim is a tick, not a belt */
-  .footer .belt-swatch {
-    width: 3rem;
-    height: 0.625rem;
+  /* only the size follows the sheet: a 44px-wide wedge beside 16px type on a
+     2376px trim is a tick, not a strip. The row leading opens with it, so the
+     band stays a band of squarish patches rather than seven long slots. */
+  .belt-wedge {
+    --wedge-w: 3.5rem;
+  }
+  .belt-wedge__rank {
+    padding-block: 0.6rem;
+    column-gap: 1.5rem;
   }
   .footer .footer__aphorism {
     font-size: min(3.4vw, 5.5rem);
@@ -633,4 +959,44 @@
   .footer__list {
     gap: 1rem;
   }
+}
+
+/* ================================================================== */
+/* 4 · THE FOOT MARGIN                                                 */
+/*                                                                      */
+/* The bar pinned to the bottom of a phone. It is the other permanently */
+/* fixed piece of chrome, and it had none of the header's care: one     */
+/* paint state, paper ground, a solid black slab for a button, and no   */
+/* ground variant at all — so across chapters 五 and 十, which run      */
+/* several screens each on a 390px sheet, a cream strip lay welded over */
+/* the bottom of a black page.                                          */
+/*                                                                      */
+/* The ink ground is `.mobile-bar--ink` in globals.css, taken from the  */
+/* same `useActiveChapter().ground` the header reads. What lives here   */
+/* is the bar's layout and the size of the press standing in it: the    */
+/* bar is 56px, so `--press-h` is 56px and the seal is a 56px square    */
+/* flush to the right trim — the control ends exactly where the sheet   */
+/* does, which is what makes it read as a foot margin rather than as a  */
+/* storefront's sticky conversion bar.                                  */
+/* ================================================================== */
+.mobile-bar__row {
+  display: flex;
+  align-items: stretch;
+  height: 3.5rem;
+}
+.mobile-bar__now {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  /* the flex child's automatic minimum is its content, and two lines of a
+     live readout would push the CTA off the trim without this */
+  min-width: 0;
+  /* the readout starts on the trim like every other line on the sheet; the
+     right side is only the air before the control, not a second margin */
+  padding-inline: var(--gutter) 1rem;
+}
+.mobile-bar__act {
+  --press-h: 3.5rem;
+  --press-pad: 1.125rem;
 }

@@ -30,11 +30,13 @@
 
   /*
     Everything in this chapter a reader actually reads at small size — the
-    entry labels, the running head's figure list, the romaji, the folio, the
-    equation's operators, the dictionary dash, and the promise's quieter first
-    line — is set in the palette's quiet ink. `--color-ink-3` is kept for the
-    ornament that is not text: the register marks and the figure's ghost seat.
-    See the note beside `--color-ink-quiet` in globals.css for why.
+    entry labels, the running head's figure list, the romaji, the equation's
+    operators, the dictionary dash, and the promise's quieter first line — is
+    set in the palette's quiet ink. `--color-ink-3` is left with the one job it
+    is legal for, ornament that is not type: the register marks, and nothing
+    else on the page. Every ruled thing — the gutter, the frame, the figure's
+    ghost seat, the ledger — takes a graded `--color-rule*` instead. See the
+    note beside `--color-ink-quiet` in globals.css for why.
   */
   --ink-quiet: var(--color-ink-quiet);
 
@@ -63,23 +65,19 @@
   --promise-size: clamp(2.5rem, 7.4vw, 10rem);
 
   /*
-    Фиг. 02 fills its column slot rather than sitting inside it as a picture —
-    but only from 1600 up, where the spread re-columns to four and the slot is
-    478.9px at 1600, 575px at 1920 and 767.9px at 2560. 48rem is exactly the
-    2560 slot, so the diagram reaches its column there and then stops growing
-    rather than becoming a wall.
+    The cap on Фиг. 02, and it only governs the STACKED layout — from 1024 up
+    it is released (see the two `--fig-max: none` blocks below) and the figure
+    fills whatever column slot the spread gives it: five columns to 1600, four
+    above it, which is 537px at 1440 and 768px at 2560. That is the point of
+    the plate — the ruled gutter beside it bisects the void only if the square
+    actually reaches its own slot.
 
-    Below 1600 the figure spans five columns and this cap does NOT track them:
-    measured in the browser with a scrollbar, five columns pass 448px at about
-    1200px and are 537px at 1440, so from there up the framed square stops ~89px
-    short of its own slot and the ruled gutter beside it no longer bisects the
-    void. That is exactly what v1.0 did
-    with its hardcoded `max-width: 28rem`, and it is kept: this redesign's
-    invariant is that nothing at or below the width the old centred column was
-    drawn for changes size. Widen it here only together with a decision to
-    redraw the 1024–1599 spread.
+    So what is left for this cap is the stacked layout under 1024, where there
+    is no slot and the figure is simply a picture in a column. It read 28rem,
+    which nothing ever saw: the stacked block below immediately overrode it
+    with 24rem and every width above it releases the cap entirely.
   */
-  --fig-max: 28rem;
+  --fig-max: 24rem;
 
   /* one gap, so the prose and the plate note it sits beside share a top edge
      when the entry body splits in two on a wide sheet */
@@ -129,6 +127,19 @@
   /* the running head's air grows with the sheet from 1778 up */
   padding-top: clamp(1rem, 0.9vw, 1.75rem);
 }
+/*
+  The outer field of the running head. It holds both of the marks that range to
+  the right trim — the inline folio, which only prints on a phone because that
+  is where the binding margin and its numeral do not exist, and the figure list,
+  which only prints above it — so the head is a two-cell row at every width and
+  the survivor is always pinned to the trim. Exactly one of the two is ever
+  visible, so the gap is only ever insurance.
+*/
+.about__head-marks {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
 .about__head-figs {
   display: none;
 }
@@ -152,9 +163,6 @@
    flips: the word is introduced first and the figure follows it as the
    demonstration. A reader on a phone should never meet 東 cold. */
 @media (max-width: 1023px) {
-  .about {
-    --fig-max: 24rem;
-  }
   .about__entry--name {
     display: flex;
     flex-direction: column;
@@ -187,7 +195,6 @@
 }
 .about__head-figs,
 .about__romaji,
-.about__colophon-folio,
 .about__fig-no,
 .about__eq-key {
   color: var(--ink-quiet);
@@ -254,11 +261,18 @@
   width: 100%;
   height: 100%;
 }
-/* the empty socket the sun belongs in — printed, so the destination is
-   legible before anything has moved */
+/*
+  The empty socket the sun belongs in — printed, so the destination is legible
+  before anything has moved. It is a guide line, not a ghost of the type, so it
+  takes the standard printed hairline's tone at full strength rather than the
+  ornament grey at 38%: that mixed down to about 1.2:1 on this paper, which on
+  a plate the reader is being asked to READ as an empty seat was a seat they
+  could not quite see. `--color-rule` is the same 1.5:1 as every other ruled
+  line in the chapter, and the seat is drawn thinner than the sun that covers
+  it, so the finished 東 still prints with no halo.
+*/
 .azuma-fig__seat {
-  color: var(--color-ink-3);
-  opacity: 0.38;
+  color: var(--color-rule);
 }
 .azuma-fig__tree,
 .azuma-fig__sun {
@@ -292,11 +306,17 @@
 .azuma-fig__reg--bl { top: 100%; left: 0; transform: translate(-50%, -50%); }
 .azuma-fig__reg--br { top: 100%; left: 100%; transform: translate(-50%, -50%); }
 
-/* leader labels: the diagram's key, hung inside the frame. Inset and leader
+/* Leader labels: the diagram's key, hung inside the frame. Inset and leader
    are proportional to the frame from ~1750 up, so a label on a 768px plate
-   is not pinned 16px off the edge by a rule written for a 448px one. */
+   is not pinned 16px off the edge by a rule written for a 448px one.
+
+   They ARE the diagram — without them the figure is three glyphs in a box — so
+   they print at every width and only the leader shortens on a narrow frame.
+   (This rule used to declare `display: none` and be turned back on by a second
+   `display: block` forty lines further down, which is a switch nobody dares
+   touch because it looks load-bearing. It is not.) */
 .azuma-fig__label {
-  display: none;
+  display: block;
   position: absolute;
   right: clamp(1rem, 1vw, 1.75rem);
   color: var(--color-ink-2);
@@ -314,9 +334,6 @@
 }
 .azuma-fig__label--tree { top: 21%; }
 .azuma-fig__label--sun { top: 46%; }
-/* The labels ARE the diagram — without them the figure is three glyphs in a
-   box. They print at every width; only the leader shortens on a narrow frame. */
-.azuma-fig__label { display: block; }
 
 /* the legend: 木 + 日 = 東, registered in one shared 109-unit square so
    the sun appears in its true seat instead of being re-centred. It is set
@@ -367,13 +384,11 @@
 .about__ledger-wrap {
   max-width: var(--measure-lead);
 }
+/* in the two-column body the ledger sets beside the prose, not under it.
+   (There were two of these blocks at the same breakpoint, the first setting a
+   fluid top margin the second immediately overwrote with 0.35rem. Only the
+   value that ever printed is kept.) */
 @media (min-width: 1024px) {
-  .about__ledger-wrap {
-    margin-top: clamp(1.75rem, 2.4vw, 2.5rem);
-  }
-}
-@media (min-width: 1024px) {
-  /* in the two-column body the ledger sets beside the prose, not under it */
   .about__ledger-wrap {
     margin-top: 0.35rem;
     max-width: none;
@@ -382,6 +397,14 @@
     margin-top: 0;
   }
 }
+/*
+  Three weights of line in one small table, which is the whole reason the book
+  grades its rules: the table's head and foot are the standard printed hairline
+  and the separations between rows are the hair weight. One weight for all six
+  lines made the table read as a stack of six equal bands with no top and no
+  bottom — a form to fill in. Graded, it reads as a printed reference: the
+  block is bounded, and the rows are counted inside it.
+*/
 .about__ledger {
   margin: 0;
   border-top: 1px solid var(--color-rule);
@@ -393,7 +416,10 @@
      rows run 1371px wide at 2560, where a flat 0.85rem prints as a squashed
      strip; 0.75vw crosses it at 1813 and tops out at 24px. */
   padding: clamp(0.85rem, 0.75vw, 1.5rem) 0;
-  border-bottom: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule-hair);
+}
+.about__ledger-row:last-child {
+  border-bottom-color: var(--color-rule);
 }
 .about__ledger-row dt {
   flex: 1 1 auto;
@@ -425,6 +451,11 @@
 /* ---------------------------------------------------------------- */
 /* 極真 — the specimen                                                */
 /* ---------------------------------------------------------------- */
+/* The specimen block is a grid item ranged to the trim on the spread and a
+   plain block on a phone, so it has no free space to distribute either way:
+   the row is always exactly as wide as the two glyphs. It carried a
+   `justify-content: inherit` that inherited `normal` from a block parent and
+   therefore did nothing at any width. */
 .about__specimen-glyphs {
   display: flex;
   gap: clamp(0.75rem, 1.6vw, 1.5rem);
@@ -441,9 +472,6 @@
 }
 .about__romaji {
   margin-top: 0.85rem;
-}
-.about__specimen-glyphs {
-  justify-content: inherit;
 }
 
 /* ---------------------------------------------------------------- */
@@ -512,6 +540,11 @@
   margin-bottom: clamp(2.5rem, 4.2vw, 6.5rem);
 }
 .about__promise-type {
+  /*
+    `--bleed` must equal the `bleed` prop given to the promise's LineReveal:
+    every offset the hidden twin below uses is measured from it.
+  */
+  --bleed: 0.2em;
   position: relative;
   font-family: var(--font-display);
   font-size: var(--promise-size);
@@ -526,15 +559,11 @@
 }
 
 /*
-  `--bleed` must equal the `bleed` prop given to the promise's LineReveal.
   The twin is absolutely positioned, so it establishes a block formatting
   context and its children's negative margins do NOT collapse outward the
   way LineReveal's do inside the flow. That costs exactly one bleed at the
   top, and this offset pays it back.
 */
-.about__promise-type {
-  --bleed: 0.2em;
-}
 .about__promise-mark {
   position: absolute;
   top: var(--bleed);
@@ -544,15 +573,13 @@
   pointer-events: none;
   user-select: none;
 }
-.about__promise-bleed {
-  padding-block: var(--bleed);
-  margin-block: calc(var(--bleed) * -1);
-}
 /* mirrors LineReveal's per-line wrapper (padding + negative margin) so the
    twin's line boxes land on the real ones; without this the mark drifts down
    the page by one `bleed` per line and rules through the words */
 .about__promise-bleed {
   display: block;
+  padding-block: var(--bleed);
+  margin-block: calc(var(--bleed) * -1);
 }
 .about__promise-line {
   display: block;
@@ -583,41 +610,19 @@
 }
 
 /* ---------------------------------------------------------------- */
-/* Colophon                                                          */
+/* Colophon — layout/ChapterFoot                                     */
+/*                                                                   */
+/* The hand-built colophon (a rule, a folio, two red-on-hover links)  */
+/* is gone: it was the prototype the shared foot was cut from, and    */
+/* the only thing this chapter still has to say about it is where it  */
+/* sits. The foot brings its own top margin, but the promise above it */
+/* already owns the air under the monument — that measurement was     */
+/* made against this chapter's rhythm and the component's default     */
+/* would simply be added to it, opening a band of blank paper at the  */
+/* bottom of the page nearly two monuments deep.                     */
 /* ---------------------------------------------------------------- */
-.about__colophon-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding-top: clamp(1rem, 0.9vw, 1.75rem);
-}
-.about__colophon-folio {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.about__colophon-kanji {
-  width: 0.75rem;
-  height: auto;
-}
-.about__colophon-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem 2rem;
-}
-.about__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 44px;
-  color: var(--color-ink);
-  border-bottom: 1px solid var(--color-rule);
-  transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
-}
-.about__link:hover {
-  color: var(--color-shu);
-  border-color: var(--color-shu);
+.about .chapter-foot {
+  margin-top: 0;
 }
 
 /* ---------------------------------------------------------------- */

@@ -13,11 +13,19 @@
   --color-ink: #151311;
   --color-ink-2: #5a554e;
   /*
-    The quiet ink. #726c62 is the lightest warm tone on this paper that still
-    clears 4.5:1, so it is legal for text at any size and the size can never
-    invalidate it. It exists because `--color-ink-3` cannot carry text at all —
+    The quiet ink. It exists because `--color-ink-3` cannot carry text at all —
     measured against paper it is 2.399:1, below even the 3:1 large-text floor
     (the v1.0 spec table says 2.9:1; the table is wrong).
+
+    It was #726C62, the lightest warm tone that clears 4.5:1 on FLAT paper —
+    4.53:1, which is to say no headroom whatever. That was survivable while the
+    ground was a single hex and stopped being survivable the moment the sheet
+    got a surface: the paper stock multiplies its noise into the ground, so the
+    darkest patches of paper are darker than the token was measured against,
+    and #726C62 fell to 4.14:1 there. #6B6559 is 5.04:1 on nominal paper and
+    4.60:1 on the darkest patch the stock can produce, which is why the stock's
+    two tiles are each capped at a 0.98 multiplier — 0.96 together. The tone
+    and the texture are one decision and neither can be retuned alone.
 
     Two quiet tones, two roles, and they are not interchangeable:
       --color-ink-2     secondary TEXT — leads, notes, informational mono
@@ -26,16 +34,53 @@
                         rather than reads
       --color-ink-3     ORNAMENT ONLY, never text — register marks, ruler ticks
   */
-  --color-ink-quiet: #726c62;
+  --color-ink-quiet: #6b6559;
   --color-ink-3: #a29b90;
-  --color-rule: #d8d2c6;
+  /*
+    Rules, graded. One weight for every line in the book meant the hairline that
+    separates two entries in a list and the rule that opens a chapter were the
+    same mark, and at #D8D2C6 — 1.31:1 on this paper — both were on the edge of
+    not printing at all. Three now, none of them ever carrying text, so none of
+    them has an AA exposure:
+      --color-rule-hair   ornamental separations inside a block   ~1.3:1
+      --color-rule        the standard printed hairline           ~1.5:1
+      --color-rule-strong a chapter's own opening rule            ~1.9:1
+  */
+  --color-rule-hair: #ddd7cb;
+  --color-rule: #c8c1b3;
+  --color-rule-strong: #ada598;
   /* on ink */
   --color-bone: #efe9dd;
   --color-bone-2: #a8a196;
-  --color-rule-dark: #2b2724;
-  /* the brush */
+  /*
+    The same three weights mirrored on ink, measured against #151311 so the
+    grade the reader sees on paper is the grade they see on the dark chapters
+    (~1.2 / ~1.5 / ~2.1). `--color-rule-dark` moved from #2B2724, which was
+    1.27:1 — a hairline on ink that was really a hair weight wearing the
+    standard's name, leaving nothing below it to grade down to.
+  */
+  --color-rule-dark-hair: #282422;
+  --color-rule-dark: #38332f;
+  --color-rule-dark-strong: #4f4943;
+  /*
+    The brush — and the rota that governs it.
+
+    Vermilion has exactly three jobs on this page and no fourth:
+      · an actual <Brush> mark, drawn by the sensei's hand
+      · the <Seal>
+      · the reader's own accent — the focus ring and ::selection
+    It is not a label colour, not a status colour, not a hover state, not a
+    wordmark and not an ornament. It was all five, in all ten chapters, and an
+    accent that is never absent is not an accent — the hero's one giant stroke
+    had to compete with red labels, red brackets and a red masthead before the
+    reader had scrolled a pixel. Anything else that needs to be quiet, marked
+    or emphasised uses the ink ramp: --color-ink-2 for secondary text,
+    --color-ink-quiet for marks that are counted, --color-ink-3 for pure
+    ornament (never text — 2.4:1), --color-rule* for lines. State is marked by
+    a rule, a fill, a weight or a ground inversion, never by hue alone (1.4.1).
+  */
   --color-shu: #c41e2a;
-  --color-shu-lift: #e8404a; /* red for dark grounds, ≥4.5:1 on ink */
+  --color-shu-lift: #ec4a54; /* red for dark grounds; 5.01:1 flat, 4.64:1 on grained ink */
   --color-accent: #c41e2a;
 
   /* type */
@@ -51,14 +96,22 @@
     and only the cap moved, so nothing below ~1600px changes size and nothing
     above it stays stuck at a size chosen for a narrower page.
   */
+  /*
+    Every ceiling is solved so that it lands at the same width — about 2560 —
+    rather than at whatever width each role happened to hit its old cap. The
+    display roles already did; the supporting roles froze between 1400 and 1700
+    and then watched the sheet grow away from them, so a 2560 spread ran a
+    title 5.5 times the size of its own lead. The vw terms are untouched, so
+    nothing below 1600 moves.
+  */
   --text-hero: clamp(2.9rem, 8.6vw, 15rem);
   --text-chapter: clamp(2.25rem, 5.6vw, 9rem);
-  --text-statement: clamp(1.5rem, 2.6vw, 3.75rem);
-  --text-h3: clamp(1.25rem, 1.6vw, 2.125rem);
-  --text-lead: clamp(1.125rem, 1.4vw, 1.625rem);
+  --text-statement: clamp(1.5rem, 2.6vw, 4.15rem);
+  --text-h3: clamp(1.25rem, 1.6vw, 2.55rem);
+  --text-lead: clamp(1.125rem, 1.4vw, 2.25rem);
   /* mono holds 11px until 1770, then grows — folios must stay legible on a
      sheet three times the width they were drawn for */
-  --text-micro: clamp(0.6875rem, 0.62vw, 0.875rem);
+  --text-micro: clamp(0.6875rem, 0.62vw, 0.99rem);
 
   /* motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -121,9 +174,20 @@
     overflow-x: clip;
   }
 
+  /*
+    Selection is one of the three jobs vermilion is allowed (the brush, the
+    seal, and the reader's own mark). It has to flip with the ground like every
+    other paired token: #C41E2A on #151311 is 2.12:1, which is the exact
+    pairing the palette comment above exists to forbid, so a phrase dragged on
+    an ink chapter came out as a dark bruise rather than a stamp.
+  */
   ::selection {
     background: var(--color-shu);
     color: var(--color-paper-3);
+  }
+  .ground-ink ::selection {
+    background: var(--color-shu-lift);
+    color: var(--color-ink);
   }
 
   h1, h2, h3, h4 {
@@ -181,11 +245,32 @@
   line-height: 1.18;
   text-wrap: balance;
 }
+/*
+  The mono has two jobs and they need two roles.
+
+  `.t-mono` is for marks a reader COUNTS, not reads: folios, figure and plate
+  numbers, ordinals, times, ages, and labels of three words or fewer. Uppercase
+  and tracked, which is right for a label and wrong for a sentence — 0.12em of
+  tracking on running Cyrillic at 11px is a line the eye has to decode letter
+  by letter, and «ТОЧКУ СБОРА ПУБЛИКУЕМ В TELEGRAM КАЖДУЮ НЕДЕЛЮ» is a
+  sentence, not a label.
+
+  `.t-note` is the same voice for matter that is actually read: sentence case,
+  normal tracking, a size that clears the label sizes. It is still the mono, so
+  it still reads as apparatus rather than as body copy.
+*/
 .t-mono {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.t-note {
+  font-family: var(--font-mono);
+  font-size: clamp(0.8125rem, 0.7vw, 1.05rem);
+  letter-spacing: 0.005em;
+  line-height: 1.55;
   font-variant-numeric: tabular-nums;
 }
 .t-caption {
@@ -204,25 +289,50 @@
   line-height: 1.45;
 }
 
-/* wordmark stand-in */
+/* ------------------------------------------------------------------ */
+/* Wordmark stand-in                                                   */
+/*                                                                     */
+/* Printed in ink, not vermilion. The masthead is fixed, so a red one    */
+/* put the page's one accent in the top-left corner of every single     */
+/* screen — permanently, in every chapter — and an accent that is       */
+/* always on screen is not an accent, it is a brand colour. The brush   */
+/* has to be able to arrive. Red here is also the reason the hero's     */
+/* stroke had to compete with something before the reader had scrolled  */
+/* a pixel.                                                             */
+/* ------------------------------------------------------------------ */
 .wordmark {
   font-family: var(--font-wordmark), "Unbounded", var(--font-body);
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--color-shu);
+  color: var(--color-ink);
 }
-.ground-ink .wordmark { color: var(--color-shu-lift); }
+.ground-ink .wordmark { color: var(--color-bone); }
 .wordmark-tag {
   font-family: var(--font-body);
   font-weight: 500;
   text-transform: lowercase;
-  color: var(--color-shu);
+  color: var(--color-ink-2);
 }
-.ground-ink .wordmark-tag { color: var(--color-shu-lift); }
+.ground-ink .wordmark-tag { color: var(--color-bone-2); }
 
-/* photographic plates */
+/* ------------------------------------------------------------------ */
+/* Photographic plates                                                 */
+/*                                                                     */
+/* There is one press, and every plate goes through it.                */
+/*                                                                     */
+/* `.plate-bw` used to be the default: grayscale, a 12% warm tint, and  */
+/* then contrast(1.05) — which is not a print grade. It left the full   */
+/* 0–255 range intact and pushed the ends further apart, so a plate's   */
+/* highlights came out at 255 on a sheet whose paper is 243: photographs */
+/* were printing BRIGHTER and COLDER than the paper around them, which  */
+/* is the one thing a plate physically cannot do. The duotone maps      */
+/* luminance onto the line between two real inks, so the lightest tone   */
+/* in any plate is exactly the page's own paper and the darkest is       */
+/* exactly its ink. It is kept only as a fallback for a browser that     */
+/* cannot resolve the filter reference.                                  */
+/* ------------------------------------------------------------------ */
 .plate-bw {
-  filter: grayscale(1) sepia(0.12) contrast(1.05);
+  filter: grayscale(1) contrast(1.02);
 }
 /*
   The morning spread's grade. `saturate(0.72)` kept 72% of the chroma, so a
@@ -236,26 +346,98 @@
 .plate-duotone {
   filter: grayscale(1) contrast(1.04) url("#duotone-paper-ink");
 }
+/* the same press, run to bone instead of paper — for plates on a dark chapter,
+   where a paper-white highlight would punch a hole in the ground */
+.plate-duotone-ink {
+  filter: grayscale(1) contrast(1.04) url("#duotone-ink-bone");
+}
+
+/* ------------------------------------------------------------------ */
+/* The stock                                                           */
+/*                                                                     */
+/* A sheet of paper is not one value, and a chapter printed as a single */
+/* hex is the one thing on this page that could only be a stylesheet.   */
+/* Two noise fields do the work, both multiplied into the ground rather */
+/* than laid over it as an element, so there is no extra layer to       */
+/* composite and no blend mode on a 14 000px page:                      */
+/*                                                                     */
+/*   --stock-tooth  140px, high frequency — the grain of the surface    */
+/*   --stock-cloud  420px, low frequency  — the cloudiness of the pulp  */
+/*                                                                     */
+/* Two scales, deliberately coprime, because one tile repeated across a */
+/* 2560 sheet reads as a repeat; two beating against each other do not. */
+/* Both are held well under the threshold where they would touch the    */
+/* type — the sheet should feel like paper before the reader notices     */
+/* there is anything on it.                                             */
+/* ------------------------------------------------------------------ */
+@theme {
+  --stock-tooth: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='t' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='3' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncG type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncB type='linear' slope='0.02' intercept='0.98'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E");
+  --stock-cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.28' numOctaves='4' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncG type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncB type='linear' slope='0.02' intercept='0.98'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");}
 
 /* paper and ink grounds */
 .ground-paper {
-  background: var(--color-paper);
+  background-color: var(--color-paper);
+  background-image: var(--stock-tooth), var(--stock-cloud);
+  background-size: 140px 140px, 420px 420px;
+  background-blend-mode: multiply, multiply;
   color: var(--color-ink);
   --color-accent: var(--color-shu);
 }
+/*
+  The dark chapters are NOT given the stock, and that is a decision, not an
+  omission. Multiply has nothing to take from ink, and screening a noise field
+  back in lifts the black to charcoal and reads as compression noise rather
+  than as paper — the eye resolves luminance variation in the shadows far
+  better than in the highlights, so the same field that is a surface on paper
+  is a defect on ink. The two ink chapters carry <Grain> instead, which sits
+  over the whole plate at soft-light and includes the photograph in the grain,
+  which is what a printed dark page actually does.
+*/
 .ground-ink {
   background: var(--color-ink);
   color: var(--color-bone);
   --color-accent: var(--color-shu-lift);
 }
+/* The stock is a surface, not a decoration: when the reader has asked for less,
+   it stays. Nothing here moves. */
 
-/* hairline rule */
+/* ------------------------------------------------------------------ */
+/* Hairlines, graded                                                   */
+/*                                                                     */
+/* One weight for every line in the book meant the rule that opens a    */
+/* chapter and the hairline that separates two rows of a table were the */
+/* same mark, so the page had no line hierarchy at all — which is a     */
+/* large part of why it read as a component library rather than as      */
+/* something typeset. Three marks, and the choice is semantic:          */
+/*                                                                     */
+/*   .rule--strong  opens a chapter. 2px, the heaviest tone. One per    */
+/*                  chapter, at the head, and nowhere else.             */
+/*   .rule          the standard printed hairline: a chapter's foot, a  */
+/*                  block boundary, the head of a table.                */
+/*   .rule--hair    separations INSIDE a block: table rows, list        */
+/*                  entries, definition leaders. Never structural.      */
+/*                                                                     */
+/* None of the three ever carries text, so none has an AA exposure.     */
+/* ------------------------------------------------------------------ */
 .rule {
   height: 1px;
   background: var(--color-rule);
 }
+.rule--hair {
+  background: var(--color-rule-hair);
+}
+.rule--strong {
+  height: 2px;
+  background: var(--color-rule-strong);
+}
 .ground-ink .rule {
   background: var(--color-rule-dark);
+}
+.ground-ink .rule--hair {
+  background: var(--color-rule-dark-hair);
+}
+.ground-ink .rule--strong {
+  background: var(--color-rule-dark-strong);
 }
 
 /* ------------------------------------------------------------------ */
@@ -315,8 +497,9 @@
 /*                                                                     */
 /* The header is furniture printed on the page, not a panel floating   */
 /* above it, so it takes the ground it stands on. Everything in the    */
-/* bar is re-stated in the ink ramp — including the accent, which      */
-/* becomes `--color-shu-lift`, the only red that clears 4.5:1 on ink.   */
+/* bar is re-stated in the ink ramp. The one red left in it is the     */
+/* focus ring, where `--color-shu-lift` is the only vermilion that      */
+/* clears the 3:1 non-text floor on #151311 — the paper ring is 2.1:1.  */
 /* The bar is transparent until it is scrolled, so an unscrolled ink    */
 /* header simply inherits the chapter's own black.                      */
 /* ------------------------------------------------------------------ */
@@ -327,9 +510,11 @@
   background: color-mix(in oklab, var(--color-ink) 92%, transparent);
   box-shadow: 0 1px 0 var(--color-rule-dark);
 }
-.site-header--ink .wordmark,
+.site-header--ink .wordmark {
+  color: var(--color-bone);
+}
 .site-header--ink .wordmark-tag {
-  color: var(--color-shu-lift);
+  color: var(--color-bone-2);
 }
 .site-header--ink .nav-link,
 .site-header--ink .menu-toggle,
@@ -346,10 +531,10 @@
   color: var(--color-bone-2) !important;
 }
 .site-header--ink .nav-link::after {
-  background: var(--color-shu-lift);
+  background: var(--color-bone);
 }
 .site-header--ink .lang-toggle__current {
-  text-decoration-color: var(--color-shu-lift);
+  text-decoration-color: var(--color-bone);
 }
 .site-header--ink .lang-toggle__rule {
   background: var(--color-rule-dark);
@@ -359,7 +544,7 @@
   color: var(--color-bone-2);
 }
 .site-header--ink .lang-toggle__link:hover {
-  color: var(--color-shu-lift);
+  color: var(--color-bone);
 }
 /* the CTA inverts with the ground: ink-on-paper becomes bone-on-ink */
 .site-header--ink .btn-ink {
@@ -368,9 +553,11 @@
   border-color: var(--color-bone);
 }
 .site-header--ink .btn-ink:hover {
-  background: var(--color-shu-lift);
-  border-color: var(--color-shu-lift);
-  color: var(--color-ink);
+  /* transparent here, not `--color-ink`: the bar itself is 92% ink once it is
+     scrolled, and an opaque button would print as a darker patch inside it */
+  background: transparent;
+  border-color: var(--color-bone);
+  color: var(--color-bone);
 }
 .site-header--ink :where(a, button):focus-visible {
   outline-color: var(--color-shu-lift);
@@ -381,6 +568,8 @@
   padding-block: 0.25rem;
   white-space: nowrap;
 }
+/* the current/hovered link is ruled under, and the rule is printed in ink: it
+   is a hairline that wipes on, which is a mark, not a colour change */
 .nav-link::after {
   content: "";
   position: absolute;
@@ -388,7 +577,7 @@
   right: 0;
   bottom: -2px;
   height: 1px;
-  background: var(--color-shu);
+  background: var(--color-ink);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform var(--duration-base) var(--ease-out);
@@ -406,12 +595,14 @@
   color: var(--color-ink);
 }
 .lang-toggle__current {
-  /* the current locale is never marked by colour alone (1.4.1): it keeps the
-     vermilion rule under it, the one accent the chrome is allowed */
+  /* the current locale is marked by a rule under it, not by a colour (1.4.1
+     anyway) — and the rule is ink, because the chrome gets no accent: the
+     underline IS the mark and it does not need to be red to be one */
   text-decoration: underline;
   text-underline-offset: 0.35em;
-  text-decoration-color: var(--color-shu);
+  text-decoration-color: var(--color-ink);
 }
+.ground-ink .lang-toggle__current { text-decoration-color: var(--color-bone); }
 .lang-toggle__rule {
   flex: none;
   width: 1px;
@@ -424,19 +615,32 @@
   color: var(--color-ink-2);
   transition: color var(--duration-fast) var(--ease-out);
 }
-.lang-toggle__link:hover { color: var(--color-shu); }
+/* the quiet locale steps up to full ink on hover — a weight change, which is
+   what a printed page has instead of a hue change */
+.lang-toggle__link:hover { color: var(--color-ink); }
 .menu-toggle {
   color: var(--color-ink);
   min-height: 44px;
   padding-inline: 0.5rem;
 }
-.menu__link {
+/*
+  Contents entries rule themselves under on hover rather than turning red. The
+  underline is declared at rest in `transparent` so the ink fades in without
+  the line's own metrics changing — no reflow, no jump in a long list.
+*/
+.menu__link,
+.menu__chapter {
   color: var(--color-ink);
-  transition: color var(--duration-fast) var(--ease-out);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.28em;
+  transition: text-decoration-color var(--duration-fast) var(--ease-out);
 }
-.menu__link:hover { color: var(--color-shu); }
-.menu__chapter { color: var(--color-ink); }
-.menu__chapter:hover { color: var(--color-shu); }
+.menu__link:hover,
+.menu__chapter:hover {
+  text-decoration-color: currentColor;
+}
 .skip-link {
   position: fixed;
   top: 0.75rem;
@@ -474,27 +678,46 @@
   transition: color var(--duration-fast) var(--ease-out);
 }
 .legend__btn--on, .legend__btn:hover { color: var(--color-ink); }
+/*
+  Empty square / filled square. The filter's state was carried by turning the
+  dot red, which is both a job vermilion does not have and a colour-only signal
+  (1.4.1); an outline that fills is a shape change, legible in greyscale and in
+  the ink ramp, and it costs the page nothing.
+*/
 .legend__dot {
   width: 0.5rem;
   height: 0.5rem;
-  border: 1px solid var(--color-ink);
+  border: 1px solid currentColor;
   background: transparent;
 }
-.legend__btn--on .legend__dot { background: var(--color-shu); border-color: var(--color-shu); }
+.legend__btn--on .legend__dot { background: currentColor; }
 
 /* accordion */
 .accordion__btn { color: var(--color-ink); }
-.accordion__btn:hover .accordion__q { color: var(--color-shu); }
-.accordion__q { transition: color var(--duration-fast) var(--ease-out); }
+/* the question rules itself under on hover instead of reddening — same
+   argument, and the same transparent-at-rest underline as the contents menu */
+.accordion__q {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.18em;
+  transition: text-decoration-color var(--duration-fast) var(--ease-out);
+}
+.accordion__btn:hover .accordion__q { text-decoration-color: var(--color-rule-strong); }
+.ground-ink .accordion__btn:hover .accordion__q { text-decoration-color: var(--color-rule-dark-strong); }
 .t-h3 { font-size: var(--text-h3); line-height: 1.25; }
 .font-display { font-family: var(--font-display); }
 
 /* footer */
 .footer-link {
   color: var(--color-bone);
-  transition: color var(--duration-fast) var(--ease-out);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.28em;
+  transition: text-decoration-color var(--duration-fast) var(--ease-out);
 }
-.footer-link:hover { color: var(--color-shu-lift); }
+.footer-link:hover { text-decoration-color: currentColor; }
 /*
   The belt ladder's rule. A track in the ink ramp with a bone fill that reaches
   `--fill` of the way across — one seventh further per rank, solid at black.
@@ -526,17 +749,72 @@
   background: var(--color-ink);
   color: var(--color-paper);
 }
-.mobile-bar__cta:active { background: var(--color-shu); }
+/* pressed, not reddened: the block inverts to the paper it is printed on, which
+   is a 12:1 change a thumb cannot miss and costs the page none of its accent */
+.mobile-bar__cta:active {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: inset 0 0 0 1px var(--color-ink);
+}
 
-/* buttons */
+/* ------------------------------------------------------------------ */
+/* The bar over an ink chapter                                         */
+/*                                                                     */
+/* The same argument as `.site-header--ink`: the bar is furniture       */
+/* printed on the page, so it takes the ground behind it. The bottom    */
+/* bar sits over the last two chapters of the book — 五 Results and    */
+/* 十 Join — and on paper values it prints a cream slab across the      */
+/* bottom of a black page.                                             */
+/* ------------------------------------------------------------------ */
+.mobile-bar--ink {
+  background: var(--color-ink);
+  color: var(--color-bone);
+  box-shadow: 0 -1px 0 var(--color-rule-dark);
+}
+/*
+  Same trap as the header's running head: the label is printed with a
+  `text-ink-2` utility (#5A554E — 6.4:1 on paper, 2.1:1 on ink) and a utility
+  beats an unlayered rule on the parent, so the ink ramp's own secondary tone
+  has to be set on the element and marked.
+*/
+.mobile-bar--ink .mobile-bar__label {
+  color: var(--color-bone-2) !important;
+}
+.mobile-bar--ink .mobile-bar__cta {
+  background: var(--color-bone);
+  color: var(--color-ink);
+}
+.mobile-bar--ink .mobile-bar__cta:active {
+  background: transparent;
+  color: var(--color-bone);
+  box-shadow: inset 0 0 0 1px var(--color-bone);
+}
+/* the accent, and the only red the bar gets: #E8404A is 4.7:1 on #151311,
+   where the paper ring (#C41E2A) is 2.1:1 — under the 3:1 focus floor */
+.mobile-bar--ink :where(a, button):focus-visible {
+  outline-color: var(--color-shu-lift);
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons                                                             */
+/*                                                                     */
+/* Nothing here turns red any more. A solid block that reddens under    */
+/* the pointer spends the page's one accent on a mouse position, and    */
+/* it spent it in nine places. The state change is a ground swap        */
+/* instead: the solid inverts to its own outline, which is a ~12:1      */
+/* luminance event — far louder than a hue shift, legible in            */
+/* greyscale, and the move a printed page actually has.                 */
+/* ------------------------------------------------------------------ */
 .btn-ink {
   background: var(--color-ink);
   color: var(--color-paper);
   border: 1px solid var(--color-ink);
 }
-.btn-ink:hover { background: var(--color-shu); border-color: var(--color-shu); color: var(--color-paper-3); }
+/* the ground colour, not `transparent`: a CTA can sit over a plate, and a
+   button that goes see-through on hover would show the photograph through it */
+.btn-ink:hover { background: var(--color-paper); color: var(--color-ink); }
 .ground-ink .btn-ink { background: var(--color-bone); color: var(--color-ink); border-color: var(--color-bone); }
-.ground-ink .btn-ink:hover { background: var(--color-shu-lift); border-color: var(--color-shu-lift); color: var(--color-ink); }
+.ground-ink .btn-ink:hover { background: var(--color-ink); color: var(--color-bone); border-color: var(--color-bone); }
 .btn-outline {
   background: transparent;
   color: var(--color-ink);
@@ -549,11 +827,24 @@
   color: var(--color-ink);
   border-bottom: 1px solid currentColor;
   padding-bottom: 0.2em;
+  transition: box-shadow var(--duration-fast) var(--ease-out);
 }
-.btn-text:hover { color: var(--color-shu); }
+/* the rule under it doubles rather than changing hue — drawn as a shadow so a
+   second printed line costs no layout */
+.btn-text:hover { box-shadow: 0 2px 0 -1px currentColor; }
 .ground-ink .btn-text { color: var(--color-bone); }
-.ground-ink .btn-text:hover { color: var(--color-shu-lift); }
 .btn:active { transform: translateY(1px); }
+/*
+  The two transforms this file owns. <MotionConfig reducedMotion="user"> covers
+  Motion's animations and nothing else, so a CSS transition that moves things
+  still ran under the pointer for a reader who had asked for stillness. Both
+  states survive without the movement: the nav rule appears instead of wiping
+  on, and the button just does not press.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .nav-link::after { transition: none; }
+  .btn:active { transform: none; }
+}
 
 /* chapters */
 .chapter {
@@ -567,20 +858,75 @@
   */
   scroll-margin-top: calc(var(--header-h) + 1.5rem);
 }
-.chapter__numeral {
+/* ------------------------------------------------------------------ */
+/* The binding margin                                                  */
+/*                                                                     */
+/* `.chapter__rail` is the margin: the full height of the chapter, the  */
+/* width of the gutter, and completely inert. It exists so the numeral  */
+/* inside it has something to be sticky WITHIN — a sticky element is    */
+/* constrained by its containing block, so a rail that is only as tall  */
+/* as the head would pin the glyph to the head, which is what the old   */
+/* `position: absolute` did by hand.                                    */
+/*                                                                     */
+/* Two things it must never do: intercept the pointer (the margin is    */
+/* paper, and a 2400px column of it swallowing clicks would be a bug    */
+/* nobody could see) and declare `overflow`, which would make it a      */
+/* scroll container and silently kill the sticky.                       */
+/*                                                                     */
+/* The numeral lives IN the margin, not merely near it. Given a fixed   */
+/* `left` and a `clamp()` width, the glyph's right edge and the trim     */
+/* grow at different rates, and between roughly 1024 and 1600 the kanji */
+/* crossed the trim and printed on top of the running head — 二 through */
+/* the «Г» of «ГЛАВА ВТОРАЯ», and the same in chapters 06, 07, 09 and   */
+/* 10. Binding the box to the gutter makes the collision impossible at  */
+/* every width instead of tuned away at a few.                          */
+/* ------------------------------------------------------------------ */
+.chapter__rail {
   position: absolute;
-  top: var(--numeral-top, clamp(2rem, 6vw, 5rem));
-  /*
-    The numeral lives IN the binding margin, not merely near it. Given a fixed
-    `left` and a `clamp()` width, the glyph's right edge and the trim grow at
-    different rates, and between roughly 1024 and 1600 the kanji crossed the
-    trim and printed on top of the running head — 二 through the «Г» of «ГЛАВА
-    ВТОРАЯ», and the same in chapters 06, 07, 09 and 10. Binding the box to the
-    gutter makes the collision impossible at every width instead of tuned away
-    at a few: the glyph is capped to what the margin can actually hold.
-  */
+  inset-block: 0;
   left: 0;
   width: var(--binding);
+  pointer-events: none;
+  /*
+    The margin rule the whole metaphor was asserting and never printing. It
+    fades out at both ends so it closes inside the chapter instead of butting
+    into the trim or bleeding across a paper→ink change, which is how a real
+    margin rule behaves and what stops ten of them reading as one long line.
+  */
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    var(--color-rule-hair) 5rem,
+    var(--color-rule-hair) calc(100% - 5rem),
+    transparent 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 1px 100%;
+  /* held a hair inside the trim rather than flush against it, so the rule does
+     not read as an underline hanging off the left edge of the display type */
+  background-position: right 0.25rem top 0;
+}
+.ground-ink .chapter__rail {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    var(--color-rule-dark-hair) 5rem,
+    var(--color-rule-dark-hair) calc(100% - 5rem),
+    transparent 100%
+  );
+}
+.chapter__numeral {
+  /*
+    Sticky, not absolute. `--numeral-top` (each section stylesheet sets it) is
+    the margin now rather than an offset, so it still decides where the numeral
+    FIRST prints — Morning's numeral still waits until below its opening plate
+    — and the glyph then rides the margin for the rest of the chapter. The
+    bottom margin is the stop: it lifts out of the rail a little before the
+    chapter's foot instead of sitting on the boundary.
+  */
+  position: sticky;
+  top: calc(var(--header-h) + 2rem);
+  margin-block: var(--numeral-top, clamp(2rem, 6vw, 5rem)) clamp(2rem, 6vw, 5rem);
   padding-inline: 0.25rem 0.5rem;
   display: flex;
   flex-direction: column;
@@ -600,8 +946,9 @@
 }
 .ground-ink .chapter__folio { color: var(--color-bone-2); }
 @media (max-width: 767px) {
-  /* the binding margin does not exist on phones; chapters print their folio in flow */
-  .chapter__numeral { display: none; }
+  /* the binding margin does not exist on phones; chapters print their folio in
+     flow (`.folio-inline`), so the whole rail goes — rule included */
+  .chapter__rail { display: none; }
 }
 .folio-inline {
   display: inline-flex;
@@ -611,6 +958,112 @@
 .folio-inline .chapter__kanji { width: 1rem; }
 @media (min-width: 768px) {
   .folio-inline { display: none; }
+}
+
+/* ------------------------------------------------------------------ */
+/* The foot of a chapter — layout/ChapterFoot                          */
+/*                                                                     */
+/* The counterweight to the opening rule + eyebrow + title. Three       */
+/* fields on one line, ranged across the whole trim: the folio against  */
+/* the binding, the closing note in the middle, the exits at the right  */
+/* edge. The middle track is `minmax(0, 1fr)` and stays in the grid     */
+/* even when there is no note, because the exits belong at the trim,    */
+/* not tucked in beside the folio.                                     */
+/*                                                                     */
+/* Below 768 the sheet has no binding margin and no right trim worth    */
+/* ranging to, so it stacks and the folio becomes the only one on the   */
+/* page (the margin numeral is hidden there).                           */
+/* ------------------------------------------------------------------ */
+.chapter-foot {
+  margin-top: clamp(2.5rem, 4vw, 5rem);
+}
+.chapter-foot__row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-top: clamp(1rem, 0.9vw, 1.75rem);
+}
+@media (min-width: 768px) {
+  .chapter-foot__row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    column-gap: clamp(1.5rem, 3vw, 4rem);
+  }
+}
+.chapter-foot__folio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* the lightest legal tone: a folio is counted, not read, but it is still
+     type — never --color-ink-3, which is 2.4:1 on this paper */
+  color: var(--color-ink-quiet);
+}
+.ground-ink .chapter-foot__folio { color: var(--color-bone-2); }
+.chapter-foot__kanji {
+  width: 0.75rem;
+  height: auto;
+}
+/* the placeholder that holds the middle track open when a chapter closes with
+   no note; it has nothing to space on the stacked layout, so it is not there */
+.chapter-foot__gap { display: none; }
+@media (min-width: 768px) {
+  .chapter-foot__gap { display: block; }
+}
+.chapter-foot__note {
+  max-width: var(--measure-caption);
+  color: var(--color-ink-2);
+}
+.ground-ink .chapter-foot__note { color: var(--color-bone-2); }
+.chapter-foot__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 2rem;
+  justify-self: end;
+}
+/*
+  An exit is a link, so it is underlined at rest — and the rule under it is the
+  hover state too: it doubles rather than changes hue. The old pattern turned
+  vermilion on hover, which spent the page's one accent on a mouse position.
+  `box-shadow` draws the second line without touching layout, so nothing on the
+  row shifts by a pixel when the pointer crosses it.
+*/
+.chapter-foot__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  color: var(--color-ink);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.ground-ink .chapter-foot__link { color: var(--color-bone); }
+.chapter-foot__link-label {
+  border-bottom: 1px solid var(--color-rule-strong);
+  padding-bottom: 0.2em;
+  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
+}
+.ground-ink .chapter-foot__link-label { border-bottom-color: var(--color-rule-dark-strong); }
+.chapter-foot__link:hover .chapter-foot__link-label,
+.chapter-foot__link:focus-visible .chapter-foot__link-label {
+  border-bottom-color: currentColor;
+  box-shadow: 0 2px 0 -1px currentColor;
+}
+.chapter-foot__arrow {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.chapter-foot__link:hover .chapter-foot__arrow,
+.chapter-foot__link:focus-visible .chapter-foot__arrow {
+  transform: translateX(0.25rem);
+}
+/* the rule still doubles when the reader has asked for stillness — it is a
+   state, not an animation. Only the thing that MOVES is withdrawn. */
+@media (prefers-reduced-motion: reduce) {
+  .chapter-foot__arrow { transition: none; }
+  .chapter-foot__link:hover .chapter-foot__arrow,
+  .chapter-foot__link:focus-visible .chapter-foot__arrow {
+    transform: none;
+  }
 }
 
 /* Lenis */

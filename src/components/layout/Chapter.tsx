@@ -29,6 +29,16 @@ type ChapterProps = {
  * A chapter of the manual: a <section> with the chapter numeral 一…十 printed
  * in the binding margin, a mono folio, and an observer that reports itself as
  * the active chapter when its middle crosses the viewport centre.
+ *
+ * The numeral rides the margin rather than printing once at the head. It used
+ * to be a single absolutely positioned block, which meant the device the whole
+ * book is built on — ten chapters counted 一 二 三 … 十 in the binding — was on
+ * screen for about a second per chapter and then the margin was blank paper for
+ * the remaining 1000–2400px. It is now a full-height rail with a sticky glyph
+ * inside it, so the count travels with the reader and the folio is legible the
+ * whole way down. `--numeral-top` (set per chapter in the section stylesheets)
+ * still decides where it FIRST prints; it is the rail item's top margin now, so
+ * a chapter that opens on a plate still starts its numeral below the plate.
  */
 export function Chapter({ id, index, title, ground = "paper", className, numeral = true, style, children, bleed, labelledBy }: ChapterProps) {
   const ref = useRef<HTMLElement>(null);
@@ -61,9 +71,13 @@ export function Chapter({ id, index, title, ground = "paper", className, numeral
       style={style}
     >
       {numeral && (
-        <div className="chapter__numeral" aria-hidden="true">
-          <Kanji id={CHAPTER_NUMERALS[index - 1]} className="chapter__kanji" weight={6} label={null} />
-          <span className="t-mono chapter__folio">{folio}</span>
+        /* the binding margin itself: full height, inert, and never a scroll
+           container — the sticky numeral inside it depends on that */
+        <div className="chapter__rail" aria-hidden="true">
+          <div className="chapter__numeral">
+            <Kanji id={CHAPTER_NUMERALS[index - 1]} className="chapter__kanji" weight={6} label={null} />
+            <span className="t-mono chapter__folio">{folio}</span>
+          </div>
         </div>
       )}
       <span className="sr-only">

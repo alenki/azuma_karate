@@ -7,26 +7,35 @@ import { useLocale } from "@/i18n/LocaleProvider";
 import { chapters, schedule } from "@/content/home";
 import { club } from "@/content/schedule";
 import { Chapter } from "@/components/layout/Chapter";
+import { ChapterFoot } from "@/components/layout/ChapterFoot";
 import { Kanji } from "@/components/brush/Kanji";
 import { Button } from "@/components/ui/Button";
 import { LineReveal } from "@/components/ui/LineReveal";
-import { Reveal, EASE_OUT_EXPO } from "@/components/ui/Reveal";
+import { Register, Reveal, Settle, EASE_OUT } from "@/components/ui/Reveal";
 import { Timetable } from "@/components/sections/Timetable";
 
 const chapter = chapters.find((c) => c.id === "schedule")!;
 const HEADING_ID = "schedule-title";
 const VIEWPORT = { once: true, margin: "-12% 0px -8% 0px" } as const;
 
-/** A hairline that is ruled across the page before the type arrives. */
-function HairRule({ delay = 0 }: { delay?: number }) {
+/**
+ * The rule that opens the chapter, ruled across the page before the type
+ * arrives. `.rule--strong` is the heaviest of the three graded hairlines and
+ * is spent once per chapter, at the head — the same mark chapters 02 «О клубе»
+ * and 04 «Тренер» open with. The table below rules itself in the standard
+ * weight, and the
+ * separations inside it in the lightest, so the chapter has three line
+ * weights and a reader can tell which of them is structural.
+ */
+function OpeningRule({ delay = 0 }: { delay?: number }) {
   return (
     <motion.div
       aria-hidden="true"
-      className="rule origin-left"
+      className="rule rule--strong origin-left"
       initial={{ scaleX: 0 }}
       whileInView={{ scaleX: 1 }}
       viewport={VIEWPORT}
-      transition={{ duration: 1.2, delay, ease: EASE_OUT_EXPO }}
+      transition={{ duration: 1.2, delay, ease: EASE_OUT }}
     />
   );
 }
@@ -35,15 +44,30 @@ function HairRule({ delay = 0 }: { delay?: number }) {
  * Chapter 八 / 08 — «Расписание».
  *
  * The chapter opens as a band across the sheet — the title «Неделя», the
- * lead, and the two practical actions anchored at the right trim — and then
- * prints the week as a table. From 1280 up that table is trimmed to the true
- * paper edge rather than framed inside the margin: seven weekdays are seven
- * columns, so the table is the one thing in the manual that spends every
- * pixel of a wide screen on its subject. The note and the address close the
- * chapter as a colophon ranged across the full trim.
+ * lead, and the two practical actions on one line, standing on a common
+ * bottom edge — and then prints the week as a table. From 1280 up that table
+ * is trimmed to the true paper edge rather than framed inside the margin:
+ * seven weekdays are seven columns, so the table is the one thing in the
+ * manual that spends every pixel of a wide screen on its subject. The address
+ * is set under it as a plate's caption, and the chapter closes on the same
+ * foot the rest of the book closes on.
  *
- * The chapter's single brush mark is the tick the timetable draws under
- * today's column — nothing else here is hand-made.
+ * The opener band used to be gated at 1600, which left everything between
+ * 1024 and 1600 opening with a 540 × 310 rectangle of blank paper between the
+ * lead and the buttons. It is gated at 1280 now — the same tier the table
+ * starts bleeding at, which is the tier the chapter becomes a full sheet.
+ *
+ * MOTION. Five fade-ups and a mark that had already been drawn by the time
+ * anyone reached it. Now: the rule is ruled, the running head comes into
+ * register, the title rises line by line, and the week — the largest artefact
+ * on the site — is pulled through the press column by column, left to right,
+ * with the chapter's single brush mark ticked under today's weekday after the
+ * seventh column lands. The verbs are the shared ones (Register for a row of
+ * counted things, Settle for matter that was printed rather than flown in);
+ * nothing here needed a new primitive.
+ *
+ * The chapter's single brush mark is that tick — nothing else here is
+ * hand-made, and nothing else here is red.
  *
  * All geometry lives in `src/styles/sections/schedule.css`, including the
  * timetable's, because `Timetable` is rendered only from here.
@@ -63,13 +87,13 @@ export function Schedule() {
     >
       <div className="wrap schedule__sheet">
         {/* ---- running head: rule → eyebrow / mobile folio ---- */}
-        <HairRule />
-        <Reveal delay={0.15} y={12} duration={0.8} className="schedule__runhead">
+        <OpeningRule />
+        <Register delay={0.15} stagger={0.08} duration={0.8} className="schedule__runhead">
           <p className="t-mono text-ink-2">{t.eyebrow[locale]}</p>
           <span className="folio-inline t-mono">
             <Kanji id="hachi" className="chapter__kanji" label={null} /> 08
           </span>
-        </Reveal>
+        </Register>
 
         {/* ---- opener: title · lead · the two actions, on the page grid ---- */}
         <div className="schedule__head">
@@ -102,23 +126,39 @@ export function Schedule() {
 
         {/*
           ---- the plate of this chapter: the week ----
-          No frame. The table rules itself — a hairline over and under it and
-          six between the days — and from 1280 those rules run past the trim
-          to the paper edge, so a drawn box around it would contradict them.
+          No frame and no wrapper reveal. The table rules itself — a hairline
+          over and under it and six between the days — and from 1280 those
+          rules run past the trim to the paper edge, so a drawn box around it
+          would contradict them. Its arrival is its own, column by column, and
+          lives in `Timetable`.
         */}
-        <Reveal delay={0.3} y={24} duration={1} className="schedule__table">
+        <div className="schedule__table">
           <Timetable />
-        </Reveal>
+        </div>
 
-        {/* ---- colophon: the note and the address, ranged across the trim ---- */}
-        <Reveal delay={0.4} y={12} duration={0.8} className="schedule__colophon">
-          <p className="t-caption schedule__note">{t.note[locale]}</p>
-          <address className="t-mono schedule__address">
+        {/*
+          ---- the plate's caption: where the hall is ----
+          `.t-note`, not `.t-mono`: this is four fields of address and
+          coordinates that a reader READS, and the mono voice for read matter
+          is sentence case at normal tracking. A street name in tracked
+          all-caps is the thing the type rule exists to stop.
+        */}
+        <Settle delay={0.15} duration={0.7} className="schedule__caption">
+          <address className="t-note schedule__address">
             <span className="whitespace-nowrap">{club.city[locale]} ·</span>{" "}
             <span className="whitespace-nowrap">{club.address[locale]} ·</span>{" "}
             <span className="whitespace-nowrap">{club.coordsLabel}</span>
           </address>
-        </Reveal>
+        </Settle>
+
+        {/*
+          The chapter closes on the book's foot rather than running off the
+          bottom of the sheet: the folio at the binding, the provisional-data
+          note as its closing line, and no exits — the chapter's two ways out
+          are the buttons in its own opener, and a third would make a nav bar
+          of the colophon.
+        */}
+        <ChapterFoot index={chapter.index} note={t.note[locale]} />
       </div>
     </Chapter>
   );

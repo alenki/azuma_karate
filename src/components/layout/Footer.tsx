@@ -8,8 +8,12 @@ import { navItems } from "@/content/nav";
 import { club } from "@/content/schedule";
 import { Logo } from "@/components/brand/Logo";
 import { Kanji } from "@/components/brush/Kanji";
-import { Reveal } from "@/components/ui/Reveal";
+import { Reveal, Settle } from "@/components/ui/Reveal";
+import { createLiveStore, useLiveStore } from "@/lib/useLiveValue";
 import { useGroundReporter } from "@/components/layout/ChapterContext";
+/* the four printed section labels are chapter anchors, not routes — the map
+   and the argument for it are in Header, which prints the same four */
+import { sectionAnchor } from "@/components/layout/Header";
 
 /*
   The belt ladder.
@@ -17,13 +21,20 @@ import { useGroundReporter } from "@/components/layout/ChapterContext";
   These were printed as seven literal colour chips — orange, blue, yellow,
   green, brown — which put five brand-foreign hues in the footer of a page whose
   whole claim is paper, ink and one vermilion. The RANKS are worth keeping; the
-  dyes are not ours to print.
+  dyes are not ours to print. That much was right.
 
-  So the rank is drawn the way this manual draws everything else: as a measured
-  rule. Each belt's bar fills one seventh further than the one above it, and the
-  ladder resolves to a solid bar at 黒帯 — which is the sentence set directly
-  above it, «Каждый чёрный пояс когда-то был белым.», made visible instead of
-  merely asserted. The colour names stay as words, where they belong.
+  What replaced them was not: seven progress bars, a track with a fill at 14.3%,
+  28.6% … 100%, which is the CV skill meter — the most template-coded widget
+  there is — and it was the colophon's only ornament. It read wrong as well as
+  generic: a 10 кю is not 14% of a black belt.
+
+  A printer has the true mark for graduated ink, and this page is a printed
+  manual: the step wedge. Seven flat patches butted into ONE continuous band,
+  stepping from bone at the white belt to solid ink at 黒帯 — so the rank is the
+  POSITION in the band rather than a distance travelled along a bar, and the
+  sentence set directly above it, «Каждый чёрный пояс когда-то был белым.», is
+  literally the strip's two ends. The colour names stay as words, where they
+  belong. The band's paint and its single hairline are in chrome.css.
 */
 const belts = [
   { ru: "белый", en: "white", kyu: "10" },
@@ -60,10 +71,29 @@ const copy = {
   },
 };
 
+/*
+  The imprint dates itself.
+
+  `const year = 2026` would have read 2026 for the life of the site, and on a
+  colophon written as a real imprint — set in Nalchik, typefaces named, KanjiVG
+  licensed — a frozen date is the one line in it guaranteed to become false.
+  The club's own clock already drives the timetable's «сегодня» and the sunrise,
+  so the year comes from the same time zone rather than from the reader's, and
+  through the same store, so the server and the first client render agree and
+  there is no hydration mismatch. It ticks hourly: a year does not need a
+  minute's resolution, and midnight on the 31st is the only moment it matters.
+*/
+const EDITION_YEAR = 2026;
+const yearStore = createLiveStore<number>(
+  () => Number(new Intl.DateTimeFormat("en-US", { timeZone: club.timeZone, year: "numeric" }).format(new Date())),
+  (y) => String(y),
+  60 * 60 * 1000,
+);
+
 export function Footer() {
-  const { locale, href } = useLocale();
+  const { locale } = useLocale();
   const t = copy[locale];
-  const year = 2026;
+  const year = useLiveStore(yearStore, EDITION_YEAR);
   /* the colophon is ink too, so the bar has to invert over it like a chapter */
   const ref = useRef<HTMLElement>(null);
   useGroundReporter(ref, "footer", "ink");
@@ -84,21 +114,29 @@ export function Footer() {
         <div className="footer__lists">
           <div className="footer__col footer__col--belts">
             <p className="footer__col-label t-mono text-bone-2">{t.belts}</p>
-            <ol className="footer__list">
-              {belts.map((b, i) => (
-                <li key={b.en} className="footer__belt t-caption">
-                  <span
-                    aria-hidden="true"
-                    className="belt-swatch"
-                    style={{ "--fill": `${((i + 1) / belts.length) * 100}%` } as CSSProperties}
-                  />
-                  <span className="capitalize">{b[locale]}</span>
-                  <span className="text-bone-2">
-                    {b.kyu === "дан" ? (locale === "ru" ? "дан" : "dan") : `${b.kyu} ${t.kyu}`}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            {/* <Settle>, not <Reveal>: a step wedge is pulled with the sheet, not
+                assembled in front of the reader, so it fades up through a
+                sub-pixel scale and never travels. */}
+            <Settle duration={0.8}>
+              <ol className="belt-wedge">
+                {belts.map((b, i) => (
+                  <li
+                    key={b.en}
+                    className="belt-wedge__rank t-caption"
+                    /* 0% ink at the white belt, 100% at the black — the tone is
+                       computed here rather than in a calc() so the band's ends
+                       are exact whatever the ladder's length becomes */
+                    style={{ "--tone": `${(i / (belts.length - 1)) * 100}%` } as CSSProperties}
+                  >
+                    <span aria-hidden="true" className="belt-wedge__cell" />
+                    <span className="capitalize">{b[locale]}</span>
+                    <span className="text-bone-2">
+                      {b.kyu === "дан" ? (locale === "ru" ? "дан" : "dan") : `${b.kyu} ${t.kyu}`}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </Settle>
           </div>
 
           <div className="footer__col footer__col--sections">
@@ -106,9 +144,9 @@ export function Footer() {
             <ul className="footer__list">
               {navItems.map((item) => (
                 <li key={item.href}>
-                  <Link href={href(item.href)} prefetch={false} className="footer-link t-caption">
+                  <a href={`#${sectionAnchor(item.href)}`} className="footer-link t-caption">
                     {item.label[locale]}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

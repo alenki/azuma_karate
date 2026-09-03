@@ -18,7 +18,7 @@ import { Curtain } from "@/components/ui/Curtain";
 import { LineReveal } from "@/components/ui/LineReveal";
 import { Photo } from "@/components/ui/Photo";
 import { RegisterMark } from "@/components/ui/RegisterMark";
-import { Reveal, EASE_OUT_EXPO } from "@/components/ui/Reveal";
+import { Reveal, Settle, EASE_OUT_EXPO } from "@/components/ui/Reveal";
 
 const VIEWPORT = { once: true, margin: "-12% 0px -8% 0px" } as const;
 
@@ -50,13 +50,24 @@ const PLATES: Partial<Record<GroupId, MediaKey>> = {
  * browser takes the first match). The declared width is a little over the
  * column so the plate is never upscaled: the 14rem and 16.5rem columns ask
  * for 15rem and 17rem.
+ *
+ * The last two entries are the PHONE geometry, which is not `--plate-w` at
+ * all: below 768 the plate drops into flow at `min(66%, 15rem)` of the band,
+ * so it is capped at 15rem from ~458px up and is two thirds of a band column
+ * — about 66vw — under that. The old `100vw` asked for a source three times
+ * the box on the one screen that pays for it by the megabyte.
  */
 const PLATE_SIZES =
-  "(min-width: 2000px) 17rem, (min-width: 1600px) 15rem, (min-width: 1280px) 12rem, (min-width: 768px) 10rem, 100vw";
+  "(min-width: 2000px) 17rem, (min-width: 1600px) 15rem, (min-width: 1280px) 12rem, (min-width: 768px) 10rem, (min-width: 460px) 15rem, 66vw";
 
-/** The rail's plate, matching the `--rail-w` tiers less its left padding. */
+/**
+ * The rail's plate, matching the `--rail-w` tiers less its left padding —
+ * except above 1600, where the rail is a fraction of the sheet rather than a
+ * rem: it runs 224 → 287px through the 1600 tier and 276 → 370px through the
+ * 2000 one, so those two entries are the top of each range rounded up.
+ */
 const RAIL_PLATE_SIZES =
-  "(min-width: 2000px) 17rem, (min-width: 1600px) 15rem, (min-width: 1024px) 14rem, (min-width: 640px) 15rem, 100vw";
+  "(min-width: 2000px) 24rem, (min-width: 1600px) 18rem, (min-width: 1024px) 14rem, (min-width: 640px) 15rem, 100vw";
 
 /**
  * Each group link carries `data-group`, matching the attribute the timetable
@@ -519,14 +530,28 @@ export function Programs() {
                         <p className="band__note">{g.note[locale]}</p>
                       </div>
 
-                      {/* the rail's plate runs to the foot of the column: the
+                      {/* the rail's plate hangs on the foot of the column: the
                           group that has no age is the one that trains outdoors */}
                       {i === 0 && (
                         <figure className="rail__figure">
-                          <Curtain className="rail__plate" duration={1.1} delay={0.3}>
+                          {/* `amount={0}`: Curtain's threshold is a fraction of
+                              the PLATE, and this plate is 650px tall on a wide
+                              sheet, at the foot of a column as tall as the whole
+                              chart. A third of it clears the reader's margin long
+                              after the group it illustrates has been read, so it
+                              opens when it arrives instead — the case Curtain's
+                              own note on `amount` says to pass 0 for. */}
+                          <Curtain className="rail__plate" duration={1.1} delay={0.3} amount={0}>
                             <Photo slot="parkPath" sizes={RAIL_PLATE_SIZES} />
                           </Curtain>
-                          <figcaption className="t-caption mt-3 text-ink-2">{t.plateCaption[locale]}</figcaption>
+                          <figcaption className="t-caption mt-3 text-ink-2">
+                            {/* a caption is PRINTED, not flown in — and it is
+                                held until the curtain has crossed the plate, so
+                                it is never a caption under blank paper */}
+                            <Settle delay={1.2} duration={0.6}>
+                              {t.plateCaption[locale]}
+                            </Settle>
+                          </figcaption>
                         </figure>
                       )}
                     </div>

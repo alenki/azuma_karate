@@ -101,6 +101,24 @@
     --rail-w: 13rem;
     --plate-w: 11.5rem;
     --mark: 16px;
+
+    /* The band becomes a ruled table row HERE, not at 1600 — see «the band as
+       a table row» below. At 1512 the band's content box is 880px wide and
+       the flex line spent 500px of it on the hole `margin-left: auto` opens
+       between the name and the times, with the note hanging under the left
+       fifth of it: the middle of the drawing was empty at exactly the width
+       most desks read it at.
+
+       The tier is redrawn rather than stretched, so it gets its own
+       proportions. `--when-w` is 12rem, not the 15rem above: `.t-caption` is
+       still at its 0.8125rem floor here (0.72vw does not reach 13px until
+       1805), and the binding line — EN «Mon · Wed · Fri · 19:30», 23
+       monospace characters — measures 185px at that size. The 6fr / 5fr split
+       gives the note 170px at 1280, where the four columns fill the box
+       exactly, and 300px by 1599. */
+    --band-index-w: 2.25rem;
+    --when-w: 12rem;
+    --band-cols: var(--band-index-w) minmax(13rem, 6fr) minmax(0, 5fr) var(--when-w);
   }
 }
 
@@ -149,8 +167,9 @@
     --arrow: 9px;
     --notes-index-w: 2.25rem;
 
-    /* the band stops being a line with a gap in it and becomes a ruled
-       table row — see «the band as a table row» below */
+    /* the ruled table row is redrawn for the wider sheet — a heavier index,
+       a wider times column and more of the growth given to the note than to
+       the name, which has stopped growing with the tier */
     --band-index-w: 3rem;
     --when-w: 15rem;
     --band-cols: var(--band-index-w) minmax(15rem, 7fr) minmax(0, 8fr) var(--when-w);
@@ -248,6 +267,28 @@
     grid-template-columns: var(--axis-w) minmax(0, 1fr) var(--rail-w);
   }
 }
+/*
+  Above 1600 the rail stops being a fixed rem and becomes a SHARE of the
+  drawing. Every other column of the figure grows with the sheet — the axis,
+  the year, the plate, the band's own four verticals — and the rail was the
+  one that did not: it held 17.6% of the trim at 1280 and 12.1% at 2560,
+  against four age bands each given a table row 1800px wide. That is why it
+  was the only group whose name, whose note and whose plate caption all broke
+  over two lines, and it broke them on the widest sheet there is.
+
+  0.22 is the weight, and it is chosen from the bottom of the tier rather than
+  the top: any heavier and the fraction beats the 15.5rem floor at 1600
+  itself, and the width it won would come straight out of the band's note
+  column, which is the tightest thing on that row. At 0.22 the floor still
+  wins until ~1623 — so nothing at the tier's own edge moves — and the rail
+  reaches ~400px at 2560, where «Утренние в парке» finally sets on one line.
+*/
+@media (min-width: 1600px) {
+  .chart__head,
+  .chart__body {
+    grid-template-columns: var(--axis-w) minmax(0, 1fr) minmax(var(--rail-w), 0.22fr);
+  }
+}
 
 .chart__head {
   align-items: end;
@@ -286,7 +327,7 @@
   column including the plate reserve, so the caption is inset by that reserve
   to sit over the band CONTENT box, not over the plates.
 */
-@media (min-width: 1600px) {
+@media (min-width: 1280px) {
   .chart__caption {
     display: grid;
     grid-template-columns: var(--band-cols);
@@ -528,12 +569,26 @@
      row keeps its baseline. The times stay outside the link, selectable. */
   padding-block: 0.7rem;
 }
+/*
+  A hovered or focused name is RULED, not reddened. Red on this page is the
+  sensei's brush and the club's seal; the one further claim it has is the
+  focus ring, which `primitives.css` already draws in vermilion around every
+  link on the sheet — so colouring the name red as well spent the accent
+  twice on focus and, worse, spent it on a mouse position. This is the mark
+  `.nav-link` and `.chapter-foot__link` already take: a hairline that arrives
+  under the word. It is declared here and only inked in on the state, so the
+  transition has a property to run on and the type never shifts a pixel.
+*/
 .band__title {
-  transition: color var(--duration-fast) var(--ease-out);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.16em;
+  transition: text-decoration-color var(--duration-fast) var(--ease-out);
 }
 .band__link:hover .band__title,
 .band__link:focus-visible .band__title {
-  color: var(--color-shu);
+  text-decoration-color: currentColor;
 }
 .band__ages {
   margin-left: 0.5rem;
@@ -575,13 +630,15 @@
 
 /*
   ---- the band as a table row -------------------------------------------
-  Up to 1600 a band is one flex line — «01  Дети 7–11 лет →» with the times
+  Up to 1280 a band is one flex line — «01  Дети 7–11 лет →» with the times
   pushed to the far edge by `margin-left: auto` — and the note set under it.
-  That reading breaks down on a full-viewport sheet: at 2560 the band's
-  content box is ~1600px, so `auto` opens a 900px hole between the name and
-  the times and the note is left hanging under the left third of it.
+  That reading breaks down as soon as the rail takes its own column: at 1512
+  the band's content box is 880px, so `auto` opens a 500px hole between the
+  name and the times and the note is left hanging under the left fifth of it.
+  The middle of the drawing was blank paper at the width most desks read it
+  at, and by 2560 the hole was 900px.
 
-  Above 1600 the band is ruled into four columns instead, on the same
+  From 1280 the band is ruled into four columns instead, on the same
   `--col-gap` the page grid uses, and every band shares the template — so
   the four indices, the four names, the four notes and the four sets of
   times each stand on one vertical down the sheet, and the figure's own head
@@ -599,12 +656,12 @@
   because sparse auto-placement never moves the cursor backwards.
 
   Every selector below is scoped to `.band__content`, and only the age bands
-  carry it. The rail — a 13-to-18rem column at ≥1024, with its own stacked
-  header — and any future `.band--extra` therefore keep the flex line and
-  the note under it at every width, without needing an exception written
-  for them.
+  carry it. The rail — a 12rem column at ≥1024 that becomes a share of the
+  sheet above 1600, with its own stacked header — and any future
+  `.band--extra` therefore keep the flex line and the note under it at every
+  width, without needing an exception written for them.
 */
-@media (min-width: 1600px) {
+@media (min-width: 1280px) {
   .band__content {
     display: grid;
     grid-template-columns: var(--band-cols);
@@ -659,13 +716,35 @@
   row's own type, but the band has spare paper below the note and a 3:2 plate
   fits it. Hiding it left chapter 三 with no picture of a child training at all
   on the screen most parents open it on.
+
+  `position: relative` here is load-bearing and must never go back to
+  `static`. <Curtain> paints into two `absolute inset-0` layers, so this box
+  has to stay their containing block. As `static` it was not one, the layers
+  resolved against `.band` — which IS positioned — and the photograph was
+  stretched over the whole band, with the wrapper's own `overflow: hidden`
+  powerless to clip it because it was no longer in their containing-block
+  chain. Bands 02 and 03 lost their names, ages, times and notes entirely at
+  390: two of the five groups printed as a picture and nothing else.
+
+  It is also ranged right and held to two thirds of the band rather than run
+  full width. The plate is a COLUMN on the right of the sheet at every width
+  above 768 and a phone should read as the same drawing folded, not a
+  different one. It is also what keeps the scale honest: a full-width 3:2
+  plate adds 197px to a five-year band whose whole height is 230px, which
+  would have made band 02 half again as tall per year as band 01 and quietly
+  broken the one thing this chart asserts. At two thirds the four bands come
+  out at 56, 55, 60 and 55px per year.
 */
 @media (max-width: 767.98px) {
   .chart .band__plate {
-    position: static;
-    width: 100%;
+    position: relative;
+    inset: auto;
+    /* the cap holds the plate at the 15rem the 640px rail plate takes, so it
+       does not open into a half-tablet-wide picture at 767 */
+    width: min(66%, 15rem);
     aspect-ratio: 3 / 2;
     margin-top: 1rem;
+    margin-left: auto;
   }
 }
 
@@ -740,8 +819,10 @@
   .band--rail .band__mark {
     display: none;
   }
-  /* in a column this narrow — 12rem at 1024, 18rem at 2000 — the header is
-     a stack, not a justified line */
+  /* in a column this narrow — 12rem at 1024, ~400px at 2560, against a band
+     row seven times wider — the header is a stack, not a justified line. It
+     stays a stack at every width above 1024: this is a column HEADING, and
+     a heading is not the same object as the ruled row beside it. */
   .band--rail .band__row {
     display: block;
   }
@@ -771,9 +852,10 @@
   .band--rail .band__ages {
     margin-left: 0;
   }
-  /* the plate runs from the end of the type to the foot of the column */
-  /* the Reveal wrapper sits between the rail and its body, so the column has
-     to be a flex chain the whole way down or the plate cannot grow */
+  /* the plate hangs on the FOOT of the column — `margin-top: auto` in the
+     body's flex chain — so the rail's spare paper falls between the type and
+     the picture rather than under it, and the plate closes the column on the
+     same line the chart's last band does */
   .band--rail {
     display: flex;
     flex-direction: column;
@@ -790,18 +872,26 @@
     gap: 1.5rem;
   }
   .band--rail .rail__figure {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    min-height: 0;
+    /*
+      A BLOCK, deliberately, and the one declaration in this file that must
+      not be turned back into a flex item. The figure used to be `flex: 1`
+      with the plate `flex: none` inside it — and a `flex: none` item in a
+      COLUMN flex container takes its height from its CONTENT. The plate's
+      content is <Curtain>'s two `absolute inset-0` layers, so there is none,
+      and the aspect ratio had no definite width to transfer from: the plate
+      collapsed to nothing at every width from 1024 to 1599, the one tier
+      with no `min-height` floor propping it up, and printed blank paper with
+      its caption orphaned underneath. In normal flow the width is definite
+      before the ratio is read, so the height always resolves.
+    */
+    display: block;
+    margin-top: auto;
   }
   .band--rail .rail__plate {
     /* the source's own 0.562 proportion, so nothing is cropped and the plate
        cannot stretch to whatever height the four bands happen to leave — at
        `flex: 1` it became a 1:2.35 vertical letterbox with no aspect discipline */
     aspect-ratio: 9 / 16;
-    flex: none;
-    min-height: 0;
   }
   /* the rail's own line, running the full height of all four bands */
   .band--rail::before {
@@ -815,20 +905,18 @@
 }
 
 /* The rail column is a column of the drawing like any other, so its paper
-   and its plate grow with `--rail-w`: 13rem at 1280, 15.5rem at 1600,
-   18rem at 2000. The plate is `flex: 1` inside a column as tall as all four
-   bands, so it grows on its own; `min-height` only matters if the club ever
-   shortens the chart, and it is raised so the plate can never collapse to a
-   12rem stamp at the foot of an 18rem column. */
+   grows with it: 12rem at 1024, 13rem at 1280, then a share of the sheet
+   above 1600 (see the grid at the head of the figure). Only the paper is set
+   here now — the plate's height is its aspect ratio and nothing else. The
+   `min-height` floors that used to stand in these two blocks were propping up
+   a plate that had collapsed in flex; with the figure back in normal flow
+   there is nothing left to prop, and a floor could only distort the ratio. */
 @media (min-width: 1600px) {
   .band--rail {
     padding: 1.5rem 0 2rem 1.5rem;
   }
   .band--rail .rail__body {
     gap: 1.875rem;
-  }
-  .band--rail .rail__plate {
-    min-height: 15rem;
   }
 }
 @media (min-width: 2000px) {
@@ -837,9 +925,6 @@
   }
   .band--rail .rail__body {
     gap: 2.25rem;
-  }
-  .band--rail .rail__plate {
-    min-height: 18rem;
   }
 }
 
@@ -908,15 +993,20 @@
   gap: 0.6rem;
   min-height: 2.75rem;
   color: var(--color-ink);
-  transition: color var(--duration-fast) var(--ease-out);
 }
-.exit-link:hover,
-.exit-link:focus-visible {
-  color: var(--color-shu);
-}
+/* the same object as `.chapter-foot__link`, so it takes the same mark: the
+   rule under the label DOUBLES rather than changing hue — drawn as a shadow
+   so a second printed line costs no layout — and the arrow steps with the
+   reading direction. Neither is a colour, so neither is a 1.4.1 signal, and
+   the chapter's red is left to the brush around the «4». */
 .exit-link__label {
   border-bottom: 1px solid currentColor;
   padding-bottom: 0.2em;
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+.exit-link:hover .exit-link__label,
+.exit-link:focus-visible .exit-link__label {
+  box-shadow: 0 2px 0 -1px currentColor;
 }
 .exit-link__arrow {
   transition: transform var(--duration-fast) var(--ease-out);
