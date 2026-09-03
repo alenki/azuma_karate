@@ -1,5 +1,214 @@
 /* ------------------------------------------------------------------ */
 /* Chapter 十 — Запись: hairline form fields on ink                     */
+/*                                                                      */
+/* The sheet is the viewport, so this chapter is no longer a 5/6 split  */
+/* of a centred column — it is three bands set across the whole page:   */
+/*                                                                      */
+/*   the invitation   ranged hard left, its first character on the trim */
+/*   the form         capped at a real form measure, never a table      */
+/*   the ensō         ranged hard right, hanging into the outer margin  */
+/*                    exactly as the numeral 十 hangs into the binding  */
+/*                    margin on the other side of the sheet             */
+/*                                                                      */
+/* The reason the form is CAPPED rather than widened: the fields are    */
+/* bottom-ruled only, so their width IS the drawing. Let a two-up row   */
+/* run the whole slot and at 2560 you get two 580px rules with a name   */
+/* typed at one end of each — legible, but it reads as a ledger, not as */
+/* a form. So the field column is frozen at ~32rem (the width a form    */
+/* wants) and the width the sheet gained is spent on the third band     */
+/* instead: below 1600 the ensō sits under the fields, at 1600 and up   */
+/* it swings out beside them and closes the manual on the right trim.   */
+/*                                                                      */
+/* Measured (sheet = viewport − 2 × gutter, 12 columns, --col-gap):     */
+/*   1600 · gutter 57.6 · sheet 1485 · col 101.8 · gap 24               */
+/*          invite 1–5 = 605   form 6–12 = 856                          */
+/*          856 = 512 fields + 24 + 320 for the mark (18rem needs 264)  */
+/*   1920 · gutter 69.1 · sheet 1782 · col 122.1 · gap 28.8             */
+/*          invite 725   form 1028 = 512 + 29 + 487                     */
+/*   2560 · gutter 92.2 · sheet 2376 · col 165.0 · gap 36               */
+/*          invite 969   form 1371 = 544 + 36 + 791                     */
+/* The paper left over at 2560 (~470px between the last field rule and  */
+/* the mark) is the chapter's air, and it is deliberate: three anchored */
+/* bands with one open middle, not a small layout stranded in a big     */
+/* page. Everything below 1600 is untouched.                            */
+/*                                                                      */
+/* Rules for this chapter that must survive any later edit:             */
+/*   · Quiet type on ink is --color-bone-2 (labels, trust, privacy).    */
+/*     --color-ink-3 never appears on this ground at all.               */
+/*   · Red on ink is --color-shu-lift and only ever the brush, the      */
+/*     focus ring, the invalid rule and the submit's hover state.       */
+/*   · The submit lives INSIDE the ensō. Whatever the tier, the mark    */
+/*     and the button move together — the circle is drawn around the    */
+/*     button, not near it.                                             */
+/* ------------------------------------------------------------------ */
+
+.join {
+  /*
+    Vertical rhythm. py-28 / md:py-40 were chosen against a 1312 column and
+    froze there; the vw term below reaches the old 10rem at exactly 1600, so
+    every width the club has ever seen is unchanged and only a sheet wider
+    than that opens up — 16rem lands at 2560, which keeps the chapter's
+    proportion (padding ≈ 11% of the sheet) the same as it is at 1440.
+  */
+  --pad-block: 7rem;
+  /* the margin numeral is set on the chapter's opening rule, as in 三 */
+  --numeral-top: var(--pad-block);
+  /* running head → body. Was mt-12 / md:mt-16, now with a ceiling. */
+  --rhythm: 3rem;
+  /* the gap between one ruled field and the next (was gap-8) */
+  --field-gap: 2rem;
+  /* the field column's own measure — see the head of this file. Unset
+     below 1600, where the form slot is still narrower than it. */
+  --field-measure: none;
+  --enso-size: min(18rem, 100%);
+  /*
+    The ink hangs out of its box so the CIRCLE, not the SVG's bounding box,
+    lines up with the field rules — the mark's artwork carries ~4% of padding
+    inside its 500-unit viewBox. Capped at the gutter so the hang can never
+    cross the paper edge: at 390 the gutter is 20px and the mark used to
+    stand 4px outside the sheet (clipped, but clipped ink is still a defect).
+  */
+  --enso-hang: min(1.5rem, var(--gutter));
+}
+
+@media (min-width: 768px) {
+  .join {
+    --pad-block: clamp(10rem, 10vw, 16rem);
+    --rhythm: clamp(4rem, 4vw, 6.5rem);
+    --enso-size: 17rem;
+  }
+}
+
+/* ---- the full-sheet tiers ---------------------------------------- */
+@media (min-width: 1600px) {
+  .join {
+    /* 32rem = 512px: a two-up row is 240px per field, the same target width
+       the form has at 1024, and the contact placeholder
+       «+7 900 000-00-00 или @username» sets in ~230px at 16px Golos. */
+    --field-measure: 32rem;
+    --enso-size: 18rem;
+  }
+}
+@media (min-width: 2000px) {
+  .join {
+    /* body copy takes its one step to 18px between 2133 and 2400, so the
+       same 32rem would hold fewer characters than it does at 1600. 34rem
+       keeps the field at the same ~50-character target. */
+    --field-measure: 34rem;
+    /* the mark is alone in its band now and reads at arm's length */
+    --enso-size: 22rem;
+    --enso-hang: 2rem;
+  }
+}
+
+.join__sheet {
+  padding-block: var(--pad-block);
+}
+
+/*
+  The chapter body stands on the page grid (12 columns, --col-gap), so the
+  invitation's left edge and the form's rules land on the same verticals as
+  every other chapter's, at every width.
+*/
+.join__body {
+  margin-top: var(--rhythm);
+  display: grid;
+  row-gap: 3.5rem;
+  column-gap: var(--col-gap);
+}
+@media (min-width: 1024px) {
+  .join__body {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+  /* 5 columns, not 4: the chapter title is set in Prata at up to 9rem, and
+     «тренировка» alone measures ~750px there. Four columns (768px at 2560)
+     would leave it a handful of pixels of slack, and LineReveal clips every
+     line to its own box — a title that outgrows the column is CUT, not
+     wrapped. Five columns give it 969px at 2560 and 605px at 1600. */
+  .join__invite {
+    grid-column: 1 / span 5;
+  }
+  .join__form-col {
+    grid-column: 7 / span 6;
+  }
+}
+@media (min-width: 1600px) {
+  /* the form takes the sixth column too — it now carries the field column
+     AND the mark's band, so the chapter's air moves inside it. */
+  .join__form-col {
+    grid-column: 6 / span 7;
+  }
+  /* the widened column earns an edge: a hairline turns the Telegram
+     alternative and the trust line into the foot of the invitation instead
+     of two more lines drifting under the lead. */
+  .join__invite-foot {
+    border-top: 1px solid var(--color-rule-dark);
+    padding-top: 2rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* The form                                                            */
+/* ------------------------------------------------------------------ */
+.join-form {
+  display: grid;
+  row-gap: var(--field-gap);
+  column-gap: var(--col-gap);
+}
+.join-form__pair {
+  display: grid;
+  gap: var(--field-gap);
+}
+@media (min-width: 768px) {
+  .join-form__pair {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+/* the closing block sits a step further down than the fields do — the row
+   gap plus this margin is the 3rem the markup used to hardcode */
+.join-form__close {
+  margin-top: 1rem;
+}
+
+@media (min-width: 1600px) {
+  /* Two tracks: a FIXED field column (a `minmax(0, …)` track would size to
+     the max-content of an <input>, about 180px, and collapse the form) and
+     the rest of the slot for the mark. */
+  .join-form {
+    grid-template-columns: var(--field-measure) minmax(0, 1fr);
+  }
+  .join-form__pair,
+  .join-form__contact,
+  .join-form__note {
+    grid-column: 1;
+  }
+  .join-form__close {
+    grid-column: 2;
+    /*
+      `1 / -1` would resolve against the explicit grid, which has no rows here
+      — the three field rows are implicit — so the span is written out.
+
+      Spanning all three rows means the mark's height is part of what sizes
+      them: at 1600 the fields stack ~309px against a 288px ensō plus its
+      caption, so the three rows each take ~12px more than their content and
+      the two columns bottom out together. That is the intent — the field
+      stack is justified to the mark — and it stays even because the surplus
+      is distributed equally over the spanned tracks. The inputs never move
+      off the top of their rows: each field is its own flex column.
+    */
+    grid-row: 1 / span 3;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    margin-top: 0;
+    /* the privacy note is now a caption hung under a right-ranged mark */
+    text-align: right;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Fields                                                              */
 /* ------------------------------------------------------------------ */
 .join-field {
   display: flex;
@@ -7,7 +216,10 @@
   gap: 0.5rem;
 }
 .join-input {
-  height: 3rem;
+  /* 3rem holds until 2000 (2.4vw), then the rule follows the sheet up to
+     56px — a 48px field under 18px body copy reads as a leftover from a
+     narrower page. It never drops below the 44px hit target. */
+  height: clamp(3rem, 2.4vw, 3.5rem);
   padding: 0 0 0.5rem;
   color: var(--color-bone);
   background: transparent;
@@ -15,7 +227,8 @@
   border-bottom: 1px solid var(--color-bone-2);
   border-radius: 0;
   font-family: var(--font-body);
-  font-size: 1rem;
+  /* the body ramp from globals, restated: an input inherits neither */
+  font-size: clamp(1rem, 0.75vw, 1.125rem);
   transition: border-color var(--duration-fast) var(--ease-out);
   appearance: none;
 }
@@ -35,7 +248,7 @@
 }
 .join-input--area {
   height: auto;
-  min-height: 5rem;
+  min-height: clamp(5rem, 4vw, 6.5rem);
   padding-top: 0.5rem;
   line-height: 1.5;
   resize: vertical;
@@ -71,13 +284,19 @@
   position: relative;
   display: grid;
   place-items: center;
-  width: min(18rem, 100%);
+  width: var(--enso-size);
   aspect-ratio: 1 / 1;
-  margin-left: -1.5rem;
+  /* under the fields: the ink hangs left, off the field rules' left edge */
+  margin-left: calc(var(--enso-hang) * -1);
 }
-@media (min-width: 768px) {
+@media (min-width: 1600px) {
+  /* beside the fields: the hang mirrors. The mark's box ends on the trim and
+     the ink reaches 24–32px past it, into a gutter that is never narrower
+     than 57.6px at these widths — so no ink can leave the paper, and the
+     type below the mark still lines up on the trim. */
   .join-enso {
-    width: 17rem;
+    margin-left: 0;
+    margin-right: calc(var(--enso-hang) * -1);
   }
 }
 .join-enso__mark {
@@ -90,8 +309,13 @@
 .join-submit {
   position: relative;
   z-index: 1;
-  min-height: 3rem;
-  padding: 0 1.5rem;
+  min-height: clamp(3rem, 2.4vw, 3.5rem);
+  /* the button grows with the circle it is drawn inside: at 2000 the ensō is
+     22rem and a 1.5rem-padded button would float loose in the middle of it */
+  padding-inline: clamp(1.5rem, 1.4vw, 2.25rem);
+  /* held explicitly: from 1600 the closing block is right-ranged, and the
+     button must not inherit that alignment if it is ever made full width */
+  text-align: center;
   color: var(--color-ink);
   background: var(--color-bone);
   border: 1px solid var(--color-bone);
@@ -113,4 +337,40 @@
 .join-submit:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* ------------------------------------------------------------------ */
+/* The confirmation                                                    */
+/*                                                                     */
+/* On success the seal takes the ensō's place: from 1600 up the block  */
+/* ranges right, so the stamp lands in the same corner of the sheet    */
+/* the mark was drawn in and the chapter closes on the same edge       */
+/* whichever state it is in.                                           */
+/* ------------------------------------------------------------------ */
+.join-done {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+}
+.join-done__seal {
+  width: 8rem;
+}
+@media (min-width: 768px) {
+  .join-done__seal {
+    width: 9rem;
+  }
+}
+@media (min-width: 1600px) {
+  .join-done {
+    justify-content: flex-end;
+  }
+  .join-done__seal {
+    width: 11rem;
+  }
+}
+@media (min-width: 2000px) {
+  .join-done__seal {
+    width: 13rem;
+  }
 }

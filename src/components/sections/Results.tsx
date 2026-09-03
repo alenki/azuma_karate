@@ -63,7 +63,7 @@ function TallyRow({ label, value, index }: { label: string; value: number; index
           </span>
         )}
       </div>
-      <p className="t-chapter font-display text-bone tally-row__value">
+      <p className="text-bone tally-row__value">
         <span className="sr-only">{label}: </span>
         {value}
       </p>
@@ -78,6 +78,13 @@ function TallyRow({ label, value, index }: { label: string; value: number; index
  * way a dojo counts them — in 正 tally marks, five strokes at a time, struck
  * onto the board as the section enters — and the season is listed as a printed
  * timeline. The one colour photograph on the site sits here: the trophies.
+ *
+ * The sheet is the viewport, so the chapter is composed as a ledger PAGE and
+ * changes shape twice as the paper grows (the arithmetic is in results.css):
+ * one column below 768; two fields on the shared twelve-column page grid from
+ * 1024; and past 1600 the deck leaves the ledger column, each counted row
+ * becomes a single ledger line — label · 正 · numeral on one baseline — and
+ * the plate bleeds off the right edge of the paper.
  */
 export function Results() {
   const { locale } = useLocale();
@@ -93,7 +100,7 @@ export function Results() {
       className="results relative overflow-hidden"
       bleed={<Grain opacity={0.25} />}
     >
-      <div className="wrap relative z-10 py-28 md:py-40">
+      <div className="wrap results__sheet relative z-10">
         <div className="rule" />
         <Reveal delay={0.1} y={12} duration={0.8} className="flex items-baseline justify-between gap-6 pt-4">
           <p className="t-mono text-bone-2">{t.eyebrow[locale]}</p>
@@ -102,36 +109,46 @@ export function Results() {
           </span>
         </Reveal>
 
-        <div className="mt-12 grid gap-x-8 gap-y-16 md:mt-16 lg:grid-cols-12">
+        {/*
+          The masthead is one grid at every width. Up to 1600 the deck and the
+          ledger share a six-column stack (`.results__col`); past it the column
+          dissolves — `display: contents` — and title, lead and board are placed
+          on the page grid themselves. Source order is already reading order, so
+          the promotion changes no focus order and nothing is announced twice.
+        */}
+        <div className="results__masthead">
           {/* ---- title, lead, tally board ---- */}
-          <div className="lg:col-span-6">
-            <h2 id={HEADING_ID} className="t-chapter text-bone">
+          <div className="results__col">
+            <h2 id={HEADING_ID} className="t-chapter text-bone results__title">
               <LineReveal as="span" className="block" lines={[t.title[locale]]} />
             </h2>
-            <Reveal delay={0.2} className="mt-6">
+            <Reveal delay={0.2} className="results__lead">
               <p className="t-lead max-w-[40ch] text-bone-2">{t.lead[locale]}</p>
             </Reveal>
 
-            <div className="mt-14 flex flex-col">
+            <div className="results__board">
               {t.tallies.map((tally, i) => (
                 <TallyRow key={tally.label.en} label={tally.label[locale]} value={tally.value} index={i} />
               ))}
             </div>
           </div>
 
-          {/* ---- the one colour plate ---- */}
-          <div className="lg:col-span-5 lg:col-start-8 lg:pt-10">
-            <figure className="m-0">
-              <Curtain className="aspect-[16/10]" duration={1.1}>
-                <Photo slot="trophies" grade="color" sizes="(min-width: 1024px) 40vw, 100vw" />
-              </Curtain>
-              <figcaption className="t-caption mt-4 text-bone-2">{t.plateCaption[locale]}</figcaption>
-            </figure>
-          </div>
+          {/* ---- the one colour plate: five columns to 1600, then four that
+                  bleed to the paper edge — hence the two `sizes` steps ---- */}
+          <figure className="results__plate">
+            <Curtain className="results__plate-frame" duration={1.1}>
+              <Photo
+                slot="trophies"
+                grade="color"
+                sizes="(min-width: 1600px) 34vw, (min-width: 1024px) 38vw, 100vw"
+              />
+            </Curtain>
+            <figcaption className="t-caption text-bone-2 results__plate-caption">{t.plateCaption[locale]}</figcaption>
+          </figure>
         </div>
 
         {/* ---- season timeline ---- */}
-        <div className="mt-20 md:mt-28">
+        <div className="results__timeline">
           <ol className="m-0 list-none p-0">
             {t.timeline.map((row, i) => (
               <li key={row.title.en}>
@@ -149,7 +166,7 @@ export function Results() {
         </div>
 
         {/* ---- athlete of the year ---- */}
-        <Reveal delay={0.2} className="mt-12">
+        <Reveal delay={0.2} className="results__best">
           <div className="best-strip">
             <motion.span
               aria-hidden="true"

@@ -1,0 +1,496 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 八 — «Неделя»: the week, set as a printed table              */
+/*                                                                      */
+/* This is the one chapter of the manual whose subject genuinely wants  */
+/* the whole sheet. Seven weekdays are seven columns; a column can only */
+/* be as wide as a seventh of the page it is printed on, so every pixel */
+/* the trim gains here is a pixel the week gains. From 1280 up the      */
+/* table is therefore printed OUTSIDE the trim, to the true paper edge, */
+/* the way a wide table is trimmed in a printed manual — and the frame  */
+/* that used to be drawn around it (`md:border md:p-6` in the markup)   */
+/* is gone with it. A frame and a bleed are two different statements    */
+/* about where a table ends, and a bled table ends at the paper. What   */
+/* survives is the table's own ruling: a hairline over and under it,    */
+/* and six hairlines between the days, drawn by the 1px grid gap over   */
+/* a rule-coloured ground.                                              */
+/*                                                                      */
+/* Two things the bleed has to buy back:                                */
+/*   · Type may not slide into the binding margin. The first and last   */
+/*     columns take `max(--tt-pad, --gutter)` on their outer side, so   */
+/*     Monday's times stand on exactly the same vertical as the eyebrow */
+/*     above and the colophon below, while the RULES run past both to   */
+/*     the edge. That is the register a printed table keeps.            */
+/*   · Nothing may overflow. `.timetable__week` uses the same negative  */
+/*     gutter `.bleed` does, and `.wrap` is now full width, so its box  */
+/*     is (100% − 2×gutter) + 2×gutter = the body width exactly. The    */
+/*     gutter is a `vw` length on both sides of that sum, so it cancels */
+/*     and a classic scrollbar cannot push the table past the page.     */
+/*                                                                      */
+/* Sizes below are stated as tokens, never inline, because every one of */
+/* them has to be re-chosen twice on the way to 2560. Measured column   */
+/* widths (bled: (viewport − 6 gap px) / 7), and the content box left   */
+/* in the widest and the narrowest column at each tier:                 */
+/*   1280   182px   mid 142   ·  edge 116                               */
+/*   1440   205px   mid 165   ·  edge 133                               */
+/*   1600   228px   mid 180   ·  edge 146                               */
+/*   1920   273px   mid 225   ·  edge 180                               */
+/*   2560   365px   mid 309   ·  edge 245                               */
+/* The binding case for the content box is the longest group name, RU   */
+/* «Утренние в парке» — 16 characters, ~128px at the 1rem name size the */
+/* 1600 tier sets — so even the narrow edge columns hold it on two      */
+/* lines at 1280 and on one from 1600 up.                               */
+/*                                                                      */
+/* Colour note: informational mono in this chapter (the age band under  */
+/* a session, the em dash for a day with no class, the session count in */
+/* the accordion) is --color-ink-2, 6.9:1 on paper. It must never be    */
+/* --color-ink-3, which measures 2.399:1 — below the 3:1 large-text     */
+/* floor — and is reserved for aria-hidden ornament.                    */
+/*                                                                      */
+/* A few timetable rules live in `globals.css` — `.timetable__col--today`,*/
+/* `.timetable__cell`, `.timetable__cell--hi`, `.legend__btn`,          */
+/* `.legend__dot`. They own colour and transition; this file owns only  */
+/* geometry and type size, so the two never declare the same property.  */
+/* The column's paper ground is deliberately left as the `bg-paper`     */
+/* utility in the markup: utilities are layered and the unlayered       */
+/* `.timetable__col--today` beats them, which is what lets today's      */
+/* column print on paper-3. Setting the ground here would win that      */
+/* cascade and silently erase the "today" mark's only background.       */
+/*                                                                      */
+/* `Timetable` is rendered only from `Schedule`, which is what imports  */
+/* this file; if it is ever mounted anywhere else, import it there too. */
+/* ------------------------------------------------------------------ */
+
+.schedule {
+  /*
+    Vertical rhythm. These were `pt-20 pb-24 md:pt-28 md:pb-36` on the sheet
+    (5/6rem, then 7/9rem) — numbers chosen against a 1312 column. They are
+    tokens now so the wide tiers can raise them: 9rem of paper under a
+    2560-wide page reads as a squashed strip, not as a closed chapter.
+  */
+  --sch-pad-top: 5rem;
+  --sch-pad-bottom: 6rem;
+
+  /* the space between the chapter's four blocks — running head, opener,
+     table, colophon. The markup used to hardcode mt-10/mt-12/mt-6 and
+     md:mt-14/mt-20/mt-8; those exact values are the first two tiers. */
+  --sch-head-gap: 2.5rem;
+  --sch-table-gap: 3rem;
+  --sch-colophon-gap: 1.5rem;
+
+  /* the margin numeral hangs level with the running-head rule */
+  --numeral-top: var(--sch-pad-top);
+
+  /* ---- the table's units ---- */
+  /* a column's inner padding (was `p-4`) */
+  --tt-pad: 1rem;
+  /* the floor under a column. Not a height: Monday carries four sessions
+     and always exceeds it; Saturday carries one and does not. The empty
+     paper under Saturday is the week, made visible. */
+  --tt-min-h: 16rem;
+  /* the weekday, set in the display face (was `text-lg`) */
+  --tt-day-size: 1.125rem;
+  /* paper between the weekday and the first session (was `mb-4`) */
+  --tt-day-gap: 1rem;
+  /* the brush tick under today's weekday (was `w-10`) */
+  --tt-tick-w: 2.5rem;
+  /* a session row (was `gap-2` on the list, `py-2` on the row) */
+  --tt-row-gap: 0.5rem;
+  --tt-row-pad: 0.5rem;
+  /* the group's name — the only body-face line in the table (was
+     `text-[0.875rem]`, a size chosen for a 169px column) */
+  --tt-name-size: 0.875rem;
+  /* the legend above the table (was `mb-8 gap-x-6 gap-y-2`) */
+  --tt-legend-gap-x: 1.5rem;
+  --tt-legend-gap-y: 0.5rem;
+  --tt-legend-mb: 2rem;
+
+  /* the two actions in the opener, stacked (was `gap-2`) */
+  --sch-action-gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .schedule {
+    --sch-pad-top: 7rem;
+    --sch-pad-bottom: 9rem;
+    --sch-head-gap: 3.5rem;
+    --sch-table-gap: 5rem;
+    --sch-colophon-gap: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .schedule {
+    /* the tier the table starts bleeding at — the columns gain the two
+       gutters (92px at 1280) and the padding grows to keep the type off
+       the new vertical rules */
+    --tt-pad: 1.25rem;
+    --tt-min-h: 18rem;
+  }
+}
+
+/*
+  ---- the full-sheet tiers ------------------------------------------------
+  Above ~1600 the table is the only thing on the page that has been handed a
+  third more paper, and it must be redrawn for it rather than stretched. Held
+  at the 1280 values a 2560 sheet prints seven 365px columns whose type is
+  still 14px and whose floor is still 16rem: a very large table of very small
+  print, with a band of white under every day.
+
+  So the three quantities that make a table read — the column's height, the
+  air inside a cell, and the size of the print — move together:
+
+    tier   column   floor    weekday   name    Monday's four rows measure
+    1280   182px    18rem    1.125rem  0.875   ~322px + 40 padding = 362px
+    1600   228px    21rem    1.375rem  1rem    ~356px + 48 padding = 404px
+    2000   365px    24rem    1.625rem  1.0625  ~392px + 56 padding = 448px
+
+  Monday clears the floor at every tier, so the floor only ever holds up the
+  quiet end of the week (Saturday and Sunday carry one session each). If the
+  club adds a session the column grows; nothing here is a fixed height.
+*/
+@media (min-width: 1600px) {
+  .schedule {
+    --sch-pad-top: 8.5rem;
+    --sch-pad-bottom: 11rem;
+    --sch-head-gap: 4.5rem;
+    --sch-table-gap: 6.5rem;
+    --sch-colophon-gap: 2.5rem;
+
+    --tt-pad: 1.5rem;
+    --tt-min-h: 21rem;
+    --tt-day-size: 1.375rem;
+    --tt-day-gap: 1.25rem;
+    --tt-tick-w: 3rem;
+    --tt-row-gap: 0.75rem;
+    --tt-row-pad: 0.625rem;
+    --tt-name-size: 1rem;
+    --tt-legend-gap-x: 2.25rem;
+    --tt-legend-gap-y: 0.75rem;
+    --tt-legend-mb: 2.5rem;
+
+    --sch-action-gap: 0.75rem;
+  }
+}
+
+@media (min-width: 2000px) {
+  .schedule {
+    --sch-pad-top: 10rem;
+    --sch-pad-bottom: 13.5rem;
+    --sch-head-gap: 5.5rem;
+    --sch-table-gap: 8rem;
+    --sch-colophon-gap: 3rem;
+
+    --tt-pad: 1.75rem;
+    --tt-min-h: 24rem;
+    --tt-day-size: 1.625rem;
+    --tt-day-gap: 1.5rem;
+    --tt-tick-w: 3.5rem;
+    --tt-row-pad: 0.75rem;
+    --tt-name-size: 1.0625rem;
+    --tt-legend-gap-x: 3rem;
+    --tt-legend-mb: 3rem;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The sheet and its running head                                    */
+/* ---------------------------------------------------------------- */
+.schedule__sheet {
+  padding-top: var(--sch-pad-top);
+  padding-bottom: var(--sch-pad-bottom);
+}
+
+/* rule → eyebrow, with the mobile folio at the far end of the trim
+   (`.folio-inline` prints only below 768; above it the numeral is in the
+   binding margin, so the eyebrow simply stands alone on a full-width line) */
+.schedule__runhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-top: 1rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* The opener                                                        */
+/*                                                                   */
+/* Below 768 it is three stacked blocks. From 768 it is the shared    */
+/* twelve-column page field: the title and the lead in the first      */
+/* seven columns, the two practical actions hung at the bottom of the */
+/* far right — which is where the reader's eye leaves the opener and  */
+/* enters the table.                                                  */
+/* ---------------------------------------------------------------- */
+.schedule__head {
+  margin-top: var(--sch-head-gap);
+}
+.schedule__lead-field {
+  margin-top: 2rem;
+}
+.schedule__actions {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sch-action-gap);
+}
+
+@media (min-width: 768px) {
+  .schedule__head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+  }
+  /* the lead sits under the title, and the actions are hung on the last
+     line of the pair — the `md:items-end` the markup used to ask for,
+     written as an explicit two-row placement so the wide tier has
+     somewhere to move the lead to */
+  .schedule__title-field {
+    grid-column: 1 / span 7;
+    grid-row: 1;
+  }
+  .schedule__lead-field {
+    grid-column: 1 / span 7;
+    grid-row: 2;
+    margin-top: 2.5rem;
+  }
+  .schedule__actions {
+    grid-column: 8 / -1;
+    grid-row: 1 / span 2;
+    align-self: end;
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .schedule__actions {
+    grid-column: 9 / -1;
+  }
+}
+
+/*
+  On a full sheet the opener stops being a block with a block beside it and
+  becomes a band across the page: title, lead and actions on ONE line, set
+  in three fields and standing on a common bottom edge.
+
+  Widths at the two tiers this has to work at (sheet = viewport − 2×gutter,
+  twelve columns with an 11 × --col-gap subtracted):
+    1600   sheet 1485   column 111   title 651   lead 516   actions 381
+    2560   sheet 2376   column 165   title 969   lead 768   actions 567
+
+  · The title holds. «Неделя» is six characters and "The week" eight, and
+    --text-chapter is 5.6vw until its 9rem ceiling at 2571 — so the longer,
+    English line measures ~550px at 2560 (Prata's average advance is a shade
+    under half an em) against a 969px field, and ~345px at 1600 against 651.
+  · The lead keeps `.measure-lead`, the shared 46ch cap. Which of the two
+    binds changes across the tier and both answers are safe: at 1600 the
+    field is narrower (516px against a ~570px cap at 22.4px type), at 2560
+    the cap is (~660px at the 26px --text-lead ceiling, against a 768px
+    field). Either way the paragraph never runs long and never fills its
+    column edge to edge. It is a lead, not a text block.
+  · The actions are the reason for the cap. Three columns of a 2560 sheet is
+    567px, and two full-width buttons that wide read as two lonely slabs;
+    24rem is a button, and the pair is pushed to the right trim, where the
+    page ends. The longest label is RU «Построить маршрут» — 17 mono
+    characters at 13px with 0.12em tracking, ~159px plus 4rem of padding —
+    so 24rem is never the constraint on the type, only on the slab.
+*/
+@media (min-width: 1600px) {
+  .schedule__title-field {
+    grid-column: 1 / span 5;
+    align-self: end;
+  }
+  .schedule__lead-field {
+    grid-column: 6 / span 4;
+    grid-row: 1;
+    align-self: end;
+    margin-top: 0;
+  }
+  .schedule__actions {
+    grid-column: 10 / -1;
+    grid-row: 1;
+    justify-self: end;
+    inline-size: 100%;
+    max-inline-size: 24rem;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The table                                                         */
+/* ---------------------------------------------------------------- */
+.schedule__table {
+  margin-top: var(--sch-table-gap);
+}
+
+/* the legend: a key, so it stays inside the trim even when the table
+   below it does not */
+.timetable__legend {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--tt-legend-gap-x);
+  row-gap: var(--tt-legend-gap-y);
+  margin-bottom: var(--tt-legend-mb);
+}
+/* the legend buttons are the only pointer targets in this chapter; the
+   `py-2` they used to carry left them ~30px tall. `globals.css` owns their
+   colour and layout, so only the height is set here. */
+.timetable__legend .legend__btn {
+  min-block-size: 2.75rem;
+}
+
+/* the week. Seven equal columns; the 1px grid gap over a rule-coloured
+   ground draws the six verticals between the days. Below 768 it is not
+   printed at all — the accordion is. */
+.timetable__week {
+  display: none;
+}
+@media (min-width: 768px) {
+  .timetable__week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-rule);
+    /* inside the trim at this tier, so the table is closed on all four
+       sides, the way a framed table is */
+    border: 1px solid var(--color-rule);
+  }
+}
+
+/* one day. The paper ground stays on the `bg-paper` utility in the markup —
+   see the cascade note at the top of this file. */
+.timetable__col {
+  padding: var(--tt-pad);
+  min-block-size: var(--tt-min-h);
+}
+
+/*
+  From 1280 the table is printed to the paper edge. `.bleed`'s arithmetic is
+  written out here rather than borrowed as a class, because the columns'
+  edge padding below has to be derived from the same gutter.
+
+  The side borders go with the trim: a bled table has no outer vertical —
+  its left and right edges ARE the page. Only the rule over and under it
+  survives, and those now run the full width of the screen.
+*/
+@media (min-width: 1280px) {
+  .timetable__week {
+    margin-inline: calc(var(--gutter) * -1);
+    border-inline: 0;
+  }
+  /* type stays on the trim while the rules run past it */
+  .timetable__col:first-child {
+    padding-inline-start: max(var(--tt-pad), var(--gutter));
+  }
+  .timetable__col:last-child {
+    padding-inline-end: max(var(--tt-pad), var(--gutter));
+  }
+}
+
+/* the weekday line. `position: relative` is load-bearing: the brush tick
+   under today's column is absolutely positioned against this box, not
+   against the «сегодня» label it is rendered beside. */
+.timetable__day {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: var(--tt-day-gap);
+}
+.timetable__dayname {
+  font-family: var(--font-display);
+  font-size: var(--tt-day-size);
+  line-height: 1.1;
+}
+/*
+  The chapter's one brush mark, ticked under today's weekday. It drops three
+  quarters of the paper between the weekday and the first session, so it
+  clears a 1.625rem weekday at 2000 exactly as it cleared a 1.125rem one
+  at 768.
+
+  The height is stated, not left to the SVG. `Brush` prints `width`/`height`
+  presentation attributes from the mark's viewBox — here 300 × 140 — and a
+  rule that sets only the width leaves the box 140px tall, so the mark is
+  centred by `preserveAspectRatio` some 60px above where `bottom` puts the
+  box's edge, and growing the width on a wide sheet does not enlarge it at
+  all: `meet` scales to whichever axis binds, and that axis was the untouched
+  height. Deriving the height from the same token fixes the mark to the line
+  it is ticking and lets it grow with the table.
+*/
+.timetable__tick {
+  position: absolute;
+  left: 0;
+  bottom: calc(var(--tt-day-gap) * -0.75);
+  inline-size: var(--tt-tick-w);
+  block-size: calc(var(--tt-tick-w) * 140 / 300);
+}
+
+.timetable__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tt-row-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* one session. The hairline over each row is the table's horizontal ruling;
+   `globals.css` owns this class's colour and transition. */
+.timetable__cell {
+  padding-block: var(--tt-row-pad);
+  border-top: 1px solid var(--color-rule);
+}
+.timetable__name {
+  display: block;
+  font-size: var(--tt-name-size);
+  /* `leading-snug` — the name is the only line here that ever wraps */
+  line-height: 1.375;
+}
+.timetable__ages {
+  display: block;
+  margin-top: 0.25rem;
+  /* informational, so ink-2 (6.9:1) — see the colour note at the top */
+  color: var(--color-ink-2);
+}
+/* a day with no class. The em dash is content, not ornament, so it is set
+   in readable ink like everything else. */
+.timetable__empty {
+  color: var(--color-ink-2);
+}
+
+/* ---------------------------------------------------------------- */
+/* The colophon: the provisional note, and where the hall is         */
+/*                                                                   */
+/* One line ranged across the full trim — the note on the left edge   */
+/* of the page, the address on the right, the way a colophon closes   */
+/* a printed chapter. The note keeps a 62ch cap so it stays a single  */
+/* line at every width instead of becoming a paragraph.               */
+/* ---------------------------------------------------------------- */
+.schedule__colophon {
+  margin-top: var(--sch-colophon-gap);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.schedule__note {
+  max-inline-size: var(--measure-prose);
+  color: var(--color-ink-2);
+}
+.schedule__address {
+  font-style: normal;
+  color: var(--color-ink-2);
+}
+@media (min-width: 768px) {
+  .schedule__colophon {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .schedule__address {
+    flex-shrink: 0;
+    text-align: end;
+  }
+}
+@media (min-width: 1600px) {
+  .schedule__colophon {
+    gap: 3rem;
+  }
+}

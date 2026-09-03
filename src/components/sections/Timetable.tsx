@@ -22,6 +22,13 @@ const copy = {
  * "today" mark; after mount the current weekday gets the brush tick and, on
  * narrow screens, opens by default. Hovering or focusing a group in the legend
  * highlights that group's cells (shared `data-group`).
+ *
+ * Geometry lives in `src/styles/sections/schedule.css`, which is imported by
+ * `Schedule` — the only component that renders this one. Colour and
+ * transition for `.timetable__cell`, `.timetable__col--today`, `.legend__btn`
+ * and `.legend__dot` live in `globals.css`; neither file sets the other's
+ * properties, and the day column's paper ground is deliberately kept on the
+ * `bg-paper` utility so the unlayered `--today` rule can still override it.
  */
 export function Timetable({ className, highlight, onHighlight }: { className?: string; highlight?: GroupId | null; onHighlight?: (g: GroupId | null) => void }) {
   const { locale } = useLocale();
@@ -38,13 +45,13 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
 
   return (
     <div className={cn("timetable", className)} data-highlight={hi ?? undefined}>
-      {/* legend */}
-      <div className="mb-8 flex flex-wrap gap-x-6 gap-y-2" role="group" aria-label={t.legend}>
+      {/* legend — the table's key, so it stays inside the trim */}
+      <div className="timetable__legend" role="group" aria-label={t.legend}>
         {groups.map((g) => (
           <button
             key={g.id}
             type="button"
-            className={cn("legend__btn t-mono py-2", hi === g.id && "legend__btn--on")}
+            className={cn("legend__btn t-mono", hi === g.id && "legend__btn--on")}
             aria-pressed={hi === g.id}
             onMouseEnter={() => setHi(g.id)}
             onMouseLeave={() => setHi(null)}
@@ -58,37 +65,37 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
         ))}
       </div>
 
-      {/* desktop: 7 columns */}
-      <div className="hidden md:grid grid-cols-7 gap-px bg-rule border border-rule">
+      {/* desktop: the week in seven columns, trimmed to the paper edge from 1280 */}
+      <div className="timetable__week">
         {[1, 2, 3, 4, 5, 6, 7].map((d) => {
           const isToday = today === d;
           return (
-            <div key={d} className={cn("timetable__col bg-paper p-4 min-h-[16rem]", isToday && "timetable__col--today")}>
-              <div className="relative flex items-baseline justify-between mb-4">
-                <span className="font-display text-lg">{dayShort(d, locale)}</span>
+            <div key={d} className={cn("timetable__col bg-paper", isToday && "timetable__col--today")}>
+              <div className="timetable__day">
+                <span className="timetable__dayname">{dayShort(d, locale)}</span>
                 {isToday && (
                   <span className="t-mono text-shu">
                     {t.today}
-                    <Brush kind="tick" className="absolute -bottom-3 left-0 w-10 text-shu" trigger="load" delay={0.2} />
+                    <Brush kind="tick" className="timetable__tick text-shu" trigger="load" delay={0.2} />
                   </span>
                 )}
               </div>
-              <ul className="flex flex-col gap-2">
+              <ul className="timetable__list">
                 {days.get(d)!.map((s) => {
                   const g = groupById(s.group);
                   return (
                     <li
                       key={`${d}-${s.time}-${s.group}`}
                       data-group={s.group}
-                      className={cn("timetable__cell py-2 border-t border-rule", hi && hi !== s.group && "opacity-30", hi === s.group && "timetable__cell--hi")}
+                      className={cn("timetable__cell", hi && hi !== s.group && "opacity-30", hi === s.group && "timetable__cell--hi")}
                     >
                       <span className="t-caption block">{s.time}</span>
-                      <span className="text-[0.875rem] leading-snug block">{g.name[locale]}</span>
-                      <span className="t-mono text-ink-3 block mt-1">{g.ages[locale]}</span>
+                      <span className="timetable__name">{g.name[locale]}</span>
+                      <span className="t-mono timetable__ages">{g.ages[locale]}</span>
                     </li>
                   );
                 })}
-                {days.get(d)!.length === 0 && <li className="t-caption text-ink-3">—</li>}
+                {days.get(d)!.length === 0 && <li className="t-caption timetable__empty">—</li>}
               </ul>
             </div>
           );
@@ -112,7 +119,8 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
                   {dayLong(d, locale)}
                   {isToday && <span className="t-mono text-shu ml-3">{t.today}</span>}
                 </span>
-                <span className="t-mono text-ink-3">{days.get(d)!.length}</span>
+                {/* informational, so ink-2 — ink-3 is 2.399:1 and ornament-only */}
+                <span className="t-mono text-ink-2">{days.get(d)!.length}</span>
               </button>
               {open && (
                 <ul className="pb-4 flex flex-col">
@@ -122,11 +130,11 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
                       <li key={`${d}-${s.time}-${s.group}`} data-group={s.group} className="flex items-baseline gap-4 py-2 border-t border-rule">
                         <span className="t-caption w-14 shrink-0">{s.time}</span>
                         <span className="text-[0.9375rem]">{g.name[locale]}</span>
-                        <span className="t-mono text-ink-3 ml-auto">{g.ages[locale]}</span>
+                        <span className="t-mono text-ink-2 ml-auto">{g.ages[locale]}</span>
                       </li>
                     );
                   })}
-                  {days.get(d)!.length === 0 && <li className="t-caption text-ink-3 py-2">—</li>}
+                  {days.get(d)!.length === 0 && <li className="t-caption text-ink-2 py-2">—</li>}
                 </ul>
               )}
             </div>

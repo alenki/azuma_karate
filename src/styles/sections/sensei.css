@@ -1,19 +1,258 @@
 /* ------------------------------------------------------------------ */
 /* Chapter 四 — Тренер                                                 */
-/* The plate is printed in grayscale; a colour print lies on top and   */
-/* is exposed on hover, on keyboard focus inside the figure, or when   */
-/* the toggle under the plate is pressed (touch).                      */
+/*                                                                      */
+/* The plate is printed in grayscale; a colour print lies on top and    */
+/* is exposed on hover, on keyboard focus inside the figure, or when    */
+/* the toggle under the plate is pressed (touch).                       */
+/*                                                                      */
+/* The sheet is the viewport, so this chapter is set as a plate page.   */
+/* Two decisions hold it together at any width:                         */
+/*                                                                      */
+/*  1. The portrait is ranged to the BINDING trim on the left and never */
+/*     bleeds past it. It cannot: 四 and the folio hang in that margin  */
+/*     — `.chapter__numeral` starts 24px in and `.chapter__kanji` is    */
+/*     44px wide at 2560, so the numeral ends 68px in against a 92px    */
+/*     gutter, and it is printed from y≈80 down, which is inside the    */
+/*     plate's vertical range because the plate breaks upward across    */
+/*     the chapter rule. A left bleed would print 四 on the photograph. */
+/*     The binding margin is structure here, not padding.               */
+/*                                                                      */
+/*  2. Everything that CAN reach the paper edge does. The chapter's top */
+/*     rule bleeds to the trim edge on a wide sheet, and the biography  */
+/*     is ranged to the right trim, so the seal — the chapter's single  */
+/*     brush mark — is stamped at the outer edge of the page.           */
+/*                                                                      */
+/* The chapter re-composes twice on the way up rather than stretching:  */
+/* at 1600 the decree leaves the reading column for an outer margin,    */
+/* and at 2000 the plate gives up a column so the margin can widen.     */
 /* ------------------------------------------------------------------ */
-.sensei-plate__color {
-  opacity: 0;
-  transition: opacity 600ms var(--ease-out);
-}
-.sensei-plate:hover .sensei-plate__color,
-.sensei-figure:focus-within .sensei-plate__color,
-.sensei-figure[data-colour="on"] .sensei-plate__color {
-  opacity: 1;
+
+.sensei {
+  /*
+    How far the plate breaks upward across the chapter's top rule.
+    5vw resolves to exactly 4rem at 1280, which is the fixed `-mt-16` this
+    chapter used when the page was a 1312 column — so nothing at or below
+    that width moves — and it keeps the overlap proportional to the plate
+    above it (80px at 1600, 128px at 2560) instead of leaving a 64px nick in
+    a plate a thousand pixels tall. It is capped at 8rem because the overlap
+    is spent on the chapter ABOVE this one: the plate hangs into the previous
+    chapter's closing padding, and 8rem is the smallest bottom padding any
+    chapter on this sheet sets, so the pull can never eat into that chapter's
+    last line however wide the screen gets.
+  */
+  --plate-pull: clamp(4rem, 5vw, 8rem);
+
+  /*
+    The unit the biography column's gaps are counted in. It is 0.5rem here so
+    that every `calc(var(--rhythm) * n)` below reproduces exactly the Tailwind
+    step it overrides; it only grows in the >=1600 tier, where the reasoning is
+    written out. Declared at the base so no rule can ever resolve it to nothing.
+  */
+  --rhythm: 0.5rem;
 }
 
+/*
+  Section rhythm. The first two steps reproduce the old `pb-20 / md:pb-24`
+  exactly; the desktop step used to be a flat `pb-32` (8rem) chosen against a
+  1312 column. 8vw resolves to 8rem at 1600, so the padding is unchanged for
+  every width the old layout was drawn for and only starts growing above it —
+  a 2560 sheet closes on 205px of paper instead of reading as a squashed strip.
+*/
+.sensei__inner {
+  padding-top: 1rem;
+  padding-bottom: 5rem;
+}
+@media (min-width: 768px) {
+  .sensei__inner {
+    padding-bottom: 6rem;
+  }
+}
+@media (min-width: 1024px) {
+  .sensei__inner {
+    /* the plate breaks upward across the top rule, so there is no top padding */
+    padding-top: 0;
+    padding-bottom: clamp(8rem, 8vw, 13rem);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The field                                                         */
+/* ---------------------------------------------------------------- */
+/* Below the spread breakpoint the chapter is one column: plate, then
+   biography. Above it the two stand on the page grid — the same twelve
+   verticals every other chapter is set on, not a private eight-gap grid. */
+.sensei-body {
+  display: grid;
+}
+
+@media (min-width: 1024px) {
+  .sensei-body {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: start;
+  }
+
+  .sensei-figure {
+    grid-column: 1 / span 5;
+    /* overrides the stacked `mt-8`; see --plate-pull above */
+    margin-top: calc(var(--plate-pull) * -1);
+  }
+
+  .sensei-text {
+    /* `/ -1` rather than `span 6`: the biography ends ON the right trim at
+       every width, so the seal and the closing rule are always ranged to the
+       edge of the sheet rather than to a column that happens to land there. */
+    grid-column: 7 / -1;
+  }
+}
+
+/*
+  The plate keeps its 3:4 slot and five columns up to 2000. Measured against
+  the field (100vw − 2 × gutter, twelve columns, `--col-gap` between them)
+  that is 545px wide at 1440 and 756px at 1999 — a plate, and still shorter
+  than the biography beside it. Past 2000 five columns runs away: it would be
+  969px wide and 1292px tall at 2560, taller than the viewport it is read in.
+  So at 2000 the plate drops to four columns (599px at 2000, 768px at 2560,
+  1024px tall) and hands the column it gave up to the biography, which needs
+  it for the margin the decree and the seal now live in. The trade is exact:
+  at that boundary the plate loses 157px of width and the text block gains the
+  same 157px (912 → 1070). Nothing is stranded on either side of it.
+*/
+@media (min-width: 2000px) {
+  .sensei-figure {
+    grid-column: 1 / span 4;
+  }
+  .sensei-text {
+    grid-column: 6 / -1;
+    --text-cols: 7;
+  }
+}
+
+/* The top rule is the sheet's trim mark, so on a wide page it runs the whole
+   width of the paper. Below 1600 it stops at the gutter, where the page still
+   reads as a page with margins; above it, a rule that stopped short would draw
+   a box around a field two thousand pixels wide. `.wrap` is full width, so a
+   negative gutter margin reaches the edge exactly and cannot overflow. */
+@media (min-width: 1600px) {
+  .sensei__rule {
+    margin-inline: calc(var(--gutter) * -1);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The biography column, and its outer margin                        */
+/* ---------------------------------------------------------------- */
+/*
+  From 1600 up the biography is not one block of prose in a wide column — it
+  is a text column with an outer margin, the way a manual sets a credential
+  and its citation. The block spans six page columns at 1600 and seven at
+  2000, and reproduces the parent's tracks exactly: equal columns, the same
+  `--col-gap`, spanning a whole number of parent columns, so a nested
+  `repeat(n, 1fr)` lands on the page grid's verticals without subgrid.
+
+  `-3 / -1` is the outer margin whatever the count: columns 5–6 of six,
+  6–7 of seven. `1 / -3` is the reading column. Prose keeps its own measure
+  in `ch` inside that — the field widens, the line length does not.
+*/
+@media (min-width: 1600px) {
+  .sensei-text {
+    display: grid;
+    grid-template-columns: repeat(var(--text-cols, 6), minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: start;
+  }
+
+  /* rules, the bio, the quote row and the closing register run the full
+     width of the block, so they all end on the right trim */
+  .sensei-full,
+  .sensei-quote-row {
+    grid-column: 1 / -1;
+  }
+
+  .sensei-rank {
+    grid-column: 1 / -3;
+  }
+
+  .sensei-decree {
+    grid-column: -3 / -1;
+  }
+
+  /*
+    The decree stops being a line under the rank and becomes a note in the
+    margin, ruled off the way a printed reference is. Its margin-top matches
+    the rank's `mt-6` so both boxes start on the same line of the row.
+    The margin is 227px at 1600 and 366px at 2560 — 29ch to 38ch of mono —
+    so the column, not the cap, is what sets the note; `--measure-caption`
+    (40ch) is only there so the note can never out-run a caption measure if
+    the margin ever widens.
+  */
+  .sensei-decree__note {
+    margin-top: calc(var(--rhythm) * 3);
+    max-width: var(--measure-caption);
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--color-rule);
+  }
+}
+
+/*
+  The biography column's leading.
+
+  Its type took the raised ceilings — `--text-chapter` 5.5rem → 9rem,
+  `--text-statement` 2.5rem → 3.75rem, `--text-lead` 1.375rem → 1.625rem — and
+  its quote, seal and signature are scaled above. Its GAPS were not: they were
+  fixed Tailwind steps chosen against a 1312 column, so at 2560 a name set at
+  143px stood in the same 24px of paper it had when it was 88px, and the
+  leading-to-type ratio fell from 0.30 of a line to 0.17.
+
+  One unit, and every gap in the column is a whole multiple of it. 0.5vw is
+  exactly 0.5rem at 1600, so each rule below reproduces the Tailwind step it
+  overrides at that width and nothing at or below the width the old column was
+  drawn for moves. By 2560 the unit has grown 1.60x — the same factor the
+  chapter title grows over the same range (89.6px → 143.4px), so the column
+  keeps one ratio of type to paper across the whole tier. Capped at 0.875rem
+  (reached at 2800) so the gaps stop before the page does.
+
+  The rank and the decree note share the same step on purpose: from 1600 the
+  decree is a margin note beside the rank, and both boxes must start on the
+  same line of the row.
+*/
+@media (min-width: 1600px) {
+  .sensei {
+    --rhythm: clamp(0.5rem, 0.5vw, 0.875rem);
+  }
+  /* was lg:pt-14 */
+  .sensei-text {
+    padding-top: calc(var(--rhythm) * 7);
+  }
+  /* was md:mt-6 on the name */
+  .sensei-text > h2 {
+    margin-top: calc(var(--rhythm) * 3);
+  }
+  /* was mt-6 on the rank */
+  .sensei-rank > p {
+    margin-top: calc(var(--rhythm) * 3);
+  }
+  /* was md:mt-12 on the rule above the bio, and mt-8 on the bio */
+  .sensei-full > .rule {
+    margin-top: calc(var(--rhythm) * 6);
+  }
+  .sensei-full > .t-lead {
+    margin-top: calc(var(--rhythm) * 4);
+  }
+  /* was mt-8 */
+  .sensei-quote-row {
+    margin-top: calc(var(--rhythm) * 4);
+  }
+  /* was mt-12 and py-5 */
+  .sensei-second {
+    margin-top: calc(var(--rhythm) * 6);
+    padding-block: calc(var(--rhythm) * 2.5);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The plate's apparatus                                             */
+/* ---------------------------------------------------------------- */
 /* the hover hint is only printed where a pointer can hover */
 @media (hover: none) {
   .sensei-hint {
@@ -41,4 +280,111 @@
 .sensei-toggle[aria-pressed="true"] .sensei-toggle__dot {
   background: var(--color-shu);
   border-color: var(--color-shu);
+}
+
+/*
+  Under a plate 600–770px wide, a hint stacked over a toggle reads as two
+  loose scraps. From 1600 the pair becomes one ruled caption line the width
+  of the plate — hint set from the left, toggle ranged to the plate's right
+  edge — which is the same apparatus the other chapters print under a plate.
+  `margin-inline-start: auto` rather than `space-between` so the toggle stays
+  ranged right on a wide touch screen, where the hint is not printed at all.
+  The button keeps its 44px hit target: only its box alignment changes.
+*/
+@media (min-width: 1600px) {
+  .sensei-apparatus {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-top: 1.1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .sensei-apparatus .sensei-toggle {
+    margin-inline-start: auto;
+    /* the Russian hint is 47 characters and the toggle 16; together they are
+       537px against a 604px plate at 1600, the tightest this row ever gets.
+       `flex: none` spends the remaining slack on the hint, which may wrap,
+       rather than on the toggle, whose label must stay on one line. */
+    flex: none;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The quote, the seal and the closing register                      */
+/* ---------------------------------------------------------------- */
+/*
+  Three fixed sizes here were chosen against a 1312 column and are the things
+  that look small on a full sheet.
+
+  The quote was a flat 2rem. In the 1fr track beside the seal that is 522px
+  at 1600 and 1083px at 2560, and the Russian quote is 52 characters — at 2rem
+  it collapses onto a single line and stops being the second-largest voice on
+  the page. 2.4vw keeps it breaking over two lines in both locales (the
+  English quote is 50 characters, so it behaves the same), capped at 3.5rem so
+  it can never rival the name set in `--text-chapter`.
+
+  The seal was a flat 10rem. It is the chapter's only brush mark and the only
+  red on the page; at 160px against a 1371px column it reads as a favicon.
+  10vw, floored at 11rem so it steps up from — never below — the 10rem it had
+  at 1599, and capped at 16rem so it stays a stamp and not a logo.
+
+  The seal's upward pull is kept at exactly half its width, which is the ratio
+  the flat `-mt-20` had against the flat `w-40`. That is what makes the seal's
+  top bite into the bio's last line; as the sheet widens the bio's 60ch measure
+  ends before the margin column starts, and the same pull turns the bite into a
+  seal stamped in the margin beside the closing lines. Nothing collides: inside
+  a 1371px block at 2560 the bio's 60ch measure ends at 780px and the seal does
+  not begin until 1115px.
+
+  The signature was a flat 1.25rem and grows with the seal it belongs to.
+*/
+@media (min-width: 1600px) {
+  .sensei {
+    --seal-size: clamp(11rem, 10vw, 16rem);
+  }
+  .sensei-quote {
+    font-size: clamp(2rem, 2.4vw, 3.5rem);
+    line-height: 1.14;
+  }
+  .sensei-seal {
+    width: var(--seal-size);
+  }
+  .sensei-stamp {
+    margin-top: calc(var(--seal-size) * -0.5);
+  }
+  .sensei-signature {
+    font-size: clamp(1.25rem, 1.1vw, 1.75rem);
+  }
+
+  /*
+    The closing register — the second coach — was `10rem 1fr`. A 10rem label
+    against a 1371px row is a hanging indent, not a column, so it is set on the
+    same nested tracks as the rest of the block: two columns for the label,
+    the remainder for the name and role. The row's rules already run to the
+    right trim because the block does.
+  */
+  .sensei-second {
+    grid-template-columns: repeat(var(--text-cols, 6), minmax(0, 1fr));
+    column-gap: var(--col-gap);
+  }
+  .sensei-second > :first-child {
+    grid-column: 1 / span 2;
+  }
+  .sensei-second > :last-child {
+    grid-column: 3 / -1;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The colour print                                                  */
+/* ---------------------------------------------------------------- */
+.sensei-plate__color {
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+.sensei-plate:hover .sensei-plate__color,
+.sensei-figure:focus-within .sensei-plate__color,
+.sensei-figure[data-colour="on"] .sensei-plate__color {
+  opacity: 1;
 }

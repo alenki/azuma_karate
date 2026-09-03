@@ -50,18 +50,24 @@ export function Footer() {
   const year = 2026;
 
   return (
-    <footer id="footer" className="ground-ink relative overflow-hidden">
-      <div className="wrap pt-20 pb-10 md:pt-28">
+    <footer id="footer" className="footer ground-ink relative overflow-hidden">
+      <div className="footer__inner wrap">
         <Reveal>
-          <p className="t-statement max-w-[24ch] text-bone">{t.aphorism}</p>
+          <p className="footer__aphorism t-statement max-w-[24ch] text-bone">{t.aphorism}</p>
         </Reveal>
 
-        <div className="mt-16 grid gap-12 md:grid-cols-[1.2fr_1fr_1fr] md:gap-8">
-          <div>
-            <p className="t-mono text-bone-2 mb-5">{t.belts}</p>
-            <ol className="flex flex-col gap-3">
+        {/*
+          Three lists on the page grid from 1280 up (chrome.css §3): the belts,
+          the sections and the particulars stand on the same verticals the
+          chapters above them use, and the last two columns are left to the
+          stamp instead of being padding inside an over-wide proportional slot.
+        */}
+        <div className="footer__lists">
+          <div className="footer__col footer__col--belts">
+            <p className="footer__col-label t-mono text-bone-2">{t.belts}</p>
+            <ol className="footer__list">
               {belts.map((b) => (
-                <li key={b.en} className="flex items-center gap-4 t-caption">
+                <li key={b.en} className="footer__belt t-caption">
                   <span
                     aria-hidden="true"
                     className="belt-swatch"
@@ -76,9 +82,9 @@ export function Footer() {
             </ol>
           </div>
 
-          <div>
-            <p className="t-mono text-bone-2 mb-5">{t.sections}</p>
-            <ul className="flex flex-col gap-3">
+          <div className="footer__col footer__col--sections">
+            <p className="footer__col-label t-mono text-bone-2">{t.sections}</p>
+            <ul className="footer__list">
               {navItems.map((item) => (
                 <li key={item.href}>
                   <Link href={href(item.href)} prefetch={false} className="footer-link t-caption">
@@ -89,9 +95,9 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
-            <p className="t-mono text-bone-2 mb-5">{t.contacts}</p>
-            <ul className="flex flex-col gap-3 t-caption">
+          <div className="footer__col footer__col--contacts">
+            <p className="footer__col-label t-mono text-bone-2">{t.contacts}</p>
+            <ul className="footer__list t-caption">
               <li>{club.city[locale]}, {club.address[locale]}</li>
               <li className="text-bone-2">{club.coordsLabel}</li>
               <li><a href={club.phoneHref} className="footer-link">{club.phone}</a></li>
@@ -106,22 +112,23 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="rule mt-16" />
+        {/* the rule runs the trim, edge to edge, like every rule in the manual */}
+        <div className="footer__rule rule" />
 
-        <div className="mt-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="flex items-center gap-5">
+        <div className="footer__colophon">
+          <div className="footer__imprint">
             <Logo tagline />
             <span className="t-accent text-bone text-2xl leading-none">{t.osu}</span>
           </div>
           <p className="t-caption text-bone-2 max-w-[52ch]">{t.colophon}</p>
         </div>
-        <p className="t-mono text-bone-2 mt-8">© {year} SK AZUMA · {t.rights}</p>
+        <p className="footer__copyright t-mono text-bone-2">© {year} SK AZUMA · {t.rights}</p>
       </div>
 
       {/* 押忍 printed large in the corner, aria-hidden */}
-      <div aria-hidden="true" className="pointer-events-none absolute -right-6 bottom-6 flex gap-2 opacity-[0.08] md:right-10">
-        <Kanji id="ou" className="w-[18vw] max-w-[220px]" weight={5} label={null} />
-        <Kanji id="su" className="w-[18vw] max-w-[220px]" weight={5} label={null} />
+      <div aria-hidden="true" className="footer__stamp">
+        <Kanji id="ou" className="footer__glyph" weight={5} label={null} />
+        <Kanji id="su" className="footer__glyph" weight={5} label={null} />
       </div>
     </footer>
   );

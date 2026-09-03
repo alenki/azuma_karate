@@ -6,7 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MobileBar } from "@/components/layout/MobileBar";
 import { Hero } from "@/components/sections/Hero";
-import { Kyokushin } from "@/components/sections/Kyokushin";
+import { About } from "@/components/sections/About";
 import { Programs } from "@/components/sections/Programs";
 import { Sensei } from "@/components/sections/Sensei";
 import { Results } from "@/components/sections/Results";
@@ -31,7 +31,7 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
       <Header chapters={contents} />
       <main id="main">
         <Hero />
-        <Kyokushin />
+        <About />
         <Programs />
         <Sensei />
         <Results />

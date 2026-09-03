@@ -1,24 +1,97 @@
 /* ------------------------------------------------------------------ */
 /* Chapter 六 — Утро: the photo spread                                  */
-/* The chapter opens with a full-bleed plate, so the margin numeral    */
-/* moves down to the text block and sits level with the eyebrow.       */
+/*                                                                      */
+/* The one chapter the brush skips — a manual is not annotated on the   */
+/* plate page — and the only one that opens with a photograph instead   */
+/* of a rule. Because the plate is printed before the trim, the margin  */
+/* numeral cannot sit at the top of the chapter: it moves below the     */
+/* plate and hangs level with the eyebrow.                              */
+/*                                                                      */
+/* Nothing here is measured against a column any more. The spread takes */
+/* its height from the viewport in BOTH axes, and the text block below  */
+/* takes its fields from the shared twelve-column page grid, so it      */
+/* gains structure on a wide sheet instead of stretching.               */
 /* ------------------------------------------------------------------ */
 .morning {
+  /* phones and small tablets: the plate is a portrait band, sized from
+     the width because there is only one column of page to give it */
   --morning-plate-h: clamp(22rem, 52vw, 34rem);
+
+  /*
+    Vertical rhythm of the text block. These were utilities on the block
+    itself (3.5rem/6rem, and 5rem/8rem from tablets up); they are tokens now
+    for two reasons: the binding numeral is derived from the same number and
+    must not be tuned twice, and the ceilings have to grow with the sheet —
+    8rem of white under a 2560-wide page reads as a squashed strip.
+  */
+  --morning-pad-top: 3.5rem;
+  --morning-pad-bottom: 6rem;
 }
+
 @media (min-width: 768px) {
   .morning {
-    --numeral-top: calc(var(--morning-plate-h) + 3rem);
-  }
-}
-@media (min-width: 1024px) {
-  .morning {
-    --morning-plate-h: clamp(360px, 62vh, 720px);
-    --numeral-top: calc(var(--morning-plate-h) + 4rem);
+    --morning-pad-top: 5rem;
+    --morning-pad-bottom: 8rem;
+    /*
+      The numeral hangs level with the eyebrow. The eyebrow's own top edge is
+      plate + pad-top + the 1px rule + 1rem, and the kanji here is only
+      24–30px tall, so the column is hung 2rem before the rule to centre the
+      glyph on that line; from the spread breakpoint the kanji is larger and
+      1rem is enough (below). Both offsets are the ones tuned in the browser
+      for the old fixed padding — expressed against --morning-pad-top so the
+      wide tiers carry them without a second set of numbers.
+    */
+    --numeral-top: calc(var(--morning-plate-h) + var(--morning-pad-top) - 2rem);
   }
 }
 
-/* the plate: 4:5 on phones, a fixed-height full-bleed strip from tablets up */
+@media (min-width: 1024px) {
+  .morning {
+    /*
+      The spread's height. It used to be clamp(360px, 62vh, 720px) — a height
+      rule with no width term, which on a 2560 sheet froze at 720px and
+      printed the plate as a 3.6:1 letterbox strip.
+
+      It is now the LARGER of the height it always had (62vh) and a width
+      term: 34.5vw is 100vw/2.9, so however wide the sheet gets the spread
+      keeps at least a 2.9:1 band — close to the 21:9 crop this plate was
+      chosen for, and a crop the 1600×1066 source can still fill.
+
+      Two guards. It may never exceed 78vh, so a short wide window does not
+      hand the entire screen to one photograph; and the ceiling is 1100px
+      instead of 720, which is where 34.5vw lands at ~3190px.
+
+      Measured, height and the resulting proportion of the sheet:
+        1440×900   558px  2.58:1   (was 558px — unchanged)
+        1920×1080  670px  2.87:1   (was 670px — unchanged)
+        2560×1440  893px  2.87:1   (was 720px, 3.56:1)
+        2560×1080  842px  3.04:1   (was 720px, 3.56:1)
+    */
+    --morning-plate-h: clamp(360px, min(max(62vh, 34.5vw), 78vh), 1100px);
+    --numeral-top: calc(var(--morning-plate-h) + var(--morning-pad-top) - 1rem);
+  }
+}
+
+/* The sheet is wide enough to be read from further away: the white above and
+   below the text block grows with it, or the chapter reads as a strip of type
+   pinned under a very large photograph. The numeral follows automatically —
+   it is derived from --morning-pad-top. */
+@media (min-width: 1600px) {
+  .morning {
+    --morning-pad-top: 6.5rem;
+    --morning-pad-bottom: 10.5rem;
+  }
+}
+@media (min-width: 2000px) {
+  .morning {
+    --morning-pad-top: 8rem;
+    --morning-pad-bottom: 13rem;
+  }
+}
+
+/* the plate: 4:5 on phones, a full-bleed band of --morning-plate-h from
+   tablets up. It is printed outside the trim, so it is already the width of
+   the screen — only its height was ever in question. */
 .morning-plate {
   position: relative;
   overflow: hidden;
@@ -32,7 +105,14 @@
   }
 }
 
-/* parallax layer: taller than its frame so the ±6% travel never shows paper */
+/*
+  Parallax layer: taller than its frame so the ±6% travel never shows paper.
+  The arithmetic is in percentages of the same box at both ends, so it does
+  not move with the plate height above — inset -8% makes the layer 1.16× the
+  frame, and a ±6% translate of the LAYER is ±6.96% of the frame, inside the
+  8% of overhang on each edge with ~1% of the frame to spare. Nothing here
+  needs a wide tier; it is already scale-free.
+*/
 .morning-plate__img {
   position: absolute;
   inset: -8% 0;
@@ -47,7 +127,7 @@
 
 /* caption: in flow under the plate on phones; from tablets up a paper
    card pressed into the plate's bottom-left corner, its text aligned to
-   the column (the card itself bites 1rem into the gutter) */
+   the trim (the card itself bites 1rem into the binding margin) */
 .morning-caption {
   margin: 0;
 }
@@ -65,14 +145,139 @@
   .morning-card {
     pointer-events: auto;
     background: var(--color-paper);
+    /*
+      The inline padding and the negative margin are a matched pair and must
+      stay 1rem: the card's edge bites exactly one rem into the margin and
+      its text lands back on the trim, on the same vertical as every other
+      line in the chapter. The gutter is 27.6px at 768 and 96px at 2560, so
+      the bite never reaches the paper edge at any width.
+    */
     padding: 1rem;
-    max-width: 22rem;
     margin-left: -1rem;
+    /*
+      Width. 22rem was chosen against a 1312 column and left a stamp-sized
+      card on a 2560 plate; the vw term only overtakes it above ~1760, so
+      nothing narrower than that changes. At 2560 the card is 32rem, which
+      sets the caption (42 characters in English, the longer of the two) on
+      one line at the 16px the mono face reaches there.
+    */
+    max-width: clamp(22rem, 20vw, 32rem);
+  }
+}
+@media (min-width: 1600px) {
+  .morning-card {
+    /* a bigger card wants a deeper bed — but only in the block direction:
+       growing the inline padding would take the caption off the trim */
+    padding-block: 1.25rem 1.15rem;
   }
 }
 
-/* «Два адреса.» in ink, «Один путь.» a step back — as the hero's two lines */
-.morning-title > span + span {
+/* ---------------------------------------------------------------- */
+/* The text block                                                    */
+/* ---------------------------------------------------------------- */
+.morning__text {
+  padding-top: var(--morning-pad-top);
+  padding-bottom: var(--morning-pad-bottom);
+}
+
+.morning__body {
+  margin-top: 3rem;
+  align-items: start;
+  /* the page grid supplies the column gap; the row gap is the chapter's own
+     and grows with the sheet like the section padding */
+  row-gap: clamp(3rem, 3.2vw, 5rem);
+}
+
+/* Below the spread breakpoint every block runs the whole field, in the order
+   a reader meets them: title, plate, lead, meta. */
+.morning__title-col,
+.morning__figure-col,
+.morning__lead-col,
+.morning__meta-col {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .morning__body {
+    margin-top: 4rem;
+  }
+}
+
+/*
+  The spread. Two rows of the shared field: the title and the lead face each
+  other across the empty sixth column, and the park plate and the meta line
+  stand on the row beneath them — so the plate's top edge and the hairline
+  above the meta print on the same line across the sheet.
+*/
+@media (min-width: 1024px) {
+  .morning__title-col {
+    grid-column: 1 / span 5;
+    grid-row: 1;
+  }
+  .morning__lead-col {
+    grid-column: 7 / -1;
+    grid-row: 1;
+    /* the lead's first line sits on the title's cap height, not on its top */
+    padding-top: 0.75rem;
+  }
+  .morning__figure-col {
+    grid-column: 1 / span 5;
+    grid-row: 2;
+  }
+  .morning__meta-col {
+    grid-column: 7 / -1;
+    grid-row: 2;
+  }
+}
+
+/*
+  Wide sheet: the block gains a third field instead of stretching the two it
+  has. At 2560 the old six-column body was 1170px wide holding a 58ch lead of
+  ~754px — 400px of the sheet doing nothing. So the lead drops to four
+  columns (768px at 2560, where its own 58ch cap takes over, and 479px ≈ 43
+  characters at 1600) and the meta line — days, time, and the one link in the
+  chapter — becomes a margin note ruled to the right trim. Two columns is
+  227px at 1600 and 366px at 2560: two lines of mono in either language, the
+  longest unbroken word being «публикуем» at 59px.
+
+  The park plate gives a column back at the same time. Five columns of a 2560
+  sheet is 969px, and at 4:5 that is a 1211px portrait — taller than the
+  spread it is supposed to echo. At four columns it is 768×960, and at three
+  (below) 567×709 against a spread of 893: a quarter of the plate above it by
+  area, which is what a secondary plate should be.
+*/
+@media (min-width: 1600px) {
+  .morning__body {
+    margin-top: 5.5rem;
+  }
+  .morning__lead-col {
+    grid-column: 7 / span 4;
+  }
+  .morning__meta-col {
+    grid-column: 11 / -1;
+    grid-row: 1;
+    /* starts on the lead's line, so the hairline and the lead's first line
+       are set on the same vertical */
+    padding-top: 0.75rem;
+  }
+  .morning__figure-col {
+    grid-column: 1 / span 4;
+  }
+}
+@media (min-width: 2000px) {
+  .morning__body {
+    margin-top: 7rem;
+  }
+  .morning__figure-col {
+    grid-column: 1 / span 3;
+  }
+}
+
+/* «Два адреса.» in ink, «Один путь.» a step back — as the hero's two lines.
+   The selector has to go two levels down: <LineReveal as="span"> puts its own
+   block span between the heading and the masked lines, so `> span + span` on
+   the heading matched nothing and both lines were printing in ink. */
+.morning-title > span > span + span {
   color: var(--color-ink-2);
 }
 

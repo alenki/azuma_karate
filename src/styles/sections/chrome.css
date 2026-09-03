@@ -1,0 +1,593 @@
+/* ------------------------------------------------------------------ */
+/* Chrome — the head margin, the contents page, the colophon           */
+/*                                                                      */
+/* The three pieces of furniture that are not chapters: the running     */
+/* head printed across the top of every sheet, the contents page that   */
+/* head opens, and the colophon at the foot. The paint for all of it —  */
+/* `.site-header*`, `.nav-link`, `.lang-toggle*`, `.menu__link`,        */
+/* `.menu__chapter`, `.skip-link`, `.footer-link`, `.belt-swatch`,      */
+/* `.mobile-bar*` — lives in globals.css and is NOT repeated here.      */
+/* This file only does what globals.css cannot: lay that furniture out  */
+/* on a sheet that is now the whole viewport, and give it the wide      */
+/* tiers a 2560 trim needs.                                             */
+/*                                                                      */
+/* One rule governs the whole file: the chrome is furniture, not a      */
+/* chapter. It gains air and a little scale on a wide sheet, never      */
+/* extra weight — the only thing on the page allowed to grow loud is    */
+/* the manual itself.                                                   */
+/* ------------------------------------------------------------------ */
+
+/* ================================================================== */
+/* 1 · THE HEAD MARGIN                                                 */
+/*                                                                      */
+/* The bar was `flex justify-between` over four items — logo, nav,      */
+/* running head, and the lang/CTA cluster — so the running head was     */
+/* only ever centred by accident of what happened to be left over. On   */
+/* a full-bleed sheet that is not a small error: measured with IBM      */
+/* Plex Mono's 0.6em advance plus the 0.12em tracking `.t-mono` sets,   */
+/* the free slot's midpoint fell 269px right of the sheet's centre at   */
+/* 1280, 308px at 1920 and 344px at 2560. A running head sitting a      */
+/* seventh of the page off centre reads as a fourth nav item.           */
+/*                                                                      */
+/* The bar is now three tracks — `1fr auto 1fr` — with the head in the  */
+/* middle one. The two `1fr` tracks are equal by definition, so the     */
+/* head sits EXACTLY on the sheet's centre line whenever the side bands */
+/* fit inside their half; when a band does not fit, the grid freezes    */
+/* that track at its min-content width and hands the rest to the other, */
+/* so the head drifts by exactly the overflow and can never collide     */
+/* with the nav or overlap the cluster.                                 */
+/*                                                                      */
+/* THE LEFT BAND, RE-MEASURED. It has been cut twice: the figurative    */
+/* mark is gone from the lockup (36px of SVG plus its 12px gap), and    */
+/* the nav is four labels, not six. In Russian — still the longer       */
+/* locale, 337px against English's 306px — the band now measures        */
+/*                                                                      */
+/*   wordmark "SK AZUMA"   130.7px  (Unbounded 600, 16.8px, 0.14em;     */
+/*                                   wider than "karate team"'s 81.6)   */
+/*   lead gap 1.5rem        24.0                                        */
+/*   nav 32 chars × 7.92   253.4  + 3 gaps × 28 = 337.4                 */
+/*                        ───────                                       */
+/*   L                     492.1px   — was 770.4px                      */
+/*                                                                      */
+/* Against «ГЛАВА 07 · СЛОВА РОДИТЕЛЕЙ» (205.9px), the longest running  */
+/* head either locale produces, the head is centred while 2L + H ≤ S,   */
+/* where S = trim − 2 × the bar gap = 0.892·W. That turns true at       */
+/* W = 595.1 / 0.446 = 1334px, down from ~2320px:                       */
+/*                                                                      */
+/*   1024–1279  nav hidden      exact — the left band is the wordmark   */
+/*   1280       off by  24px    2.0% of the trim, its worst case        */
+/*   ≥1334      exact           the left band fits inside its half      */
+/*   1440       exact            47px of slack                         */
+/*   1600       exact           119px                                  */
+/*   1920       exact           232px                                  */
+/*   2560       exact           427px                                  */
+/*                                                                      */
+/* Drift falls monotonically across every tier boundary (checked at     */
+/* 1774 where `--text-micro` unpins, 2100 where the wordmark tier       */
+/* starts, 2222 where the bar gap caps, 2258 where micro caps), so      */
+/* 1280–1334 is the only band off centre at all, and never by 25px.     */
+/*                                                                      */
+/* Nothing in the left band may grow BELOW 1334: every pixel the        */
+/* wordmark or the nav gains there is a pixel the running head loses    */
+/* off centre. Above it the band has 232px of slack at 1920 and 427px   */
+/* at 2560, which is what makes the ≥2200 wordmark tier safe. The       */
+/* right band is free to grow — it is far inside its half at every      */
+/* width (311px at 1280 against a 468px half-share) — and it is the     */
+/* band carrying the two hit targets, so that is where the wide tier    */
+/* spends itself.                                                       */
+/* ================================================================== */
+
+.site-header__bar {
+  display: grid;
+  /*
+    Two tracks below 1024, three from 1024 up — because the running head is
+    `display: none` under 1024 and a removed grid item does not hold a track.
+    With `1fr auto 1fr` and only two items in flow, the lead landed in a `1fr`
+    track sized to the LEFTOVER rather than to its content: 92px of track for
+    130.7px of wordmark at 375, which put the lockup straight through the
+    RU | EN toggle. (It was worse with the old mark in the lockup — 178.7px
+    into a 140px track — so this is an old collision, not a new one.)
+
+    `auto 1fr` gives the lockup its max-content and hands the rest to the
+    cluster, which `justify-self: end` ranges right. The centred-head model
+    below is restored at exactly the width the head starts printing at.
+  */
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  /* the only gap in the bar that grows, and it grows on both sides of the
+     centre track at once, so it costs the head nothing */
+  column-gap: clamp(1rem, 1.8vw, 2.5rem);
+  height: var(--header-h);
+}
+
+/* --- the left band: the wordmark + the printed nav ----------------- */
+.site-header__lead {
+  display: flex;
+  align-items: center;
+  /* deliberately flat. See the note above: this gap is subtracted from
+     the running head's claim on the centre line at every width. */
+  gap: 1.5rem;
+  justify-self: start;
+  /* NO `min-width: 0` here on purpose: the band's automatic minimum is its
+     min-content width, and that is exactly what freezes the track and makes
+     the drift in the table above bounded instead of letting the nav spill
+     across the running head. */
+}
+
+/* --- the centre band: the running head ----------------------------- */
+.site-header__head {
+  display: none;
+  justify-content: center;
+  /* `overflow: hidden` is what lets this track collapse instead of
+     shoving the bar past the trim on a sheet too narrow for all of it
+     (a grid item's automatic minimum size is 0 once its overflow is not
+     visible). The padding is the clip's clearance: the head enters and
+     leaves on a 6px y-translate, and 0.5rem of padding keeps that
+     movement off the clip edge. */
+  min-width: 0;
+  overflow: hidden;
+  padding-block: 0.5rem;
+}
+.site-header__head-text {
+  white-space: nowrap;
+  /* the last resort, never the plan: if a locale or a chapter title
+     grows past what the table above measured, the head shortens rather
+     than pushing the CTA off the sheet */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 1024px) {
+  .site-header__head {
+    display: flex;
+  }
+  /* the head is in flow again, so the head margin gets its three bands:
+     one ranged left, one centred, one ranged right */
+  .site-header__bar {
+    grid-template-columns: 1fr auto 1fr;
+  }
+}
+
+/*
+  1280–1399 used to be blacked out here: with six labels the nav left
+  137px at 1280 for a head needing 206px, and a printed head margin
+  with no room for a running head printed none rather than a truncated
+  one. Four labels and a text-only lockup give the band back 278px, so
+  the centre track now has 354px at 1280 — 148px of spare — and the
+  head is 24px off centre at worst. The rule that hid it is deleted:
+  the balance turns positive below 1280, i.e. before the nav prints at
+  all, so there is no longer a band to suppress.
+*/
+
+/* --- the right band: language, CTA, contents ----------------------- */
+.site-header__aside {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-self: end;
+}
+@media (min-width: 768px) {
+  .site-header__aside {
+    gap: 1.5rem;
+  }
+}
+
+/*
+  RU | EN. The toggle used to be one link around both labels, so the
+  44px floor could sit on the whole element. Now only the second token
+  is a control, and 11px of "EN" is a 16 × 13px target — so the floor
+  moves onto the link and nothing else: `.menu-toggle` has the same
+  44px (globals.css) and `.btn` has `min-h-11` (ui/Button.tsx), and
+  this is the third of the three.
+
+  The box is built out of padding, not an absolutely-positioned
+  expander: primitives.css draws `:focus-visible` on the border box, so
+  a pseudo-element hit area would ring type that is not where the click
+  lands. 0.875rem either side of a 16px "EN" is exactly 44px, and the
+  wrapper keeps no gap of its own — that padding IS the air around the
+  rule, so the target is hit area rather than visible slack. The bar is
+  `align-items: center`, so the extra height is taken symmetrically out
+  of the 80px bar and nothing moves.
+*/
+.site-header .lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+.site-header .lang-toggle__current {
+  padding-inline: 0.25rem 0.875rem;
+}
+.site-header .lang-toggle__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding-inline: 0.875rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* The header's wide tiers                                             */
+/*                                                                      */
+/* `--header-h` is `clamp(5rem, 4vw, 6.5rem)`: it is still exactly the  */
+/* 80px the wordmark and the buttons were drawn for until 2000, and     */
+/* only reaches 5.5rem at 2200 — the first width where the bar is       */
+/* visibly taller than the furniture standing in it. So 2200, not 1600, */
+/* is where the furniture takes its step; below it nothing changes.     */
+/* The left band has been inside its half since 1334 (see the table     */
+/* above), with 318px of slack by 2290, so spending a few pixels on the */
+/* wordmark up here costs the running head nothing.                     */
+/* ------------------------------------------------------------------ */
+@media (min-width: 1600px) {
+  /* the cluster is inside its half at every width, so its air is free */
+  .site-header__aside {
+    gap: 2rem;
+  }
+  .site-header__cta {
+    min-height: 3rem;
+    padding-inline: 1.75rem;
+  }
+}
+
+@media (min-width: 2200px) {
+  .site-header__brand .wordmark {
+    font-size: clamp(1.05rem, 0.8vw, 1.35rem);
+  }
+  .site-header__brand .wordmark-tag {
+    font-size: clamp(0.58rem, 0.44vw, 0.75rem);
+  }
+  .site-header__cta {
+    min-height: 3.5rem;
+    padding-inline: 2rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* ================================================================== */
+/* 2 · THE CONTENTS PAGE                                               */
+/*                                                                      */
+/* The overlay used to be reachable only under 1280 — the button that   */
+/* opens it was `xl:hidden` — which meant the ten chapters the manual   */
+/* is numbered by could not be jumped to from any desktop screen. The   */
+/* button now prints at every width (Header.tsx), so this is a page a   */
+/* reader actually opens on a 2560 sheet, and it is set as what it is:  */
+/* a contents page. Four entries ruled down the left, the ten chapters  */
+/* and the club's particulars standing on the page grid to the right.   */
+/* ================================================================== */
+
+.menu {
+  /*
+    The entry numbers and the chapter numbers are text a reader reads — they
+    are not aria-hidden — so they take the palette's quiet ink, not
+    `--color-ink-3`, which carried both before this pass and is illegal for
+    text. See the note beside `--color-ink-quiet` in globals.css.
+  */
+  --ink-quiet: var(--color-ink-quiet);
+  /* the display size of a contents entry. Frozen at 4.5rem from 1029px
+     up, which is where the wide tier picks it up again. */
+  --menu-entry: clamp(2rem, 7vw, 4.5rem);
+  --menu-entry-pad: 1rem;
+}
+
+.menu__inner {
+  display: grid;
+  row-gap: 3rem;
+  padding-top: calc(var(--header-h) + clamp(1.5rem, 2vw, 3.5rem));
+  padding-bottom: clamp(3rem, 4vw, 6rem);
+}
+
+.menu__nav {
+  display: flex;
+  flex-direction: column;
+}
+.menu__link {
+  display: block;
+  font-size: var(--menu-entry);
+  padding-block: var(--menu-entry-pad);
+}
+.menu__index {
+  margin-right: 1rem;
+  vertical-align: middle;
+  color: var(--ink-quiet);
+}
+
+.menu__contents-label {
+  margin-bottom: 1rem;
+}
+.menu__contents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.menu__chapter-no {
+  margin-right: 0.75rem;
+  color: var(--ink-quiet);
+}
+
+.menu__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+.menu__where {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* 768–1599 — the layout the overlay already had: entries against a
+   narrower stack of contents and particulars. The three blocks are
+   flattened onto one grid (they used to be a column inside a column)
+   so the wide tier can place each of them independently. */
+@media (min-width: 768px) {
+  .menu__inner {
+    grid-template-columns: 1.4fr 1fr;
+    /* `auto 1fr` and not `auto auto`: the entries are taller than the two
+       blocks beside them, and without a flexible second row the grid would
+       share the entries' surplus height between both rows and push the
+       particulars away from the contents they belong under. */
+    grid-template-rows: auto 1fr;
+    column-gap: 3rem;
+    row-gap: 2.5rem;
+  }
+  .menu__nav {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+  .menu__contents {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .menu__foot {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* The contents page's wide tier                                       */
+/*                                                                      */
+/* Above 1600 the two-column stack is thrown out for the page grid:     */
+/*                                                                      */
+/*     cols 1–7    the four entries, ruled                              */
+/*     cols 9–10   the ten chapters                                     */
+/*     cols 11–12  where the club is, and the way in                    */
+/*                                                                      */
+/* — three verticals hanging from one top line, which is how a contents */
+/* page is set, instead of one tall column and one short one.           */
+/*                                                                      */
+/* The size is still the smaller of two constraints, the sheet and the  */
+/* window — but which one binds has changed now the entries are four.   */
+/* Seven columns are 841px at 1600, 1028 at 1920 and 1371 at 2560, and  */
+/* the longest label is «Расписание» (10 characters of Prata ≈ 5.5em),  */
+/* so width has never been the ceiling. Height was: six ruled rows at   */
+/* 6vw did not fit the window, and 10vh was what pulled them back in.   */
+/* A row is 0.98 × the entry plus two pads, so six rows spent 78vh and  */
+/* four spend 52vh — the window term now has ~26vh of slack it was      */
+/* never meant to hold, and at 10vh it would print four small entries   */
+/* in a column tuned for six. It rises to 14vh, which is above 6vw at   */
+/* all three canonical screens (135 vs 96 on 1600×900, 151 vs 115 on    */
+/* 1920×1080, 202 vs 154 on 2560×1440), so the sheet is the binding     */
+/* term again and the window term is what it should always have been:   */
+/* the guard for a genuinely short viewport, where four rows at 6vw     */
+/* would still run past the fold. `max()` against the base size         */
+/* guarantees the tier can only ever make the type bigger.              */
+/* ------------------------------------------------------------------ */
+@media (min-width: 1600px) {
+  .menu {
+    --menu-entry: max(4.5rem, min(6vw, 14vh));
+    /* the leading between rules follows the window, not the type: 16px
+       of padding under 144px of Prata is a squashed row */
+    --menu-entry-pad: clamp(1rem, 1.6vh, 2rem);
+  }
+  .menu__inner {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    /* all three blocks hang from the same top line now, so the two-row
+       arrangement above is unwound rather than left half-applied */
+    grid-template-rows: auto;
+    column-gap: var(--col-gap);
+  }
+  .menu__nav {
+    grid-column: 1 / span 7;
+    grid-row: 1;
+  }
+  .menu__contents {
+    grid-column: 9 / span 2;
+    grid-row: 1;
+    align-self: start;
+  }
+  .menu__foot {
+    grid-column: 11 / -1;
+    grid-row: 1;
+  }
+  .menu__index {
+    margin-right: clamp(1rem, 1.1vw, 1.75rem);
+  }
+  .menu__contents-list {
+    gap: 0.75rem;
+  }
+}
+
+/* ================================================================== */
+/* 3 · THE COLOPHON                                                    */
+/*                                                                      */
+/* The foot of the manual: one line of the school's own, the belts,     */
+/* the sections, the particulars, the imprint, and 押忍 pressed into    */
+/* the corner. On the ink ground, so quiet text is `--color-bone-2`     */
+/* (7.4:1 on #151311) and never `--color-ink-3`.                        */
+/* ================================================================== */
+
+.footer__inner {
+  padding-top: 5rem;
+  padding-bottom: 2.5rem;
+}
+@media (min-width: 768px) {
+  .footer__inner {
+    /*
+      Was a flat 7rem/2.5rem. The `vw` terms are chosen so the floor is
+      still binding at 1440 — 7.3vw crosses 7rem at 1534 — and the foot
+      only starts breathing on sheets wider than the column it was drawn
+      for. 13rem is reached at 2849; at 2560 the foot opens on 187px.
+    */
+    padding-top: clamp(7rem, 7.3vw, 13rem);
+    padding-bottom: clamp(2.5rem, 3vw, 5.5rem);
+  }
+}
+
+/*
+  The aphorism is the footer's monument and the only display type below
+  the last chapter, so it is the one thing here allowed to grow.
+  `.t-statement` caps at 3.75rem, a size chosen for an 82rem column: at
+  2560 it printed a 60px line on a 2376px sheet, i.e. a caption. Under
+  1600 this is `.t-statement` to the pixel; above it (see the wide tier)
+  the line takes the sheet's own growth and tops out at 5.5rem, reached
+  at 2588. Set to 24ch it then measures ~1044px at 2560 — six of the
+  twelve columns, and two lines in both locales («Каждый чёрный пояс
+  когда-то был белым.», 38 characters; "Every black belt was once
+  white.", 32). Re-check both if the aphorism ever changes.
+*/
+.footer .footer__aphorism {
+  font-size: clamp(1.5rem, 2.6vw, 3.75rem);
+}
+
+.footer__lists {
+  display: grid;
+  gap: 3rem;
+  /* was a flat 4rem. 5vw is still under the 4rem floor at 1280, so the
+     white space only opens above the width it was drawn for; 9rem is
+     reached at 2880. */
+  margin-top: clamp(4rem, 5vw, 9rem);
+}
+@media (min-width: 768px) {
+  .footer__lists {
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+.footer__col-label {
+  margin-bottom: 1.25rem;
+}
+.footer__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.footer__belt {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer__rule {
+  margin-top: clamp(4rem, 5vw, 9rem);
+}
+.footer__colophon,
+.footer__copyright {
+  margin-top: clamp(2rem, 2.5vw, 4rem);
+}
+.footer__colophon {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+@media (min-width: 768px) {
+  .footer__colophon {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+.footer__imprint {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/*
+  押忍 — the stamp pressed into the corner of the last page. It was
+  `18vw` capped at 220px, a cap reached at 1222, so on every sheet
+  wider than a laptop it was a fixed mark on a growing page. The `vw`
+  term is unchanged and only the cap moved: 24rem is reached at 2133,
+  where the pair measures 776px against a 2376px trim. It is 0.08 ink
+  on ink and `aria-hidden`, so the colophon crossing it loses about
+  0.3:1 of its 7.4:1 — still far above the floor.
+
+  Under 768 it keeps running off the right edge (the footer clips it);
+  from 768 it registers on the trim like everything else on the sheet,
+  instead of on a flat 40px that the gutter passed years ago.
+*/
+.footer__stamp {
+  position: absolute;
+  right: -1.5rem;
+  bottom: 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0.08;
+  pointer-events: none;
+}
+.footer__glyph {
+  width: min(18vw, 24rem);
+}
+@media (min-width: 768px) {
+  .footer__stamp {
+    right: var(--gutter);
+    bottom: clamp(1.5rem, 2vw, 3.5rem);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* The colophon's wide tier                                            */
+/*                                                                      */
+/* From 1280 the three lists stop being 1.2fr/1fr/1fr — proportions     */
+/* that hand a 250px list a 780px slot at 2560 — and stand on the page  */
+/* grid instead, on the same verticals every chapter above them uses:   */
+/*                                                                      */
+/*     cols 1–3    the belts        cols 5–6    the sections            */
+/*     cols 8–10   the particulars  cols 11–12  left to the stamp       */
+/*                                                                      */
+/* 1280 rather than 1600 because that is where the widest row measured  */
+/* — a belt, at swatch + «коричневый» + «2–1 кю» = 197px — first fits   */
+/* three columns (282px) with room to spare, and because the            */
+/* proportional grid is already stranded by then. Every list is set in  */
+/* `.t-caption`, so nothing here is a measure problem.                  */
+/* ------------------------------------------------------------------ */
+@media (min-width: 1280px) {
+  .footer__lists {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+  }
+  .footer__col--belts {
+    grid-column: 1 / span 3;
+  }
+  .footer__col--sections {
+    grid-column: 5 / span 2;
+  }
+  .footer__col--contacts {
+    grid-column: 8 / span 3;
+  }
+  /* with a slot wider than the row, the kyu range becomes the list's
+     second vertical instead of trailing the colour name off into space
+     — the belts read as the little table they are */
+  .footer__belt {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+  }
+}
+
+@media (min-width: 1600px) {
+  /* extends, does not restyle, the shared `.belt-swatch`: the hairline,
+     the hatch and the colour stay in globals.css where every ground
+     shares them, and only the size follows the sheet — a 36×8 swatch
+     beside 16px type on a 2376px trim is a tick, not a belt */
+  .footer .belt-swatch {
+    width: 3rem;
+    height: 0.625rem;
+  }
+  .footer .footer__aphorism {
+    font-size: min(3.4vw, 5.5rem);
+  }
+  .footer__list {
+    gap: 1rem;
+  }
+}

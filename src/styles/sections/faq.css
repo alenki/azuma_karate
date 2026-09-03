@@ -1,0 +1,421 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 九 — «Вопросы»: the index                                     */
+/*                                                                      */
+/* This chapter is a printed INDEX, not a widget. Seven entries, each    */
+/* one hairline apart, each with its number hanging in a rail on the     */
+/* left and the sensei's red check ticked on the right when it is open.  */
+/* The title does not scroll with them: it holds the left of the sheet   */
+/* the way a title stands at the head of an index, with the one way out  */
+/* of the chapter (the Telegram line) set at its foot.                   */
+/*                                                                      */
+/* The sheet is the viewport now (see globals.css: `.wrap` is the trim,  */
+/* not a column), and that is what this file had to answer for. At 2560  */
+/* the old composition put a 7-column, 1371px accordion slot around a    */
+/* 558px answer and set the questions at 34px beside a 144px title —     */
+/* a widget stranded on a large piece of paper. So the chapter gains     */
+/* structure rather than stretching:                                     */
+/*                                                                      */
+/*   · the number becomes a fixed rail and the answer hangs off the      */
+/*     same vertical as the question, so every entry is one indent;      */
+/*   · the question keeps the shared `--text-h3` growth term and only    */
+/*     loses its ceiling — a question is this chapter's headline, not a  */
+/*     subhead in someone else's;                                        */
+/*   · from 1600 the sheet re-columns 5 + rule + 6, the entry rules run  */
+/*     off the right edge of the paper, and the title column becomes a   */
+/*     title page with a ruled foot.                                     */
+/*                                                                      */
+/* Every `vw` term below is written so that its floor still governs at   */
+/* the width the value was originally drawn for. Nothing in this chapter */
+/* changes size at 390, 768, 1280 or 1440; the numbers stated in each    */
+/* comment are where each term crosses the old flat value.               */
+/* ------------------------------------------------------------------ */
+
+.faq {
+  /*
+    Vertical rhythm grows with the sheet. `py-24 md:py-36` was 96px on a
+    phone and a flat 144px from 768 all the way to 2560, which prints a
+    2376px-wide chapter as a squashed strip. 10vw reaches 144px at exactly
+    1440, so the ceiling of the mobile step and the whole of the desktop
+    range up to 1440 are untouched, and the padding then grows to 256px at
+    2560 (the 16rem cap lands there).
+  */
+  --pad-block: 6rem;
+  /* the margin numeral registers on the running-head rule rather than
+     floating above it — the same alignment chapter two makes */
+  --numeral-top: var(--pad-block);
+
+  /*
+    The question.
+
+    `--text-h3` is `clamp(1.25rem, 1.6vw, 2.125rem)`; the growth term is
+    kept verbatim so nothing below 2125 (where the shared ceiling used to
+    bite) moves by a pixel. Only the ceiling is raised, because the ratio
+    the composition depends on is question : chapter title, and the title
+    grows at 5.6vw with no ceiling of its own until 2571. Holding the
+    question at 34px broke that ratio the moment the page passed 2125:
+    at 2560 it would print 34px beside a 144px title. 3.25rem restores it
+    — 41px at 2560, i.e. 0.28 of the title, which is what it is at 1440.
+  */
+  --q-size: clamp(1.25rem, 1.6vw, 3.25rem);
+
+  /*
+    The rail the entry numbers hang in. Written from the mono scale rather
+    than in `ch`, because the number is set in IBM Plex Mono at
+    `--text-micro` while the `2ch` the component reserves for it is measured
+    in the ANSWER's font — the two only agreed by accident at one size.
+    1.8em of mono holds «07» (2 × 0.6em of advance + 2 × 0.12em of the
+    tracking `.t-mono` adds) with about a fifth of an em of air after it.
+  */
+  --num-w: calc(var(--text-micro) * 1.8);
+
+  /* The indent between the rail and the question, which is also the answer's
+     hanging indent. 1.25rem and 2rem are the component's own `gap-5` and
+     `md:gap-8`; above 768 the 2vw term crosses 2rem at 1600, so the entry
+     only opens up once the sheet is genuinely wide (51px at 2560). */
+  --gap-num: 1.25rem;
+
+  /*
+    The check. The component draws it at a flat 24px, which is a mark for a
+    23px question; against a 41px one on a 2376px sheet it is a speck.
+    1.5vw crosses 24px at 1600 — so the mark is untouched everywhere the
+    old composition lived — and reaches 38px at 2560.
+  */
+  --tick: clamp(1.5rem, 1.5vw, 2.75rem);
+
+  /*
+    The entry numbers ARE text — they are not aria-hidden, and a screen reader
+    reads «01» — so they take the palette's quiet ink rather than
+    `--color-ink-3`, which is illegal for text. The register marks below keep
+    ink-3, because they are aria-hidden marks and nothing else. See the note
+    beside `--color-ink-quiet` in globals.css.
+  */
+  --ink-quiet: var(--color-ink-quiet);
+}
+
+@media (min-width: 768px) {
+  .faq {
+    --pad-block: clamp(9rem, 10vw, 16rem);
+    --gap-num: clamp(2rem, 2vw, 4rem);
+  }
+}
+
+.faq__inner {
+  padding-block: var(--pad-block);
+}
+
+/* ---------------------------------------------------------------- */
+/* Running head                                                      */
+/* ---------------------------------------------------------------- */
+.faq__head-rule {
+  position: relative;
+}
+
+/*
+  Register marks on the ends of the running-head rule, which is the trim
+  itself. `left: 100%` with the centring transform leaves half the mark
+  (5.5–7.5px) past the rule and the rest of the gutter — 20px at 390,
+  92px at 2560 — as paper behind it, so it reads as a trim mark on a
+  trimmed sheet and can never cause a horizontal scroll. Sized off the
+  mono scale's 0.62vw for the same reason the folios are: an 11px cross
+  disappears on a sheet three times the width it was drawn for.
+*/
+.faq__reg {
+  position: absolute;
+  top: 50%;
+  width: clamp(11px, 0.62vw, 15px);
+  height: clamp(11px, 0.62vw, 15px);
+  color: var(--color-ink-3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.faq__reg--start {
+  left: 0;
+}
+.faq__reg--end {
+  left: 100%;
+}
+
+.faq__head-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  /* the running head's air grows with the sheet from 1778 up */
+  padding-top: clamp(1rem, 0.9vw, 1.75rem);
+}
+
+/* The outer end of the running head. A manual repeats the chapter at the
+   head of every page; on a 2376px sheet the alternative is a rule with one
+   line of mono at the far left and 2000px of nothing after it. It is
+   aria-hidden because `Chapter` already announces «Вопросы — 09» once, and
+   it replaces the inline folio, which globals hides from 768 up. */
+.faq__running {
+  display: none;
+  color: var(--ink-quiet);
+}
+@media (min-width: 768px) {
+  .faq__running {
+    display: inline;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The body: title page, then index                                  */
+/* ---------------------------------------------------------------- */
+.faq__body {
+  display: grid;
+  row-gap: 2.5rem;
+  margin-top: 3rem;
+}
+@media (min-width: 768px) {
+  .faq__body {
+    /* was a flat 4rem from 768 up; 4.4vw crosses it at 1454 and tops out
+       at 112px, which the 7rem cap reaches at 2545 */
+    margin-top: clamp(4rem, 4.4vw, 7rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .faq__body {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    /* the page's own field, not a private gap — a question here and a
+       plate in chapter six stand on the same verticals */
+    column-gap: var(--col-gap);
+  }
+  .faq__title-col {
+    grid-column: 1 / span 4;
+  }
+  /* the index is ranged to the right edge of the trim at every width from
+     here up: it ends on column 12, never short of it */
+  .faq__list {
+    grid-column: 6 / -1;
+  }
+
+  .faq__title-inner {
+    position: sticky;
+    /*
+      `--header-h` is fluid now (80px until 2000, 102px at 2560), so the
+      offset that used to be a flat `top-32` is derived from it instead of
+      guessing. The second term is the air between the header's underside
+      and the title: 3rem holds until 1454, where 3.3vw takes over, so the
+      title sits exactly where it sat at 1024–1440 (128px) and then keeps
+      its distance as the header grows.
+    */
+    top: calc(var(--header-h) + clamp(3rem, 3.3vw, 4rem));
+  }
+}
+
+/* The title is left on the shared chapter scale rather than given a local
+   one: `--text-chapter` grows at 5.6vw and a 4-column slot is 29.9vw of the
+   sheet at every width where the gutter is still fluid, so the fit the title
+   has at 1440 is the fit it keeps — what changes on a wide sheet is the
+   number of columns it is given, below. */
+.faq__title {
+  margin: 0;
+}
+
+.faq__ask {
+  /* 2rem until 1280, then it opens with the page */
+  margin-top: clamp(2rem, 2.5vw, 3.5rem);
+}
+
+/* The foot rule of the title page. It is a BORDER and not a `.rule`
+   background: in forced-colors mode backgrounds are forced to Canvas and a
+   1px background hairline vanishes, while a border is forced to CanvasText
+   and survives. Printed only on the wide sheet, where the title column
+   becomes a page with a foot rather than two things stacked. */
+.faq__ask-rule {
+  display: none;
+  margin-bottom: 1.5rem;
+  border-top: 1px solid var(--color-rule);
+}
+
+/* The binding rule between the title page and the index. It exists only on
+   the wide sheet, where there is an empty column for it to stand in — below
+   1600 it is removed from the grid entirely rather than hidden in place, so
+   it can never claim a cell or a stacked row on a phone. */
+.faq__gutter {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* The entries                                                       */
+/*                                                                   */
+/* Styled from here by the class names `ui/Accordion.tsx` prints,     */
+/* because that component is shared with other chapters and is not    */
+/* this chapter's to edit. Everything below is scoped under `.faq` so  */
+/* no other chapter inherits an index's proportions, and every rule is */
+/* unlayered, which is what lets it win over the component's Tailwind  */
+/* utilities (utilities are layered; unlayered declarations outrank    */
+/* every layer — the same mechanism globals.css documents at its base  */
+/* layer).                                                            */
+/* ---------------------------------------------------------------- */
+
+/* the entry line: number rail, question, check. `--gap-num` replaces the
+   component's `gap-5 / md:gap-8` so the rail and the answer's hanging
+   indent are driven by one number instead of two that must be kept in
+   step by hand. */
+.faq .accordion__btn {
+  column-gap: var(--gap-num);
+  /* the component's `py-5` on a phone, unchanged */
+  padding-block: 1.25rem;
+}
+@media (min-width: 768px) {
+  /* leading between the rules. 1.5rem is the component's `md:py-6`; 1.4vw
+     crosses it at 1714, so the rhythm is untouched up to there, and each
+     entry is 36px of leading at 2560 instead of a 24px strip. */
+  .faq .accordion__btn {
+    padding-block: clamp(1.5rem, 1.4vw, 3rem);
+  }
+}
+
+/*
+  The number, hung in its own rail and set on the question's baseline.
+
+  The component pins it with a flat `pt-[0.45em]`, which is right for a
+  23px question and 5px too high for a 41px one. Prata sits its baseline
+  0.845 of the font size down its line box here (half of the 1.25 leading
+  `.t-h3` sets, plus a ~0.72em ascent); IBM Plex Mono sits its own 1.025em
+  down its box (half of the inherited 1.55 leading, plus a ~0.75em ascent).
+  The difference is the padding, in the numeral's own em, so the two agree
+  at 20px on a phone and at 41px on a 2560 sheet. It cannot go negative in
+  the range that exists — 5.6px at 390, 20.3px at 2560 — and padding clamps
+  a negative calc to zero in any case.
+*/
+.faq .accordion__btn > .t-mono {
+  width: var(--num-w);
+  padding-top: calc(0.845 * var(--q-size) - 1.025em);
+  color: var(--ink-quiet);
+}
+
+.faq .accordion__q {
+  font-size: var(--q-size);
+  line-height: 1.25;
+  /* only ever engages on a phone: from 768 up the longest question in
+     either language («Что взять на первую тренировку?» — 31 characters,
+     about 17em of Prata, against 604px of room at 768 and 1005px at 2560)
+     sets on one line inside its slot */
+  text-wrap: balance;
+}
+
+/*
+  The check.
+
+  The box is exactly one question line box tall, so `items-center` inside
+  it registers the mark on the middle of the first line of the question at
+  any size instead of on a 24px box that stopped tracking it. The width
+  keeps the component's 28px floor so nothing moves below 1600.
+*/
+.faq .accordion__btn > span:last-child {
+  width: max(1.75rem, var(--tick));
+  height: calc(var(--q-size) * 1.25);
+}
+.faq .accordion__btn > span:last-child > svg {
+  width: var(--tick);
+  height: auto;
+}
+
+/*
+  The answer, hung off the same vertical as the question.
+
+  The component indents it by `2ch + gap`, where the `2ch` is measured in
+  the answer's own font and the rail it is standing in is measured in mono
+  — so the two drifted apart as soon as either size moved. Both now come
+  from `--num-w` and `--gap-num`.
+
+  The measure stays 62 characters and stays on the text, which is the whole
+  point of a `ch` cap; what changes is that a character is allowed to grow.
+  Left on the body's own scale (18px at 2560) the answer prints a 558px
+  paragraph in a 1170px slot — the island a full-bleed sheet has to avoid,
+  and the reason a wider slot alone would not have fixed it. 0.85vw
+  crosses 16px at 1882, so nothing at or below 1440 moves, and tops out at
+  22px, where 62ch is about 680px.
+*/
+.faq .accordion__a {
+  padding-left: calc(var(--num-w) + var(--gap-num));
+  /* the component caps the indented BOX at 62ch, and the box is
+     border-box, so the indent was being paid for out of the measure — the
+     text was setting at about 55 characters, and widening the rail would
+     have taken more. The cap is moved off the box and onto the text: the
+     indent is added back here, and the paragraph's own `max-w-[62ch]`,
+     which inherits this font-size, is what actually holds the line. */
+  max-width: calc(62ch + var(--num-w) + var(--gap-num));
+  font-size: clamp(1rem, 0.85vw, 1.375rem);
+  /* the component's `pb-7`; 1.8vw crosses 28px at 1555 */
+  padding-bottom: clamp(1.75rem, 1.8vw, 3.5rem);
+}
+
+/* ---------------------------------------------------------------- */
+/* The wide sheet — the index re-columns and runs off the page       */
+/*                                                                   */
+/* At 1600 the twelve-column field is 1485px (101.7px columns); at    */
+/* 1920 it is 1782 (122px); at 2560 it is 2376 (165px). Held at 4 + 7 */
+/* the title breaks «Что / нужно, / чтобы / начать?» in a 768px slot */
+/* — «Что нужно,» is about 5.5em of Prata, so 792px at the 144px the */
+/* chapter scale reaches there, 24px short of setting whole — while   */
+/* the index is given 1371px for an 850px entry. So the sheet         */
+/* re-columns to                                                      */
+/*                                                                   */
+/*     cols 1–5   the title page                                     */
+/*     col  6     the binding rule                                   */
+/*     cols 7–12  the index                                          */
+/*                                                                   */
+/* — 969px and 1170px at 2560. The title gains the width it needs to  */
+/* set as display type, the index loses the paper it could not use,   */
+/* and the empty column between them is ruled, because two blocks     */
+/* facing each other across a 2376px sheet with nothing in between    */
+/* read as two pages rather than one.                                 */
+/* ---------------------------------------------------------------- */
+@media (min-width: 1600px) {
+  .faq__title-col {
+    grid-column: 1 / span 5;
+  }
+  .faq__gutter {
+    display: block;
+    grid-column: 6;
+    /* the body is one row at this width, so the rule takes the row's full
+       height — which is the height of the index, not of the sticky title */
+    grid-row: 1;
+    justify-self: center;
+    /* a border, not a background: see the note on `.faq__ask-rule` */
+    border-left: 1px solid var(--color-rule);
+  }
+  .faq__list {
+    grid-column: 7 / -1;
+  }
+
+  /*
+    The title column becomes a title page: the title at its head, the way
+    out at its foot, a rule between them. The height is what the sticky
+    window can actually hold — 30rem below the fold-safe limit, and 52vh
+    on a short display, so the block plus its offset (up to 166px) always
+    fits the viewport and the title can never be scrolled out from under
+    its own sticky position.
+  */
+  .faq__title-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: min(30rem, 52vh);
+  }
+  .faq__ask-rule {
+    display: block;
+  }
+
+  /*
+    The entry rules run off the right edge of the paper.
+
+    `.wrap` is the trim, so `-1 × var(--gutter)` lands EXACTLY on the paper
+    edge — nothing may be added to it at any breakpoint or it becomes
+    horizontal scroll. The button is padded back by the same gutter, so the
+    type and the check stay on the trim and only the rule crosses it: the
+    apparatus stays inside the trim, the index runs off it, which is what a
+    printed index does and what the trim marks on the running head are for.
+  */
+  .faq .accordion__row {
+    margin-right: calc(var(--gutter) * -1);
+  }
+  .faq .accordion__btn {
+    padding-right: var(--gutter);
+  }
+}

@@ -1,0 +1,757 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 二 — «О клубе»: the glossary page                            */
+/*                                                                      */
+/* Two entries and a promise. The chapter opens quiet and dense — a     */
+/* diagram, apparatus, a ruled table — where chapter one opened loud,   */
+/* and saves its one monumental line for the end. Nothing here repeats  */
+/* the hero's silhouette: the largest type in this chapter arrives on   */
+/* the way out, not on the way in.                                      */
+/*                                                                      */
+/* The sheet is the viewport (see globals.css: `.wrap` is the trim, not */
+/* a column), so both entries are set as the SAME three-part spread on  */
+/* a wide page — a block, a ruled gutter, a facing block — and the      */
+/* chapter's structure is legible as structure rather than as two       */
+/* small layouts marooned in the middle of a large piece of paper.      */
+/* ------------------------------------------------------------------ */
+
+.about {
+  /*
+    Vertical rhythm grows with the sheet. Every `vw` term below is the one
+    the chapter was drawn with, so nothing at or under 1440 moves; only the
+    ceilings were raised, because a ceiling reached at ~1500px freezes the
+    white space at a height chosen for a 1312 column and a 2560 page then
+    reads as a squashed strip. `--pad-top` tops out at 192px (8vw × 2400).
+  */
+  --pad-top: clamp(5rem, 8vw, 12rem);
+  --pad-bottom: clamp(3.5rem, 6vw, 9rem);
+  --numeral-top: var(--pad-top);
+
+  /*
+    Everything in this chapter a reader actually reads at small size — the
+    entry labels, the running head's figure list, the romaji, the folio, the
+    equation's operators, the dictionary dash, and the promise's quieter first
+    line — is set in the palette's quiet ink. `--color-ink-3` is kept for the
+    ornament that is not text: the register marks and the figure's ghost seat.
+    See the note beside `--color-ink-quiet` in globals.css for why.
+  */
+  --ink-quiet: var(--color-ink-quiet);
+
+  /* the two entries are set alike, as a glossary sets its headwords.
+     The old 3.75rem ceiling was reached at 1464px, which left a 60px
+     headword facing a 768px diagram at 2560; 5.5rem is reached at 2146
+     and keeps the headword at roughly 0.58 of the promise at every width
+     above 1440 (88 : 151 at 2560, the same ratio as 60 : 85 at 1440). */
+  --word-size: clamp(1.875rem, 4.1vw, 5.5rem);
+
+  /*
+    The promise is the one line on the page that must never break: the brush
+    rules two words inside it, and a wrap would put the mark and the words on
+    different lines. Measured in Prata, line two is 11.64em in Russian and
+    12.43em in English, so the second term caps the size at whatever keeps the
+    longer of the two on one line; 12.9 leaves room for a scrollbar in 100vw.
+
+    That fit term is 92.8vw / 12.9 = 7.19vw wherever the gutter is still
+    fluid (3.6vw a side), i.e. it is always looser than the 5.9vw growth term
+    and only ever binds on phones, where the gutter has bottomed out at 20px
+    — at 390 it is what holds the promise to 27px. So the ceiling is free to
+    rise: 10rem is reached at 2712px, and at 2560 the promise sets at 151px
+    against a 2376px trim, where the longer (English) line measures 1877px.
+    Re-check both languages here if the copy or the display face changes.
+  */
+  --promise-size: min(clamp(2.125rem, 5.9vw, 10rem), calc((100vw - 2 * var(--gutter)) / 12.9));
+
+  /*
+    Фиг. 02 fills its column slot rather than sitting inside it as a picture —
+    but only from 1600 up, where the spread re-columns to four and the slot is
+    478.9px at 1600, 575px at 1920 and 767.9px at 2560. 48rem is exactly the
+    2560 slot, so the diagram reaches its column there and then stops growing
+    rather than becoming a wall.
+
+    Below 1600 the figure spans five columns and this cap does NOT track them:
+    measured in the browser with a scrollbar, five columns pass 448px at about
+    1200px and are 537px at 1440, so from there up the framed square stops ~89px
+    short of its own slot and the ruled gutter beside it no longer bisects the
+    void. That is exactly what v1.0 did
+    with its hardcoded `max-width: 28rem`, and it is kept: this redesign's
+    invariant is that nothing at or below the width the old centred column was
+    drawn for changes size. Widen it here only together with a decision to
+    redraw the 1024–1599 spread.
+  */
+  --fig-max: 28rem;
+
+  /* one gap, so the prose and the plate note it sits beside share a top edge
+     when the entry body splits in two on a wide sheet */
+  --prose-gap: clamp(1.75rem, 2.6vw, 3.5rem);
+}
+
+.about__inner {
+  padding-top: var(--pad-top);
+  padding-bottom: var(--pad-bottom);
+}
+
+/* ---------------------------------------------------------------- */
+/* Running head — a sheet that has been trimmed                      */
+/* ---------------------------------------------------------------- */
+.about__head-rule {
+  position: relative;
+}
+/*
+  The two register marks sit on the ends of the running-head rule, which is
+  now the trim itself. `left: 100%` with the centring transform leaves half
+  the mark (5.5–7.5px) beyond the rule and the other half on it, with the
+  whole gutter as paper behind it: 20px at 390 and 92px at 2560. It reads as
+  a trim mark on a trimmed sheet, never as something sliding off the page.
+  The size follows the mono scale's 0.62vw so an 11px cross does not shrink
+  into invisibility on a sheet three times the width it was drawn for.
+*/
+.about__reg {
+  position: absolute;
+  top: 50%;
+  width: clamp(11px, 0.62vw, 15px);
+  height: clamp(11px, 0.62vw, 15px);
+  color: var(--color-ink-3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.about__reg--start {
+  left: 0;
+}
+.about__reg--end {
+  left: 100%;
+}
+.about__head-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  /* the running head's air grows with the sheet from 1778 up */
+  padding-top: clamp(1rem, 0.9vw, 1.75rem);
+}
+.about__head-figs {
+  display: none;
+}
+@media (min-width: 768px) {
+  .about__head-figs {
+    display: inline;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Entries                                                           */
+/* ---------------------------------------------------------------- */
+.about__entry {
+  position: relative;
+  display: grid;
+  gap: 3rem 0;
+  /* was capped at 6.5rem, reached at 1486; 9.5rem is reached at 2171 */
+  margin-top: clamp(3.5rem, 7vw, 9.5rem);
+}
+
+/* Below the spread breakpoint the two pages stack, and the reading order
+   flips: the word is introduced first and the figure follows it as the
+   demonstration. A reader on a phone should never meet 東 cold. */
+@media (max-width: 1023px) {
+  .about {
+    --fig-max: 24rem;
+  }
+  .about__entry--name {
+    display: flex;
+    flex-direction: column;
+  }
+  .about__entry--name .about__entry-body {
+    order: 1;
+  }
+  .about__entry--name .about__figure {
+    order: 2;
+  }
+}
+
+/* the gutter: one hairline ruled down the empty column between an
+   entry's two blocks. It is never a page-wide grid — it exists only
+   where two blocks actually face each other, so nothing on the page
+   has to pretend to sit on a rule it ignores. Both entries earn one:
+   entry 01 between the figure and its reading, entry 02 between the
+   argument and the ledger of facts, which without it read as two
+   islands once the sheet is wider than the two blocks together. */
+.about__gutter {
+  display: none;
+  width: 1px;
+  justify-self: center;
+  background: var(--color-rule);
+}
+
+.about__label {
+  margin-bottom: 1.25rem;
+  color: var(--ink-quiet);
+}
+.about__head-figs,
+.about__romaji,
+.about__colophon-folio,
+.about__fig-no,
+.about__eq-key {
+  color: var(--ink-quiet);
+}
+
+.about__word {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--word-size);
+  line-height: 1.04;
+  letter-spacing: -0.005em;
+}
+.about__dash {
+  color: var(--ink-quiet);
+}
+
+.about__way-head,
+.about__way-body {
+  display: grid;
+  gap: 2.5rem 0;
+}
+.about__way-body {
+  /* ceiling was reached at 1371; 4.5rem lands at 2057 */
+  margin-top: clamp(2rem, 3.5vw, 4.5rem);
+}
+
+.about__prose {
+  margin-top: var(--prose-gap);
+  max-width: 46ch;
+  color: var(--color-ink-2);
+  /*
+    46ch is the measure and it stays the measure — but a `ch` is only as wide
+    as the type, and 17px was chosen against a 1312 column. Held flat it makes
+    a 391px paragraph on a 2376px sheet, which is what turns a column into an
+    island. The 0.95vw term crosses 17px at 1790, so nothing below that moves,
+    and tops out at 22px — a 506px measure at 2560, still 46 characters.
+  */
+  font-size: clamp(1.0625rem, 0.95vw, 1.375rem);
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------- */
+/* Фиг. 02 — 東 taken apart                                          */
+/* ---------------------------------------------------------------- */
+.about__figure {
+  margin: 0;
+}
+
+.azuma-fig {
+  position: relative;
+  width: 100%;
+  max-width: var(--fig-max);
+}
+.azuma-fig__frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--color-rule);
+}
+.azuma-fig__glyph {
+  width: 100%;
+  height: 100%;
+}
+/* the empty socket the sun belongs in — printed, so the destination is
+   legible before anything has moved */
+.azuma-fig__seat {
+  color: var(--color-ink-3);
+  opacity: 0.38;
+}
+.azuma-fig__tree,
+.azuma-fig__sun {
+  color: var(--color-ink);
+}
+.azuma-fig__sun {
+  will-change: transform;
+}
+/* the sun is seated and 東 prints complete; `!important` is what lets a
+   stylesheet win against the inline transform Motion writes */
+@media (prefers-reduced-motion: reduce) {
+  .azuma-fig__sun {
+    transform: none !important;
+    will-change: auto;
+  }
+}
+
+/* registration marks, straddling the frame's corners. They mark a frame
+   that is now 479–768px across, so like the running head's pair they take
+   the mono scale's growth rather than staying at the 13px drawn for 448. */
+.azuma-fig__reg {
+  position: absolute;
+  z-index: 1;
+  width: clamp(13px, 0.72vw, 18px);
+  height: clamp(13px, 0.72vw, 18px);
+  color: var(--color-ink-3);
+  pointer-events: none;
+}
+.azuma-fig__reg--tl { top: 0; left: 0; transform: translate(-50%, -50%); }
+.azuma-fig__reg--tr { top: 0; left: 100%; transform: translate(-50%, -50%); }
+.azuma-fig__reg--bl { top: 100%; left: 0; transform: translate(-50%, -50%); }
+.azuma-fig__reg--br { top: 100%; left: 100%; transform: translate(-50%, -50%); }
+
+/* leader labels: the diagram's key, hung inside the frame. Inset and leader
+   are proportional to the frame from ~1750 up, so a label on a 768px plate
+   is not pinned 16px off the edge by a rule written for a 448px one. */
+.azuma-fig__label {
+  display: none;
+  position: absolute;
+  right: clamp(1rem, 1vw, 1.75rem);
+  color: var(--color-ink-2);
+  white-space: nowrap;
+  transform: translateY(-50%);
+}
+.azuma-fig__label::before {
+  content: "";
+  display: inline-block;
+  width: clamp(1.5rem, 1.6vw, 2.5rem);
+  height: 1px;
+  margin-right: 0.6rem;
+  vertical-align: 0.28em;
+  background: var(--color-rule);
+}
+.azuma-fig__label--tree { top: 21%; }
+.azuma-fig__label--sun { top: 46%; }
+@media (min-width: 1024px) {
+  .azuma-fig__label { display: block; }
+}
+
+/* the legend: 木 + 日 = 東, registered in one shared 109-unit square so
+   the sun appears in its true seat instead of being re-centred. It is set
+   to the plate's width, not to its own, so the two read as one unit. */
+.about__legend {
+  margin-top: clamp(1.25rem, 1.1vw, 2rem);
+  max-width: var(--fig-max);
+}
+.about__legend-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.about__equation {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.4rem, 0.4vw, 0.75rem);
+}
+.about__fig-no {
+  margin-right: 0.6rem;
+}
+/* the equation's specimens are a caption-scale thing; 2rem beside a 768px
+   plate is a footnote, so they take the same growth as the caption type */
+.about__eq-glyph {
+  width: clamp(2rem, 1.6vw, 3rem);
+  height: clamp(2rem, 1.6vw, 3rem);
+  color: var(--color-ink);
+  flex: none;
+}
+.about__eq-op {
+  color: var(--ink-quiet);
+  font-size: clamp(0.75rem, 0.6vw, 1rem);
+}
+.about__fig-read {
+  /* ceiling was reached at 1467; 3.75rem lands at 2000. On the wide spread
+     this is overridden to `--prose-gap` so the note tops out level with the
+     prose it stands beside. */
+  margin-top: clamp(2rem, 3vw, 3.75rem);
+  max-width: 40ch;
+}
+.about__fig-read p {
+  margin-top: 1rem;
+}
+
+/* ---------------------------------------------------------------- */
+/* The ledger — a printed reference table, not a UI card             */
+/* ---------------------------------------------------------------- */
+.about__ledger-wrap {
+  margin-top: clamp(2.25rem, 3.4vw, 3rem);
+  max-width: 34rem;
+}
+@media (min-width: 1024px) {
+  /* in the two-column body the ledger sets beside the prose, not under it */
+  .about__ledger-wrap {
+    margin-top: 0.35rem;
+    max-width: none;
+  }
+  .about__prose--way {
+    margin-top: 0;
+  }
+}
+.about__ledger {
+  margin: 0;
+  border-top: 1px solid var(--color-rule);
+}
+.about__ledger-row {
+  display: flex;
+  align-items: baseline;
+  /* 13.6px of leading between rules was drawn for a 604px table. The same
+     rows run 1371px wide at 2560, where a flat 0.85rem prints as a squashed
+     strip; 0.75vw crosses it at 1813 and tops out at 24px. */
+  padding: clamp(0.85rem, 0.75vw, 1.5rem) 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+.about__ledger-row dt {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+}
+/* dot leaders as a pseudo-element, never as middot characters — a screen
+   reader should not have to read a row of dots aloud. They are also what
+   lets the table take the full width of its slot on a wide sheet without
+   the value floating free of its key: the leaders carry the eye across. */
+.about__ledger-row dt::after {
+  content: "";
+  flex: 1 1 2rem;
+  min-width: 1.25rem;
+  height: 1px;
+  margin: 0 0.75rem 0.32em;
+  background-image: radial-gradient(circle, currentColor 0 0.5px, transparent 0.6px);
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+  opacity: 0.5;
+}
+.about__ledger-row dd {
+  flex: 0 1 auto;
+  margin: 0;
+  text-align: right;
+}
+
+/* ---------------------------------------------------------------- */
+/* 極真 — the specimen                                                */
+/* ---------------------------------------------------------------- */
+.about__specimen-glyphs {
+  display: flex;
+  gap: clamp(0.75rem, 1.6vw, 1.5rem);
+  color: var(--color-ink);
+}
+/* the specimen faces the headword and has always been set a shade larger
+   than it (88 against 60 at 1440); the 5.5rem ceiling was reached at 1257
+   and broke that relation as soon as the headword kept growing, so the
+   ceiling moves to 8rem — 128px at 2560 against an 88px headword, the same
+   1.45 ratio. Below 1280 the 7vw term still governs and nothing moves. */
+.about__specimen-glyph {
+  width: clamp(3.25rem, 7vw, 8rem);
+  height: auto;
+}
+.about__romaji {
+  margin-top: 0.85rem;
+}
+.about__specimen-glyphs {
+  justify-content: inherit;
+}
+
+/* ---------------------------------------------------------------- */
+/* Илл. 02 — the chapter's one photograph                            */
+/* ---------------------------------------------------------------- */
+.about__plate {
+  margin: 0;
+}
+.about__plate-img {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-paper-2);
+}
+.about__plate figcaption {
+  margin-top: 0.75rem;
+}
+
+/*
+  The plate is ranged to the outer edge of the paper and trimmed off it —
+  `.bleed-r` semantics, written out because the caption inside must be pulled
+  back to the trim. `.wrap` is the whole sheet now, so `100% + var(--gutter)`
+  lands EXACTLY on the paper edge: the old `+ 2.5rem` / `+ 4.5rem` were slack
+  between a 1312 column and the page, and once the column became the page they
+  were pure overflow — up to 72px of horizontal scroll at 1440. Nothing may be
+  added to this width at any breakpoint.
+
+  Which also means the plate needs no breakpoint to grow: it is 370px at 390
+  and 2468px at 2560, always one gutter short of the full viewport.
+*/
+.about__plate {
+  /* ceiling was reached at 1333; 7.5rem lands at 2000 */
+  margin-top: clamp(3rem, 6vw, 7.5rem);
+  width: calc(100% + var(--gutter));
+  margin-right: calc(var(--gutter) * -1);
+}
+.about__plate .about__plate-img {
+  aspect-ratio: 4 / 5;
+}
+@media (min-width: 640px) {
+  .about__plate .about__plate-img {
+    aspect-ratio: 16 / 9;
+  }
+}
+.about__plate-cap {
+  padding-right: var(--gutter);
+}
+
+/* ---------------------------------------------------------------- */
+/* The promise — the chapter's monument                              */
+/* ---------------------------------------------------------------- */
+.about__promise {
+  /* the monument needs the paper around it to grow with it: the old
+     9rem/7.5rem ceilings were both reached at ~1600 */
+  margin-top: clamp(4.5rem, 9vw, 13rem);
+  margin-bottom: clamp(4rem, 7.5vw, 11rem);
+}
+.about__promise-type {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: var(--promise-size);
+  line-height: 1.06;
+  letter-spacing: -0.008em;
+  color: var(--color-ink);
+}
+/* the denial is printed a tone back so the promise steps forward — the
+   reference boards' two-layer headline, with the layers given a reason */
+.about__ghost {
+  color: var(--ink-quiet);
+}
+
+/*
+  `--bleed` must equal the `bleed` prop given to the promise's LineReveal.
+  The twin is absolutely positioned, so it establishes a block formatting
+  context and its children's negative margins do NOT collapse outward the
+  way LineReveal's do inside the flow. That costs exactly one bleed at the
+  top, and this offset pays it back.
+*/
+.about__promise-type {
+  --bleed: 0.2em;
+}
+.about__promise-mark {
+  position: absolute;
+  top: var(--bleed);
+  left: 0;
+  right: 0;
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+.about__promise-bleed {
+  padding-block: var(--bleed);
+  margin-block: calc(var(--bleed) * -1);
+}
+/* mirrors LineReveal's per-line wrapper (padding + negative margin) so the
+   twin's line boxes land on the real ones; without this the mark drifts down
+   the page by one `bleed` per line and rules through the words */
+.about__promise-bleed {
+  display: block;
+}
+.about__promise-line {
+  display: block;
+}
+/* line-height 1 makes the anchor box end a predictable 0.25em under the
+   baseline, so the stroke clears the descenders of «держать удар» by the
+   same amount whatever the language or the size */
+.about__promise-anchor,
+.about__promise-nowrap {
+  white-space: nowrap;
+}
+.about__promise-anchor {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+}
+/* every offset here is in `em`, so the stroke stays registered on the two
+   words it rules at 27px on a phone and at 151px on a 2560 sheet — raising
+   the `--promise-size` ceiling cannot pull it out of register */
+.about__promise-stroke {
+  visibility: visible;
+  position: absolute;
+  left: -0.16em;
+  top: 100%;
+  margin-top: -0.2em;
+  width: calc(100% + 0.32em);
+  height: auto;
+}
+
+/* ---------------------------------------------------------------- */
+/* Colophon                                                          */
+/* ---------------------------------------------------------------- */
+.about__colophon-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-top: clamp(1rem, 0.9vw, 1.75rem);
+}
+.about__colophon-folio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.about__colophon-kanji {
+  width: 0.75rem;
+  height: auto;
+}
+.about__colophon-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 2rem;
+}
+.about__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-rule);
+  transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+}
+.about__link:hover {
+  color: var(--color-shu);
+  border-color: var(--color-shu);
+}
+
+/* ---------------------------------------------------------------- */
+/* The spread                                                        */
+/*                                                                   */
+/* Both entries stand on the page's shared twelve-column field, with  */
+/* the field's own `--col-gap` rather than a private one — a heading  */
+/* here and a plate in chapter six have to sit on the same verticals  */
+/* now that every chapter is trimmed to the same sheet. (The old      */
+/* private gap topped out at 24px from 1200 up; `--col-gap` is 21.6px */
+/* at 1440 and 36px at 2560, so the columns below 1600 are within a   */
+/* couple of pixels of what they were and keep growing above it.)     */
+/* ---------------------------------------------------------------- */
+@media (min-width: 1024px) {
+  .about__entry {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+  }
+
+  .about__gutter {
+    display: block;
+    grid-row: 1 / -1;
+  }
+
+  /* 01 · the name — the figure leads, the entry faces it */
+  .about__entry--name .about__figure {
+    grid-column: 1 / span 5;
+    grid-row: 1;
+  }
+  .about__entry--name .about__entry-body {
+    grid-column: 7 / span 6;
+    grid-row: 1;
+    padding-top: 0.5rem;
+  }
+  .about__gutter--name {
+    grid-column: 6;
+  }
+
+  /* 02 · the way — a headline row, a two-column body, then the plate */
+  .about__entry--way {
+    display: block;
+  }
+  .about__way-head {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: end;
+  }
+  .about__way-word {
+    grid-column: 1 / span 8;
+  }
+  .about__way-head .about__specimen {
+    grid-column: 10 / span 3;
+    justify-self: end;
+    text-align: right;
+  }
+  .about__way-body {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+  }
+  .about__prose--way {
+    grid-column: 1 / span 5;
+  }
+  /* the ledger hangs under the specimen, both ranged to the sheet's edge */
+  .about__ledger-wrap {
+    grid-column: 8 / span 5;
+  }
+  /* the rule sits on the midpoint of the two empty columns between them,
+     which is the centre of the void the two blocks leave */
+  .about__gutter--way {
+    grid-column: 6 / span 2;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The wide sheet — the spread gains a third band                    */
+/*                                                                   */
+/* At 1600 the twelve-column field is 1485px wide (101.7px columns);  */
+/* at 1920 it is 1782 (122px); at 2560 it is 2376 (165px). A layout   */
+/* drawn as 5 + rule + 6 leaves the figure capped at 448px inside a   */
+/* 933px slot at 2560 and a 46ch paragraph inside another one, i.e.   */
+/* two small pages floating in a big one. So above 1600 BOTH entries  */
+/* re-column to the same three-band spread —                          */
+/*                                                                   */
+/*     cols 1–4   the plate / the argument                            */
+/*     col  5     the ruled gutter                                    */
+/*     cols 6–12  the facing block, itself split 4 + 3                */
+/*                                                                   */
+/* — which gains structure instead of stretching, keeps every block   */
+/* filling the slot it is given, and makes the two entries read as    */
+/* recto and verso of one glossary rather than as two arrangements.   */
+/* ---------------------------------------------------------------- */
+@media (min-width: 1600px) {
+  .about {
+    --fig-max: 48rem;
+  }
+
+  /* 01 · the name */
+  .about__entry--name .about__figure {
+    grid-column: 1 / span 4;
+  }
+  .about__gutter--name {
+    grid-column: 5;
+  }
+  .about__entry--name .about__entry-body {
+    grid-column: 6 / -1;
+    /* seven equal columns inside a seven-column slot land exactly on the
+       parent's verticals: the slot is 7c + 6g wide, so each nested column
+       computes to (7c + 6g − 6g) / 7 = c */
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+  }
+  /* the label and the headword run the full body; only the reading splits */
+  .about__entry--name .about__entry-body > * {
+    grid-column: 1 / -1;
+  }
+  .about__entry--name .about__prose {
+    grid-column: 1 / span 4;
+  }
+  /* the plate note stops being a second paragraph under the first and
+     becomes what it is called: a note set beside the reading, topped out
+     level with it */
+  .about__entry--name .about__fig-read {
+    grid-column: 5 / span 3;
+    margin-top: var(--prose-gap);
+  }
+
+  /* 02 · the way — the same three bands, so the argument stands on the
+     figure's four columns and the ledger on the seven the reading of the
+     figure occupies directly above it */
+  .about__prose--way {
+    grid-column: 1 / span 4;
+  }
+  .about__gutter--way {
+    grid-column: 5;
+  }
+  .about__ledger-wrap {
+    grid-column: 6 / -1;
+  }
+
+  /*
+    The plate keeps its full-sheet width (it is already 1543px at 1600 and
+    2468px at 2560 — nothing is gained by insetting it, and a column span
+    would make it SMALLER than it is at 1440). What a wide sheet changes is
+    its proportion: 16/9 across a 2468px page is 1388px tall — taller than
+    the 1440px screen it is printed on, and 1672px at 3440 — and a plate the
+    reader cannot see whole is not a plate. 2/1 brings that to 1234px and is
+    the band a full-bleed photograph wants at this width; 84vh is the
+    backstop for ultrawide displays, where the crop is `object-cover` at the
+    manifest's focal point (50% 26%), which is where the headgear is.
+  */
+  .about__plate .about__plate-img {
+    aspect-ratio: 2 / 1;
+    max-height: 84vh;
+  }
+}

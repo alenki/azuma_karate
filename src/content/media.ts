@@ -26,6 +26,14 @@ function ph(file: string, width: number, height: number, alt: Record<Locale, str
 
 export const media = {
   /* ---- plates used by the home page (usage-named) ---- */
+  /* The hero plate is shown inside the first stroke, so it is cropped to a
+     letterbox of roughly 5:1. It needs a dark, high-contrast frame whose action
+     survives that band, and no bright highlights along its top edge — the
+     headline's second line is knocked out of it there. */
+  heroStroke: ph("heavy-bag-kick-bw.jpg", 1600, 1066, {
+    ru: "Удар в прыжке по тяжёлому мешку, чёрно-белое фото",
+    en: "A jumping kick into a heavy bag, black and white",
+  }, "50% 33%"),
   heroPlate: ph("kick-pairs-portrait.jpg", 1066, 1600, {
     ru: "Ученик в белом кимоно отрабатывает удар ногой в зале",
     en: "A student in a white gi practises a kick in the dojo",
@@ -102,6 +110,10 @@ export const media = {
     ru: "Скамейка под соснами в парке Нальчика",
     en: "A bench under the pines in Nalchik's park",
   }),
+  parkPath: ph("forest-path-portrait.jpg", 899, 1600, {
+    ru: "Тропинка к реке в парке Нальчика",
+    en: "A path down to the river in Nalchik's park",
+  }, "50% 45%"),
   roadToElbrus: ph("road-to-elbrus-steppe.jpg", 1600, 1066, {
     ru: "Дорога к Эльбрусу через степь",
     en: "The road to Elbrus across the steppe",
@@ -139,9 +151,9 @@ export const media = {
     en: "Climbers on a snow ridge, black and white",
   }),
   kidsPadsDrill: ph("kids-pads-drill.jpg", 1390, 1600, {
-    ru: "Дети отрабатывают удары по лапам",
-    en: "Children drilling strikes on pads",
-  }),
+    ru: "Дети в шлемах и защите в учебном бою",
+    en: "Children in headgear and body protection during a practice bout",
+  }, "50% 35%"),
   kidsSparringGear: ph("kids-sparring-gear.jpg", 1066, 1600, {
     ru: "Дети в защитной экипировке на тренировке",
     en: "Children in protective gear at training",

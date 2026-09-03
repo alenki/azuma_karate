@@ -10,7 +10,7 @@ type L<T> = Record<Locale, T>;
 
 export const chapters: { id: string; index: number; title: L<string> }[] = [
   { id: "hero", index: 1, title: { ru: "Первая черта", en: "The first stroke" } },
-  { id: "kyokushin", index: 2, title: { ru: "Киокушин", en: "Kyokushin" } },
+  { id: "about", index: 2, title: { ru: "О клубе", en: "About" } },
   { id: "programs", index: 3, title: { ru: "Группы", en: "Groups" } },
   { id: "sensei", index: 4, title: { ru: "Тренер", en: "Sensei" } },
   { id: "results", index: 5, title: { ru: "Хроника", en: "Chronicle" } },
@@ -31,29 +31,91 @@ export const hero = {
     en: "A Kyokushin karate club for children and adults. Discipline, character and real physical training — on Kirova street and in the park at dawn.",
   },
   ctaPrimary: { ru: "Записаться на первую тренировку", en: "Book a first session" },
+  ctaPrimaryShort: { ru: "Записаться на тренировку", en: "Book a first session" },
   ctaSecondary: { ru: "Расписание", en: "Schedule" },
   ctaTelegram: { ru: "или напишите в Telegram", en: "or message us on Telegram" },
-  plateCaption: { ru: "Илл. 01 — поклон перед выходом на татами.", en: "Plate 01 — the bow before stepping onto the tatami." },
+  trial: { ru: "Первая тренировка — пробная", en: "The first session is a trial" },
+  plateCaption: { ru: "Илл. 01 — удар в прыжке, вечерняя тренировка.", en: "Plate 01 — a jumping kick, evening training." },
+  hand: { ru: "Тушь · одно движение · без исправлений", en: "Ink · one movement · no corrections" },
   scroll: { ru: "Листайте", en: "Scroll" },
 } satisfies Record<string, L<string>>;
 
-export const kyokushin = {
-  eyebrow: { ru: "Глава вторая · Что такое киокушин", en: "Chapter two · What Kyokushin is" },
-  word: { ru: "Киокуши́н", en: "Kyokushin" },
+/**
+ * Width of each headline line set in Prata, in em, measured in the browser.
+ * The hero divides the measure by the longer of the two so the headline is
+ * always set to the exact column width, in either language, at any viewport.
+ * `narrow` only has to fit the second line — the first is allowed to wrap.
+ * Re-measure these if the headline copy or the display face changes.
+ */
+export const heroFit: Record<Locale, { wide: number; narrow: number }> = {
+  // «Сначала поклон.» 8.331 · «Потом удар.» 6.006
+  ru: { wide: 8.36, narrow: 6.04 },
+  // "First the bow." 6.389 · "Then the strike." 7.343 — here the second line is the longer
+  en: { wide: 7.38, narrow: 7.38 },
+};
+
+export const about = {
+  eyebrow: { ru: "Глава вторая · Имя и путь", en: "Chapter two · The name and the way" },
+
+  /* ---- 01 · the name ---------------------------------------------- */
+  label1: { ru: "01 · Наше имя", en: "01 · Our name" },
+  word1: { ru: "Азума", en: "Azuma" },
   dash: { ru: "—", en: "—" },
-  meaning: { ru: "предельная истина", en: "the ultimate truth" },
-  couplet1: { ru: "Мы не учим драться.", en: "We don't teach fighting." },
-  couplet2: { ru: "Мы учим держать удар.", en: "We teach how to take a hit." },
-  body: {
-    ru: "Киокушинкай — полноконтактное каратэ, созданное Масутацу Оямой. Здесь нет очков за касание: техника проверяется на прочность, а характер — на выдержку. Ребёнок учится вставать после падения, взрослый — доводить дело до конца. Всё остальное — гибкость, сила, скорость — приходит само, тренировка за тренировкой.",
-    en: "Kyokushin is full-contact karate founded by Masutatsu Oyama. There are no points for touching: technique is tested for strength and character for composure. A child learns to get up after a fall; an adult learns to finish what they started. Everything else — flexibility, strength, speed — follows, class after class.",
+  meaning1: { ru: "восток.", en: "east." },
+  body1: {
+    ru: "СК «Азума» — секция киокушинкай каратэ в Нальчике. Вечером мы работаем в зале, по выходным — в парке, лицом к восходу.",
+    en: "SK Azuma is a Kyokushin karate club in Nalchik. We train in the hall in the evenings and in the park at weekends, facing the sunrise.",
   },
-  facts: [
-    { k: { ru: "Основано", en: "Founded" }, v: { ru: "1964, Токио", en: "1964, Tokyo" } },
-    { k: { ru: "Стиль", en: "Style" }, v: { ru: "полный контакт", en: "full contact" } },
+
+  /* ---- the figure: 東 taken apart --------------------------------- */
+  figNumber: { ru: "Фиг. 02", en: "Fig. 02" },
+  figEquation: { ru: "Дерево + солнце = восток", en: "Tree + sun = east" },
+  figTree: { ru: "Дерево", en: "Tree" },
+  figSun: { ru: "Солнце", en: "Sun" },
+  figNote: {
+    ru: "«Азума» по-японски — восток: солнце, поднявшееся в ветви дерева.",
+    en: "“Azuma” is Japanese for east: the sun risen into the branches of a tree.",
+  },
+  figRefusal: {
+    ru: "Больше в имени ничего не зашифровано.",
+    en: "Nothing further is encrypted in it.",
+  },
+
+  /* ---- 02 · the way ----------------------------------------------- */
+  label2: { ru: "02 · Наш путь", en: "02 · Our way" },
+  word2: { ru: "Киокуши́н", en: "Kyokushin" },
+  meaning2: { ru: "предельная истина.", en: "the ultimate truth." },
+  body2: {
+    ru: "Киокушинкай — полноконтактное каратэ. Очков за касание здесь нет: техника проверяется на прочность, характер — на выдержку. До восьми лет спаррингов нет вообще; дальше — только в шлемах и накладках и только когда ребёнок готов.",
+    en: "Kyokushin is full-contact karate. There are no points for touching: technique is tested for strength and character for composure. Under eight there is no sparring at all; after that, only in headgear and pads, and only once the child is ready.",
+  },
+  romaji: "kyokushin",
+
+  /* ---- the ledger: a printed reference table with dot leaders ------ */
+  ledger: [
+    { k: { ru: "Стиль", en: "Style" }, v: { ru: "киокушинкай, полный контакт", en: "Kyokushin, full contact" } },
+    { k: { ru: "Основан", en: "Founded" }, v: { ru: "1964, Токио", en: "1964, Tokyo" } },
+    { k: { ru: "Основатель", en: "Founder" }, v: { ru: "Масутацу Ояма", en: "Masutatsu Oyama" } },
     { k: { ru: "Приветствие", en: "Greeting" }, v: { ru: "Осу!", en: "Osu!" } },
-    { k: { ru: "Символ", en: "Symbol" }, v: { ru: "極真 — «предельная истина»", en: "極真 — “the ultimate truth”" } },
   ],
+
+  /* ---- the promise: the chapter's monument and its one red mark ---- */
+  promise1: { ru: "Мы не учим драться.", en: "We don’t teach fighting." },
+  /** `promiseLead` + `promiseMark` compose promise line two; the brush rules the mark. */
+  promiseLead: { ru: "Мы учим ", en: "We teach how to " },
+  promiseMark: { ru: "держать удар", en: "take a hit" },
+  promiseTail: { ru: ".", en: "." },
+
+  /* ---- the chapter's one photograph -------------------------------- */
+  plateNumber: { ru: "Илл. 02", en: "Plate 02" },
+  plate: {
+    ru: "Илл. 02 — учебный бой в шлемах.",
+    en: "Plate 02 — a supervised bout in headgear.",
+  },
+
+  /* ---- colophon ---------------------------------------------------- */
+  onGroups: { ru: "Группы", en: "Groups" },
+  onSensei: { ru: "Тренер", en: "Coach" },
 };
 
 export const programs = {
@@ -62,11 +124,33 @@ export const programs = {
   titleNumber: "4",
   title2: { ru: "лет", en: "years old" },
   lead: {
-    ru: "Четыре группы по возрасту и одна общая — по утрам в парке. Первая тренировка в любой группе — пробная.",
-    en: "Four age groups and one shared group — mornings in the park. The first session in any group is a trial.",
+    ru: "Четыре группы по возрасту и одна общая — по утрам в парке. Ниже вся школа на одной шкале: от четырёх лет и дальше.",
+    en: "Four age groups and one shared group — mornings in the park. Below, the whole school on one scale: from four years old, and onward.",
   },
-  rowLabels: { age: { ru: "Возраст", en: "Age" }, what: { ru: "Что происходит", en: "What happens" }, when: { ru: "Когда", en: "When" } },
+  /** The club's actual offer. Set on its own ruled line, not buried in the lead. */
+  trial: { ru: "Первая тренировка в любой группе — пробная.", en: "The first session in any group is a trial." },
+  /** Labels for the age chart — the chapter's figure. */
+  chart: {
+    caption: { ru: "Фиг. 03 · Возраст и группы", en: "Fig. 03 · Ages and groups" },
+    axis: { ru: "Лет", en: "Yrs" },
+    /** Units for the computed readout, so it cannot drift from `schedule.ts`. */
+    groupsOne: { ru: "группа", en: "group" },
+    groupsFew: { ru: "группы", en: "groups" },
+    groupsMany: { ru: "групп", en: "groups" },
+    /**
+     * Read to assistive technology in place of the drawn figure. It explains
+     * the FORM of the chart only — every group's name, age band and times are
+     * set as real text inside the figure, so naming them here too would both
+     * repeat them and drift the day the club edits `schedule.ts`.
+     */
+    description: {
+      ru: "Схема: возрастная шкала, на которой каждая группа занимает свой отрезок — без пропусков и наложений, от младшей группы и до открытого верхнего возраста. Утренние занятия в парке идут рядом со всеми группами и своего возраста не имеют. Группы, их возраст и время перечислены ниже.",
+      en: "A chart: an age scale on which each group occupies its own stretch — no gaps, no overlaps, from the youngest group up to an open-ended top age. The park mornings run alongside every group and have no age of their own. The groups, their ages and times are listed below.",
+    },
+  },
+  plateCaption: { ru: "Илл. 03 — место утренних занятий.", en: "Plate 03 — where the mornings are held." },
   more: { ru: "В расписание", en: "See the schedule" },
+  telegram: { ru: "Написать в Telegram", en: "Message on Telegram" },
   checklistTitle: { ru: "Что взять на первую тренировку", en: "What to bring to the first session" },
   checklist: [
     { ru: "Спортивную форму: футболку и штаны без молний", en: "Sportswear: a T-shirt and trousers without zips" },

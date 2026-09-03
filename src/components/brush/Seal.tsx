@@ -3,13 +3,19 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useId } from "react";
 import { cn } from "@/lib/cn";
-import { LogoMark } from "@/components/brand/Logo";
+import { Kanji } from "@/components/brush/Kanji";
 
 /**
- * The club's circular seal (印), pressed onto the page: outer ring, the brush
- * mark, and the ring text "SK AZUMA · КИОКУШИНКАЙ · НАЛЬЧИК". Stamps in with a
- * press (scale 1.3 → 0.97 → 1, rotate −8° → −6°). With reduced motion it is
+ * The club's circular seal (印), pressed onto the page: outer ring, the club's
+ * own 東, and the ring text "SK AZUMA · КИОКУШИНКАЙ · НАЛЬЧИК". Stamps in with
+ * a press (scale 1.3 → 0.97 → 1, rotate −8° → −6°). With reduced motion it is
  * simply printed.
+ *
+ * A seal carries a legend and a device, and they must not be the same thing:
+ * the ring already says SK AZUMA, so the centre says what SK AZUMA means.
+ * Chapter 02 teaches the reader that 東 = Азума = east; this is where that is
+ * cashed in. Printed, never drawn — the only hand-made mark in this manual is
+ * the sensei's brush, and a seal is a press.
  */
 export function Seal({
   className,
@@ -61,7 +67,7 @@ export function Seal({
         </text>
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <LogoMark className="h-[34%] w-[34%]" />
+        <Kanji id="azuma" className="h-[43%] w-[43%]" weight={5} label={null} />
       </div>
     </motion.div>
   );

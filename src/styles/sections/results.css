@@ -1,14 +1,207 @@
 /* ------------------------------------------------------------------ */
-/* Chapter 五 — Хроника: the tally board                                */
+/* Chapter 五 — «Хроника»: the tally board                              */
+/*                                                                      */
+/* The page's first ink spread. Its subject is a COUNT, so the chapter   */
+/* is set as a ledger page: three counted rows, a season listed as a     */
+/* printed timeline, and one closing note. Now that the sheet is the     */
+/* viewport, the composition changes shape twice as the paper grows      */
+/* instead of stretching one layout drawn for a 1312 column:             */
+/*                                                                      */
+/*   < 768   one column. Every row stacks; no binding margin exists.     */
+/*   ≥ 1024  two fields on the shared twelve-column page grid — the      */
+/*           ledger in 1–6, the one colour plate in 8–12.                */
+/*   ≥ 1600  the deck leaves the ledger column: the title runs across    */
+/*           1–7, the lead stands alone in 9–12 on the title's baseline, */
+/*           and the counted rows become single LEDGER LINES —           */
+/*           label · 正 marks · numeral, all on one baseline — instead   */
+/*           of a label stacked over its marks. The plate drops its      */
+/*           trim on the right and bleeds to the paper edge.             */
+/*                                                                      */
+/* Three things must survive any later edit:                             */
+/*   · Quiet type on this ground is --color-bone-2 (5.6:1 on ink);       */
+/*     --color-bone is the loud one. --color-ink-3 never appears here.   */
+/*   · Every hairline on the ink ground is --color-rule-dark.            */
+/*   · The 正 marks are aria-hidden ornament — the count is announced    */
+/*     once, by the sr-only label on the arabic numeral. Growing the     */
+/*     glyphs must never turn them into content.                         */
 /* ------------------------------------------------------------------ */
 
-/* one counted row: label · 正 marks · the arabic number */
+.results {
+  /*
+    Vertical rhythm. Below 768 this is the old py-28; from 768 up it starts
+    at the old py-40 (160px, which 10.4vw reaches at exactly 1538) and then
+    grows with the sheet, so a 2560 page does not read as a squashed strip:
+    10.4vw = 200px at 1920, 266px at 2560. The cap is only a backstop for
+    displays past ~2615.
+  */
+  --pad-block: 7rem;
+
+  /* the counted row's three parts, sized against the field they stand in
+     rather than against the old column — see .tally-row below */
+  --tally-glyph: 2rem;
+  --tally-gap-x: 0.65rem;
+  --tally-gap-y: 0.5rem;
+  /*
+    The chapter's monument. The numerals are the one thing on this page that
+    is allowed to be genuinely big on a full-bleed sheet, so they leave the
+    `.t-chapter` role behind and take their own step: the floor (2.25rem) and
+    the crossover (562px) are `.t-chapter`'s exactly, so nothing at phone
+    width moves, and above that they run one notch ahead of the chapter title
+    — 102px at 1600, 164px at 2560 against the title's 90px and 143px.
+  */
+  --tally-num: clamp(2.25rem, 6.4vw, 10.5rem);
+
+  /* the binding numeral is registered to the chapter's first rule instead of
+     floating at the default 5rem while the type starts 266px down */
+  --numeral-top: var(--pad-block);
+}
+@media (min-width: 768px) {
+  .results {
+    --pad-block: clamp(10rem, 10.4vw, 17rem);
+    --tally-glyph: 2.5rem;
+  }
+}
+@media (min-width: 1600px) {
+  .results {
+    /* in a ledger LINE the marks sit beside a ~100px numeral, where a 2.5rem
+       glyph reads as a speck. The longest count is 41 — eight 正 plus a
+       one-stroke partial, NINE glyphs — so the size is bounded by the marks
+       field, not by taste; see the arithmetic on .tally-row below. */
+    --tally-glyph: 3rem;
+    --tally-gap-x: 0.75rem;
+    --tally-gap-y: 0.6rem;
+  }
+}
+@media (min-width: 2000px) {
+  .results {
+    --tally-glyph: 3.5rem;
+    --tally-gap-x: 0.9rem;
+    --tally-gap-y: 0.7rem;
+  }
+}
+
+.results__sheet {
+  padding-block: var(--pad-block);
+}
+
+/* ------------------------------------------------------------------ */
+/* The masthead: title, lead, ledger, plate                            */
+/* ------------------------------------------------------------------ */
+.results__masthead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 4rem;
+  margin-top: 3rem;
+}
+@media (min-width: 768px) {
+  .results__masthead {
+    margin-top: 4rem;
+  }
+}
+
+/* the deck and the ledger, stacked. These three base rules are declared
+   BEFORE the breakpoints below because every selector here has the same
+   specificity as its wide-screen override — source order is what decides,
+   so a base rule written after a media query would silently win inside it */
+.results__lead {
+  margin-top: 1.5rem;
+}
+.results__board {
+  display: flex;
+  flex-direction: column;
+  margin-top: 3.5rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* The one colour plate                                                */
+/* ------------------------------------------------------------------ */
+.results__plate {
+  margin: 0;
+}
+.results__plate-frame {
+  aspect-ratio: 16 / 10;
+}
+.results__plate-caption {
+  margin-top: 1rem;
+  max-width: var(--measure-caption);
+}
+
+@media (min-width: 1024px) {
+  /* the shared twelve-column field, so the ledger's rules and the plate's
+     edge stand on the same verticals as every other chapter */
+  .results__masthead {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+  }
+  .results__col {
+    grid-column: 1 / span 6;
+  }
+  .results__plate {
+    grid-column: 8 / span 5;
+    /* the plate is dropped below the title's cap line, not levelled with it */
+    padding-top: 2.5rem;
+  }
+}
+
+/* the deck (title + lead) stays stacked over the ledger up to 1600; past
+   that the column dissolves and its three blocks are placed on the page
+   grid themselves */
+@media (min-width: 1600px) {
+  .results__col {
+    display: contents;
+  }
+  .results__masthead {
+    row-gap: clamp(3.5rem, 4vw, 6rem);
+  }
+  .results__title {
+    grid-column: 1 / span 7;
+    grid-row: 1;
+  }
+  .results__lead {
+    grid-column: 9 / span 4;
+    grid-row: 1;
+    /* a magazine deck: set on the title's baseline, not on its cap line */
+    align-self: end;
+    margin-top: 0;
+  }
+  .results__board {
+    grid-column: 1 / span 7;
+    grid-row: 2;
+    margin-top: 0;
+  }
+  .results__plate {
+    grid-column: 9 / span 4;
+    grid-row: 2;
+    /* level with the ledger's first rule */
+    padding-top: 0;
+  }
+
+  /*
+    Past 1600 the plate holds four columns instead of five, so it takes the
+    gutter back on the right and runs to the true paper edge — 536px wide at
+    1600, 860px at 2560. Only the frame bleeds; the caption stays inside the
+    trim, where every other caption in the manual is set. `.results` clips,
+    so the negative margin can never scroll the page.
+  */
+  .results__plate-frame {
+    margin-right: calc(var(--gutter) * -1);
+    /* a taller crop, because four columns of a wide sheet at 16/10 leave the
+       right field two thirds empty against the ledger beside it */
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* One counted row: label · 正 marks · the arabic number               */
+/* ------------------------------------------------------------------ */
 .tally-row {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: baseline;
   gap: 0.5rem 1.5rem;
-  padding-block: 1.25rem;
+  /* 1.3vw reaches 1.25rem at 1538, so the row keeps its printed 20px up to
+     the width it was drawn for and only opens out past it */
+  padding-block: clamp(1.25rem, 1.3vw, 2.5rem);
   border-top: 1px solid var(--color-rule-dark);
 }
 .tally-row:last-child {
@@ -17,11 +210,20 @@
 .tally-row__label {
   grid-column: 1;
 }
+/*
+  The numeral no longer carries the `.t-chapter` role — it has its own step
+  (--tally-num) — so it restates the role's face and metrics here rather than
+  relying on source order between this file and globals.css, where the two
+  selectors would have identical specificity.
+*/
 .tally-row__value {
   grid-column: 2;
   grid-row: 1 / span 2;
   align-self: center;
+  font-family: var(--font-display);
+  font-size: var(--tally-num);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
   line-height: 1;
 }
 .tally-row__marks {
@@ -29,25 +231,79 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 0.5rem 0.65rem;
+  gap: var(--tally-gap-y) var(--tally-gap-x);
   margin-top: 0.35rem;
 }
 .tally__glyph {
   display: block;
-  width: 2rem;
-  height: 2rem;
+  width: var(--tally-glyph);
+  height: var(--tally-glyph);
   flex: none;
 }
-@media (min-width: 768px) {
-  .tally__glyph {
-    width: 2.5rem;
-    height: 2.5rem;
+
+@media (min-width: 1600px) {
+  /*
+    The ledger line. The label stops being a caption above its marks and
+    becomes the row's first field, so label, count and numeral share one
+    baseline across seven columns.
+
+    The rail is 10vw (176px at 1600, 256px at 2560). The longest label in
+    either language, «АТТЕСТАЦИЙ СДАНО», measures ~126px at 1600 and ~161px
+    at 2560 in mono at 0.12em tracking, so it never wraps; the 11rem floor
+    holds that clearance should the vw term ever apply below 1600.
+
+    The marks field is what is left: board − rail − 48px of column gaps −
+    the numeral. The worst case is 41 = eight 正 plus a one-stroke partial,
+    NINE glyphs, and it is deliberately allowed to wrap:
+
+      1600  board 856 − 176 − 48 − ~122  = 510 field vs 528 of marks → two
+            lines, ~108px tall, which is the same height as the 102px
+            numeral beside it, so the row still reads as one line of the
+            ledger rather than as a broken one.
+      1920  board 1028 − 192 − 48 − ~147 = 641 field vs 528 → one line.
+      2560  board 1371 − 256 − 48 − ~197 = 870 field vs 611 (3.5rem
+            glyphs) → one line, with room for the count to keep growing.
+
+    So the glyph is sized by the field, never by taste: `flex-wrap` on the
+    marks is the safety net, and it can never push the row wider than the
+    `minmax(0, 1fr)` track.
+  */
+  .tally-row {
+    grid-template-columns: clamp(11rem, 10vw, 20rem) minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 1.5rem;
+  }
+  .tally-row__label {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .tally-row__marks {
+    grid-column: 2;
+    grid-row: 1;
+    align-items: center;
+    margin-top: 0;
+  }
+  .tally-row__value {
+    grid-column: 3;
+    grid-row: 1;
+    text-align: right;
   }
 }
 
 /* ------------------------------------------------------------------ */
 /* Season timeline                                                     */
 /* ------------------------------------------------------------------ */
+.results__timeline {
+  margin-top: 5rem;
+}
+@media (min-width: 768px) {
+  .results__timeline {
+    /* 7.3vw reaches the printed 7rem (the old mt-28) at 1535 and then grows
+       with the sheet: 140px at 1920, 176px from 2411 up */
+    margin-top: clamp(7rem, 7.3vw, 11rem);
+  }
+}
+
 .timeline-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -56,6 +312,11 @@
   border-top: 1px solid var(--color-rule-dark);
 }
 @media (min-width: 768px) {
+  /*
+    768–1023 keeps the fixed rails it was drawn with: at this width the page
+    grid's columns are only ~45px, and a two-column date rail (105px) is too
+    tight for «FEBRUARY 2026» once mono tracking is counted.
+  */
   .timeline-row {
     grid-template-columns: 12rem minmax(0, 1fr) 16rem;
     align-items: baseline;
@@ -65,10 +326,64 @@
     text-align: right;
   }
 }
+@media (min-width: 1024px) {
+  /*
+    From 1024 the timeline stands on the shared page grid instead of on two
+    fixed rem rails — which is the whole point on a wide sheet: the old
+    `12rem / 1fr / 16rem` turned the middle column into ~2100px of nothing at
+    2560, with two small rails floating at the edges. Now every field is a
+    fraction of the sheet and the three of them grow together.
+
+    date 1–2 · title 3–8 · note 9–12. The note keeps four columns up to 1600
+    (306px at 1024, 383px at 1280) so the longest Russian note, «41 ученик,
+    первые оранжевые пояса» (≈231px), still sets on one line as it does now.
+  */
+  .timeline-row {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0.35rem var(--col-gap);
+    align-items: baseline;
+    /* 1.6vw reaches the printed 1.5rem at 1500, so nothing below it moves */
+    padding-block: clamp(1.5rem, 1.6vw, 2.75rem);
+  }
+  .timeline-row__date {
+    grid-column: 1 / span 2;
+  }
+  .timeline-row__title {
+    grid-column: 3 / span 6;
+    /* insurance only: no current title reaches 46ch, but a field this wide
+       must never be allowed to set a heading 200 characters long */
+    max-width: var(--measure-lead);
+  }
+  .timeline-row__note {
+    grid-column: 9 / span 4;
+    justify-self: end;
+    max-width: var(--measure-caption);
+    text-align: right;
+  }
+}
+@media (min-width: 1600px) {
+  /* past 1600 the note has more sheet than it needs, so the column it does
+     not use goes to the title — date 1–2 · title 3–9 · note 10–12 */
+  .timeline-row__title {
+    grid-column: 3 / span 7;
+  }
+  .timeline-row__note {
+    grid-column: 10 / span 3;
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /* Athlete of the year                                                 */
 /* ------------------------------------------------------------------ */
+.results__best {
+  margin-top: 3rem;
+}
+@media (min-width: 1024px) {
+  .results__best {
+    /* 3.2vw reaches the printed 3rem at 1500 — unchanged below it */
+    margin-top: clamp(3rem, 3.2vw, 5.5rem);
+  }
+}
 .best-strip {
   display: flex;
   flex-direction: column;
@@ -76,7 +391,11 @@
 }
 .best-strip__rule {
   display: block;
-  width: min(12rem, 40%);
+  /* the closing red rule was 12rem against a 1312 column — ~15% of it. The
+     vw term holds it there as the sheet grows (14vw = 192px at 1372, 358px
+     at 2560) while `min(…, 40%)` keeps it a short mark, never a divider,
+     on a phone. */
+  width: min(clamp(12rem, 14vw, 24rem), 40%);
   height: 2px;
   background: var(--color-shu-lift);
   transform-origin: left;

@@ -30,6 +30,12 @@ type Status = "idle" | "sending" | "success";
  * on blur; on success the club's seal stamps «Осу» beside the confirmation.
  * There is no backend yet — the submit is simulated and the Telegram link is
  * the working alternative.
+ *
+ * The chapter is set as three bands on the page grid — invitation on the left
+ * trim, a form capped at its own measure, and the ensō on the right trim from
+ * 1600 up. All of that geometry lives in `join.css`; the markup only names the
+ * parts, because the bands re-order by media query and nothing here should
+ * have to know at which width.
  */
 export function Join() {
   const { locale } = useLocale();
@@ -114,7 +120,7 @@ export function Join() {
       className="join relative overflow-hidden"
       bleed={<Grain opacity={0.22} />}
     >
-      <div className="wrap relative z-10 py-28 md:py-40">
+      <div className="join__sheet wrap relative z-10">
         <div className="rule" />
         <Reveal delay={0.1} y={12} duration={0.8} className="flex items-baseline justify-between gap-6 pt-4">
           <p className="t-mono text-bone-2">{t.eyebrow[locale]}</p>
@@ -123,16 +129,16 @@ export function Join() {
           </span>
         </Reveal>
 
-        <div className="mt-12 grid gap-x-8 gap-y-14 md:mt-16 lg:grid-cols-12">
+        <div className="join__body">
           {/* ---- the invitation ---- */}
-          <div className="lg:col-span-5">
+          <div className="join__invite">
             <h2 id={HEADING_ID} className="t-chapter text-bone">
               <LineReveal as="span" className="block" lines={[t.title[locale]]} />
             </h2>
             <Reveal delay={0.2} className="mt-8">
               <p className="t-lead max-w-[40ch] text-bone-2">{t.lead[locale]}</p>
             </Reveal>
-            <Reveal delay={0.35} className="mt-10 flex flex-col items-start gap-4">
+            <Reveal delay={0.35} className="join__invite-foot mt-10 flex flex-col items-start gap-4">
               <a href={club.telegram} className="btn-text t-mono inline-flex min-h-11 items-center" rel="noopener">
                 {t.alt[locale]} <span aria-hidden="true" className="ml-2">→</span>
               </a>
@@ -141,36 +147,37 @@ export function Join() {
           </div>
 
           {/* ---- the form ---- */}
-          <div className="lg:col-span-6 lg:col-start-7">
+          <div className="join__form-col">
             <AnimatePresence mode="wait" initial={false}>
               {status === "success" ? (
                 <motion.div
                   key="done"
-                  className="flex flex-wrap items-center gap-8"
+                  className="join-done"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
                 >
                   <p className="t-statement max-w-[20ch] text-bone">{t.success[locale]}</p>
-                  <Seal className="w-32 shrink-0 md:w-36" trigger="load" text="ОСУ · SK AZUMA · ОСУ · SK AZUMA · " />
+                  <Seal className="join-done__seal shrink-0" trigger="load" text="ОСУ · SK AZUMA · ОСУ · SK AZUMA · " />
                 </motion.div>
               ) : (
                 <motion.form
                   key="form"
                   noValidate
                   onSubmit={onSubmit}
+                  className="join-form"
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="grid gap-8 md:grid-cols-2">
+                  <div className="join-form__pair">
                     <Reveal delay={0.1}>{field("name", "text", "given-name")}</Reveal>
                     <Reveal delay={0.16}>{field("age", "number", "off", { min: 4, max: 99, inputMode: "numeric" })}</Reveal>
                   </div>
-                  <Reveal delay={0.22} className="mt-8">
+                  <Reveal delay={0.22} className="join-form__contact">
                     {field("contact", "text", "tel")}
                   </Reveal>
-                  <Reveal delay={0.28} className="mt-8">
+                  <Reveal delay={0.28} className="join-form__note">
                     <div className="join-field">
                       <label htmlFor={`${uid}-note`} className="t-mono text-bone-2">
                         {t.fields.note[locale]}
@@ -189,7 +196,7 @@ export function Join() {
                   {/* honeypot */}
                   <input type="text" name="company" tabIndex={-1} autoComplete="off" className="join-hp" aria-hidden="true" />
 
-                  <Reveal delay={0.36} className="mt-12">
+                  <Reveal delay={0.36} className="join-form__close">
                     <div className="join-enso">
                       <Brush kind="enso" className="join-enso__mark text-shu-lift" delay={0.6} />
                       <button type="submit" className="join-submit t-mono" disabled={status === "sending"}>

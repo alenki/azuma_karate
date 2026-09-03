@@ -1,119 +1,476 @@
-/* Chapter 一 — hero */
+/* ------------------------------------------------------------------ */
+/* Chapter 一 — «Первая черта»                                          */
+/*                                                                      */
+/* The page opens the way the manual does: a masthead, a rule, and one   */
+/* line of Prata on bare paper. Then the sensei's first stroke is laid   */
+/* across the whole sheet — and the plate lives inside it. The mark is   */
+/* an SVG mask, so the photograph is cut to real ink: a pressed head at  */
+/* the trim, a belly that thins, and a dry tail that breaks into bristle */
+/* ribbons and runs off the right edge of the page.                      */
+/*                                                                      */
+/* The brush stays the only red thing on the page. The mark is drawn in  */
+/* vermilion first; the photograph then floods in behind the same front, */
+/* masked to a silhouette eroded by five units — so a hairline of         */
+/* pigment survives all the way round the gesture, and the bristle traces */
+/* too thin to hold an image stay pure vermilion, which is what a brush   */
+/* running dry actually does.                                            */
+/*                                                                      */
+/* The second line straddles the ink. It is set twice in the same box:   */
+/* once in ink, and once in bone masked to the same silhouette as the     */
+/* plate — so the same words print black above the stroke and light        */
+/* inside it, on exactly the contour the brush left.                      */
+/*                                                                      */
+/* THE SHEET. There is no centred column any more: the trim is the page   */
+/* and the only horizontal constant is the gutter. Everything that used   */
+/* to be measured against an 82rem column — the display size, the width   */
+/* of the band, the under-plate register — is measured against 100cqw     */
+/* here, and from 1440 up the three registers (masthead, under-plate,     */
+/* folio) stand on one twelve-column field so the whole sheet hangs on    */
+/* two verticals: column 1 and column 10.                                 */
+/* ------------------------------------------------------------------ */
+
 .hero {
-  --hero-size: clamp(2.9rem, 8.6vw, 8.25rem);
+  /*
+    The absolute display ceiling. It is no longer a height guard — the fold
+    guard below does that job properly — only a stop that keeps the poster from
+    growing without limit once the gutter itself has stopped growing. The
+    measure term governs everywhere a reader is likely to be: it only bites
+    above ~2790px in English and ~3134px in Russian.
+  */
+  --hero-max: 22rem;
+
+  /*
+    The band.
+    -----------------------------------------------------------------
+    Its width is fixed by the sheet: the stroke starts at the trim and runs
+    --band-bleed past the right edge of the page, so
+
+        band-w = measure + gutter + band-bleed = 100cqw - gutter + band-bleed
+
+    and wherever the gutter is fluid (555–2666px) that is a constant 104.4vw —
+    the mark covers the same fraction of the page at every width, and the cut
+    tail is always the same 7.7% of the mark (8vw of 104.4vw).
+
+    The file is viewBox="0 0 1963 358" — 5.483:1 — with preserveAspectRatio
+    ="none", so --band-h alone decides how hard the ink is stretched. At 1440
+    the old column layout drew the band 1427.8 x 189 = 7.555:1, a 1.378x
+    horizontal stretch, and that is the setting the mark was drawn and judged
+    against. Holding it on the full sheet means
+
+        band-h = band-w / 7.55            (5.483 native x 1.377 stretch)
+
+    which is 199px at 1440, 265px at 1920 and 354px at 2560. The old flat cap
+    of 15.5rem would have frozen it at 248px against a 2673px band — 10.8:1,
+    nearly double the drawn stretch, printing the ink as a thin smear with a
+    letterbox slot cut in it.
+
+    The svh term is kept and still wins on screens that are tall for their
+    width — a tall page can afford a thicker, less stretched mark, and this is
+    what tablets and portrait phones have always had (768x1024 is unchanged at
+    215px). The 34rem ceiling is a stop, not a setting: it only bites past
+    ~3890px, where the gutter has been capped for a while and the sheet has
+    stopped scaling anyway.
+
+    The width term is written in `vw` and not `cqw` because --band-h has to be
+    readable from the section (the phone mark overrides it, and --straddle is
+    built from it) and the container only exists inside the stage. The two
+    differ by the scrollbar, so the drawn stretch is off by about 2px of band
+    height on a 2560 page — a tenth of a percent, and only ever in the safe
+    direction.
+  */
+  --band-h: clamp(8.5rem, max(21svh, calc((100vw + var(--band-bleed) - var(--gutter)) / 7.55)), 34rem);
+  /* how far the dry tail runs past the right edge of the page */
+  --band-bleed: 8vw;
+  /* Where the ink crosses the second line.
+     Measured, not guessed. Prata sets its baseline 0.8074em down a 0.98 line box
+     and its caps 0.0033em from the top, so the cap band is 0.804em tall and
+     starts 0.1633em below the box the stroke is positioned against (0.16em of
+     that is the mask bleed on the line). The band box is trimmed to the mark, and
+     the generator reports how far below that box the ink's top edge actually runs
+     where the headline crosses it — 7.8% for the wide mark, 4.8% for the narrow.
+     --seam is the fraction of the cap band left above the ink.
+
+     Note the seam is invariant to --band-h: the ink's top edge lands at
+     --straddle + --mark-top * --band-h = (0.804 * seam + 0.1633)em, and the
+     --band-h terms cancel. Making the band 199px instead of 189px at 1440
+     therefore does not move the seam — it only puts more ink below the line,
+     which the deck's padding-bottom already accounts for. Both marks were
+     re-checked at the new heights: the ink is ~58% of the band thick where the
+     headline crosses, so it still covers the 38% of the cap band that sits
+     below the seam at every width (115px of ink against 128px of cap at 1440,
+     205px against 228px at 2560). */
+  --seam: 0.62;
+  --mark-top: 0.078;
+  --straddle: calc((0.804 * var(--seam) + 0.1633) * 1em - var(--mark-top) * var(--band-h));
+  /* the mask must not crop «у», «д» or the full stop */
+  --line-bleed: 0.16em;
+  --stroke: url("/brand/hero-stroke.svg");
+  --stroke-in: url("/brand/hero-stroke-in.svg");
+
+  /*
+    The fold guard.
+    -----------------------------------------------------------------
+    The chapter is exactly one screen: `min-height: 100svh` with the folio
+    pushed down by `margin-top: auto`. The headline is the only thing on the
+    sheet big enough to break that, so it carries the guard.
+
+    Everything that is NOT the headline — the padded header, the masthead, the
+    rule, the under-plate register and the folio bar — measures, at the layout
+    below and both locales:
+
+        1280 -> 366px    1440 -> 383px    1920 -> 424px    2560 -> 456px
+
+    i.e. it is driven by the page WIDTH (type sizes), not by its height, and is
+    18rem + 7vw to within 20px. That is --fold-fixed, rounded up so the guard
+    errs on the side of fitting.
+
+    The headline stack is 0.98em for line one plus, for the deck,
+    max(0.98em, 0.662em + 0.922 * band-h): 0.662 = 0.804 * seam + 0.1633 is the
+    drop to the ink's top edge and 0.922 = 1 - mark-top is the ink that hangs
+    below it. So the whole chapter fits the fold while
+
+        1.642 * font-size  <=  100svh - fold-fixed - 0.922 * band-h
+
+    Checked: non-binding at 1280x800, 1440x900, 1920x1080 and 2560x1440 in
+    both locales, so the measure term sets the poster there. It binds on
+    screens far wider than they are tall — at 2560x1080 it holds the headline
+    to 174px and the whole chapter lands at ~1068 of 1080 — and marginally in
+    English at 1600x900. The old flat `21svh` could not do this: at 2560x1080
+    it left the stack 85px over the fold, and any single svh coefficient tight
+    enough to fit there stranded the headline at 1920x1080, where there is
+    room. The floor keeps the expression from going negative (and dropping the
+    whole declaration) on a very short window.
+  */
+  --fold-fixed: calc(18rem + 7vw);
+  --fold-cap: calc((100svh - var(--fold-fixed) - 0.922 * var(--band-h)) / 1.642);
+
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  padding-top: calc(var(--header-h) + clamp(1.5rem, 5vh, 4rem));
-  overflow: hidden;
+  padding-top: calc(var(--header-h) + clamp(0.75rem, 3.2svh, 3rem));
 }
-.hero__inner {
-  flex: 1;
+@media (max-width: 767px) {
+  .hero {
+    --stroke: url("/brand/hero-stroke-sm.svg");
+    --stroke-in: url("/brand/hero-stroke-sm-in.svg");
+  }
 }
-.hero__eyebrow-row {
+
+/* ---- masthead ---------------------------------------------------- */
+/* A masthead on a full-bleed sheet is two anchors and a rule, not a huddle.
+   Below 1440 the pair is a flex row that may wrap; from 1440 it moves onto the
+   page grid, where the eyebrow starts on column 1 and the aside is ranged right
+   off column 10 — the same two verticals the CTA and the scroll cue stand on, so
+   the top line of the sheet is part of the register instead of two items that
+   happen to be 2400px apart. */
+.hero__masthead {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem 2rem;
-  margin-bottom: clamp(1.25rem, 3vh, 2.5rem);
+  gap: 0.35rem 2rem;
 }
 .hero__aside {
-  font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+  /* the ceiling was chosen against a 1312 column; at 2560 a 24px accent could
+     not hold the right corner of a 2560px sheet, so it now grows to 2rem
+     (reached at 2207px). The vw term is unchanged, so nothing under 1655px
+     moves. Cormorant at display size does not want body leading. */
+  font-size: clamp(1.15rem, 1.45vw, 2rem);
+  line-height: 1.2;
+  color: var(--color-ink-2);
 }
+.hero__masthead-rule {
+  margin-top: clamp(0.7rem, 1.6svh, 1.5rem);
+  margin-bottom: clamp(0.9rem, 2.6svh, 2.75rem);
+  transform-origin: left;
+}
+
+/* ---- stage ------------------------------------------------------- */
+/* `container-type` gives the headline a percentage basis it can divide by:
+   `cqw` is the page width without the scrollbar, and unlike `%` it is legal
+   inside `font-size`. */
 .hero__stage {
+  container-type: inline-size;
   position: relative;
+  /* The tail runs off the page on purpose; clip it here rather than trust the
+     body's overflow, which does not stop the document scrolling sideways. */
+  overflow-x: clip;
+  /* The sheet is the page: the measure is the trim, and the distance from the
+     edge of the type to the edge of the paper is exactly one gutter. (This used
+     to be a two-branch max() only because the 82rem column could be narrower
+     than the page; there is no column left to be narrower.) */
+  --measure: calc(100cqw - 2 * var(--gutter));
+  /* the box the stroke occupies, shared by the plate and by the masked copy
+     of the headline so both are cut on the same contour */
+  --band-w: calc(100% + var(--gutter) + var(--band-bleed));
 }
+
 .hero__title {
-  font-size: var(--hero-size);
+  position: relative;
+  width: 100%;
+  padding-inline: var(--gutter);
+  /* Set to the measure: the trim over the length of the longer line, so the
+     headline fills the sheet exactly, in either language — 160px at 1440,
+     213px at 1920, 284px at 2560 in Russian. The third term is the fold guard
+     derived above; the floor under it keeps a negative length from voiding the
+     whole declaration on a very short window. */
+  font-size: min(var(--hero-max), calc(var(--measure) / var(--em-wide)), max(2.9rem, var(--fold-cap)));
   line-height: 0.98;
+  letter-spacing: -0.012em;
 }
-.hero__line2 {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0 0.28em;
-}
-/* the first stroke finishes the second line */
-.hero__stroke {
-  flex: 1 1 100%;
-  min-width: 0;
+
+.hero__line {
+  position: relative;
   display: block;
-  margin-top: 0.06em;
-  max-width: 10em;
+  padding-block: var(--line-bleed);
+  margin-block: calc(var(--line-bleed) * -1);
+  overflow: hidden;
 }
-.hero__below {
-  margin-top: clamp(1.5rem, 4vh, 3rem);
+.hero__line-in {
+  display: block;
+  transform-origin: left;
+  will-change: transform;
+}
+
+/* The second line and the stroke share a box, so the ink always crosses the
+   words at the same height however many lines the first one wrapped to. */
+.hero__deck {
+  position: relative;
+  display: block;
+  padding-bottom: max(0px, calc(var(--straddle) + var(--band-h) - 0.98em));
+}
+
+/* ---- the knockout ------------------------------------------------- */
+.hero__knockout {
+  position: relative;
+  display: block;
+  white-space: nowrap;
+}
+.hero__knockout-lit {
+  position: absolute;
+  inset: 0;
+  color: var(--color-bone);
+  -webkit-user-select: none;
+  user-select: none;
+  /* The same silhouette that cuts the plate, registered to the same box: this
+     element is inset:0 inside a block that is exactly the measure wide, which
+     is the same box `.hero__band` is `left: 0` inside — so `100%` in --band-w
+     resolves to the same length for the mask as it does for the band's width. */
+  -webkit-mask-image: var(--stroke-in);
+  mask-image: var(--stroke-in);
+  -webkit-mask-size: var(--band-w) var(--band-h);
+  mask-size: var(--band-w) var(--band-h);
+  /* The line's top margin collapses into the deck, so this copy starts one
+     --line-bleed below the box the stroke is positioned against. */
+  -webkit-mask-position: 0 calc(var(--straddle) - var(--line-bleed));
+  mask-position: 0 calc(var(--straddle) - var(--line-bleed));
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+/* Forced colours flatten masks; print the line once, in the system ink. */
+@media (forced-colors: active) {
+  .hero__knockout-lit { display: none; }
+}
+
+/* ---- the stroke, and the plate inside it -------------------------- */
+.hero__band {
+  position: absolute;
+  top: var(--straddle);
+  left: 0;
+  width: var(--band-w);
+  height: var(--band-h);
+  display: block;
+  background: var(--color-shu);
+  -webkit-mask-image: var(--stroke);
+  mask-image: var(--stroke);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.hero__band-plate {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  -webkit-mask-image: var(--stroke-in);
+  mask-image: var(--stroke-in);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  background: var(--color-ink);
+}
+.hero__band-img {
+  position: absolute;
+  /* Headroom for the drift and the lean. Motion's percentage translations are
+     relative to this box, not to the band, so the insets have to clear
+     0.08 x 1.24 = 9.9% vertically and 0.012 x 1.06 = 1.3% horizontally. */
+  inset: -12% -3%;
+  display: block;
+}
+.hero__band-img img {
+  filter: grayscale(1) sepia(0.06) contrast(1.1) brightness(0.92);
+}
+/* A printed duotone wash: heaviest along the top edge, where the headline is
+   knocked out of the plate, and at the tail, where the lead and the button sit.
+   No blur, no glass — two hard gradients. */
+.hero__band-scrim {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background:
+    linear-gradient(180deg, rgb(21 19 17 / 0.94) 0%, rgb(21 19 17 / 0.92) 13%, rgb(21 19 17 / 0.52) 27%, rgb(21 19 17 / 0.12) 52%, rgb(21 19 17 / 0.04) 74%, rgb(21 19 17 / 0.24) 100%),
+    linear-gradient(90deg, rgb(21 19 17 / 0.24) 0%, rgb(21 19 17 / 0) 20%, rgb(21 19 17 / 0) 76%, rgb(21 19 17 / 0.26) 100%);
+}
+.hero__band-grain {
+  opacity: 0.4;
+}
+
+/* ---- what is printed under the plate ------------------------------- */
+/* The plate's colophon on the left, the pitch on the right — the same
+   diagonal the reference draws, but on paper, where it can be read.
+   Under 1440 that is still two columns: a free left column for the colophon
+   and 40ch of pitch ranged right. See the 1440 tier for what happens once the
+   sheet is wide enough to hold three ranged blocks instead of two. */
+.hero__base {
+  margin-top: clamp(0.9rem, 1.8svh, 2rem);
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 40ch);
+  gap: 1.5rem clamp(2rem, 5vw, 4.5rem);
   align-items: start;
 }
 .hero__lead {
-  max-width: 44ch;
+  font-size: clamp(0.9375rem, 1.05vw, 1.0625rem);
+  line-height: 1.5;
+  color: var(--color-ink-2);
+  text-wrap: pretty;
 }
-.hero__actions {
-  margin-top: clamp(1.25rem, 3vh, 2rem);
+.hero__cta {
+  margin-top: clamp(1rem, 2.4svh, 2rem);
+  display: flex;
+  align-items: stretch;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.hero__cta-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 3.5rem was set against a 1312 column; on the full sheet the button is a
+     block in a three-column register and has to hold its own corner, so it
+     grows from 56px at 1600 to 80px at 2080 and stops there. Below 1600 the
+     calc term is under the 3.5rem floor, so nothing that already worked moves.
+     Well over the 44px hit target at every width. */
+  min-height: clamp(3.5rem, calc(5vw - 24px), 5rem);
+  padding-inline: clamp(0.9rem, 1.5vw, 1.5rem);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  box-shadow: inset 0 0 0 1px transparent;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+/* The arrow tile is the seal: vermilion, pressed on the plate the way a hanko
+   is pressed on a print, with the hairline a carved stone seal leaves. It is
+   square, so it takes the same clamp as the label's height. */
+.hero__cta-seal {
+  display: grid;
+  place-items: center;
+  width: clamp(3.5rem, calc(5vw - 24px), 5rem);
+  flex: none;
+  background: var(--color-shu);
+  color: var(--color-paper-3);
+  box-shadow: inset 0 0 0 1px rgb(251 249 244 / 0.3);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+.hero__cta-arrow {
+  display: block;
+  font-size: clamp(1rem, 0.9vw, 1.375rem);
+  line-height: 1;
+  transition: transform var(--duration-base) var(--ease-out);
+}
+.hero__cta:hover .hero__cta-label {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: inset 0 0 0 1px var(--color-ink);
+}
+.hero__cta:hover .hero__cta-seal { background: var(--color-shu-lift); }
+.hero__cta:hover .hero__cta-arrow { transform: translateX(0.28rem); }
+.hero__cta:active { transform: translateY(1px); }
+
+.hero__trial {
+  margin-top: 0.85rem;
+  color: var(--color-ink-2);
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
 }
 .hero__tg {
-  margin-left: 0.25rem;
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-rule);
+  padding-bottom: 0.2em;
+  transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
 }
-.hero__plate {
-  margin: 0;
-}
-.hero__plate-img {
-  position: relative;
-  aspect-ratio: 3 / 4;
-  overflow: hidden;
-  background: var(--color-paper-2);
-}
-.hero__caption {
-  margin-top: 0.75rem;
-}
-.hero__plate-col { display: none; }
-.hero__kanji {
+.hero__tg:hover { color: var(--color-shu); border-color: var(--color-shu); }
+
+/* ---- colophon and folio ------------------------------------------- */
+.hero__colophon {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  width: 1.75rem;
-  color: var(--color-ink);
-  opacity: 0.45;
+  gap: 0.55rem;
+  color: var(--color-ink-2);
 }
+/* ink-3 is a 2.4:1 decorative tone — never under a line of 11px mono */
+.hero__hand { color: var(--color-ink-2); opacity: 0.85; }
+
 .hero__folio {
-  margin-top: clamp(2rem, 6vh, 4rem);
-  padding-bottom: clamp(1.25rem, 3vh, 2rem);
+  margin-top: auto;
+  padding-top: clamp(1rem, 2.4svh, 2.75rem);
+  padding-bottom: clamp(0.9rem, 2.2svh, 2.25rem);
 }
 .hero__folio-row {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.75rem 2rem;
-  padding-top: 1rem;
+  gap: 0.6rem 2rem;
+  padding-top: clamp(0.9rem, 1.2svh, 1.5rem);
 }
 .hero__next {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.35rem 0.75rem;
+  /* The strip is a run of short mono facts separated by middots. On a wide
+     sheet a 0.7rem gap keeps them in a clump at the far left of a rule that is
+     now 2400px long, so the gap opens once the sheet passes 1600 (where
+     4.5vw - 61px crosses 0.7rem) and reaches 3rem at 2420. Below 1600 the
+     floor holds and the strip is exactly as it was. */
+  gap: 0.3rem clamp(0.7rem, calc(4.5vw - 61px), 3rem);
   color: var(--color-ink);
+  transition: color var(--duration-fast) var(--ease-out);
 }
 .hero__next:hover { color: var(--color-shu); }
 .hero__scroll {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
+  color: var(--color-ink-2);
+  transition: color var(--duration-fast) var(--ease-out);
 }
+.hero__scroll:hover { color: var(--color-ink); }
 .hero__scroll-line {
   display: inline-block;
-  width: 3rem;
+  /* same trick as the strip's gap: 3rem until 1600, then up to 6rem by 2560,
+     so the cue that closes the sheet is drawn at the scale of the sheet */
+  width: clamp(3rem, calc(9vw - 96px), 6rem);
   height: 1px;
   background: currentColor;
-  animation: hero-scroll 2.4s var(--ease-inout) infinite;
+  animation: hero-scroll 2.6s var(--ease-inout) infinite;
 }
 @keyframes hero-scroll {
   0% { transform: scaleX(0); transform-origin: left; }
@@ -125,48 +482,100 @@
   .hero__scroll-line { animation: none; }
 }
 
-/* phones: full-width landscape plate between the stroke and the lead */
-@media (max-width: 767px) {
-  .hero__below {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+/* ------------------------------------------------------------------ */
+/* The full sheet. From 1440 the trim is wide enough to carry three      */
+/* ranged blocks under the plate instead of two, so the under-plate      */
+/* register, the masthead and the folio bar all move onto the page grid  */
+/* — twelve columns, one field, the same one every other chapter uses.   */
+/*                                                                      */
+/* 1440 is where it starts because that is where the pitch's two halves  */
+/* both fit their own columns: the lead needs its 40ch (338px at the     */
+/* lead's 15.1px) inside four columns (431px), and the Russian button    */
+/* needs 289px — 24 mono characters at 7.92px, plus 43px of padding and  */
+/* the 56px seal — inside three (318px). Under 1440 the CTA would have   */
+/* to wrap, so the two-column layout above stands.                       */
+/*                                                                      */
+/* The columns: colophon 1–3, lead 5–8, pitch 10–12. Columns 4 and 9 are  */
+/* left empty on purpose — they are what stops three blocks on a 2375px  */
+/* trim reading as one long line of text.                                */
+/*                                                                      */
+/* It also buys back the fold. Stacking the lead, the button and the      */
+/* trial line in one 40ch column cost 108px of height that the taller     */
+/* poster now needs: at 1440x900 the chapter measures ~830 of 900 with    */
+/* the register split, against ~937 with it stacked.                      */
+/* ------------------------------------------------------------------ */
+@media (min-width: 1440px) {
+  .hero__masthead,
+  .hero__base,
+  .hero__folio-row {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: baseline;
   }
-  .hero__copy { display: contents; }
-  .hero__plate--sm { grid-row: 1; }
-  .hero__plate--sm .hero__plate-img { aspect-ratio: 4 / 3; }
-  .hero__lead { grid-row: 2; }
-  .hero__actions { grid-row: 3; margin-top: 0; }
-  .hero__actions .btn:not(.btn-text) { width: 100%; }
-  .hero__stroke { max-width: 100%; }
-}
-@media (min-width: 768px) {
-  .hero__plate--sm { display: none; }
-  .hero__stroke {
-    max-width: 8.6em;
+
+  /* masthead: the running head on column 1, the aside ranged right off 10 */
+  .hero__eyebrow { grid-column: 1 / span 6; }
+  .hero__aside {
+    grid-column: 10 / -1;
+    justify-self: end;
+    text-align: right;
   }
+
+  /* under the plate: colophon | lead | pitch, on 1, 5 and 10 */
+  .hero__base { align-items: start; row-gap: 1.5rem; }
+  .hero__colophon { grid-column: 1 / span 3; }
+  /* the pitch's two halves are placed on the page grid itself rather than on a
+     grid of their own, so the button stands on the same vertical as the aside
+     above it and the scroll cue below it */
+  .hero__pitch { display: contents; }
+  .hero__lead {
+    grid-column: 5 / span 4;
+    /* the same line length the 40ch column gave it — the field got wider, the
+       prose did not */
+    max-width: 40ch;
+  }
+  .hero__act { grid-column: 10 / -1; }
+  /* the button now tops out level with the lead's first line instead of
+     hanging below it */
+  .hero__cta { margin-top: 0; }
+
+  /* folio: the live strip across the left two thirds, the cue ranged right */
+  .hero__next { grid-column: 1 / span 8; }
+  .hero__scroll { grid-column: 10 / -1; justify-self: end; }
 }
 
-/* desktop: headline full width, plate beside the second line */
-@media (min-width: 1024px) {
-  .hero__stage {
-    display: grid;
-    grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
-    column-gap: clamp(2rem, 4vw, 4rem);
-    align-items: start;
+/* From 1600 the running head is printed at the scale of the sheet: a mono
+   line spread wider than its own reading tracking, the way a manual sets a
+   running head it expects to be read across a metre of paper. */
+@media (min-width: 1600px) {
+  /* two class names, to beat `.t-mono`'s own 0.12em whichever order the two
+     stylesheets end up in the bundle */
+  .hero .hero__eyebrow { letter-spacing: 0.2em; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Phones. The stroke is shorter and proportionally thicker, the plate  */
+/* keeps the straddle, and the pitch comes off the photograph and back  */
+/* onto the paper, where a parent can read it in daylight.              */
+/* ------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  .hero {
+    /* the narrow mark is 1011x378 (2.67:1) and is set by the fold, not by the
+       width term — a phone has height to spare and no room to stretch */
+    --band-h: clamp(8rem, 22svh, 11rem);
+    --band-bleed: 5vw;
+    --seam: 0.55;
+    --mark-top: 0.048;
   }
-  .hero__title { grid-column: 1 / -1; position: relative; z-index: 2; }
-  .hero__below { grid-column: 1; }
-  .hero__plate-col {
-    grid-column: 2;
-    grid-row: 2;
-    /* rise one headline line so the plate sits beside «Потом удар.» */
-    margin-top: calc(var(--hero-size) * -1.02);
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1.25rem;
-    align-items: start;
+  /* only the second line has to hold one line; the first may wrap */
+  .hero__title { font-size: calc(var(--measure) / var(--em-narrow)); }
+  .hero__base { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
+  /* a parent reads the offer before the plate's caption */
+  .hero__pitch { order: -1; }
+  .hero__cta { display: flex; }
+  .hero__cta-label { flex: 1; justify-content: center; }
+  .hero__band-scrim {
+    background: linear-gradient(180deg, rgb(21 19 17 / 0.84) 0%, rgb(21 19 17 / 0.24) 44%, rgb(21 19 17 / 0.3) 100%);
   }
-  .hero__plate--lg { display: block; }
-  /* the tail of 一 crosses the plate's top-left corner */
-  .hero__stroke { max-width: 8.4em; }
 }

@@ -12,6 +12,21 @@
   /* ink */
   --color-ink: #151311;
   --color-ink-2: #5a554e;
+  /*
+    The quiet ink. #726c62 is the lightest warm tone on this paper that still
+    clears 4.5:1, so it is legal for text at any size and the size can never
+    invalidate it. It exists because `--color-ink-3` cannot carry text at all —
+    measured against paper it is 2.399:1, below even the 3:1 large-text floor
+    (the v1.0 spec table says 2.9:1; the table is wrong).
+
+    Two quiet tones, two roles, and they are not interchangeable:
+      --color-ink-2     secondary TEXT — leads, notes, informational mono
+      --color-ink-quiet the lightest legal tone — folios, ordinals, entry
+                        labels, dictionary dashes: marks a reader counts
+                        rather than reads
+      --color-ink-3     ORNAMENT ONLY, never text — register marks, ruler ticks
+  */
+  --color-ink-quiet: #726c62;
   --color-ink-3: #a29b90;
   --color-rule: #d8d2c6;
   /* on ink */
@@ -29,13 +44,21 @@
   --font-mono: var(--font-plex-mono), "IBM Plex Mono", "Consolas", monospace;
   --font-accent: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
 
-  /* scale (clamp) */
-  --text-hero: clamp(2.9rem, 8.6vw, 8.25rem);
-  --text-chapter: clamp(2.25rem, 5.6vw, 5.5rem);
-  --text-statement: clamp(1.5rem, 2.6vw, 2.5rem);
-  --text-h3: clamp(1.25rem, 1.6vw, 1.625rem);
-  --text-lead: clamp(1.125rem, 1.4vw, 1.375rem);
-  --text-micro: 0.6875rem;
+  /*
+    Scale. The sheet is the viewport now, so every ceiling is set for a 2560
+    display rather than for a 1312 column: the `vw` term is unchanged in the
+    range where the old layout lived (a chapter title is still 5.6vw at 1440),
+    and only the cap moved, so nothing below ~1600px changes size and nothing
+    above it stays stuck at a size chosen for a narrower page.
+  */
+  --text-hero: clamp(2.9rem, 8.6vw, 15rem);
+  --text-chapter: clamp(2.25rem, 5.6vw, 9rem);
+  --text-statement: clamp(1.5rem, 2.6vw, 3.75rem);
+  --text-h3: clamp(1.25rem, 1.6vw, 2.125rem);
+  --text-lead: clamp(1.125rem, 1.4vw, 1.625rem);
+  /* mono holds 11px until 1770, then grows — folios must stay legible on a
+     sheet three times the width they were drawn for */
+  --text-micro: clamp(0.6875rem, 0.62vw, 0.875rem);
 
   /* motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -46,10 +69,28 @@
   --duration-base: 500ms;
   --duration-reveal: 750ms;
 
-  /* layout */
-  --container: 82rem; /* 1312px */
-  --gutter: clamp(1.25rem, 4.4vw, 4rem);
-  --header-h: 5rem;
+  /*
+    Layout — the sheet is the viewport.
+    -----------------------------------
+    There is no centred column any more. Every chapter is trimmed to the page
+    edge and the only horizontal constant is the gutter, which is also the
+    binding margin the chapter numerals hang in. It is capped at 6rem, so a
+    2560 display keeps a 3.6% margin — wide enough to clear the numeral (which
+    starts 24px in and is 44px wide) and narrow enough to read as full bleed.
+
+    Line length is NOT held by the gutter any more; it is held where it belongs,
+    on the text itself, in `ch`. Anything that sets prose caps its own measure.
+  */
+  --gutter: clamp(1.25rem, 3.6vw, 6rem);
+  /* the column gap of the page grid — one field, twelve columns, whole sheet */
+  --col-gap: clamp(1rem, 1.5vw, 2.25rem);
+  --header-h: clamp(5rem, 4vw, 6.5rem);
+
+  /* the measures every chapter sets prose to (named `-prose` because the hero
+     already owns a local `--measure`, which is a column width, not a cap) */
+  --measure-prose: 62ch;
+  --measure-lead: 46ch;
+  --measure-caption: 40ch;
 }
 
 /* ------------------------------------------------------------------ */
@@ -72,7 +113,9 @@
     background: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-body);
-    font-size: 1rem;
+    /* body copy holds 16px up to 2133px, then takes one step — a full-bleed
+       sheet that keeps 16px at 2560 reads as a small page blown up */
+    font-size: clamp(1rem, 0.75vw, 1.125rem);
     line-height: 1.55;
     font-feature-settings: "kern", "liga";
     overflow-x: clip;
@@ -147,7 +190,7 @@
 }
 .t-caption {
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: clamp(0.8125rem, 0.72vw, 1rem);
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
 }
@@ -206,13 +249,44 @@
   background: var(--color-rule-dark);
 }
 
-/* container */
+/* ------------------------------------------------------------------ */
+/* The sheet                                                           */
+/*                                                                      */
+/* `.wrap` is no longer a column — it is the trim. It spans the whole    */
+/* viewport and reserves only the binding margin, so every rule, grid    */
+/* and plate in the manual is set to the width of the screen it is read  */
+/* on. Escape hatches below take an element past the trim to the true    */
+/* paper edge.                                                          */
+/* ------------------------------------------------------------------ */
 .wrap {
   width: 100%;
-  max-width: var(--container);
-  margin-inline: auto;
   padding-inline: var(--gutter);
 }
+
+/* full bleed: past the trim, to the edge of the paper */
+.bleed {
+  margin-inline: calc(var(--gutter) * -1);
+}
+.bleed-l {
+  margin-left: calc(var(--gutter) * -1);
+}
+.bleed-r {
+  margin-right: calc(var(--gutter) * -1);
+}
+
+/* The page grid. One twelve-column field, the width of the sheet, shared by
+   every chapter — so a heading in chapter three and a plate in chapter six
+   stand on the same verticals however wide the screen is. */
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--col-gap);
+}
+
+/* prose measures — line length lives on the text, not on a container */
+.measure { max-width: var(--measure-prose); }
+.measure-lead { max-width: var(--measure-lead); }
+.measure-caption { max-width: var(--measure-caption); }
 
 /* header */
 .site-header {
@@ -248,15 +322,34 @@
 .nav-link[aria-current="page"]::after {
   transform: scaleX(1);
 }
+/*
+  RU | EN. The wrapper is no longer the control — only the second token is —
+  so it carries no padding of its own; the link's padding is what makes the
+  hit target (chrome.css §1) and the optical air around the rule at once.
+*/
 .lang-toggle {
   color: var(--color-ink);
-  padding: 0.5rem 0.25rem;
 }
 .lang-toggle__current {
+  /* the current locale is never marked by colour alone (1.4.1): it keeps the
+     vermilion rule under it, the one accent the chrome is allowed */
   text-decoration: underline;
   text-underline-offset: 0.35em;
   text-decoration-color: var(--color-shu);
 }
+.lang-toggle__rule {
+  flex: none;
+  width: 1px;
+  height: 1.1em;
+  background: var(--color-rule);
+}
+.lang-toggle__link {
+  /* #5a554e on #f3efe6 ≈ 6.5:1 — quiet, but read. NEVER --color-ink-3, which
+     is 2.4:1 on this paper and fails even the large-text floor. */
+  color: var(--color-ink-2);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.lang-toggle__link:hover { color: var(--color-shu); }
 .menu-toggle {
   color: var(--color-ink);
   min-height: 44px;
@@ -383,6 +476,8 @@
 .chapter__numeral {
   position: absolute;
   top: var(--numeral-top, clamp(2rem, 6vw, 5rem));
+  /* the binding margin. The numeral must end clear of the trim: at 2560 it
+     starts 24px in, is 44px wide, and the gutter is 92px — 24px of paper. */
   left: clamp(0.75rem, 1.6vw, 1.5rem);
   display: flex;
   flex-direction: column;
@@ -393,7 +488,7 @@
 }
 .ground-ink .chapter__numeral { color: var(--color-bone); }
 .chapter__kanji {
-  width: clamp(1.5rem, 2.4vw, 2.25rem);
+  width: clamp(1.5rem, 2.4vw, 2.75rem);
   height: auto;
 }
 .chapter__folio {

@@ -1,0 +1,915 @@
+/* ------------------------------------------------------------------ */
+/* Chapter 三 — «Группы»: the age chart                                 */
+/*                                                                      */
+/* The chapter's subject is not "programmes", it is AGE, so the layout   */
+/* is an age axis and nothing else. Four bands whose HEIGHTS ARE THEIR   */
+/* AGE SPANS tile the scale 4 → 17+ with no gap and no overlap, so a     */
+/* parent sees that every age has exactly one home before reading a      */
+/* word. The fifth group has no age — it runs alongside all of them —    */
+/* so it is drawn as the rail crossing every band rather than as a band  */
+/* among them. The sensei's red circle around the «4» in «С 4 лет» is    */
+/* the chart's origin; the one black register mark sits under it, at     */
+/* year four, where the youngest group begins.                           */
+/*                                                                      */
+/* Three rules for this chapter that must survive any later edit:        */
+/*   · No type is ever set over a photograph of a child, and no face is  */
+/*     cropped by a plate's edge — check the focal point in              */
+/*     `src/content/media.ts` before swapping a plate.                   */
+/*   · Informational mono is --color-ink-2 (6.9:1 on paper); an ORDINAL  */
+/*     hung beside an entry — «01» — is --color-ink-quiet (4.5:1), the   */
+/*     same tone chapters 九 and the contents page set it in, because a  */
+/*     number a reader counts is not a fact a reader reads.              */
+/*     --color-ink-3 is for aria-hidden decoration only, which is what   */
+/*     the register marks and the ruler ticks are — it measures 2.399:1  */
+/*     and may never carry text (the v1.0 spec table's 2.9:1 is wrong).  */
+/*   · Red is the brush circle, plus the established hover/focus swap    */
+/*     on a group's name. The register marks are never red — see the     */
+/*     note in `ui/RegisterMark.tsx`.                                    */
+/*                                                                      */
+/* Band heights are a MINIMUM, never a fixed height. If the club         */
+/* lengthens a note the band grows, and because each band's year labels  */
+/* live inside that band's own grid row, the ruler grows with it.        */
+/* Nothing is ever clipped and the axis can never fall out of register.  */
+/*                                                                      */
+/* The sheet is the viewport, so the figure is REDRAWN at 1600 and 2000  */
+/* rather than stretched — see the tier block below. Every horizontal    */
+/* unit of the drawing is a token and they move together, which is also  */
+/* what keeps the rules, the register marks and the reading hairline     */
+/* terminating exactly on the axis line and the rail line: each of them  */
+/* is positioned from `--chart-gap` and `100%`, never from a number.     */
+/* ------------------------------------------------------------------ */
+
+.programs {
+  --pad-top: clamp(4.5rem, 8vw, 7rem);
+  /* 8vw / 9vw reach the old 7rem / 9rem ceilings at 1400 / 1600, so a 2560
+     sheet used to close on the same strip of paper a 1400 one did. The vw
+     terms are untouched — only the ceilings moved, to land at 2000 and 2311 */
+  --pad-bottom: clamp(5.5rem, 9vw, 13rem);
+  --numeral-top: var(--pad-top);
+
+  /* the space between the chapter's own blocks — the running head, the
+     figure, the colophon. 4rem below md and 6rem above it, exactly the
+     mt-16 / md:mt-24 the markup used to hardcode; the clamp only adds a
+     ceiling for the widths that did not exist when those were chosen. */
+  --rhythm: 4rem;
+
+  /* one year of the age axis — the figure's only unit */
+  /* sized so the tallest band's content still fits its own span in BOTH
+     languages — EN «Adults» carries two time lines and is only 3 units wide.
+     If a note grows the band grows with it; the scale then stops being
+     uniform, which is safe but is the thing to re-check after a copy edit. */
+  --year: 3.5rem;
+  --axis-w: 2.5rem;
+  --rail-w: 0rem;
+  --chart-gap: 0.875rem;
+  --plate-w: 0rem;
+  /* the paper between a band's type and the plate column's rule */
+  --plate-gap: 1.25rem;
+  --mark: 12px;
+  /* one year's tick, abutting the axis line */
+  --tick: 5px;
+  /* the arrowhead that says the top of the scale is open */
+  --arrow: 7px;
+  --notes-index-w: 1.75rem;
+}
+@media (min-width: 768px) {
+  .programs {
+    --year: 2.75rem;
+    --axis-w: 3.25rem;
+    --chart-gap: 1.25rem;
+    --plate-w: 7.5rem;
+    --mark: 15px;
+    --rhythm: clamp(6rem, 4.7vw, 10rem);
+  }
+}
+@media (min-width: 1024px) {
+  .programs {
+    --axis-w: 3.5rem;
+    --rail-w: 12rem;
+    --chart-gap: 1.5rem;
+    --plate-w: 9.5rem;
+  }
+}
+@media (min-width: 1280px) {
+  .programs {
+    --year: 3rem;
+    --axis-w: 4rem;
+    --rail-w: 13rem;
+    --plate-w: 11.5rem;
+    --mark: 16px;
+  }
+}
+
+/*
+  ---- the full-sheet tiers -----------------------------------------------
+  A chart is a drawing, and a drawing has proportions. Held at the 1280
+  values on a full-viewport sheet the figure stops being one: at 2560 the
+  bands would be ~2050px wide and still 48px per year, the axis column
+  would be 4rem of a 2376px trim and the photographic column an 11.5rem
+  sliver. So every horizontal unit grows WITH `--year` and the drawing is
+  redrawn larger rather than stretched.
+
+  Measured, sheet = viewport − 2 × gutter:
+    1280 · 16 years × 3rem    = 48rem tall over a ~1180px sheet — 0.65
+    1920 · 16 years × 3.5rem  = 56rem tall over a  1782px sheet — 0.50
+    2560 · 16 years × 4.25rem = 68rem tall over a  2376px sheet — 0.46
+  The figure flattens, which is what a wide page does to a tall drawing,
+  but it never reads as a strip.
+
+  The band-height invariant is re-checked at each tier against the tightest
+  band — «Взрослые» / «Adults», three units, and the EN copy carries two
+  time lines inside it:
+    1600 · 3 × 3.5rem  = 168px  vs  24 + 32 padding + ~45 row = 101px
+    2560 · 3 × 4.25rem = 204px  vs  30 + 40 padding + ~51 row = 121px
+  A longer note in `schedule.ts` eats that slack first; the band then grows
+  and, because the year labels are rows of the band's own grid, so does the
+  ruler. `min-height` is still a MINIMUM at every tier.
+
+  `--when-w` is the one token that does NOT grow: the times are set in
+  `.t-caption`, which reaches its 1rem ceiling at 1389px, so the longest
+  line is a fixed width above that. The binding case is EN, not RU —
+  "Mon · Wed · Fri · 19:30" is 23 monospace characters (23 × 0.6em + 23 ×
+  0.02em letter-spacing = 14.3rem at 1rem) against «Пн · Ср · Пт · 19:30»
+  at 20 (12.4rem). 15rem holds the English with 0.7rem to spare.
+*/
+@media (min-width: 1600px) {
+  .programs {
+    --year: 3.5rem;
+    --axis-w: 4.75rem;
+    --rail-w: 15.5rem;
+    --chart-gap: 1.75rem;
+    --plate-w: 14rem;
+    --plate-gap: 1.75rem;
+    --mark: 18px;
+    --tick: 6px;
+    --arrow: 9px;
+    --notes-index-w: 2.25rem;
+
+    /* the band stops being a line with a gap in it and becomes a ruled
+       table row — see «the band as a table row» below */
+    --band-index-w: 3rem;
+    --when-w: 15rem;
+    --band-cols: var(--band-index-w) minmax(15rem, 7fr) minmax(0, 8fr) var(--when-w);
+  }
+}
+@media (min-width: 2000px) {
+  .programs {
+    --year: 4.25rem;
+    --axis-w: 5.5rem;
+    /* the rail and the plate take the sheet's new width first, but not all
+       of it: at 2000 exactly, the four columns leave the band's content box
+       1108px, against the 644px the ruled row needs at its minimum. Pushing
+       either token further starves the type at the bottom of the tier
+       without helping the drawing at the top of it. */
+    --rail-w: 18rem;
+    --chart-gap: 2.25rem;
+    --plate-w: 16.5rem;
+    --plate-gap: 2.25rem;
+    --mark: 21px;
+    --tick: 7px;
+    --arrow: 11px;
+    --notes-index-w: 2.5rem;
+    --band-index-w: 3.5rem;
+    /* --when-w and --band-cols are inherited from the tier above; custom
+       properties substitute lazily, so `--band-cols` picks up this tier's
+       `--band-index-w` without being restated */
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The running head: the statement, and the lead that sends you down */
+/* ---------------------------------------------------------------- */
+/* This was `md:grid md:grid-cols-12 md:gap-x-6` in the markup. It is set
+   here instead for two reasons: the gap is now `--col-gap`, so the chapter
+   stands on the same twelve verticals as the rest of the sheet, and the
+   wide tiers below have somewhere to move the two blocks to. */
+@media (min-width: 768px) {
+  .programs__head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: start;
+  }
+  .programs__title {
+    grid-column: 1 / span 6;
+  }
+  .programs__lead {
+    grid-column: 8 / -1;
+  }
+}
+@media (min-width: 1600px) {
+  /*
+    «С 4 лет» is three words; "From 4 years old" is four, and at the raised
+    `--text-chapter` ceiling (9rem) the English line measures ~1105px with
+    the 0.26em the brush's «4» is inset by. Six columns of a 2560 sheet are
+    1170px — inside the mask by 65px, which is not a margin worth trusting
+    across two faces and two languages. Seven columns are 1371px, so the
+    statement keeps one line in both.
+  */
+  .programs__title {
+    grid-column: 1 / span 7;
+  }
+  /*
+    The lead keeps its 38ch measure — a full-width sheet is no reason to run
+    a paragraph across it — so on a wide page it no longer fills its column
+    and would be left floating in the middle of the right half. It is hung
+    on the trim instead: the block's right edge is the paper's edge, which
+    is the one edge on that side of the sheet that means anything.
+  */
+  .programs__lead {
+    grid-column: 9 / -1;
+    justify-self: end;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The figure                                                        */
+/* ---------------------------------------------------------------- */
+.chart {
+  margin-inline: 0;
+  margin-bottom: 0;
+}
+
+/* head and body share one column template, so «Лет» sits over the axis
+   and the rail's label over the rail */
+.chart__head,
+.chart__body {
+  display: grid;
+  grid-template-columns: var(--axis-w) minmax(0, 1fr);
+  column-gap: var(--chart-gap);
+}
+@media (min-width: 1024px) {
+  .chart__head,
+  .chart__body {
+    grid-template-columns: var(--axis-w) minmax(0, 1fr) var(--rail-w);
+  }
+}
+
+.chart__head {
+  align-items: end;
+  /* the air between the figure's running head and its first rule, grown with
+     the drawing so the head does not sit on the chart at 2560. 0.75vw is
+     12px at 1600, so nothing below the first tier moves. */
+  padding-bottom: clamp(0.75rem, 0.75vw, 1.375rem);
+}
+.chart__axis-label {
+  text-align: right;
+}
+.chart__caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+/* a pointer-only convenience: every fact it shows is already set as real
+   text in the bands, so it is not announced a second time — and it is not
+   printed at all where there is no cursor to drive it */
+.chart__readout {
+  display: none;
+}
+@media (min-width: 1024px) and (hover: hover) {
+  .chart__readout {
+    display: block;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+/*
+  Once the bands are ruled into columns (below), the figure's own head is
+  ruled with them: the caption takes the index and name verticals and the
+  readout ends on the times' vertical, so the head is a heading of the table
+  rather than a line floating over it. The head row spans the whole band
+  column including the plate reserve, so the caption is inset by that reserve
+  to sit over the band CONTENT box, not over the plates.
+*/
+@media (min-width: 1600px) {
+  .chart__caption {
+    display: grid;
+    grid-template-columns: var(--band-cols);
+    column-gap: var(--col-gap);
+    padding-right: calc(var(--plate-w) + var(--plate-gap));
+  }
+  /* placed explicitly for the same reason the band's four are — see «the
+     band as a table row» */
+  .chart__caption > :first-child {
+    grid-area: 1 / 1 / auto / 3;
+  }
+  /* the readout is the longest string in the figure («Утренние в парке ·
+     все группы»), so it is given the note column as well and right-aligns
+     onto the times' edge — `white-space: nowrap` above would otherwise
+     overflow a 15rem box */
+  .chart__readout {
+    grid-area: 1 / 3 / auto / -1;
+  }
+}
+.chart__body {
+  position: relative;
+  /* --band-rows / --all-rows are set from `groups`, so adding or removing a
+     group can never collide with a hardcoded row */
+  grid-template-rows: repeat(var(--all-rows, 5), auto);
+}
+@media (min-width: 1024px) {
+  .chart__body {
+    grid-template-rows: repeat(var(--band-rows, 4), auto);
+  }
+}
+
+/* the list lays nothing out — its items are the grid's items */
+.chart__bands {
+  display: contents;
+}
+
+/* ---------------------------------------------------------------- */
+/* Zone A — the axis                                                 */
+/* ---------------------------------------------------------------- */
+.axis-block {
+  position: relative;
+  grid-column: 1;
+  grid-row: var(--row);
+  display: grid;
+  grid-template-rows: repeat(var(--span), 1fr);
+  min-height: calc(var(--span) * var(--year));
+}
+/* one segment per band; the four of them draw the axis, and it stops
+   exactly where the ages stop */
+.axis-block__line {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  width: 1px;
+  background: var(--color-rule);
+  transform-origin: top;
+}
+.axis-year {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  /* the label clears its own tick: the tick is `--tick` wide, this is the
+     paper between the two */
+  padding-right: calc(var(--tick) + 0.19rem);
+  color: var(--color-ink-2);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+/* a short tick abutting the axis line, one per year — ruled, not labelled */
+.axis-year::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: var(--tick);
+  height: 1px;
+  background: var(--color-rule);
+}
+.axis-year--on {
+  color: var(--color-ink);
+}
+/* the open band: the ruler stops being labelled, it does not end */
+.axis-block--open .axis-year::after {
+  background: color-mix(in oklab, var(--color-rule) 55%, transparent);
+}
+/* the arrowhead on the foot of the axis: the scale is open, it does not end.
+   The two margins used to be the literal -4px / -9px that centre a 7px
+   square on the axis line and drop it below the last tick; they are written
+   from `--arrow` now so the head grows with the drawing and still lands in
+   the same place (7px → -4.0 / -9.1, which is where it was). */
+.chart__arrow {
+  position: absolute;
+  left: 100%;
+  bottom: 0;
+  width: var(--arrow);
+  height: var(--arrow);
+  margin-left: calc(var(--arrow) / -2 - 0.5px);
+  margin-bottom: calc(var(--arrow) * -1.3);
+  border-left: 1px solid var(--color-ink-3);
+  border-bottom: 1px solid var(--color-ink-3);
+  transform: rotate(-45deg);
+}
+
+/* ---------------------------------------------------------------- */
+/* Zone B — the bands                                                */
+/* ---------------------------------------------------------------- */
+.band {
+  position: relative;
+  grid-column: 2;
+  grid-row: var(--row);
+  min-height: calc(var(--span) * var(--year));
+  /* the paper a band's type stands on, inside its two rules. It is set from
+     `--year` above 1600 for the same reason the drawing is: 18px of it under
+     a 4.25rem year would print the type against the rule. */
+  padding: var(--band-pad-top, 1.125rem) 0 var(--band-pad-bottom, 1.5rem);
+  transition: background-color var(--duration-base) var(--ease-out);
+}
+.band--on {
+  background: var(--color-paper-2);
+}
+/* every band reserves the plate column, plated or not, so the times print
+   in one column down the sheet and bands 01 and 04 leave visible paper */
+@media (min-width: 768px) {
+  .band {
+    padding-right: calc(var(--plate-w) + var(--plate-gap));
+  }
+}
+@media (min-width: 1600px) {
+  .band {
+    --band-pad-top: 1.5rem;
+    --band-pad-bottom: 2rem;
+  }
+}
+@media (min-width: 2000px) {
+  .band {
+    --band-pad-top: 1.875rem;
+    --band-pad-bottom: 2.5rem;
+  }
+}
+
+/* every horizontal rule of the sheet, bled into the gutters so it touches
+   the axis line on the left and the rail line on the right */
+.band__rule {
+  position: absolute;
+  top: 0;
+  left: calc(-1 * var(--chart-gap));
+  right: 0;
+  height: 1px;
+  background: var(--color-rule);
+  transform-origin: left;
+}
+@media (min-width: 1024px) {
+  .band__rule {
+    right: calc(-1 * var(--chart-gap));
+  }
+}
+.band__rule--bottom {
+  top: auto;
+  bottom: 0;
+}
+/* the drafting convention for "continues" */
+.band__rule--open {
+  background: none;
+  background-image: repeating-linear-gradient(to right, var(--color-rule) 0 2px, transparent 2px 5px);
+}
+
+/* register marks, at the ends of every rule: where the second pass of the
+   press lines up on the first. Static, decorative, never red. */
+.band__mark {
+  position: absolute;
+  width: var(--mark);
+  height: var(--mark);
+  margin-top: calc(var(--mark) / -2);
+  color: var(--color-ink-3);
+  pointer-events: none;
+}
+.band__mark[data-x="axis"] {
+  left: calc(-1 * var(--chart-gap));
+  margin-left: calc(var(--mark) / -2);
+}
+.band__mark[data-x="rail"] {
+  left: 100%;
+  margin-left: calc(var(--mark) / -2);
+}
+@media (min-width: 1024px) {
+  .band__mark[data-x="rail"] {
+    left: calc(100% + var(--chart-gap));
+  }
+}
+.band__mark[data-y="top"] {
+  top: 0;
+}
+.band__mark[data-y="bottom"] {
+  top: 100%;
+}
+/* the chart's origin: one mark in ink, at year four, under the red circle */
+.band__mark--origin {
+  color: var(--color-ink);
+}
+
+/* the reading rule — a pointer-only hairline laid across the chart at the
+   year under the cursor. It divides the band by the same fractions the axis
+   labels use, so it lands on the label at any band height. */
+.band__reading {
+  position: absolute;
+  top: calc((var(--i) + 0.5) / var(--span) * 100%);
+  left: calc(-1 * var(--chart-gap));
+  right: 0;
+  height: 1px;
+  background: var(--color-ink);
+  transform-origin: left;
+  pointer-events: none;
+}
+@media (min-width: 1024px) {
+  .band__reading {
+    right: calc(-1 * var(--chart-gap));
+  }
+}
+
+.band__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1.25rem;
+}
+.band__index {
+  color: var(--color-ink-quiet);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.band--on .band__index {
+  color: var(--color-ink);
+}
+.band__name {
+  margin: 0;
+}
+.band__link {
+  color: var(--color-ink);
+  /* vertical padding on an inline element grows the hit area without touching
+     the line box, so the name is a comfortable target on a phone while the
+     row keeps its baseline. The times stay outside the link, selectable. */
+  padding-block: 0.7rem;
+}
+.band__title {
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.band__link:hover .band__title,
+.band__link:focus-visible .band__title {
+  color: var(--color-shu);
+}
+.band__ages {
+  margin-left: 0.5rem;
+  color: var(--color-ink-2);
+}
+.band__go {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-family: var(--font-mono);
+  /* 0.55vw is 12px at 2182, so the arrow is the 0.75rem it always was on
+     every screen the old column was drawn for, and only grows past that */
+  font-size: clamp(0.75rem, 0.55vw, 0.9375rem);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.band__link:hover .band__go,
+.band__link:focus-visible .band__go {
+  transform: translateX(0.25rem);
+}
+.band__when {
+  margin-left: auto;
+  text-align: right;
+}
+.band__note {
+  margin-top: 0.5rem;
+  /* the note's line length is held here, in `ch`, and nowhere else. It stays
+     52ch at every width — a wider sheet is not a reason to run a one-sentence
+     note across it. The longest note in `schedule.ts` is RU «Игра,
+     координация, дисциплина. Без спаррингов.» at 46 characters, so the cap
+     leaves the club six of headroom before a note takes a second line. */
+  max-width: 52ch;
+  /* 0.7vw is 15px at 1339, so the note is the 0.9375rem it always was up to
+     the widths the old column was drawn for; past that it steps with `body`,
+     which now reaches 1.125rem, so a note does not read as fine print on a
+     2560 sheet */
+  font-size: clamp(0.9375rem, 0.7vw, 1.0625rem);
+  line-height: 1.5;
+  color: var(--color-ink-2);
+}
+
+/*
+  ---- the band as a table row -------------------------------------------
+  Up to 1600 a band is one flex line — «01  Дети 7–11 лет →» with the times
+  pushed to the far edge by `margin-left: auto` — and the note set under it.
+  That reading breaks down on a full-viewport sheet: at 2560 the band's
+  content box is ~1600px, so `auto` opens a 900px hole between the name and
+  the times and the note is left hanging under the left third of it.
+
+  Above 1600 the band is ruled into four columns instead, on the same
+  `--col-gap` the page grid uses, and every band shares the template — so
+  the four indices, the four names, the four notes and the four sets of
+  times each stand on one vertical down the sheet, and the figure's own head
+  is ruled onto the same verticals. The row is baseline-aligned, which is
+  what makes a 34px name and a 17px note read as one line of a table.
+
+  `.band__row` becomes `display: contents` rather than being taken apart in
+  the markup: its three children then ARE grid items of the band's content
+  box, so nothing in the DOM, the reading order or the focus order moves.
+  That is also why all four are placed EXPLICITLY. The DOM order is index,
+  name, times, note — the note is written last because up to 1600 it is set
+  under the line — while the table reads index, name, note, times. Left to
+  auto-placement the times would take the note's column, and giving the note
+  a column without also fixing the row would push it onto a second row,
+  because sparse auto-placement never moves the cursor backwards.
+
+  Every selector below is scoped to `.band__content`, and only the age bands
+  carry it. The rail — a 13-to-18rem column at ≥1024, with its own stacked
+  header — and any future `.band--extra` therefore keep the flex line and
+  the note under it at every width, without needing an exception written
+  for them.
+*/
+@media (min-width: 1600px) {
+  .band__content {
+    display: grid;
+    grid-template-columns: var(--band-cols);
+    column-gap: var(--col-gap);
+    align-items: baseline;
+  }
+  .band__content > .band__row {
+    display: contents;
+  }
+  .band__content .band__index {
+    grid-area: 1 / 1;
+  }
+  .band__content .band__name {
+    grid-area: 1 / 2;
+  }
+  .band__content > .band__note {
+    grid-area: 1 / 3;
+    /* the note is beside the name now, not under it */
+    margin-top: 0;
+  }
+  .band__content .band__when {
+    grid-area: 1 / 4;
+    /* the times are a column, not the end of a line */
+    margin-left: 0;
+  }
+}
+
+/* the plate column, ruled down the whole chart whether or not a band fills it */
+@media (min-width: 768px) {
+  .band:not(.band--rail):not(.band--extra)::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    right: var(--plate-w);
+    width: 1px;
+    background: var(--color-rule);
+  }
+}
+
+/* bands 02 and 03 carry one plate each, flush from rule to rule, so the two
+   read as a single photographic column split by the age-12 line */
+.chart .band__plate {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--plate-w);
+}
+@media (max-width: 767.98px) {
+  .chart .band__plate {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Zone C — the rail: the group that has no age                      */
+/* ---------------------------------------------------------------- */
+.band--rail {
+  grid-column: 1 / -1;
+  grid-row: 5;
+  min-height: 0;
+  /* the chart closes on its own dotted rule; the rail is stated after it, so
+     it needs clear paper or the two sets of rules collide */
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding: 1.75rem 0 0;
+}
+/* below lg the rail is the sheet's last row, and the doubled rule is the
+   accounting convention for a total — which is what «все группы» is */
+.band--rail .band__rule,
+.band--extra .band__rule {
+  left: 0;
+}
+/* the mark terminates the rule, so it moves with it */
+.band--rail .band__mark[data-x="axis"],
+.band--extra .band__mark[data-x="axis"] {
+  left: 0;
+}
+.band__rule--second {
+  top: 3px;
+}
+
+/* below lg the rail is a full-width row: type left, plate right */
+.rail__body {
+  display: grid;
+  gap: 1.25rem;
+}
+@media (min-width: 640px) {
+  .rail__body {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    align-items: center;
+    gap: 1.75rem;
+  }
+}
+.rail__figure {
+  margin: 0;
+}
+.rail__plate {
+  aspect-ratio: 4 / 5;
+}
+
+/* a second age-less group, if the club ever adds one: a full-width row after
+   the chart, at every width. It is never the rail — there is only one rail. */
+.band--extra {
+  grid-column: 1 / -1;
+  grid-row: var(--row);
+  min-height: 0;
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  padding: 1.75rem 0 0;
+}
+
+@media (min-width: 1024px) {
+  .band--rail {
+    grid-column: 3;
+    grid-row: 1 / -1;
+    /* as a column it is level with band 01, not stated after the chart */
+    margin-top: 0;
+    padding: 1.125rem 0 1.5rem 1.125rem;
+  }
+  .band--rail .band__rule,
+  .band--rail .band__mark {
+    display: none;
+  }
+  /* in a column this narrow — 12rem at 1024, 18rem at 2000 — the header is
+     a stack, not a justified line */
+  .band--rail .band__row {
+    display: block;
+  }
+  .band--rail .band__when {
+    display: block;
+    margin-left: 0;
+    text-align: left;
+    margin-top: 0.35rem;
+  }
+  .band--rail .band__index {
+    display: block;
+    /* the bands set their index on the Prata name's baseline; in the rail the
+       name is below it, so the index is nudged by the difference between the
+       two line boxes to keep «05» level with «01» across the sheet */
+    padding-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .band--rail .band__name {
+    margin-bottom: 0.35rem;
+  }
+  /* in a column this narrow the name takes the first line and the age band
+     the second, with the arrow still closing that line */
+  .band--rail .band__title {
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+  .band--rail .band__ages {
+    margin-left: 0;
+  }
+  /* the plate runs from the end of the type to the foot of the column */
+  /* the Reveal wrapper sits between the rail and its body, so the column has
+     to be a flex chain the whole way down or the plate cannot grow */
+  .band--rail {
+    display: flex;
+    flex-direction: column;
+  }
+  .band--rail > div {
+    flex: 1;
+    min-height: 0;
+  }
+  .band--rail .rail__body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* the 640px grid rule sets `center`; undo it here */
+    height: 100%;
+    gap: 1.5rem;
+  }
+  .band--rail .rail__figure {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .band--rail .rail__plate {
+    aspect-ratio: auto;
+    flex: 1;
+    min-height: 12rem;
+  }
+  /* the rail's own line, running the full height of all four bands */
+  .band--rail::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 1px;
+    background: var(--color-rule);
+  }
+}
+
+/* The rail column is a column of the drawing like any other, so its paper
+   and its plate grow with `--rail-w`: 13rem at 1280, 15.5rem at 1600,
+   18rem at 2000. The plate is `flex: 1` inside a column as tall as all four
+   bands, so it grows on its own; `min-height` only matters if the club ever
+   shortens the chart, and it is raised so the plate can never collapse to a
+   12rem stamp at the foot of an 18rem column. */
+@media (min-width: 1600px) {
+  .band--rail {
+    padding: 1.5rem 0 2rem 1.5rem;
+  }
+  .band--rail .rail__body {
+    gap: 1.875rem;
+  }
+  .band--rail .rail__plate {
+    min-height: 15rem;
+  }
+}
+@media (min-width: 2000px) {
+  .band--rail {
+    padding: 1.875rem 0 2.5rem 1.875rem;
+  }
+  .band--rail .rail__body {
+    gap: 2.25rem;
+  }
+  .band--rail .rail__plate {
+    min-height: 18rem;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* The colophon: the offer, the checklist, the two exits             */
+/* ---------------------------------------------------------------- */
+/* sizing comes from `.t-statement`, the role the rest of the site uses.
+   The offer is the one line of the chapter that is ruled top and bottom
+   across the whole sheet, so its two rules ARE the full-bleed composition;
+   the paper it stands on is the thing that has to grow with the page.
+   2.4vw reaches the old 2rem at 1333, so nothing below that moves. */
+.programs__trial {
+  color: var(--color-ink);
+  padding-block: clamp(1.25rem, 2.4vw, 3rem);
+}
+.notes__items {
+  display: grid;
+  gap: 0 1.5rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .notes__items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .notes__items {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+/* Four equal columns with gap G are algebraically the same thing as four
+   3-column spans of the twelve-column page grid with column-gap G — the
+   item is (T − 3G) / 4 either way — so the checklist is already on the
+   page's verticals. What it is NOT on is the page's gap: 1.5rem between
+   two 570px items at 2560 reads as a typo. `--col-gap` is exactly 1.5rem
+   at 1600, so this changes nothing at the tier's own edge and opens to
+   2.25rem as the sheet widens. */
+@media (min-width: 1600px) {
+  .notes__items {
+    gap: 0 var(--col-gap);
+  }
+}
+.notes__item {
+  display: grid;
+  grid-template-columns: var(--notes-index-w) minmax(0, 1fr);
+  gap: 0 0.75rem;
+  align-items: baseline;
+  /* the paper under each of the four rules; 0.8vw is 14px at 1750, so the
+     item keeps its 0.875rem everywhere the old column reached */
+  padding-block: clamp(0.875rem, 0.8vw, 1.375rem);
+  border-top: 1px solid var(--color-rule);
+}
+.notes__index {
+  color: var(--color-ink-quiet);
+}
+.notes__text {
+  /* the same step the band's note takes, for the same reason */
+  font-size: clamp(0.9375rem, 0.7vw, 1.0625rem);
+  line-height: 1.5;
+  color: var(--color-ink);
+}
+
+.exit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  color: var(--color-ink);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.exit-link:hover,
+.exit-link:focus-visible {
+  color: var(--color-shu);
+}
+.exit-link__label {
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 0.2em;
+}
+.exit-link__arrow {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.exit-link:hover .exit-link__arrow,
+.exit-link:focus-visible .exit-link__arrow {
+  transform: translateX(0.25rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .band__go,
+  .exit-link__arrow,
+  .band {
+    transition: none;
+  }
+}

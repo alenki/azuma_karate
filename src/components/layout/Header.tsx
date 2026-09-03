@@ -1,9 +1,11 @@
 "use client";
 
+import "@/styles/sections/chrome.css";
+
 import Link from "next/link";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useLenis } from "lenis/react";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { localeHref, otherLocale } from "@/i18n/config";
 import { useLocale } from "@/i18n/LocaleProvider";
@@ -15,8 +17,12 @@ import { useActiveChapter } from "./ChapterContext";
 import { EASE_OUT_EXPO } from "@/components/ui/Reveal";
 
 const copy = {
-  ru: { menu: "Меню", close: "Закрыть", chapter: "Глава", contents: "Содержание", skip: "К содержанию", lang: "Язык" },
-  en: { menu: "Menu", close: "Close", chapter: "Chapter", contents: "Contents", skip: "Skip to content", lang: "Language" },
+  // `switchTo` is deliberately written in the language it switches TO — it is
+  // the accessible name of an element carrying `lang={other}`, so a screen
+  // reader speaks it in that language's voice. A two-letter code makes a poor
+  // accessible name; the sighted reader still sees only "EN".
+  ru: { menu: "Меню", close: "Закрыть", chapter: "Глава", contents: "Содержание", skip: "К содержанию", lang: "Язык", switchTo: "Switch to English" },
+  en: { menu: "Menu", close: "Close", chapter: "Chapter", contents: "Contents", skip: "Skip to content", lang: "Language", switchTo: "Переключить на русский" },
 };
 
 export type ChapterLink = { id: string; index: number; title: string };
@@ -30,21 +36,91 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
   const [open, setOpen] = useState(false);
   const lenis = useLenis();
   const menuId = useId();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 24));
 
+  /*
+    The overlay declares `aria-modal`, which tells assistive technology to
+    ignore everything outside it — so it has to behave like a modal, not just
+    say it is one. Since the handle is printed at every width this is a
+    desktop keyboard surface too, and three things have to hold:
+
+      · focus moves INTO the dialog when it opens. Left on the toggle, focus
+        would sit in <header>, a sibling of the dialog and therefore outside
+        the subtree AT is told to read.
+      · Tab wraps inside it. The dialog is the last node in the fragment, so
+        without a trap Tab walks out of it into <main> — visually covered by
+        the panel and hidden from AT.
+      · focus returns to the toggle on close, so the reader carries on from
+        where they were instead of restarting at the skip link.
+
+    Escape stays on `window`: it must fire wherever focus happens to be.
+  */
   useEffect(() => {
     if (!open) return;
+    const opener = toggleRef.current;
     lenis?.stop();
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+
+    /*
+      The focus scope. It is the toggle PLUS the panel's own tabbables, in
+      document order — the toggle is the visible «Закрыть» / "Close", it sits in
+      <header> rather than in the dialog, and a trap that excluded it would put
+      the one control that closes the panel out of reach of the keyboard.
+    */
+    const tabbables = () => {
+      const inPanel = Array.from(
+        menuRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      ).filter((el) => el.offsetParent !== null);
+      return opener ? [opener, ...inPanel] : inPanel;
+    };
+
+    /* The panel mounts with AnimatePresence, so wait a frame for its children.
+       Focus lands on the panel itself (tabIndex -1) rather than its first link,
+       so the dialog's own label is announced before its contents. */
+    const focusFirst = requestAnimationFrame(() => menuRef.current?.focus());
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const nodes = tabbables();
+      if (nodes.length === 0) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      const activeInside = nodes.includes(document.activeElement as HTMLElement) || menuRef.current === document.activeElement;
+      if (!activeInside) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      } else if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
     window.addEventListener("keydown", onKey);
+
     return () => {
+      cancelAnimationFrame(focusFirst);
       lenis?.start();
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
+      /* Return focus to the opener, unless something else already took it.
+         Closing by Escape or by clicking a chapter link both unmount the node
+         focus was on, which drops it to <body>; from there the next Tab would
+         restart at the skip link. Closing by pressing the toggle leaves focus
+         on the toggle already, and this is then a no-op. */
+      if (!document.activeElement || document.activeElement === document.body) opener?.focus();
     };
   }, [open, lenis]);
 
@@ -62,26 +138,34 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
           open && "site-header--open",
         )}
       >
-        <div className="wrap flex h-[var(--header-h)] items-center justify-between gap-6">
-          <Link href={href("/")} aria-label="SK AZUMA" className="shrink-0">
-            <Logo />
-          </Link>
+        {/*
+          Three bands on one grid — see chrome.css §1. The head margin is
+          ranged left / centred / ranged right, so the running head stands on
+          the sheet's own centre line instead of wherever four flex children
+          happened to leave a gap.
+        */}
+        <div className="site-header__bar wrap">
+          <div className="site-header__lead">
+            <Link href={href("/")} className="site-header__brand shrink-0">
+              <Logo />
+            </Link>
 
-          {/* prefetch is off on nav links: those routes ship in a later phase */}
-          <nav aria-label={locale === "ru" ? "Основная навигация" : "Primary"} className="hidden xl:flex items-center gap-7">
-            {navItems.map((item) => (
-              <Link key={item.href} href={href(item.href)} prefetch={false} className="nav-link t-mono">
-                {item.label[locale]}
-              </Link>
-            ))}
-          </nav>
+            {/* prefetch is off on nav links: those routes ship in a later phase */}
+            <nav aria-label={locale === "ru" ? "Основная навигация" : "Primary"} className="hidden xl:flex items-center gap-7">
+              {navItems.map((item) => (
+                <Link key={item.href} href={href(item.href)} prefetch={false} className="nav-link t-mono">
+                  {item.label[locale]}
+                </Link>
+              ))}
+            </nav>
+          </div>
 
-          <div className="hidden lg:flex min-w-[12rem] justify-center" aria-live="polite">
+          <div className="site-header__head" aria-live="polite">
             <AnimatePresence mode="wait" initial={false}>
               {showRunningHead && (
                 <motion.span
                   key={active.id}
-                  className="t-mono text-ink-2"
+                  className="site-header__head-text t-mono text-ink-2"
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
@@ -93,24 +177,46 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
             </AnimatePresence>
           </div>
 
-          <div className="flex items-center gap-4 md:gap-6">
-            <Link
-              href={localeHref(other, "/")}
-              hrefLang={other}
-              lang={other}
-              className="lang-toggle t-mono whitespace-nowrap"
-              aria-label={`${t.lang}: ${other.toUpperCase()}`}
-            >
-              <span className="lang-toggle__current">{locale.toUpperCase()}</span>
-              <span aria-hidden="true" className="opacity-40"> / </span>
-              <span>{other.toUpperCase()}</span>
-            </Link>
-            <div className="hidden md:block">
-              <Button href={cta.href}>{cta.label[locale]}</Button>
+          <div className="site-header__aside">
+            {/*
+              RU | EN. Two tokens either side of a hairline rule: the locale
+              you are reading, inert, and the one you can go to, a link. It
+              used to be ONE link wrapping both labels, so clicking the token
+              marked as current navigated away from it — a coin-flip target.
+              `lang`/`hrefLang` belong on the anchor alone; the inert token
+              inherits <html lang> and must not claim to be the other language.
+            */}
+            <div className="lang-toggle t-mono whitespace-nowrap" role="group" aria-label={t.lang}>
+              <span className="lang-toggle__current" aria-current="true">
+                {locale.toUpperCase()}
+              </span>
+              <span aria-hidden="true" className="lang-toggle__rule" />
+              <Link
+                href={localeHref(other, "/")}
+                hrefLang={other}
+                lang={other}
+                prefetch={false}
+                className="lang-toggle__link"
+                aria-label={t.switchTo}
+              >
+                {other.toUpperCase()}
+              </Link>
             </div>
+            <div className="hidden md:block">
+              <Button href={cta.href} className="site-header__cta">
+                {cta.label[locale]}
+              </Button>
+            </div>
+            {/*
+              Printed at every width, where it used to be `xl:hidden`. The
+              overlay is the manual's contents page — it is the only way to
+              reach the ten numbered chapters — and hiding its handle above
+              1280 meant no desktop reader could open it at all.
+            */}
             <button
+              ref={toggleRef}
               type="button"
-              className="menu-toggle t-mono xl:hidden"
+              className="menu-toggle t-mono"
               aria-expanded={open}
               aria-controls={menuId}
               onClick={() => setOpen((v) => !v)}
@@ -125,6 +231,8 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
         {open && (
           <motion.div
             id={menuId}
+            ref={menuRef}
+            tabIndex={-1}
             role="dialog"
             aria-modal="true"
             aria-label={t.menu}
@@ -134,8 +242,14 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: EASE_OUT_EXPO }}
           >
-            <div className="wrap pt-[calc(var(--header-h)+1.5rem)] pb-12 grid gap-12 md:grid-cols-[1.4fr_1fr]">
-              <nav aria-label={t.menu} className="flex flex-col">
+            {/*
+              The contents page. Three blocks — the entries, the ten chapters,
+              the club's particulars — flattened out of the old column-inside-
+              a-column so chrome.css can stand each of them on the page grid
+              once the sheet is wide enough to hold three verticals.
+            */}
+            <div className="menu__inner wrap">
+              <nav aria-label={t.menu} className="menu__nav">
                 {navItems.map((item, i) => (
                   <motion.div
                     key={item.href}
@@ -144,28 +258,30 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
                     transition={{ duration: 0.7, delay: 0.05 + i * 0.05, ease: EASE_OUT_EXPO }}
                     className="border-b border-rule"
                   >
-                    <Link href={href(item.href)} prefetch={false} className="menu__link t-display block py-4 text-[clamp(2rem,7vw,4.5rem)]" onClick={() => setOpen(false)}>
-                      <span className="t-mono mr-4 align-middle text-ink-3">{String(i + 1).padStart(2, "0")}</span>
+                    <Link href={href(item.href)} prefetch={false} className="menu__link t-display" onClick={() => setOpen(false)}>
+                      <span className="menu__index t-mono">{String(i + 1).padStart(2, "0")}</span>
                       {item.label[locale]}
                     </Link>
                   </motion.div>
                 ))}
               </nav>
-              <div className="flex flex-col gap-10">
-                <div>
-                  <p className="t-mono text-ink-2 mb-4">{t.contents}</p>
-                  <ol className="flex flex-col gap-2">
-                    {chapters.map((c) => (
-                      <li key={c.id}>
-                        <a href={`#${c.id}`} className="menu__chapter t-caption" onClick={() => setOpen(false)}>
-                          <span className="text-ink-3 mr-3">{String(c.index).padStart(2, "0")}</span>
-                          {c.title}
-                        </a>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-                <div className="flex flex-col gap-2 t-caption">
+
+              <div className="menu__contents">
+                <p className="menu__contents-label t-mono text-ink-2">{t.contents}</p>
+                <ol className="menu__contents-list">
+                  {chapters.map((c) => (
+                    <li key={c.id}>
+                      <a href={`#${c.id}`} className="menu__chapter t-caption" onClick={() => setOpen(false)}>
+                        <span className="menu__chapter-no">{String(c.index).padStart(2, "0")}</span>
+                        {c.title}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="menu__foot">
+                <div className="menu__where t-caption">
                   <span>{club.city[locale]}, {club.address[locale]}</span>
                   <a href={club.telegram} className="btn-text self-start">Telegram</a>
                   <a href={club.instagram} className="btn-text self-start">Instagram</a>

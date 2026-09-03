@@ -9,7 +9,7 @@ import type { NextConfig } from "next";
  * served from `/en/…`. Direct hits on `/ru/…` are redirected to the bare path
  * so the site has exactly one canonical URL per page and language.
  */
-const RESERVED = "_next|api|media|fonts|favicon\\.ico|icon|apple-icon|robots\\.txt|sitemap\\.xml|manifest\\.webmanifest|opengraph-image|twitter-image";
+const RESERVED = "_next|api|media|brand|fonts|favicon\\.ico|icon|apple-icon|robots\\.txt|sitemap\\.xml|manifest\\.webmanifest|opengraph-image|twitter-image";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,

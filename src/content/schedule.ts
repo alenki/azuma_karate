@@ -14,6 +14,14 @@ export type Group = {
   ages: Record<Locale, string>;
   /** Short line under the group name. */
   note: Record<Locale, string>;
+  /**
+   * The group's place on chapter three's age chart, in whole years.
+   * `to: null` is an open band that never closes («17+»). `ageSpan: null`
+   * means the group has no age band at all — it runs alongside every other
+   * group, and the chart draws it as the rail crossing them rather than as a
+   * band among them. Keep it in step with `ages` above.
+   */
+  ageSpan: { from: number; to: number | null } | null;
 };
 
 export const groups: Group[] = [
@@ -22,30 +30,35 @@ export const groups: Group[] = [
     name: { ru: "Первый шаг", en: "First Step" },
     ages: { ru: "4–6 лет", en: "ages 4–6" },
     note: { ru: "Игра, координация, дисциплина. Без спаррингов.", en: "Play, coordination, discipline. No sparring." },
+    ageSpan: { from: 4, to: 6 },
   },
   {
     id: "kids-7-11",
     name: { ru: "Дети", en: "Kids" },
     ages: { ru: "7–11 лет", en: "ages 7–11" },
     note: { ru: "Кихон, ката, первые аттестации.", en: "Kihon, kata, first gradings." },
+    ageSpan: { from: 7, to: 11 },
   },
   {
     id: "teens-12-16",
     name: { ru: "Подростки", en: "Teens" },
     ages: { ru: "12–16 лет", en: "ages 12–16" },
     note: { ru: "Кумитэ в защите, соревнования по желанию.", en: "Protected kumite, competitions optional." },
+    ageSpan: { from: 12, to: 16 },
   },
   {
     id: "adults",
     name: { ru: "Взрослые", en: "Adults" },
     ages: { ru: "17+", en: "17+" },
     note: { ru: "С нуля или с опытом. Вечерняя группа.", en: "Beginners or experienced. Evening group." },
+    ageSpan: { from: 17, to: null },
   },
   {
     id: "morning",
     name: { ru: "Утренние в парке", en: "Park mornings" },
     ages: { ru: "все группы", en: "all groups" },
     note: { ru: "Точку сбора публикуем в Telegram.", en: "Meeting point posted on Telegram." },
+    ageSpan: null,
   },
 ];
 

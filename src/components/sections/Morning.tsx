@@ -32,6 +32,14 @@ const sunriseStore = createLiveStore<string>(
  * annotated on the plate page. A wide muted plate drifts under a transform-only
  * parallax, a paper caption card is pressed into its corner with today's
  * computed sunrise, and the text below sets the two addresses of the club.
+ *
+ * The plate is printed outside the trim, so it is as wide as the screen and
+ * only its height is composed — see `--morning-plate-h` in `morning.css`,
+ * which takes the larger of a viewport-height and a viewport-width term so the
+ * spread keeps a photographic proportion instead of turning into a letterbox
+ * strip on a wide sheet. The text block below stands on the shared
+ * twelve-column page grid and gains a third field at 1600 rather than
+ * stretching the two it has.
  */
 export function Morning() {
   const { locale } = useLocale();
@@ -73,7 +81,7 @@ export function Morning() {
       </div>
 
       {/* ---- the text ---- */}
-      <div className="wrap pt-14 pb-24 md:pt-20 md:pb-32">
+      <div className="wrap morning__text">
         <div className="rule" />
         <Reveal delay={0.1} y={12} duration={0.8} className="flex items-baseline justify-between gap-6 pt-4">
           <p className="t-mono text-ink-2">{t.eyebrow[locale]}</p>
@@ -82,40 +90,47 @@ export function Morning() {
           </span>
         </Reveal>
 
-        <div className="mt-12 grid gap-x-8 gap-y-12 md:mt-16 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <h2 id={HEADING_ID} className="t-chapter morning-title">
-              <LineReveal
-                as="span"
-                className="block"
-                delay={0.1}
-                stagger={0.1}
-                lines={[t.title[locale].split(" ").slice(0, 2).join(" "), t.title[locale].split(" ").slice(2).join(" ")]}
-              />
-            </h2>
-            <Reveal delay={0.35} className="mt-10 hidden lg:block">
-              <figure className="m-0">
-                <Curtain className="aspect-[4/5]" duration={1}>
-                  <Photo slot="parkAlley" sizes="30vw" />
-                </Curtain>
-              </figure>
-            </Reveal>
-          </div>
+        {/*
+          Four blocks on the sheet's own twelve-column field, placed in
+          `morning.css`: title and lead face each other on the first row, the
+          park plate and the meta line stand on the second, and from 1600 the
+          meta leaves that row to become a margin note at the right trim.
+          The DOM order is the reading order at every width.
+        */}
+        <div className="morning__body page-grid">
+          <h2 id={HEADING_ID} className="t-chapter morning-title morning__title-col">
+            <LineReveal
+              as="span"
+              className="block"
+              delay={0.1}
+              stagger={0.1}
+              lines={[t.title[locale].split(" ").slice(0, 2).join(" "), t.title[locale].split(" ").slice(2).join(" ")]}
+            />
+          </h2>
 
-          <div className="lg:col-span-6 lg:col-start-7 lg:pt-3">
-            <Reveal delay={0.25}>
-              <p className="t-lead max-w-[58ch] text-ink-2">{t.body[locale]}</p>
-            </Reveal>
-            <Reveal delay={0.4} className="mt-12">
-              <div className="rule" />
-              <p className="t-mono mt-4 text-ink-2">
-                {t.meta[locale].split("Telegram")[0]}
-                <a href={club.telegram} className="morning-tg" rel="noopener">
-                  Telegram
-                </a>
-              </p>
-            </Reveal>
-          </div>
+          <Reveal delay={0.35} className="morning__figure-col hidden lg:block">
+            <figure className="m-0">
+              <Curtain className="aspect-[4/5]" duration={1}>
+                {/* the plate takes five columns of the field, then four from
+                    1600 and three from 2000 — roughly 38vw, 30vw and 22vw */}
+                <Photo slot="parkAlley" sizes="(min-width: 2000px) 24vw, (min-width: 1600px) 32vw, 40vw" />
+              </Curtain>
+            </figure>
+          </Reveal>
+
+          <Reveal delay={0.25} className="morning__lead-col">
+            <p className="t-lead max-w-[58ch] text-ink-2">{t.body[locale]}</p>
+          </Reveal>
+
+          <Reveal delay={0.4} className="morning__meta-col">
+            <div className="rule" />
+            <p className="t-mono mt-4 text-ink-2">
+              {t.meta[locale].split("Telegram")[0]}
+              <a href={club.telegram} className="morning-tg" rel="noopener">
+                Telegram
+              </a>
+            </p>
+          </Reveal>
         </div>
       </div>
     </Chapter>
