@@ -28,7 +28,7 @@ const ChapterContext = createContext<ChapterContextValue>({
   setGround: () => {},
 });
 
-/** Tracks which chapter is in view so the header's running head can name it. */
+/** Tracks which chapter is in view so the header can mark the entry pointing at it. */
 export function ChapterProvider({ children }: { children: ReactNode }) {
   const [active, setActiveState] = useState<ChapterInfo | null>(null);
   const [ground, setGroundState] = useState<{ id: string; ground: Ground }>({ id: "", ground: "paper" });

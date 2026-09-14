@@ -1,791 +1,533 @@
 /* ------------------------------------------------------------------ */
-/* Chapter 二 — «О клубе»: the glossary page                            */
+/* Chapter 二 — «О клубе»                                               */
 /*                                                                      */
-/* Two entries and a promise. The chapter opens quiet and dense — a     */
-/* diagram, apparatus, a ruled table — where chapter one opened loud,   */
-/* and saves its one monumental line for the end. Nothing here repeats  */
-/* the hero's silhouette: the largest type in this chapter arrives on   */
-/* the way out, not on the way in.                                      */
+/* ONE FRAME, composed the way the board the client sent is composed —  */
+/* a statement at the head, all of the air in one band, matter at the   */
+/* foot:                                                                */
 /*                                                                      */
-/* The sheet is the viewport (see globals.css: `.wrap` is the trim, not */
-/* a column), so both entries are set as the SAME three-part spread on  */
-/* a wide page — a block, a ruled gutter, a facing block — and the      */
-/* chapter's structure is legible as structure rather than as two       */
-/* small layouts marooned in the middle of a large piece of paper.      */
+/*     Азума                        <- the statement: one word on one   */
+/*                                     line, a mark in a field rather   */
+/*                   (void)            than a masthead                  */
+/*                                                                      */
+/*     СК «Азума» — секция киокушинкай каратэ в Нальчике. Вечером мы    */
+/*     работаем в зале, по выходным — в парке, лицом к восходу.         */
+/*     ───────────────────────────────────────                         */
+/*     Мальчики и девочки                       4–6 лет                 */
+/*                                             6–11 лет                 */
+/*                                            12–16 лет                 */
+/*     ───────────────────────────────────────                         */
+/*     Мужчины и девушки                            16+                 */
+/*     ───────────────────────────────────────                         */
+/*                                                                      */
+/*                                  <- the foot: the lede set LARGE,    */
+/*                                     and under it the ruled roster    */
+/*                                     at that same size                */
+/*                                                                      */
+/* IT WAS THREE FRAMES. «Киокуши́н — предельная истина.» was a second    */
+/* statement at this same display size, filling a second screen, with   */
+/* 押忍 — the chapter's one red mark, drawn stroke by stroke rather      */
+/* than printed — written across its lede; it was folded into the       */
+/* prose (`content/home.ts`, `lede`) and the red hand went with the     */
+/* frame it annotated. «С четырёх лет — и без потолка.» was a third,    */
+/* standing over the roster; it went too, and the roster came UP into   */
+/* the surviving frame's foot rather than hold a screen of its own.     */
+/* So chapter 二 carries no vermilion at all — which the rota allows:   */
+/* the hue is spent on the brush, the seal and the reader's own         */
+/* accent, never on ornament.                                           */
+/*                                                                      */
+/* AND THERE IS NO GHOST TONE IN THIS FILE ANY MORE. The chapter's      */
+/* hierarchy used to be one solid line against an echo at a fifth of    */
+/* its contrast — `--ghost`, spent on exactly two things: a statement's */
+/* second line and the dictionary dash at the end of its first. «Азума  */
+/* — восток.» has lost its second line, so both are gone and the token  */
+/* went with them. Do not reintroduce it for a label or a caption; the  */
+/* manual's secondary text tone is `--color-ink-2`, and what carries    */
+/* hierarchy in this chapter now is a rule and a measure.               */
+/*                                                                      */
+/* The board's foot of micro labels — «01 · НАШЕ ИМЯ ──── ФИГ. 02 …» —  */
+/* is GONE, along with the chapter's running head and its colophon.      */
+/* Ten chapters of mono apparatus read as scaffolding rather than as     */
+/* printing; what is left is the statement, the lede and the roster.     */
+/*                                                                      */
+/* THE GROUND IS PAPER, and it is the manual's own. The chapter was     */
+/* printed on ink for one edit, on the argument that the board's own    */
+/* hierarchy is bone against ghost — but chapter 一 is ink too, so that */
+/* opened the book on two dark chapters back to back and left the       */
+/* header, which inverts over an ink ground, with no boundary to invert */
+/* at until 三. The ink rota is open dark, turn dark once in the        */
+/* middle, close dark.                                                  */
+/*                                                                      */
+/* The composition did not change with the ground and has not changed   */
+/* with the cuts: a statement at the head, one band of air, matter at   */
+/* the foot. What the ground cost was the ghost's arithmetic, which     */
+/* had to be re-solved against the paper stock rather than against bare */
+/* ink; the cuts then took the ghost itself. The one tone still solved  */
+/* against the grained sheet is the stamp's, at `--watermark` below.    */
+/*                                                                      */
+/* ONE departure from the manual's rota survives in this file: the      */
+/* display type is the GROTESQUE (the body face, promoted, at 500) and  */
+/* not the Didone. A high-contrast serif at 113px is a fashion masthead */
+/* on any ground, and the board is not a fashion masthead — it is       */
+/* athletic, neutral, and its whole voice is scale rather than          */
+/* modulation. It is scoped here; nothing outside chapter 二 knows.     */
+/*                                                                      */
+/* ONE SIZE AT THE FOOT: the lede and the roster are set at exactly the */
+/* same size, and the roster is the one tabulated thing in the chapter  */
+/* that could have argued for its own. Hierarchy here is TONE, RULE and */
+/* MEASURE — never scale. What the statement's size is solved against,  */
+/* and why it is not solved to the trim, is at `--say` below.           */
+/*                                                                      */
+/* The sheet is still the viewport (globals.css: `.wrap` is the trim,   */
+/* not a column), so the statement and the lede run the full width of   */
+/* the screen they are read on.                                         */
 /* ------------------------------------------------------------------ */
 
 .about {
   /*
-    Vertical rhythm grows with the sheet. Every `vw` term below is the one
-    the chapter was drawn with, so nothing at or under 1440 moves; only the
-    ceilings were raised, because a ceiling reached at ~1500px freezes the
-    white space at a height chosen for a 1312 column and a 2560 page then
-    reads as a squashed strip. `--pad-top` tops out at 192px (8vw × 2400).
+    The head has to clear the bar. The header is fixed and 80px tall at every
+    width below 1625 (`--header-h` bottoms out at its 5rem floor), and chapter
+    一 is exactly 100svh — so a reader who arrives at the fold lands with the
+    top of this chapter at y = 0, and the opening rule and the running head are
+    the two marks that say which chapter this is. They may not be the two the
+    bar eats.
   */
-  --pad-top: clamp(3.5rem, 4.6vw, 7rem);
-  --pad-bottom: clamp(2.5rem, 3.6vw, 5.5rem);
-  /* the numeral hangs level with the first ENTRY, not with the running head:
-     at the head's own baseline the kanji crossed the «Г» of «ГЛАВА ВТОРАЯ». */
-  --numeral-top: calc(var(--pad-top) + 4.5rem);
+  --pad-top: calc(var(--header-h) + clamp(1.25rem, 3vw, 4.25rem));
+  --pad-bottom: clamp(3rem, 5vw, 7.5rem);
+  --numeral-top: calc(var(--pad-top) + 3rem);
 
   /*
-    Everything in this chapter a reader actually reads at small size — the
-    entry labels, the running head's figure list, the romaji, the equation's
-    operators, the dictionary dash, and the promise's quieter first line — is
-    set in the palette's quiet ink. `--color-ink-3` is left with the one job it
-    is legal for, ornament that is not type: the register marks, and nothing
-    else on the page. Every ruled thing — the gutter, the frame, the figure's
-    ghost seat, the ledger — takes a graded `--color-rule*` instead. See the
-    note beside `--color-ink-quiet` in globals.css for why.
-  */
-  --ink-quiet: var(--color-ink-quiet);
+    THE STATEMENT SIZE.
 
-  /* the two entries are set alike, as a glossary sets its headwords.
-     The old 3.75rem ceiling was reached at 1464px, which left a 60px
-     headword facing a 768px diagram at 2560; 5.5rem is reached at 2146
-     and keeps the headword at roughly 0.58 of the promise at every width
-     above 1440 (88 : 151 at 2560, the same ratio as 60 : 85 at 1440). */
-  --word-size: clamp(1.875rem, 4.1vw, 5.5rem);
+    Measured against the live Golos Text 500 at −0.03em, the size is solved
+    against 12.209em — the English promise, "We teach how to take a hit.", from
+    a frame cut two edits ago. It has not been re-solved since, and it is
+    deliberately not re-solved here.
+
+    THE SLACK IS AS LARGE AS IT GETS. «Киокуши́н — предельная истина.» at
+    9.33em was the longest line the chapter ever held; that statement went into
+    the lede, «С четырёх лет — и без потолка.» went entirely, and «Азума —
+    восток.» lost its second line. What is left to set at this size is one word
+    — «Азума», "Azuma", around 2.6em — so the statement stands at roughly a
+    quarter of the trim with 東 in the field beside it, and that is the state
+    this chapter is judged in.
+
+    IT IS LEFT AT THIS SIZE ON PURPOSE, and the old objection to re-solving is
+    no longer the reason. That objection was arithmetic: filling the trim with
+    «Азума —» would put this near 385px on a 1512 sheet, and TWO lines at 1.02em
+    leading is some 785px — taller than the screen before the lede has been set
+    — and it would drag a second frame's statement up with it, the two being one
+    size on purpose. There is one line and one frame now, so 385px would in fact
+    fit. It is still not taken: the statement is a mark in a field rather than a
+    masthead, and a name set edge to edge would print across 東 and turn the
+    frame into a wordmark. Re-measure and re-solve only as a deliberate retune
+    of the chapter, in both languages at once.
+
+    The arithmetic the current value came from, kept because it is what the
+    number means. The trim is not 100vw — `vw` counts the classic scrollbar and
+    the sheet does not — so
+
+        trim = 0.928 x W - 15      (100vw, less a 3.6vw gutter a side, less
+                                    the 15px of scrollbar Chrome reserves)
+
+    and the size that fits it is (0.928 x W - 15) / 12.209 = 0.076 x W - 1.23.
+    7.5vw - 1.3px holds about 2% back from that, and it holds it at EVERY width
+    the page is read at: 113px at 1512, 75px at 1024, 56px at 768 and 28px at
+    390 — where the gutter has bottomed out at 20px and there is no scrollbar.
+
+    So nothing in this chapter ever wraps, in either language, at any width.
+    That mattered most while the statement was a PAIR — one solid line and a
+    ghost, which any wrap turns into four lines pretending to be two — and it
+    still holds the one line left on one line. Re-measure both languages if the
+    copy or the display face changes; the recipe is a <span> set in the live face
+    at `font-size: 100px; letter-spacing: -0.03em; white-space: pre`, then
+    `getBoundingClientRect().width / 100`.
+  */
+  --say: clamp(1.35rem, calc(7.5vw - 1.3px), 11.5rem);
+  /*
+    SET SOLID, AND THERE IS NOTHING LEFT TO SET IT AGAINST. This was half of a
+    pair. LineReveal gives every line a mask of `padding-block: bleed` with
+    `margin-block` the negative of it, so the padding is paid back — except
+    between two lines, where the two negative margins COLLAPSE to the more
+    negative of the pair rather than summing. One bleed survived as leading
+    between the pair, so what the reader saw was
+
+        line-height + bleed   =   0.82 + 0.2   =   1.02em
+
+    — the board's own setting: the ghost sat directly under the solid line,
+    close enough that the two read as one block of type.
+
+    THE STATEMENT IS ONE LINE NOW. Nothing collapses against anything, the sum
+    above describes a composition the chapter no longer has, and this number is
+    simply the line-height of a single display line — tight, so the statement
+    reads as a mark rather than as a line of type with air packed around it.
+    The 0.2 is still a prop (`SAY_BLEED` in `sections/About.tsx`, passed to
+    LineReveal) because CSS cannot hand a number to React, but it is descender
+    clearance for the mask and nothing else now. The two are no longer one
+    measurement: moving this one does not oblige that one.
+  */
+  --say-leading: 0.82;
+
+  /* the lede — set LARGE, as on the board, where the running copy is a third
+     the size of the headline rather than a tenth of it */
+  --lede: clamp(1.125rem, 2.35vw, 3.25rem);
+  /*
+    About four fifths of the trim at every width. In `em`, so the measure is a
+    property of the type and not of a container — see globals.css.
+
+    IT IS THE WHOLE 32em. While 押忍 was written across the foot of frame 02 the
+    lede there was capped to `100% - --osu-w - --osu-right - --osu-gap`, so the
+    copy ragged in to keep out of the mark's column. The mark went with its
+    frame and the cap went with it, so the lede runs the full measure at every
+    width. It sets about TWO lines at 1512 now rather than the seven it ran to
+    while it carried the full-contact paragraph: the copy was cut, not the
+    measure.
+
+    The foot it sits in carries the roster as well now. The frame absorbs that
+    in its void rather than in its air — `.about__frame` is `justify-content:
+    space-between` over a `min-height`, not a fixed height, so a foot with two
+    blocks in it grows the frame past `--frame-min` instead of crushing the
+    band above it.
+  */
+  --lede-measure: 32em;
+  /*
+    THE ROSTER'S MEASURE, and it is not the lede's.
+
+    The roster is a two-column table — a family ranged left, its bands ranged
+    right — so its width is the distance between the two, and at the lede's 32em
+    that distance is most of a screen of bare paper with a term at one end and
+    two figures at the other. 22em holds the pair close enough to read as one
+    row without a leader dot between them, at every width: 781px on a laptop,
+    1144px on a 2560 spread, and at 390 it is wider than the trim and simply
+    caps there, where «Мальчики и\u00A0девочки» and «12–16\u00A0лет» still sit on one
+    line with room to spare. In `em` of the lede, like the lede's own measure,
+    so both are properties of the type and not of a container.
+  */
+  --roster-measure: 22em;
 
   /*
-    The promise is the one line on the page that must never break: the brush
-    rules two words inside it, and a wrap would put the mark and the words on
-    different lines. Measured in Prata, line two is 11.64em in Russian and
-    12.43em in English, so the second term caps the size at whatever keeps the
-    longer of the two on one line; 12.9 leaves room for a scrollbar in 100vw.
+    THE ONE TONE LEFT, AND IT IS NOT TEXT.
 
-    That fit term is 92.8vw / 12.9 = 7.19vw wherever the gutter is still
-    fluid (3.6vw a side), i.e. it is always looser than the 5.9vw growth term
-    and only ever binds on phones, where the gutter has bottomed out at 20px
-    — at 390 it is what holds the promise to 27px. So the ceiling is free to
-    rise: 10rem is reached at 2712px, and at 2560 the promise sets at 151px
-    against a 2376px trim, where the longer (English) line measures 1877px.
-    Re-check both languages here if the copy or the display face changes.
+    THERE WAS A GHOST HERE and the chapter's whole hierarchy was in it. Ink on
+    paper is 16.2:1 flat and 14.9:1 on the sheet as it prints; `--ghost:
+    #878075` sat at 3.13:1, about a fifth of that, which is the drop the board's
+    own second line makes and the reason a statement and its echo read as one
+    claim rather than as two headings. That relationship survived the chapter
+    being re-solved from ink to paper — bone 15.2:1 against ghost 3.13:1, the
+    ground inverted and the ratio held — and then did not survive «Азума —
+    восток.» losing its second line. Both things the tone was spent on are cut,
+    so the token is gone.
+
+    DO NOT REVIVE IT FOR A LABEL, A CAPTION OR A NOTE. 3.13:1 was legal only
+    because 1.4.3 asks 3:1 of LARGE text and only of large text, and the ghost
+    was spent on one thing that was never smaller than 28px and was 113px on a
+    laptop. A second text tone in this chapter is `--color-ink-2` (5.9:1
+    grained), the manual's own.
+
+    AND ANY TONE PUT HERE IS MEASURED AGAINST THE GRAINED SHEET, NOT AGAINST
+    #F3EFE6. This is the one thing the ink version never had to do. There the
+    film grain was an element in the chapter's `bleed` slot and `.about__inner`
+    simply sat above it, so a tone was measured on bare ink. The paper stock is
+    not an element — globals.css multiplies two noise tiles into the ground
+    itself — so there is nothing to sit above: type is always on the grained
+    sheet. Both tiles are capped at 0.98, so the darkest pixel anything can land
+    on is #E9E6DD, and that is where a floor has to hold. The ghost measured
+    3.13:1 there against 3.40:1 on flat paper, which is the flattering number
+    and the wrong one.
+
+    The watermark is not text at all and is not held to a text floor: 東 is
+    printed at 1.18:1, the tone a blind stamp carries — the sheet pressed and no
+    ink left on the surface, legible by relief and nothing else. On paper that
+    has stopped being an analogy: it is an emboss, which is the thing the mark
+    was always drawn as. Nothing is ever read off it — the character IS the word
+    in the statement beside it, which is where the reading is spelled out.
+
+    1.18 is the number the stamp was given on ink and it is held here on the
+    sheet as it prints (1.24:1 against flat paper), because what set it was
+    never the ground. The brush profile lays every stroke seven times and so
+    puts about half again as much ink down as the monoline it replaced; at the
+    1.36:1 it was first printed at, that read as a second thing to look at,
+    competing with a statement two thirds of the trim wide. Unlike the ghost
+    that used to be declared beside it, this tone is measured on the TYPICAL
+    grained pixel rather than the worst:
+    there is no floor to defend here, only a judgement about how quiet a mark
+    is, and the worst pixel is not what the mark is seen against. Re-measure
+    against `--color-paper` (#F3EFE6) if the profile or the weight changes — it
+    is the ink AREA and the tone together that decide whether a stamp is quiet.
   */
-  --promise-size: clamp(2.5rem, 7.4vw, 10rem);
+  --watermark: #ded8c9;
 
   /*
-    The cap on Фиг. 02, and it only governs the STACKED layout — from 1024 up
-    it is released (see the two `--fig-max: none` blocks below) and the figure
-    fills whatever column slot the spread gives it: five columns to 1600, four
-    above it, which is 537px at 1440 and 768px at 2560. That is the point of
-    the plate — the ruled gutter beside it bisects the void only if the square
-    actually reaches its own slot.
+    THE STAMP'S SIZE. It was min(82svh, 64vw) — 779px on a laptop — and bled off
+    the outer trim, which is the size a PLATE is printed at and not the size a
+    watermark is. Held inside the trim at a little over half of that, it is a
+    mark in the frame's field rather than a second subject in it, and the
+    statement is the only thing at the head of frame 01 asking to be read.
 
-    So what is left for this cap is the stacked layout under 1024, where there
-    is no slot and the figure is simply a picture in a column. It read 28rem,
-    which nothing ever saw: the stacked block below immediately overrode it
-    with 24rem and every width above it releases the cap entirely.
+    THIS SIZES THE BOX, AND THE BOX IS NOT THE MARK. KanjiVG leaves 東 its own
+    bearings, so the ink covers about 0.75 of the square across and 0.85 of it
+    down — at 475 that is 357 × 404 of actual stroke. The bearings are paid for
+    here rather than scaled away on the glyph, for the reason set out at
+    `.azuma-fig__glyph` below: the wipe clips to the border box, so anything
+    that overflows the box is cut off the mark.
   */
-  --fig-max: 24rem;
+  --wm-size: min(50svh, 37vw);
 
-  /* one gap, so the prose and the plate note it sits beside share a top edge
-     when the entry body splits in two on a wide sheet */
-  --prose-gap: clamp(1.75rem, 2.6vw, 3.5rem);
+  /* a frame is a screen, less the bar; the void inside it is what is left when
+     the statement and the foot have taken theirs */
+  --frame-min: min(86svh, 60rem);
 }
 
 .about__inner {
+  /*
+    There is no grain layer to sit above any more — a paper chapter's surface
+    is the stock, multiplied into the ground by `.ground-paper` — but the
+    stacking context stays, and it is not vestigial. It is what keeps this
+    chapter's z-indices (watermark 0, everything read 1 — the hand that was 2
+    went with 押忍) PRIVATE:
+    without it they resolve against the root, where they would be ordered
+    against the binding rail and the chrome rather than against each other.
+  */
+  position: relative;
+  z-index: 10;
   padding-top: var(--pad-top);
   padding-bottom: var(--pad-bottom);
 }
 
 /* ---------------------------------------------------------------- */
-/* Running head — a sheet that has been trimmed                      */
+/* The frame — and there is only one of them now                     */
+/*                                                                   */
+/* Two children and the void between them: the statement at the top, */
+/* and a foot that carries the lede AND the roster under it. That is */
+/* the board's composition exactly — all of the air in ONE place, in */
+/* the middle, where it separates the claim from its explanation.    */
+/*                                                                   */
+/* The foot grew by a block when «С четырёх лет — и без потолка.» was */
+/* cut and the roster came up out of its own frame. `min-height` and */
+/* `space-between` are what absorb that: the frame gets taller, the  */
+/* void holds at the `gap` floor, and nothing above it is crushed.   */
 /* ---------------------------------------------------------------- */
-.about__head-rule {
+.about__frame {
+  position: relative;
+  /* `clip` and not `hidden`: the watermark bleeds off the trim and has to be
+     cut by the frame, but `overflow: hidden` would make this a scroll container
+     and silently kill the sticky chapter numeral in the binding margin. */
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: clamp(3rem, 9vw, 12rem);
+  min-height: var(--frame-min);
+  padding-block: clamp(3rem, 7vw, 9rem);
+}
+
+.about__frame-foot {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2rem, 3.4vw, 4.5rem);
   position: relative;
 }
-/*
-  The two register marks sit on the ends of the running-head rule, which is
-  now the trim itself. `left: 100%` with the centring transform leaves half
-  the mark (5.5–7.5px) beyond the rule and the other half on it, with the
-  whole gutter as paper behind it: 20px at 390 and 92px at 2560. It reads as
-  a trim mark on a trimmed sheet, never as something sliding off the page.
-  The size follows the mono scale's 0.62vw so an 11px cross does not shrink
-  into invisibility on a sheet three times the width it was drawn for.
-*/
-.about__reg {
+
+/* ---------------------------------------------------------------- */
+/* The statement                                                     */
+/* ---------------------------------------------------------------- */
+.about__say {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--say);
+  line-height: var(--say-leading);
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+}
+
+/* ---------------------------------------------------------------- */
+/* The lede                                                          */
+/* ---------------------------------------------------------------- */
+.about__lede {
+  position: relative;
+  z-index: 1;
+  max-width: var(--lede-measure);
+  font-size: var(--lede);
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  /*
+    RAGGED, AND HYPHENATED IN ENGLISH ONLY.
+
+    The column was justified once, with `hyphens: auto`, on the argument that a
+    manual justifies. At this size a river is four fingers wide, so the
+    justification went and the rag stayed.
+
+    THE HYPHENATION IS SPLIT BY LANGUAGE, and it stays split even though the
+    lede is short again. A note that used to sit here claimed Chrome ships no
+    Russian dictionary, so the declaration was a no-op on every RU string and
+    could be left global. That is not true of the browser: Chromium hyphenates
+    Russian perfectly well, and the merged lede proved it by breaking «оч-ков»
+    and «харак-тер» on consecutive lines — two hyphens in one paragraph, at
+    36px, which is not a thing a Russian manual sets. Those words are cut now
+    and the demonstration is gone with them; the rule is not, because what makes
+    a Russian hyphen wrong here is the size, not that particular copy.
+
+    English keeps it, where the breaks are ones a reader does not notice and
+    the rag tightens. Russian takes the rag as it falls. Scoped off `<html
+    lang>`, which `app/[locale]/layout.tsx` sets per locale, so the rule
+    follows the page rather than the component.
+  */
+  hyphens: auto;
+}
+:lang(ru) .about__lede {
+  hyphens: manual;
+}
+
+
+/* ---------------------------------------------------------------- */
+/* 東 — the stamp                                                     */
+/*                                                                   */
+/* 東 is a picture of the word the club is named after — a sun risen */
+/* into the branches of a tree — blind-stamped into the ink of the   */
+/* frame the name is stated in, and printed as TYPE rather than      */
+/* taken apart as a diagram. The reasoning for that change, and for  */
+/* the single bottom-up wipe that reveals it, is at the top of       */
+/* `figures/AzumaFigure.tsx`.                                        */
+/*                                                                   */
+/* It is HELD INSIDE THE TRIM now. Bleeding it off the outer edge is */
+/* what a plate does, and a plate is a thing the reader is meant to  */
+/* look AT; this is a watermark, and a watermark stays in the field  */
+/* the type is set on.                                               */
+/* ---------------------------------------------------------------- */
+.about__watermark {
   position: absolute;
+  z-index: 0;
   top: 50%;
-  width: clamp(11px, 0.62vw, 15px);
-  height: clamp(11px, 0.62vw, 15px);
-  color: var(--color-ink-3);
-  transform: translate(-50%, -50%);
+  right: 0;
+  translate: 0 -50%;
+  width: var(--wm-size);
   pointer-events: none;
 }
-.about__reg--start {
-  left: 0;
-}
-.about__reg--end {
-  left: 100%;
-}
-.about__head-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1.5rem;
-  /* the running head's air grows with the sheet from 1778 up */
-  padding-top: clamp(1rem, 0.9vw, 1.75rem);
-}
-/*
-  The outer field of the running head. It holds both of the marks that range to
-  the right trim — the inline folio, which only prints on a phone because that
-  is where the binding margin and its numeral do not exist, and the figure list,
-  which only prints above it — so the head is a two-cell row at every width and
-  the survivor is always pinned to the trim. Exactly one of the two is ever
-  visible, so the gap is only ever insurance.
-*/
-.about__head-marks {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 1.5rem;
-}
-.about__head-figs {
-  display: none;
-}
-@media (min-width: 768px) {
-  .about__head-figs {
-    display: inline;
-  }
-}
-
-/* ---------------------------------------------------------------- */
-/* Entries                                                           */
-/* ---------------------------------------------------------------- */
-.about__entry {
-  position: relative;
-  display: grid;
-  gap: 3rem 0;
-  margin-top: clamp(2.5rem, 3.7vw, 5.5rem);
-}
-
-/* Below the spread breakpoint the two pages stack, and the reading order
-   flips: the word is introduced first and the figure follows it as the
-   demonstration. A reader on a phone should never meet 東 cold. */
+/* below the spread the frame is narrow enough that the mark would stand behind
+   the lede rather than beside it, so it gives up more of its width than height */
 @media (max-width: 1023px) {
-  .about__entry--name {
-    display: flex;
-    flex-direction: column;
+  .about__watermark {
+    --wm-size: min(37svh, 50vw);
   }
-  .about__entry--name .about__entry-body {
-    order: 1;
-  }
-  .about__entry--name .about__figure {
-    order: 2;
-  }
-}
-
-/* the gutter: one hairline ruled down the empty column between an
-   entry's two blocks. It is never a page-wide grid — it exists only
-   where two blocks actually face each other, so nothing on the page
-   has to pretend to sit on a rule it ignores. Both entries earn one:
-   entry 01 between the figure and its reading, entry 02 between the
-   argument and the ledger of facts, which without it read as two
-   islands once the sheet is wider than the two blocks together. */
-.about__gutter {
-  display: none;
-  width: 1px;
-  justify-self: center;
-  background: var(--color-rule);
-}
-
-.about__label {
-  margin-bottom: 1.25rem;
-  color: var(--ink-quiet);
-}
-.about__head-figs,
-.about__romaji,
-.about__fig-no,
-.about__eq-key {
-  color: var(--ink-quiet);
-}
-
-.about__word {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: var(--word-size);
-  line-height: 1.04;
-  letter-spacing: -0.005em;
-}
-.about__dash {
-  color: var(--ink-quiet);
-}
-
-.about__way-head,
-.about__way-body {
-  display: grid;
-  gap: 2.5rem 0;
-}
-/* Below 1024 the entry is a single stacked column and its grid `gap` already
-   spaces these blocks; adding a margin there double-counted the rhythm. */
-@media (min-width: 1024px) {
-  .about__way-body {
-    margin-top: clamp(1.5rem, 2vw, 3rem);
-  }
-}
-
-.about__prose {
-  margin-top: var(--prose-gap);
-  max-width: var(--measure-lead);
-  color: var(--color-ink-2);
-  /*
-    46ch is the measure and it stays the measure — but a `ch` is only as wide
-    as the type, and 17px was chosen against a 1312 column. Held flat it makes
-    a 391px paragraph on a 2376px sheet, which is what turns a column into an
-    island. The 0.95vw term crosses 17px at 1790, so nothing below that moves,
-    and tops out at 22px — a 506px measure at 2560, still 46 characters.
-  */
-  font-size: clamp(1.0625rem, 1.31vw, 1.5rem);
-  line-height: 1.6;
-}
-
-/* ---------------------------------------------------------------- */
-/* Фиг. 02 — 東 taken apart                                          */
-/* ---------------------------------------------------------------- */
-.about__figure {
-  margin: 0;
 }
 
 .azuma-fig {
   position: relative;
   width: 100%;
-  max-width: var(--fig-max);
 }
-.azuma-fig__frame {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  border: 1px solid var(--color-rule);
+/*
+  The sheet the wipe fills. Motion animates `clip-path` on this element, so it
+  must be the glyph's own box and nothing else — a padded or offset wrapper
+  would put the wipe's edge somewhere other than the foot of the mark.
+*/
+.azuma-fig__press {
+  display: block;
+  color: var(--watermark);
 }
+/*
+  NO TRANSFORM HERE, AND THAT IS LOAD-BEARING.
+
+  KanjiVG draws 東 inside its own bearings — the ink spans about 75% of the
+  109-unit square across and 85% of it down — so the obvious move is to scale
+  the glyph up a few per cent to tighten them. It cannot be done on this
+  element. `clip-path` on the press above clips to that element's BORDER BOX,
+  and it goes on clipping at `inset(0%)`; a scaled child simply overflows the
+  box and is cut. At 1.08 the mark lost about two and a half pixels off the foot
+  of the trunk — a flat chop on the one stroke of 東 that is supposed to run
+  furthest, on a page whose whole argument is that its marks are printed
+  properly.
+
+  So the bearings are paid for in `--wm-size` instead: the token is solved to
+  the size the INK should print at, not the size the box is, and the box is
+  simply the larger of the two. Scale the glyph here again and the foot goes.
+*/
 .azuma-fig__glyph {
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 /*
-  The empty socket the sun belongs in — printed, so the destination is legible
-  before anything has moved. It is a guide line, not a ghost of the type, so it
-  takes the standard printed hairline's tone at full strength rather than the
-  ornament grey at 38%: that mixed down to about 1.2:1 on this paper, which on
-  a plate the reader is being asked to READ as an empty seat was a seat they
-  could not quite see. `--color-rule` is the same 1.5:1 as every other ruled
-  line in the chapter, and the seat is drawn thinner than the sun that covers
-  it, so the finished 東 still prints with no halo.
+  There is no reduced-motion rule here any more, and its absence is the point.
+  The stamp used to ride a scroll-linked transform, which a stylesheet had to
+  pin with `transform: none !important` because CSS is the only thing that can
+  win against an inline transform Motion writes every frame. The wipe is an
+  ordinary `animate`, so stillness is spent where it belongs — on the duration,
+  in the component, through `useStillness()`.
 */
-.azuma-fig__seat {
-  color: var(--color-rule);
-}
-.azuma-fig__tree,
-.azuma-fig__sun {
-  color: var(--color-ink);
-}
-.azuma-fig__sun {
-  will-change: transform;
-}
-/* the sun is seated and 東 prints complete; `!important` is what lets a
-   stylesheet win against the inline transform Motion writes */
-@media (prefers-reduced-motion: reduce) {
-  .azuma-fig__sun {
-    transform: none !important;
-    will-change: auto;
-  }
-}
 
-/* registration marks, straddling the frame's corners. They mark a frame
-   that is now 479–768px across, so like the running head's pair they take
-   the mono scale's growth rather than staying at the 13px drawn for 448. */
-.azuma-fig__reg {
-  position: absolute;
+/* ---------------------------------------------------------------- */
+/* The roster — the second block in the frame's foot                 */
+/*                                                                   */
+/* The club states its intake as two sentences — «Мальчики и девочки: */
+/* 4–6 / 6–11 / 12–16» and «Мужчины и девушки: 16+» — and this   */
+/* prints them as two, as a ruled roster and not as a second        */
+/* timetable. The week is chapter 三's job; this says only who the    */
+/* club takes.                                                      */
+/*                                                                   */
+/* IT USED TO OPEN A FRAME OF ITS OWN, under «С четырёх лет — и без   */
+/* потолка.» at display size. That statement was cut, which left the */
+/* table holding a screen with nothing over it, so it came up into   */
+/* the lede's foot. It is the same table; only its neighbours moved. */
+/*                                                                   */
+/* SET AT THE LEDE'S SIZE, which is the one size the frame's foot has.*/
+/* The chapter's rule is that hierarchy is carried by tone and by a  */
+/* rule, never by scale, and the one tabulated thing in it is not    */
+/* the exception: the term and its bands are the same size and the   */
+/* same ink, and what separates one family from the other is a       */
+/* hairline. Nothing here is mono — the mono apparatus is what this  */
+/* chapter spent its last edit removing, and these are figures a     */
+/* parent READS rather than marks they count.                       */
+/* ---------------------------------------------------------------- */
+.about__roster {
+  position: relative;
   z-index: 1;
-  width: clamp(13px, 0.72vw, 18px);
-  height: clamp(13px, 0.72vw, 18px);
-  color: var(--color-ink-3);
-  pointer-events: none;
-}
-.azuma-fig__reg--tl { top: 0; left: 0; transform: translate(-50%, -50%); }
-.azuma-fig__reg--tr { top: 0; left: 100%; transform: translate(-50%, -50%); }
-.azuma-fig__reg--bl { top: 100%; left: 0; transform: translate(-50%, -50%); }
-.azuma-fig__reg--br { top: 100%; left: 100%; transform: translate(-50%, -50%); }
-
-/* Leader labels: the diagram's key, hung inside the frame. Inset and leader
-   are proportional to the frame from ~1750 up, so a label on a 768px plate
-   is not pinned 16px off the edge by a rule written for a 448px one.
-
-   They ARE the diagram — without them the figure is three glyphs in a box — so
-   they print at every width and only the leader shortens on a narrow frame.
-   (This rule used to declare `display: none` and be turned back on by a second
-   `display: block` forty lines further down, which is a switch nobody dares
-   touch because it looks load-bearing. It is not.) */
-.azuma-fig__label {
-  display: block;
-  position: absolute;
-  right: clamp(1rem, 1vw, 1.75rem);
-  color: var(--color-ink-2);
-  white-space: nowrap;
-  transform: translateY(-50%);
-}
-.azuma-fig__label::before {
-  content: "";
-  display: inline-block;
-  width: clamp(1.5rem, 1.6vw, 2.5rem);
-  height: 1px;
-  margin-right: 0.6rem;
-  vertical-align: 0.28em;
-  background: var(--color-rule);
-}
-.azuma-fig__label--tree { top: 21%; }
-.azuma-fig__label--sun { top: 46%; }
-
-/* the legend: 木 + 日 = 東, registered in one shared 109-unit square so
-   the sun appears in its true seat instead of being re-centred. It is set
-   to the plate's width, not to its own, so the two read as one unit. */
-.about__legend {
-  margin-top: clamp(1.25rem, 1.1vw, 2rem);
-  max-width: var(--fig-max);
-}
-.about__legend-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-.about__equation {
-  display: flex;
-  align-items: center;
-  gap: clamp(0.4rem, 0.4vw, 0.75rem);
-}
-.about__fig-no {
-  margin-right: 0.6rem;
-}
-/* the equation's specimens are a caption-scale thing; 2rem beside a 768px
-   plate is a footnote, so they take the same growth as the caption type */
-.about__eq-glyph {
-  width: clamp(2rem, 1.6vw, 3rem);
-  height: clamp(2rem, 1.6vw, 3rem);
+  max-width: var(--roster-measure);
+  font-size: var(--lede);
+  line-height: 1.32;
+  letter-spacing: -0.01em;
   color: var(--color-ink);
-  flex: none;
-}
-.about__eq-op {
-  color: var(--ink-quiet);
-  font-size: clamp(0.75rem, 0.6vw, 1rem);
-}
-.about__fig-read {
-  /* ceiling was reached at 1467; 3.75rem lands at 2000. On the wide spread
-     this is overridden to `--prose-gap` so the note tops out level with the
-     prose it stands beside. */
-  margin-top: clamp(2rem, 3vw, 3.75rem);
-  max-width: 40ch;
-}
-.about__fig-read p {
-  margin-top: 1rem;
 }
 
-/* ---------------------------------------------------------------- */
-/* The ledger — a printed reference table, not a UI card             */
-/* ---------------------------------------------------------------- */
-.about__ledger-wrap {
-  max-width: var(--measure-lead);
-}
-/* in the two-column body the ledger sets beside the prose, not under it.
-   (There were two of these blocks at the same breakpoint, the first setting a
-   fluid top margin the second immediately overwrote with 0.35rem. Only the
-   value that ever printed is kept.) */
-@media (min-width: 1024px) {
-  .about__ledger-wrap {
-    margin-top: 0.35rem;
-    max-width: none;
-  }
-  .about__prose--way {
-    margin-top: 0;
-  }
-}
 /*
-  Three weights of line in one small table, which is the whole reason the book
-  grades its rules: the table's head and foot are the standard printed hairline
-  and the separations between rows are the hair weight. One weight for all six
-  lines made the table read as a stack of six equal bands with no top and no
-  bottom — a form to fill in. Graded, it reads as a printed reference: the
-  block is bounded, and the rows are counted inside it.
+  A row is the <div> <Reveal> renders between the <dl> and its <dt>/<dd>, so
+  the grid is declared here rather than on the list: the two families arrive
+  one after the other, and each one is its own two-column row.
+
+  BASELINE, not centre. The children's row carries three bands against one
+  term; aligning the boxes would float «Мальчики и девочки» to the middle
+  of a three-line stack, which is a caption. On the shared baseline the term
+  sits against the FIRST band, the way an entry sits against the first of its
+  sub-entries in a printed index.
 */
-.about__ledger {
-  margin: 0;
+.about__roster-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: clamp(1.5rem, 4vw, 5rem);
+  padding-block: clamp(0.85rem, 1.5vw, 1.75rem);
+  /* `--color-rule`, the standard printed hairline: these are the boundaries
+     of a block and the rules of a table, not separations inside one. */
   border-top: 1px solid var(--color-rule);
 }
-.about__ledger-row {
-  display: flex;
-  align-items: baseline;
-  /* 13.6px of leading between rules was drawn for a 604px table. The same
-     rows run 1371px wide at 2560, where a flat 0.85rem prints as a squashed
-     strip; 0.75vw crosses it at 1813 and tops out at 24px. */
-  padding: clamp(0.85rem, 0.75vw, 1.5rem) 0;
-  border-bottom: 1px solid var(--color-rule-hair);
+/* the table is closed at the foot, so it reads as ruled matter and not as two
+   paragraphs that happen to have lines over them */
+.about__roster-row:last-child {
+  border-bottom: 1px solid var(--color-rule);
 }
-.about__ledger-row:last-child {
-  border-bottom-color: var(--color-rule);
-}
-.about__ledger-row dt {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: baseline;
-  min-width: 0;
-}
-/* dot leaders as a pseudo-element, never as middot characters — a screen
-   reader should not have to read a row of dots aloud. They are also what
-   lets the table take the full width of its slot on a wide sheet without
-   the value floating free of its key: the leaders carry the eye across. */
-.about__ledger-row dt::after {
-  content: "";
-  flex: 1 1 2rem;
-  min-width: 1.25rem;
-  height: 1px;
-  margin: 0 0.75rem 0.32em;
-  background-image: radial-gradient(circle, currentColor 0 0.5px, transparent 0.6px);
-  background-size: 6px 1px;
-  background-repeat: repeat-x;
-  opacity: 0.5;
-}
-.about__ledger-row dd {
-  flex: 0 1 auto;
+
+.about__roster-bands {
+  /* Tailwind's preflight already zeroes this; declared so the roster does not
+     depend on a reset for its geometry */
   margin: 0;
-  text-align: right;
+  display: grid;
+  justify-items: end;
+  text-align: end;
+  /* three bands stacked — the figures line up on their columns */
+  font-variant-numeric: tabular-nums;
 }
-
-/* ---------------------------------------------------------------- */
-/* 極真 — the specimen                                                */
-/* ---------------------------------------------------------------- */
-/* The specimen block is a grid item ranged to the trim on the spread and a
-   plain block on a phone, so it has no free space to distribute either way:
-   the row is always exactly as wide as the two glyphs. It carried a
-   `justify-content: inherit` that inherited `normal` from a block parent and
-   therefore did nothing at any width. */
-.about__specimen-glyphs {
-  display: flex;
-  gap: clamp(0.75rem, 1.6vw, 1.5rem);
-  color: var(--color-ink);
-}
-/* the specimen faces the headword and has always been set a shade larger
-   than it (88 against 60 at 1440); the 5.5rem ceiling was reached at 1257
-   and broke that relation as soon as the headword kept growing, so the
-   ceiling moves to 8rem — 128px at 2560 against an 88px headword, the same
-   1.45 ratio. Below 1280 the 7vw term still governs and nothing moves. */
-.about__specimen-glyph {
-  width: clamp(3.25rem, 7vw, 8rem);
-  height: auto;
-}
-.about__romaji {
-  margin-top: 0.85rem;
-}
-
-/* ---------------------------------------------------------------- */
-/* Илл. 02 — the chapter's one photograph                            */
-/* ---------------------------------------------------------------- */
-.about__plate {
-  margin: 0;
-}
-.about__plate-img {
-  position: relative;
-  overflow: hidden;
-  background: var(--color-paper-2);
-}
-.about__plate figcaption {
-  margin-top: 0.75rem;
-}
-
-/*
-  The plate is ranged to the outer edge of the paper and trimmed off it —
-  `.bleed-r` semantics, written out because the caption inside must be pulled
-  back to the trim. `.wrap` is the whole sheet now, so `100% + var(--gutter)`
-  lands EXACTLY on the paper edge: the old `+ 2.5rem` / `+ 4.5rem` were slack
-  between a 1312 column and the page, and once the column became the page they
-  were pure overflow — up to 72px of horizontal scroll at 1440. Nothing may be
-  added to this width at any breakpoint.
-
-  Which also means the plate needs no breakpoint to grow: it is 370px at 390
-  and 2468px at 2560, always one gutter short of the full viewport.
-*/
-.about__plate {
-  margin-top: clamp(2rem, 3vw, 4.5rem);
-  width: calc(100% + var(--gutter));
-  margin-right: calc(var(--gutter) * -1);
-}
-.about__plate .about__plate-img {
-  aspect-ratio: 4 / 5;
-}
-@media (min-width: 640px) {
-  .about__plate .about__plate-img {
-    aspect-ratio: 16 / 9;
-  }
-}
-/*
-  From the spread breakpoint the plate takes the 2/1 band a full-bleed
-  photograph wants — and a fold cap, because a plate a reader cannot see whole
-  is not a plate. At 1512 that is 1443/2 = 722px, held to 589px by 62vh on a
-  950-tall screen; the crop is `object-cover` at the manifest's focal point.
-*/
-@media (min-width: 1024px) {
-  .about__plate .about__plate-img {
-    aspect-ratio: 2 / 1;
-    max-height: 62vh;
-  }
-}
-.about__plate-cap {
-  padding-right: var(--gutter);
-}
-
-/* ---------------------------------------------------------------- */
-/* The promise — the chapter's monument                              */
-/* ---------------------------------------------------------------- */
-.about__promise {
-  /* the monument needs the paper around it to grow with it: the old
-     9rem/7.5rem ceilings were both reached at ~1600 */
-  margin-top: clamp(3rem, 4.8vw, 7.5rem);
-  margin-bottom: clamp(2.5rem, 4.2vw, 6.5rem);
-}
-.about__promise-type {
-  /*
-    `--bleed` must equal the `bleed` prop given to the promise's LineReveal:
-    every offset the hidden twin below uses is measured from it.
-  */
-  --bleed: 0.2em;
-  position: relative;
-  font-family: var(--font-display);
-  font-size: var(--promise-size);
-  line-height: 1.06;
-  letter-spacing: -0.008em;
-  color: var(--color-ink);
-}
-/* the denial is printed a tone back so the promise steps forward — the
-   reference boards' two-layer headline, with the layers given a reason */
-.about__ghost {
-  color: var(--ink-quiet);
-}
-
-/*
-  The twin is absolutely positioned, so it establishes a block formatting
-  context and its children's negative margins do NOT collapse outward the
-  way LineReveal's do inside the flow. That costs exactly one bleed at the
-  top, and this offset pays it back.
-*/
-.about__promise-mark {
-  position: absolute;
-  top: var(--bleed);
-  left: 0;
-  right: 0;
-  visibility: hidden;
-  pointer-events: none;
-  user-select: none;
-}
-/* mirrors LineReveal's per-line wrapper (padding + negative margin) so the
-   twin's line boxes land on the real ones; without this the mark drifts down
-   the page by one `bleed` per line and rules through the words */
-.about__promise-bleed {
-  display: block;
-  padding-block: var(--bleed);
-  margin-block: calc(var(--bleed) * -1);
-}
-.about__promise-line {
-  display: block;
-}
-/* line-height 1 makes the anchor box end a predictable 0.25em under the
-   baseline, so the stroke clears the descenders of «держать удар» by the
-   same amount whatever the language or the size */
-.about__promise-anchor,
-.about__promise-nowrap {
+/* a band is bound to its unit by a non-breaking space in the content layer;
+   this stops the en-dashed pair itself breaking across two lines */
+.about__band {
   white-space: nowrap;
-}
-.about__promise-anchor {
-  position: relative;
-  display: inline-block;
-  line-height: 1;
-}
-/* every offset here is in `em`, so the stroke stays registered on the two
-   words it rules at 27px on a phone and at 151px on a 2560 sheet — raising
-   the `--promise-size` ceiling cannot pull it out of register */
-.about__promise-stroke {
-  visibility: visible;
-  position: absolute;
-  left: -0.16em;
-  top: 100%;
-  margin-top: -0.2em;
-  width: calc(100% + 0.32em);
-  height: auto;
-}
-
-/* ---------------------------------------------------------------- */
-/* Colophon — layout/ChapterFoot                                     */
-/*                                                                   */
-/* The hand-built colophon (a rule, a folio, two red-on-hover links)  */
-/* is gone: it was the prototype the shared foot was cut from, and    */
-/* the only thing this chapter still has to say about it is where it  */
-/* sits. The foot brings its own top margin, but the promise above it */
-/* already owns the air under the monument — that measurement was     */
-/* made against this chapter's rhythm and the component's default     */
-/* would simply be added to it, opening a band of blank paper at the  */
-/* bottom of the page nearly two monuments deep.                     */
-/* ---------------------------------------------------------------- */
-.about .chapter-foot {
-  margin-top: 0;
-}
-
-/* ---------------------------------------------------------------- */
-/* The spread                                                        */
-/*                                                                   */
-/* Both entries stand on the page's shared twelve-column field, with  */
-/* the field's own `--col-gap` rather than a private one — a heading  */
-/* here and a plate in chapter six have to sit on the same verticals  */
-/* now that every chapter is trimmed to the same sheet. (The old      */
-/* private gap topped out at 24px from 1200 up; `--col-gap` is 21.6px */
-/* at 1440 and 36px at 2560, so the columns below 1600 are within a   */
-/* couple of pixels of what they were and keep growing above it.)     */
-/* ---------------------------------------------------------------- */
-@media (min-width: 1024px) {
-  .about__entry {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-  }
-
-  .about__gutter {
-    display: block;
-    grid-row: 1 / -1;
-  }
-
-  /* 01 · the name — the figure leads, the entry faces it */
-  .about__entry--name .about__figure {
-    grid-column: 1 / span 5;
-    grid-row: 1;
-  }
-  .about__entry--name .about__entry-body {
-    grid-column: 7 / span 6;
-    grid-row: 1;
-    padding-top: 0.5rem;
-  }
-  .about__gutter--name {
-    grid-column: 6;
-  }
-
-  /* 02 · the way — a headline row, a two-column body, then the plate */
-  .about__entry--way {
-    display: block;
-  }
-  .about__way-head {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    align-items: end;
-  }
-  .about__way-word {
-    grid-column: 1 / span 8;
-  }
-  .about__way-head .about__specimen {
-    grid-column: 10 / span 3;
-    justify-self: end;
-    text-align: right;
-  }
-  .about__way-body {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-  }
-  .about__prose--way {
-    grid-column: 1 / span 5;
-  }
-  /* the ledger hangs under the specimen, both ranged to the sheet's edge.
-     Four columns, not five: at five the dot leaders ran 430px and the table
-     read as a form to fill in rather than as a printed reference. */
-  .about__ledger-wrap {
-    grid-column: 9 / -1;
-  }
-  /* the rule sits on the midpoint of the empty columns between them,
-     which is the centre of the void the two blocks leave */
-  .about__gutter--way {
-    grid-column: 6 / span 3;
-  }
-}
-
-/* ---------------------------------------------------------------- */
-/* The wide sheet — the spread gains a third band                    */
-/*                                                                   */
-/* At 1600 the twelve-column field is 1485px wide (101.7px columns);  */
-/* at 1920 it is 1782 (122px); at 2560 it is 2376 (165px). A layout   */
-/* drawn as 5 + rule + 6 leaves the figure capped at 448px inside a   */
-/* 933px slot at 2560 and a 46ch paragraph inside another one, i.e.   */
-/* two small pages floating in a big one. So above 1600 BOTH entries  */
-/* re-column to the same three-band spread —                          */
-/*                                                                   */
-/*     cols 1–4   the plate / the argument                            */
-/*     col  5     the ruled gutter                                    */
-/*     cols 6–12  the facing block, itself split 4 + 3                */
-/*                                                                   */
-/* — which gains structure instead of stretching, keeps every block   */
-/* filling the slot it is given, and makes the two entries read as    */
-/* recto and verso of one glossary rather than as two arrangements.   */
-/* ---------------------------------------------------------------- */
-/* On the spread the figure fills its column slot rather than sitting inside it
-   as a picture; the 28rem cap only ever made sense for the stacked layout. */
-@media (min-width: 1024px) {
-  .about {
-    --fig-max: none;
-  }
-}
-
-@media (min-width: 1600px) {
-  .about {
-    --fig-max: none;
-  }
-
-  /* 01 · the name */
-  .about__entry--name .about__figure {
-    grid-column: 1 / span 4;
-  }
-  .about__gutter--name {
-    grid-column: 5;
-  }
-  .about__entry--name .about__entry-body {
-    grid-column: 6 / -1;
-    /* seven equal columns inside a seven-column slot land exactly on the
-       parent's verticals: the slot is 7c + 6g wide, so each nested column
-       computes to (7c + 6g − 6g) / 7 = c */
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-  }
-  /* the label and the headword run the full body; only the reading splits */
-  .about__entry--name .about__entry-body > * {
-    grid-column: 1 / -1;
-  }
-  .about__entry--name .about__prose {
-    grid-column: 1 / span 4;
-  }
-  /* the plate note stops being a second paragraph under the first and
-     becomes what it is called: a note set beside the reading, topped out
-     level with it */
-  .about__entry--name .about__fig-read {
-    grid-column: 5 / span 3;
-    margin-top: var(--prose-gap);
-  }
-
-  /* 02 · the way — the same three bands, so the argument stands on the
-     figure's four columns and the ledger on the seven the reading of the
-     figure occupies directly above it */
-  .about__prose--way {
-    grid-column: 1 / span 4;
-  }
-  .about__gutter--way {
-    grid-column: 5;
-  }
-  .about__ledger-wrap {
-    grid-column: 6 / -1;
-  }
-
-  /*
-    The plate keeps its full-sheet width (it is already 1543px at 1600 and
-    2468px at 2560 — nothing is gained by insetting it, and a column span
-    would make it SMALLER than it is at 1440). What a wide sheet changes is
-    its proportion: 16/9 across a 2468px page is 1388px tall — taller than
-    the 1440px screen it is printed on, and 1672px at 3440 — and a plate the
-    reader cannot see whole is not a plate. 2/1 brings that to 1234px and is
-    the band a full-bleed photograph wants at this width; 84vh is the
-    backstop for ultrawide displays, where the crop is `object-cover` at the
-    manifest's focal point (50% 26%), which is where the headgear is.
-  */
-  .about__plate .about__plate-img {
-    aspect-ratio: 2 / 1;
-    max-height: 84vh;
-  }
 }

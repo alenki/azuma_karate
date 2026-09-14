@@ -1,4 +1,4 @@
-import { club, groups, sessions, type GroupId, type Session } from "@/content/schedule";
+import { club, groups, sessions, type FamilyId, type Group, type GroupId, type Session } from "@/content/schedule";
 import type { Locale } from "@/i18n/config";
 
 const DAY_SHORT: Record<Locale, string[]> = {
@@ -18,6 +18,27 @@ export function dayLong(day: number, locale: Locale) {
 }
 export function groupById(id: GroupId) {
   return groups.find((g) => g.id === id)!;
+}
+
+/** The groups the club sorts into one intake family, in timetable order. */
+export function groupsInFamily(family: FamilyId) {
+  return groups.filter((g) => g.family === family);
+}
+
+/**
+ * A group's age band, typeset from its figures: «4–6\u00A0лет» for a closed band,
+ * «16+» for one that never closes. Chapter 二's roster prints these under the
+ * two family names, where `ages` would repeat the word "ages" down a column in
+ * English and the unit down a column in Russian.
+ *
+ * The figure is bound to its unit with a non-breaking space, per the rule in
+ * `content/home.ts`: «6–11\u00A0лет» may not break across the two.
+ */
+export function ageBand(g: Group, locale: Locale) {
+  if (!g.ageSpan) return g.ages[locale];
+  const { from, to } = g.ageSpan;
+  if (to === null) return `${from}+`;
+  return `${from}–${to}\u00A0${locale === "ru" ? "лет" : "years"}`;
 }
 
 /** Current wall-clock in the club's time zone: ISO weekday (1–7) and minutes since midnight. */

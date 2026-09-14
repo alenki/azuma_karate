@@ -34,9 +34,9 @@
 /* Two things the bleed has to buy back:                                */
 /*   · Type may not slide into the binding margin. The first and last   */
 /*     columns take `max(--tt-pad, --gutter)` on their outer side, so   */
-/*     Monday's times stand on exactly the same vertical as the eyebrow */
-/*     above and the caption below, while the RULES run past both to    */
-/*     the edge. That is the register a printed table keeps.            */
+/*     Monday's times stand on exactly the same vertical as the opener  */
+/*     above, while the RULES run past it to the edge. That is the      */
+/*     register a printed table keeps.                                  */
 /*   · Nothing may overflow. `.timetable__week` uses the same negative  */
 /*     gutter `.bleed` does, and `.wrap` is now full width, so its box  */
 /*     is (100% − 2×gutter) + 2×gutter = the body width exactly. The    */
@@ -72,13 +72,38 @@
 /* red «СЕГОДНЯ» and the tick — of which only the tick is a mark the    */
 /* rota allows. Today is now a 2px ink rule capping its column, the     */
 /* word, and the tick: a weight, a word and a drawn mark, none of them  */
-/* colour alone. `.timetable__col--today` in globals.css is what the    */
-/* card used to come from and is no longer referenced from anywhere.    */
+/* colour alone.                                                        */
 /*                                                                      */
-/* A few timetable rules still live in `globals.css` — `.timetable__cell`,*/
-/* `.timetable__cell--hi`, `.legend__btn`, `.legend__dot`. They own     */
-/* colour and transition; this file owns only geometry and type size,   */
-/* so the two never declare the same property.                          */
+/* THE BAND IS THE TABLE'S HEAD. The key used to be `.timetable__legend`*/
+/* — a flex row of five mono labels with a 2rem margin under it, 148px  */
+/* tall and three ragged rows on a phone, standing between the reader   */
+/* and the thing they came for. It is five ruled cells now, sharing the */
+/* week's bleed from 1280 and carrying the whole of a group: the        */
+/* counter 01–05, the name in the display face, the age band, and the   */
+/* club's own line about the group, which had been sitting unprinted in */
+/* `content/schedule.ts` since that file was written.                   */
+/*                                                                      */
+/* THE SEAM IS DRAWN ONCE. The band's bottom rule is                    */
+/* --color-rule-strong and it IS the table's top rule: `.timetable__col`*/
+/* dropped to `border-block-end` and `.timetable__days` dropped its     */
+/* `border-block-start`, or the two would stack as a 2px double. Every  */
+/* rule of the band is a border on the BUTTON, never on the container,  */
+/* for the reason set out above — a container's border prints at full   */
+/* strength before the first cell arrives.                              */
+/*                                                                      */
+/* Its five internal verticals will not line up with the table's six,   */
+/* because five groups are not seven days. That is answered by GRADE,   */
+/* not geometry: the band rules itself in --color-rule-hair where the   */
+/* table uses --color-rule, so the two read as two orders of division   */
+/* rather than as a failed alignment.                                   */
+/*                                                                      */
+/* Colour and transition for `.timetable__cell`, `.timetable__session`, */
+/* `.timetable__day-row` and every `.legend__*` class live in           */
+/* `globals.css`; this file owns geometry and type size, so the two     */
+/* never declare the same property. Where one line needs both — a       */
+/* hairline is a `border`, which carries a width AND a colour — this    */
+/* file writes `1px solid var(--tt-cell-rule)` and that one decides     */
+/* what the token is, so each declaration still has exactly one home.   */
 /*                                                                      */
 /* `Timetable` is rendered only from `Schedule`, which is what imports  */
 /* this file; if it is ever mounted anywhere else, import it there too. */
@@ -91,23 +116,19 @@
     tokens now so the wide tiers can raise them: 9rem of paper under a
     2560-wide page reads as a squashed strip, not as a closed chapter.
 
-    The bottoms are ~2.5rem lighter than that at every tier because the
-    chapter closes with a <ChapterFoot> now, and the foot brings its own
-    margin, rule and row. Left alone the sheet simply got taller by the
-    height of the thing that was meant to fill the blank paper.
+    The chapter now ends on the table's own bottom rule — a drawn line, not a
+    line of type — so the paper under it has to carry the whole close on its
+    own. The bottoms run roughly twice the tops at every tier: that blank
+    sheet is the gap between the week and the sensei's chapter.
   */
   --sch-pad-top: 5rem;
-  --sch-pad-bottom: 3.5rem;
+  --sch-pad-bottom: 10rem;
 
-  /* the space between the chapter's blocks — running head, opener, table,
-     caption. The markup used to hardcode mt-10/mt-12/mt-6 and
-     md:mt-14/mt-20/mt-8; those exact values are the first two tiers. */
-  --sch-head-gap: 2.5rem;
+  /* the space between the chapter's two blocks — opener and table. The
+     markup used to hardcode mt-12 and md:mt-20; those exact values are the
+     first two tiers. */
   --sch-table-gap: 3rem;
-  /* a plate's caption sits close to its plate, not a chapter-block away */
-  --sch-caption-gap: 1rem;
-
-  /* the margin numeral hangs level with the running-head rule */
+  /* the margin numeral hangs level with the chapter's opening title */
   --numeral-top: var(--sch-pad-top);
 
   /* ---- the table's units ---- */
@@ -132,10 +153,30 @@
   /* the group's name — the only body-face line in the table (was
      `text-[0.875rem]`, a size chosen for a 169px column) */
   --tt-name-size: 0.875rem;
-  /* the legend above the table (was `mb-8 gap-x-6 gap-y-2`) */
-  --tt-legend-gap-x: 1.5rem;
-  --tt-legend-gap-y: 0.5rem;
-  --tt-legend-mb: 2rem;
+  /* the register band at the head of the table. Its INLINE padding is
+     `--tt-pad` — the band and the week's columns are one apparatus and share
+     one padding ramp — so only the block padding is its own. A gap and a
+     bottom margin, which is what the old legend was sized with, are the wrong
+     units for a band that is ruled and flush. */
+  --tt-band-pad-y: 0.75rem;
+  /* between the four lines inside a cell */
+  --tt-band-gap: 0.25rem;
+  /* the group's name: the display face, a step above a session's name
+     (--tt-name-size) and a step below a weekday (--tt-day-size) */
+  --tt-band-name: 1rem;
+  /* the state mark */
+  --tt-band-dot: 0.5rem;
+  /* the band's caption to its top rule */
+  --tt-band-cap-mb: 0.75rem;
+  /* the scroller's cell below 768. Like --tt-day-pad below, this one never
+     moves at a wider tier: the block it sizes stops printing at 768.
+
+     11.25rem is measured, not chosen: «Утренние в парке» sets 144px at the
+     1rem name size, and 32px of cell padding makes 176px the narrowest cell
+     that keeps every one of the five names on a single line. The extra 4px is
+     the only slack. It puts two whole cells and the edge of a third on a
+     390pt screen — the band's own "there is more this way". */
+  --tt-band-cell-w: 11.25rem;
 
   /* the mobile week: a day's row, and a session inside an open day. These
      two are the only tokens here that never move at a wider tier, because
@@ -143,17 +184,13 @@
   --tt-day-pad: 0.875rem;
   --tt-session-pad: 0.55rem;
 
-  /* the two actions in the opener, stacked (was `gap-2`) */
-  --sch-action-gap: 0.5rem;
 }
 
 @media (min-width: 768px) {
   .schedule {
     --sch-pad-top: 7rem;
-    --sch-pad-bottom: 5.5rem;
-    --sch-head-gap: 3.5rem;
+    --sch-pad-bottom: 15rem;
     --sch-table-gap: 5rem;
-    --sch-caption-gap: 1.25rem;
   }
 }
 
@@ -190,10 +227,8 @@
 @media (min-width: 1600px) {
   .schedule {
     --sch-pad-top: 8.5rem;
-    --sch-pad-bottom: 7rem;
-    --sch-head-gap: 4.5rem;
+    --sch-pad-bottom: 19rem;
     --sch-table-gap: 6.5rem;
-    --sch-caption-gap: 1.5rem;
 
     --tt-pad: 1.5rem;
     --tt-min-h: 21rem;
@@ -203,21 +238,19 @@
     --tt-row-gap: 0.75rem;
     --tt-row-pad: 0.625rem;
     --tt-name-size: 1rem;
-    --tt-legend-gap-x: 2.25rem;
-    --tt-legend-gap-y: 0.75rem;
-    --tt-legend-mb: 2.5rem;
-
-    --sch-action-gap: 0.75rem;
+    --tt-band-pad-y: 1rem;
+    --tt-band-gap: 0.375rem;
+    --tt-band-name: 1.25rem;
+    --tt-band-dot: 0.5625rem;
+    --tt-band-cap-mb: 1rem;
   }
 }
 
 @media (min-width: 2000px) {
   .schedule {
     --sch-pad-top: 10rem;
-    --sch-pad-bottom: 9rem;
-    --sch-head-gap: 5.5rem;
+    --sch-pad-bottom: 23rem;
     --sch-table-gap: 8rem;
-    --sch-caption-gap: 1.75rem;
 
     --tt-pad: 1.75rem;
     --tt-min-h: 24rem;
@@ -226,69 +259,53 @@
     --tt-tick-w: 3.5rem;
     --tt-row-pad: 0.75rem;
     --tt-name-size: 1.0625rem;
-    --tt-legend-gap-x: 3rem;
-    --tt-legend-mb: 3rem;
+    --tt-band-pad-y: 1.125rem;
+    --tt-band-gap: 0.4375rem;
+    --tt-band-name: 1.4375rem;
+    --tt-band-dot: 0.625rem;
+    --tt-band-cap-mb: 1.125rem;
   }
 }
 
 /* ---------------------------------------------------------------- */
-/* The sheet and its running head                                    */
+/* The sheet                                                         */
 /* ---------------------------------------------------------------- */
 .schedule__sheet {
   padding-top: var(--sch-pad-top);
   padding-bottom: var(--sch-pad-bottom);
 }
 
-/* rule → eyebrow, with the mobile folio at the far end of the trim
-   (`.folio-inline` prints only below 768; above it the numeral is in the
-   binding margin, so the eyebrow simply stands alone on a full-width line).
-   The row arrives with <Register>, which wraps each of the two marks in a
-   box of its own — those wrappers are the flex items now, and the baseline
-   they share is the one the eyebrow and the folio already stood on. */
-.schedule__runhead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding-top: 1rem;
-}
-
 /* ---------------------------------------------------------------- */
 /* The opener                                                        */
 /*                                                                   */
-/* Below 768 it is three stacked blocks. From 768 it is the shared    */
-/* twelve-column page field: the title and the lead in the first      */
-/* seven columns, the two practical actions hung at the bottom of the */
-/* far right — which is where the reader's eye leaves the opener and  */
+/* Below 768 it is the title with the action stacked under it. From  */
+/* 768 it is the shared twelve-column page field: the title on the   */
+/* left, the one practical action hung at the bottom of the far      */
+/* right — which is where the reader's eye leaves the opener and     */
 /* enters the table.                                                  */
+/*                                                                   */
+/* The lead and the second action (the map route) used to share this */
+/* band; both are gone, so the field is two marks on one line and    */
+/* the title simply keeps the left seven columns at every tier.      */
+/* The action's 24rem cap is the reason the wide tiers don't hand it */
+/* a 567px slab: 24rem is a button, three columns of a 2560 sheet is */
+/* a plank. Below 1600 the field is narrower than the cap and the    */
+/* field wins, which is fine — the longest label is RU «Написать в   */
+/* Telegram», ~229px of slab against a 283px field at 1280.          */
 /* ---------------------------------------------------------------- */
+/* the running head it used to stand off is gone, so the opener IS the head
+   of the chapter and the sheet's own top padding is the air above it */
 .schedule__head {
-  margin-top: var(--sch-head-gap);
-}
-.schedule__lead-field {
-  margin-top: 2rem;
+  margin-top: 0;
 }
 .schedule__actions {
   margin-top: 2.5rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--sch-action-gap);
 }
 .schedule__cta {
   align-self: stretch;
-}
-.schedule__route {
-  white-space: nowrap;
-}
-@media (min-width: 768px) {
-  /* ranged right under the lead, the action first and the reference under it */
-  .schedule__actions {
-    align-items: flex-end;
-  }
-  .schedule__cta {
-    align-self: auto;
-  }
 }
 
 @media (min-width: 768px) {
@@ -296,25 +313,21 @@
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
+    align-items: end;
   }
-  /* the lead sits under the title, and the actions are hung on the last
-     line of the pair — the `md:items-end` the markup used to ask for,
-     written as an explicit two-row placement so the wide tier has
-     somewhere to move the lead to */
   .schedule__title-field {
     grid-column: 1 / span 7;
     grid-row: 1;
   }
-  .schedule__lead-field {
-    grid-column: 1 / span 7;
-    grid-row: 2;
-    margin-top: 2.5rem;
-  }
+  /* ranged right, standing on the title's own bottom edge */
   .schedule__actions {
     grid-column: 8 / -1;
-    grid-row: 1 / span 2;
-    align-self: end;
+    grid-row: 1;
+    align-items: flex-end;
     margin-top: 0;
+  }
+  .schedule__cta {
+    align-self: auto;
   }
 }
 
@@ -324,59 +337,9 @@
   }
 }
 
-/*
-  From 1280 the opener stops being a block with a block beside it and becomes
-  a band across the page: title, lead and actions on ONE line, set in three
-  fields and standing on a common bottom edge.
-
-  This used to be gated at 1600, and between 1024 and 1600 the two-row layout
-  left a 540 × 310 rectangle of blank paper between the lead and the buttons —
-  the chapter opened with its content pushed to the outside edges of an empty
-  band. 1280 is the right gate because it is the same tier the table starts
-  bleeding at: from there the chapter is a full sheet, and its opener should
-  be a line across that sheet rather than a column beside it.
-
-  Widths at the three tiers this has to work at (sheet = viewport − 2×gutter,
-  twelve columns with an 11 × --col-gap subtracted):
-    1280   sheet 1188   column  81   title 484   lead 383   actions 283
-    1600   sheet 1485   column 102   title 566   lead 479   actions 353
-    2560   sheet 2376   column 165   title 969   lead 768   actions 567
-
-  · The title holds. «Неделя» is six characters and "The week" eight, and
-    --text-chapter is 5.6vw until its 9rem ceiling at 2571 — so the longer,
-    English line measures ~258px at 1280 against a 484px field (Prata's
-    average advance is a shade under half an em) and ~550px at 2560 against
-    969. It never runs to two lines, which is what would break the band.
-  · The lead keeps `.measure-lead`, the shared 46ch cap. Which of the two
-    binds changes across the tier and every answer is safe: at 1280 and 1600
-    the field is the narrower (383 and 479 against a ~412 and ~515px cap), at
-    2560 the cap is (~660px at the 26px --text-lead ceiling, against a 768px
-    field). Either way the paragraph never runs long and never fills its
-    column edge to edge. It is a lead, not a text block — three lines at
-    1280, two from 1600 up.
-  · The actions are the reason for the cap. Three columns of a 2560 sheet is
-    567px, and two full-width buttons that wide read as two lonely slabs;
-    24rem is a button, and the pair is pushed to the right trim, where the
-    page ends. Below 1600 the field is narrower than the cap and the field
-    wins, which is fine: the longest label is RU «Написать в Telegram» — 19
-    mono characters at 13px with 0.12em tracking, ~165px plus the 4rem of
-    padding a `size="lg"` button carries — so the slab is ~229px against a
-    283px field at 1280. The cap never constrains the type, only the slab.
-*/
 @media (min-width: 1280px) {
-  .schedule__title-field {
-    grid-column: 1 / span 5;
-    align-self: end;
-  }
-  .schedule__lead-field {
-    grid-column: 6 / span 4;
-    grid-row: 1;
-    align-self: end;
-    margin-top: 0;
-  }
   .schedule__actions {
     grid-column: 10 / -1;
-    grid-row: 1;
     justify-self: end;
     inline-size: 100%;
     max-inline-size: 24rem;
@@ -390,22 +353,152 @@
   margin-top: var(--sch-table-gap);
 }
 
-/* the legend: a key, so it stays inside the trim even when the table
-   below it does not. It arrives with <Register> — five counted labels on one
-   baseline — so each button is inside a wrapper of its own and the wrappers
-   are the flex items. */
+/* ---------------------------------------------------------------- */
+/* The register band                                                 */
+/* ---------------------------------------------------------------- */
+/* the caption stays inside the trim at every tier, where the chapter's own
+   title stands — the band bleeds past it from 1280, the caption does not */
+.timetable__band-cap {
+  margin-block-end: var(--tt-band-cap-mb);
+}
+
+/* Five cells on one row. <Register> wraps each child in a box of its own, so
+   THAT box is the flex item (`itemClassName="legend__cellwrap"`), exactly as
+   `.timetable__colwrap` is the grid item for each of the week's columns. */
 .timetable__legend {
   display: flex;
-  flex-wrap: wrap;
-  column-gap: var(--tt-legend-gap-x);
-  row-gap: var(--tt-legend-gap-y);
-  margin-bottom: var(--tt-legend-mb);
 }
-/* the legend buttons are the only pointer targets in the desktop table; the
-   `py-2` they used to carry left them ~30px tall. `globals.css` owns their
-   colour and layout, so only the height is set here. */
-.timetable__legend .legend__btn {
+.legend__cellwrap {
+  display: flex;
+  /* a flex item's automatic minimum size can outrun its basis — RU
+     «Утренние в парке» in a 142px cell at 768 is exactly the case */
+  min-inline-size: 0;
+}
+@media (min-width: 768px) {
+  .legend__cellwrap { flex: 1 1 0; }
+}
+
+.legend__cell {
+  /* fill the wrapper, and take the row's stretched height, so the five top
+     borders meet as the band's top rule and the five bottom borders meet as
+     one continuous seam across the table */
+  flex: 1 0 auto;
+  inline-size: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tt-band-gap);
+  text-align: start;
+  padding-block: var(--tt-band-pad-y);
+  padding-inline: var(--tt-pad);
+  /* the tap floor, unchanged from the old legend button. Content clears it at
+     every tier; this only ever holds up an empty cell. */
   min-block-size: 2.75rem;
+  /* the band's ruling. Colour comes from `globals.css`, which owns it; the
+     fallbacks keep this file legible on its own. */
+  border-block-start: 1px solid var(--tt-band-rule, var(--color-rule));
+  border-block-end: 1px solid var(--tt-band-seam, var(--color-rule-strong));
+  border-inline-start: 1px solid var(--tt-band-rule-v, var(--color-rule-hair));
+}
+.legend__cellwrap:last-child .legend__cell {
+  border-inline-end: 1px solid var(--tt-band-rule-v, var(--color-rule-hair));
+}
+
+/* the state mark, ranged to the far end of the cell's head line. The line used
+   to carry a printed ordinal on the left as well; with the counter gone the
+   mark keeps its position rather than sliding to the leading edge, so the five
+   marks still read as one column down the band's right side. */
+.legend__head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.legend__dot {
+  flex: none;
+  inline-size: var(--tt-band-dot);
+  block-size: var(--tt-band-dot);
+  border-width: 1px;
+  border-style: solid;
+}
+/* the headword: the display face, not tracked mono uppercase. This is the one
+   line in the band a reader READS rather than counts — and it is what retires
+   the five-word mono label «УТРЕННИЕ В ПАРКЕ · ВСЕ ГРУППЫ», which broke the
+   `.t-mono` contract of three words or fewer. */
+.legend__name {
+  font-family: var(--font-display);
+  font-size: var(--tt-band-name);
+  line-height: 1.15;
+}
+/* The club's own line about each group used to be set here as a third row of
+   the cell. It is gone: the band is the table's KEY, and a key names its
+   entries — the name and the band are what a reader matches against a column
+   of times, and a sentence of prose under them made five cells read as five
+   cards. The line is still in `content/schedule.ts` for a chapter that wants
+   to print it in full. */
+
+/*
+  From 1280 the band bleeds with the week — the same negative gutter, applied
+  at the same tier, to an element at the same depth inside `.wrap`, so the two
+  boxes are arithmetically identical and the band needs no move in the DOM.
+  The outer verticals go with the trim exactly as the table's do, and the
+  first and last cells take the gutter as padding so the band's first line of
+  type stands on Monday's vertical and its last on Sunday's.
+*/
+@media (min-width: 1280px) {
+  .timetable__legend {
+    margin-inline: calc(var(--gutter) * -1);
+  }
+  .legend__cellwrap:first-child .legend__cell {
+    border-inline-start: 0;
+    padding-inline-start: max(var(--tt-pad), var(--gutter));
+  }
+  .legend__cellwrap:last-child .legend__cell {
+    border-inline-end: 0;
+    padding-inline-end: max(var(--tt-pad), var(--gutter));
+  }
+}
+
+/*
+  Below 768 the band is a bled scroller: one row of five cells, well under the
+  148px and three ragged rows the old legend cost — so the week, not its key,
+  is what a phone meets first.
+
+  A scroller rather than a two-up grid, for two reasons. Five cells two-up is
+  three rows with a hole in the last, which is the exact raggedness this
+  replaces, and it is TALLER than what it replaces. And the band stays one idea
+  at every width instead of becoming a different object on a phone. What is
+  off-screen is declared by the cut edge: the track bleeds, so the fifth cell
+  is visibly mid-cell at the trim rather than ending neatly there.
+
+  The track bleeds and then pays the gutter back as padding: the first cell's
+  leading rule therefore stands on the trim, with every other rule in the
+  chapter, while a cell scrolls OFF the sheet rather than being clipped 20px
+  short of it.
+*/
+@media (max-width: 767px) {
+  .timetable__legend {
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    /*
+      `overflow-x: auto` computes `overflow-y` to `auto` as well, which would
+      clip the focus ring — 2px of outline at 3px of offset, exactly 5px past
+      the cell's border box, top and bottom. The padding buys that back inside
+      the scrollport and the negative margin returns it to the page, so the
+      seam with the table does not move by a pixel.
+    */
+    padding-block: 5px;
+    margin-block: -5px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--gutter);
+  }
+  /* the 5px above is taken out of the caption's gap; give it back */
+  .timetable__band-cap { margin-block-end: calc(var(--tt-band-cap-mb) + 5px); }
+  .legend__cellwrap {
+    flex: 0 0 var(--tt-band-cell-w);
+    scroll-snap-align: start;
+  }
 }
 
 /* the week. Seven equal columns, each carrying its own ruling — see the note
@@ -443,10 +536,12 @@
   flex: 1 0 auto;
   padding: var(--tt-pad);
   min-block-size: var(--tt-min-h);
-  /* the table's ruling: the rule over and under the table, plus this
-     column's leading vertical. Seven leading verticals give the six between
-     the days and the one that opens the table; the last column closes it. */
-  border-block: 1px solid var(--color-rule);
+  /* the table's ruling: the rule UNDER the table, plus this column's leading
+     vertical. Its top rule is the band's seam — the band is the table's head
+     and draws the line where the two meet, or the two would stack as a 2px
+     double. Seven leading verticals give the six between the days and the one
+     that opens the table; the last column closes it. */
+  border-block-end: 1px solid var(--color-rule);
   border-inline-start: 1px solid var(--color-rule);
 }
 .timetable__colwrap:last-child .timetable__col {
@@ -550,7 +645,15 @@
    `globals.css` owns this class's colour and transition. */
 .timetable__cell {
   padding-block: var(--tt-row-pad);
-  border-top: 1px solid var(--color-rule-hair);
+  /*
+    A struck cell is a printed block and needs air on its ends; the negative
+    margin gives that air back to the column, so a row's type stands on
+    EXACTLY the vertical it stood on before — Monday's times still line up
+    with the opener above, which is the register the bleed exists to keep.
+  */
+  padding-inline: var(--tt-row-pad);
+  margin-inline: calc(var(--tt-row-pad) * -1);
+  border-top: 1px solid var(--tt-cell-rule, var(--color-rule-hair));
 }
 .timetable__name {
   display: block;
@@ -558,11 +661,12 @@
   /* `leading-snug` — the name is the only line here that ever wraps */
   line-height: 1.375;
 }
+/* informational, so ink-2 (6.9:1) — see the colour note at the top. The tone
+   itself lives in `globals.css` now, read off a token, so the age band
+   inverts with the cell when its group is struck. */
 .timetable__ages {
   display: block;
   margin-top: 0.25rem;
-  /* informational, so ink-2 (6.9:1) — see the colour note at the top */
-  color: var(--color-ink-2);
 }
 /* a day with no class. The em dash is content, not ornament, so it is set
    in readable ink like everything else. */
@@ -588,9 +692,8 @@
 /* named. The em dash on Tuesday is the same convention the desktop   */
 /* column uses for a day with no class.                               */
 /* ---------------------------------------------------------------- */
-.timetable__days {
-  border-block-start: 1px solid var(--color-rule);
-}
+/* no top rule: the band's seam is the mobile week's top rule, exactly as it
+   is the desktop table's — drawn once, by the band. */
 @media (min-width: 768px) {
   .timetable__days {
     display: none;
@@ -641,10 +744,11 @@
   align-items: center;
   gap: 0.5rem;
 }
-/* the agenda line, under the day's name and across both fields */
+/* the agenda line, under the day's name and across both fields. Its tone is
+   token-driven from `globals.css` so a day holding no session for the chosen
+   group quiets with its row. */
 .timetable__day-times {
   grid-column: 1 / -1;
-  color: var(--color-ink-2);
 }
 /* the same mark as the desktop column, set beside the word instead of under
    a column head there is no room for on a phone. The height is derived from
@@ -691,8 +795,12 @@
   align-items: baseline;
   column-gap: 1rem;
   padding-block: var(--tt-session-pad);
+  /* the same air the desktop cell takes for its struck ground, given back the
+     same way, so a row's type stands on the vertical it stood on before */
+  padding-inline: var(--tt-session-pad);
+  margin-inline: calc(var(--tt-session-pad) * -1);
   /* a separation inside a block, like the desktop cell rule */
-  border-block-start: 1px solid var(--color-rule-hair);
+  border-block-start: 1px solid var(--tt-cell-rule, var(--color-rule-hair));
 }
 /* a time is one figure and never breaks across two lines */
 .timetable__session-time {
@@ -702,27 +810,11 @@
   font-size: var(--tt-name-size);
   line-height: 1.375;
 }
+/* tone from `globals.css`, so it inverts with a struck session */
 .timetable__session-ages {
-  color: var(--color-ink-2);
   text-align: end;
 }
 .timetable__session--empty {
   display: block;
-  color: var(--color-ink-2);
-}
-
-/* ---------------------------------------------------------------- */
-/* The plate's caption                                               */
-/*                                                                   */
-/* Where the hall is, printed under the table on the trim — a plate   */
-/* caption, in the manual's own convention, rather than half of a     */
-/* colophon. The chapter's closing line and its folio are the         */
-/* <ChapterFoot>'s job now — the same foot the rest of the book uses.  */
-/* ---------------------------------------------------------------- */
-.schedule__caption {
-  margin-top: var(--sch-caption-gap);
-}
-.schedule__address {
-  font-style: normal;
   color: var(--color-ink-2);
 }

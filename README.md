@@ -38,7 +38,8 @@ at a time and closes as an ensō around the sign-up button.
 full width, with only the gutter reserved, which is also the binding margin the
 chapter numerals hang in. Chapters are set to the width of the screen they are
 read on, and they gain structure rather than stretch, mostly at a `min-width:
-1600px` tier: the hero's headline is set to the whole measure (282px at 2560),
+1600px` tier: the hero's headline is set to the width of its own column (245px
+at 2560),
 the week's timetable bleeds edge to edge, the age chart's unit grows with the
 sheet, and the glossary spread re-columns. Line length is held on the text, in
 `ch`, never by a container.
@@ -124,29 +125,86 @@ carried by a rule, a fill, a weight or a ground inversion instead — never by
 hue alone, which 1.4.1 would forbid anyway. Chapter eight marks today with the
 brush's own tick and a rule; it used to just print the word in red.
 
-Chapter one carries the same mark at poster scale, laid straight across the
-sheet under the headline and running off the right trim.
-`scripts/gen-hero-stroke.ts` writes the silhouettes into `public/brand/` — a
-wide mark and a short thick one for phones:
+Chapter one carries no brush mark at all. `scripts/gen-hero-stroke.ts` and the
+silhouettes it writes into `public/brand/` are the remains of a version in
+which it did — a vermilion 一 at poster scale, laid across the sheet under the
+headline — and they are kept because the script is the only record of how those
+marks are generated, not because anything renders them:
 
 ```bash
-npx tsx scripts/gen-hero-stroke.ts        # regenerate the hero's 一
+npx tsx scripts/gen-hero-stroke.ts        # regenerate the 一 silhouettes
 HERO_PROOF_DIR=./proofs npx tsx scripts/gen-hero-stroke.ts   # + PNG proof sheets
 ```
 
-The stroke is the mark and nothing else: pure vermilion, masked from that
-silhouette. An earlier version carried the hero photograph *inside* it, and it
-did not survive contact with a screen — the plate was squeezed to 7.5:1 and
-unreadable, and the dry tail's six bristle ribbons rendered as scan lines. The
-photograph now has its own 2:1 frame in the register below, where it can
-actually be seen, and the tail is three splits opening at 72% of the stroke
-rather than six at 50%.
+### The first screen
+
+Chapter one is one photograph at the size of the screen, and the sentence is
+written across it:
+
+    Глава первая · Киокушинкай каратэ · Нальчик
+    Сначала поклон.                                <- half size
+
+           ( a black belt, drawn tight, filling the sheet )
+
+    Потом удар.                     Детям с четырёх лет…
+                                    [ Записаться → ]
+
+**The beat is the plate.** The sheet still sets one sentence and still puts the
+silence inside it — the bow at exactly half the strike, with an interval
+between them that is the count a student holds. What changed is what the
+interval is made of. It was a band of bare paper; it is the technique itself
+now, so the composition states its own subject instead of gesturing at it.
+
+**And the plate is made once.** It is the one moving plate in the book: 2.34s
+of the belt being pulled taut, cut from the club's own reel, and then the sheet
+is a photograph for as long as the reader stays on it. No loop and nothing
+ambient — a background cycling every few seconds is exactly what this chapter's
+own rule forbids. The video lies *over* the plate and is never the plate:
+`<Photo>` prints its frame 0 underneath, and that `<img>` is the LCP element,
+the alt text, and what the reader keeps on a phone, under reduced motion, or
+wherever autoplay is refused. `src/components/ui/Reel.tsx` holds the three
+conditions; `scripts/press-hero-reel.sh` cuts the file and bakes the duotone
+into it, because a full-screen SVG filter over 30fps is a per-frame pass.
+
+The chapter is `ground="paper"`, so the fixed bar does *not* invert over it —
+one fewer thing happening on the first screen, and it costs nothing here. (This
+paragraph claimed `ground="ink"` and a bar inverting to bone for a long time
+after the chapter stopped being ink. Judge this file against the render.)
+
+Chapter 二 is paper too, so the plate's foot does not end on a tonal cliff: it
+runs out into the page's own paper, the way a plate bled to a trimmed edge meets
+the sheet it is printed on. That dissolve is what stops a photograph at this
+size reading as a website hero image, and `src/styles/sections/hero.css` carries
+the measurement of the seam.
+
+Chapter 二 is an ink chapter too, so that boundary is photographic ink meeting
+flat ink rather than ink meeting paper. It still reads, because what changes
+across it is texture, not tone — but only while the plate's foot reaches the
+page's own black, which is why the hero's `<Grain>` runs at the 0.25 the other
+ink chapters use rather than at full strength. At full strength it lifted the
+foot twelve levels above the next chapter's ground and the hero ended on a grey
+band. The seam is measured in `hero.css`.
+
+The plate is pressed to bone (`#duotone-ink-bone`), and the ink ramps over it
+are not a black overlay on a photograph: the dark end of every one of them is
+`--color-ink`, which is exactly the tone the press gives the plate's own
+shadows, so it bleeds off rather than darkens. They are also the only thing
+making the foot legible, and they are set by arithmetic and then measured
+against the render: bone needs the plate's local tone at or under L 0.403 to
+clear 4.5:1, and the gi in this frame runs to L 0.9. Measured at 390, 768, 1280,
+1512 and 2560, the worst pixel under any text on this screen is 5.74:1.
+
+Two cuts of the frame, chosen by the SHAPE of the viewport rather than its
+width — `(max-aspect-ratio: 4/5)` — because what ruins the wide cut is a tall
+box, not a narrow one. `ui/Photo`'s `art` prop resolves both through
+`getImageProps` into one `<picture>`, so exactly one file is fetched.
 
 If the headline copy or the display face changes, re-measure `heroFit` in
-`src/content/home.ts`: the hero divides the measure by those numbers to set the
-type to the exact width in both languages. The chapter is exactly `100svh`, and
-`--fold-fixed` in `hero.css` is the measured height of everything that is *not*
-the headline — re-measure it if the register gains or loses a row.
+`src/content/home.ts`: the hero divides its column by those numbers to set the
+type to the exact width in both languages. The column is 0.62 of the trim from
+1280 up and the whole trim below it, where the offer stacks underneath instead.
+`--fold-fixed` in `hero.css` is everything on the sheet that is *not* the
+headline — re-state it if a row is added or removed.
 
 ## Before this can go live
 
@@ -155,12 +213,20 @@ Everything below is a placeholder and needs the client's confirmation:
 - **Photography.** `public/media/placeholders/` holds temporary Wikimedia
   Commons images under their own licences; see `CREDITS.md` in that folder.
   Replace them and update `src/content/media.ts` — nothing else references
-  image paths. The hero plate (`heroStroke`) needs particular care: it is shown
-  as a letterbox of roughly 5:1 inside the first stroke, so it wants a dark,
-  high-contrast frame whose action is naturally horizontal and whose top edge
-  carries no bright highlights — the headline is knocked out of the plate there.
-  The current stand-in is a boxing gym and its heavy bags carry a legible
-  third-party wordmark; that alone disqualifies it from launch.
+  image paths.
+
+  **The first screen is no longer one of them.** `firstScreen`,
+  `firstScreenTall` and `reels.firstScreen` are cut from the club's own footage
+  and live under `public/media/hero/`. `media.ts` still states the five
+  requirements against the slot, because whatever replaces it has to meet them
+  too: a genuinely light and EVEN ground, one subject, nothing competing in the
+  bottom-left quadrant, real tonal separation, and no third-party wordmark.
+  Every other plate on the page is still a Wikimedia stand-in.
+
+  Two files under `public/media/placeholders/` are now orphaned —
+  `snow-kick-1970.jpg` and `snow-kick-1970-portrait.jpg`, which were the first
+  screen. Nothing references them; delete them and their `CREDITS.md` rows, or
+  keep them if the belt is not final.
 - **Logo.** There is no figurative mark. The hand-drawn kicking figure that
   stood in for one has been removed — a placeholder of somebody else's logo
   teaches the reader a mark that will not survive launch — so the lockup in
@@ -168,9 +234,13 @@ Everything below is a placeholder and needs the client's confirmation:
   set in Unbounded as a stand-in for the club's lettering. Swap in their real
   vector lockup. The seal (`src/components/brush/Seal.tsx`) carries 東 in the
   meantime, which is the club's own name and not a guess at their mark.
-- **Facts.** Schedule and groups (`src/content/schedule.ts`), prices, the
-  Ministry of Sport decree reference, the second coach, medal counts and the
-  season timeline (`src/content/home.ts`).
+- **Facts.** Session times and group names (`src/content/schedule.ts`), prices,
+  the Ministry of Sport decree reference, the second coach, medal counts and
+  the season timeline (`src/content/home.ts`). The four age bands and the two
+  intake families in that file are the club's own and are CONFIRMED — chapter
+  二's roster and chapter 三's timetable legend both read them from there, so
+  they can only ever be corrected in one place. The bands overlap at 6 and at
+  16 on purpose; that is how the club runs them.
 - **Reviews.** The three parent quotes are illustrative. Real quotes need
   written consent, as do photographs of children.
 - **Every plate** now goes through the duotone press

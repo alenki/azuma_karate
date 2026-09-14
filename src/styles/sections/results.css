@@ -111,11 +111,9 @@
 
 .results__sheet {
   /*
-    Asymmetric on purpose. The head of the chapter opens on blank paper above
-    its rule; the foot now closes on a colophon — hairline, folio, the season's
-    record and the sensei's mark — so the sheet no longer needs 160px of empty
-    ink under the last line to feel finished. It needed it when the chapter
-    simply ran off the bottom.
+    Asymmetric on purpose. The head of the chapter opens on blank paper; the
+    foot closes on the season's record under the sensei's mark, so the sheet
+    does not need 160px of empty ink under the last line to feel finished.
   */
   padding-top: var(--pad-block);
   padding-bottom: clamp(4rem, 5.2vw, 8rem);
@@ -124,16 +122,13 @@
 /* ------------------------------------------------------------------ */
 /* The masthead: title, lead, ledger, plate                            */
 /* ------------------------------------------------------------------ */
+/* the running head it used to stand off is gone, so the masthead IS the head
+   of the chapter and the sheet's own top padding is the air above it */
 .results__masthead {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   row-gap: 4rem;
-  margin-top: 3rem;
-}
-@media (min-width: 768px) {
-  .results__masthead {
-    margin-top: 4rem;
-  }
+  margin-top: 0;
 }
 
 /* the deck and the ledger, stacked. These three base rules are declared
@@ -423,18 +418,22 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* The closing record, set in the chapter's colophon                   */
+/* The closing record                                                  */
 /*                                                                     */
 /* «Лучший спортсмен года» used to be a lone red mono line over a 2px   */
 /* vermilion box animated on scaleX — a rule impersonating a brush,     */
 /* with 250px of empty ink under it to the foot of the sheet. It is the */
-/* season's last fact, so it is set where a book puts its last facts:   */
-/* in the colophon, beside the folio, under the sensei's own mark.      */
+/* season's last fact, so it closes the chapter: one line under the     */
+/* chronicle's own hairline, with the sensei's mark drawn beneath it.   */
 /* ------------------------------------------------------------------ */
+.results__closing {
+  margin-top: clamp(1.5rem, 2vw, 3rem);
+}
 .results__record {
-  /* the note slot is quiet by default (bone-2); this one is a record, so it
-     takes the loud tone — it is the line the mark below it is drawn under */
+  /* `.t-note` is quiet by default (bone-2); this one is a record, so it takes
+     the loud tone — it is the line the mark below it is drawn under */
   color: var(--color-bone);
+  margin: 0;
 }
 .results__record-mark {
   --mark-w: clamp(7rem, 9vw, 11rem);

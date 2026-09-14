@@ -1,320 +1,262 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { motion } from "motion/react";
+import type { CSSProperties } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { chapters, hero, heroFit } from "@/content/home";
-import { club } from "@/content/schedule";
+import { cta } from "@/content/nav";
 import { Chapter } from "@/components/layout/Chapter";
-import { Kanji } from "@/components/brush/Kanji";
-import { Curtain } from "@/components/ui/Curtain";
-import { EASE_BRUSH, EASE_OUT, EASE_PRESS, Register, Settle } from "@/components/ui/Reveal";
-import { NextSessionStrip } from "@/components/ui/NextSessionStrip";
+import { LineReveal } from "@/components/ui/LineReveal";
+import { Settle } from "@/components/ui/Reveal";
+import { Button } from "@/components/ui/Button";
 import { Photo } from "@/components/ui/Photo";
+import { Reel } from "@/components/ui/Reel";
+import { useStillness } from "@/lib/useStillness";
+import { EASE_OUT } from "@/lib/ease";
 import "@/styles/sections/hero.css";
-
-/**
- * The travelling edge of the brush, as a clip path.
- *
- * `p` runs 0 → 1. The edge is convex — the belly of the bristles reaches the
- * paper before the heel and the toe — and leans back at the foot, the way a
- * loaded brush drags. The shape is affine in `p`, so Motion interpolating
- * between wipe(0) and wipe(1) produces exactly the intermediate positions.
- */
-function wipe(p: number) {
-  const x = p * 118 - 9;
-  return (
-    `polygon(-40% -40%, ${(x - 1.6).toFixed(2)}% -40%, ${(x + 0.5).toFixed(2)}% 24%, ` +
-    `${(x + 1.5).toFixed(2)}% 52%, ${(x + 0.2).toFixed(2)}% 78%, ${(x - 2.4).toFixed(2)}% 140%, -40% 140%)`
-  );
-}
-
-/**
- * How long the hand takes to lay a stroke `w` pixels long.
- *
- * The wipe used to run for a hardcoded 1.15s at every width, over a band that
- * is ~430px on a 390 phone and ~2660px on a 2560 sheet — so the page's one
- * hand-made mark was drawn at seven different speeds, a slow smear on a phone
- * and an implausible sprint on a monitor. It is measured now.
- *
- * The law is affine rather than a constant velocity, because a constant
- * velocity is not what a hand does either: someone drawing a longer stroke
- * swings from the shoulder and moves faster, they do not take seven times as
- * long. So: a fixed cost for loading the brush and lifting it off, plus travel
- * at ~2600px/s. That holds 1.15s at 1512 — the setting the mark was drawn and
- * judged against — draws the short phone mark in 0.70s and the 2560 sheet in
- * 1.57s. The clamps are stops for widths nobody designs for, not settings.
- */
-function strokeSeconds(w: number) {
-  return Math.min(1.9, Math.max(0.7, 0.55 + w / 2600));
-}
-
-const RISE = { y: "112%" };
-const SET = { y: "0%" };
 
 /**
  * Chapter 一 — «Первая черта».
  *
- * The one orchestrated moment of the site, and it is ONE gesture rather than a
- * queue: everything after the brush continues the front it left, from the
- * binding side towards the trim.
+ * THE BEAT IS THE PLATE. The sheet sets one sentence and puts the silence
+ * inside it: «Сначала поклон.» printed small under the running head, then a
+ * screen of photograph, then «Потом удар.» at exactly twice the size along the
+ * foot. The sentence's own logic — first this, then that — is carried by SCALE
+ * rather than by punctuation, and the interval the reader's eye has to cross to
+ * get from the bow to the strike is the count a student holds between them.
  *
- *   0.06  the masthead is printed (it does not fly in — it settles)
- *   0.14  the rule is drawn left → right
- *   0.24  «Сначала поклон.» rises inside its mask
- *   0.40  «Потом удар.» follows it
- *   0.62  the brush crosses the sheet, for as long as the sheet is wide
- *   0.86  the plate opens FROM THE LEFT, in the brush's wake
- *   1.02  its legend is printed under it
- *   1.14  the lead and the offer come into register along the same baseline
- *   1.50  the seal is pressed onto the button
- *   1.38  the folio's hairline is ruled out under all of it
- *   1.55  the live strip and the scroll cue come into register
- *   1.80  the scroll cue rules its own line out — the last mark on the sheet
+ * What changed is what the interval is made of. It was a band of bare paper;
+ * it is a man mid-kick at the size of the screen. Same composition, same
+ * relationship, but it now states its own subject instead of gesturing at it —
+ * and swap the copy for a coffee brand and none of it means anything, which is
+ * the test.
  *
- * Nothing on the page moves again after 2.5 seconds. In particular nothing
- * LOOPS: the scroll cue used to breathe on a 2.6s ping-pong forever, which on
- * a sheet whose premise is that everything is typeset and still made the one
- * perpetual thing on the page a hairline that is not even the brush.
+ * SIX THINGS ARE ON THIS SHEET: the chapter mark 一/01 in the binding margin, a
+ * running head, the bow, the plate, the strike, and the offer with its control.
+ *
+ * THE PLATE IS THE GROUND, not an illustration on it. The chapter is `paper`,
+ * so the fixed bar does NOT invert over it — the ground reporter that already
+ * exists (layout/ChapterContext) is told `paper` and the bar stays ink, which
+ * is one fewer thing happening on the first screen and costs nothing here.
+ * Chapter 二 is paper too, so the plate's foot does not end on a tonal cliff:
+ * it runs out into the page's own paper, the way a plate bled to a trimmed
+ * edge meets the sheet it is printed on. That dissolve is what stops a
+ * photograph at this size reading as a website hero image; hero.css carries
+ * the measurement of the seam.
+ *
+ * THERE IS NO VERMILION ON THIS SHEET except the seal welded to the control,
+ * which is one of the three jobs red has on this page. There is deliberately no
+ * <Brush>: a red 一 over a photograph is, to everyone who is not a typographer,
+ * an eyebrow rule redrawn. The hand belongs later in the book.
+ *
+ * NOTHING HERE MEASURES ITSELF AT RUNTIME. The headline is sized by CSS alone
+ * from two em constants (`heroFit`), and every delay below is a literal.
  */
+
+/*
+  THE LOAD, AS ONE FRONT CROSSING THE SHEET ONCE.
+
+  No element authors its own entrance. Every delay is derived from that
+  element's own top edge by one constant —
+
+      delay(s) = 0.12 + 0.0155 x (top edge, in svh)
+
+  — so the front crosses 100svh in 1.55s, and the pause in the middle of the
+  load is not a number anyone typed: it is the time the front spends travelling
+  down the plate. That is the composition rendered as duration, and it is what
+  makes this one gesture rather than a queue of entrances.
+
+    0.00  the page — the plate, the binding hairline and 一/01, all already
+          printed. These are the book, not the chapter, and the plate in
+          particular must never be REVEALED: an element clipped to zero area or
+          held at opacity 0 is not an LCP candidate, and it is the LCP element.
+          It only settles — a 4.5% scale coming to rest, which is a transform
+          and therefore invisible to the metric.
+    0.37  the bow rises inside its mask
+      ->  NOTHING NEW BEGINS for 0.94s. The front is crossing the plate.
+    1.31  the offer is printed
+    1.33  the strike rises
+    1.48  the control is printed — the last mark, and the only red one
+    2.05  finished. Nothing on this sheet moves again: no loop, no breathing
+          hairline, no scroll-linked transform, no pointer lean.
+*/
+const T = {
+  bow: 0.37,
+  offer: 1.31,
+  strike: 1.33,
+  press: 1.48,
+} as const;
+
+/** How the plate lands: 4.5% over 1.9s, which reads as settling, not as a zoom. */
+const PLATE_SETTLE = 1.045;
+
 export function Hero() {
   const { locale } = useLocale();
-  const reduced = useReducedMotion();
   const ch = chapters[0];
   const fit = heroFit[locale];
-
-  /** Seconds, or none at all when the reader has asked for stillness. */
-  const d = (s: number) => (reduced ? 0 : s);
-
-  /*
-    The band is measured, not assumed: it is `100% + gutter + band-bleed` of a
-    full-bleed sheet, so nothing in CSS or in this file knows how long the
-    stroke is until the box exists. A ResizeObserver rather than a `resize`
-    listener because the band also changes with a zoom, with the scrollbar
-    appearing, and with the container query the stage declares — none of which
-    fire `resize`.
-
-    `drawn` gates the animation rather than only its duration: Motion reads a
-    transition when the TARGET changes, so a duration that arrives one render
-    after the animation started would simply be ignored. Holding the target at
-    wipe(0) for the one frame it takes to measure means the stroke is always
-    laid at the speed of the sheet it is being laid on.
-  */
-  const press = useRef<HTMLSpanElement>(null);
-  const [band, setBand] = useState<number | null>(null);
-
-  useEffect(() => {
-    const el = press.current;
-    if (!el) return;
-    const measure = () => {
-      const w = el.getBoundingClientRect().width;
-      /* ignore sub-pixel and scrollbar-sized noise: re-rendering the hero to
-         change the stroke by two hundredths of a second is not worth a frame */
-      setBand((prev) => (prev !== null && Math.abs(prev - w) < 24 ? prev : w));
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  const drawn = band !== null;
-  const hand = strokeSeconds(band ?? 0);
-
+  const line1 = hero.line1[locale];
   const line2 = hero.line2[locale];
+  const still = useStillness();
 
   return (
     <Chapter
       id={ch.id}
       index={1}
       title={ch.title[locale]}
+      ground="paper"
       labelledBy="hero-title"
       className="hero"
-      style={{ ["--numeral-top" as string]: "calc(var(--header-h) + 2.75rem)" }}
+      style={
+        {
+          /* Set EQUAL to `.chapter__numeral`'s own sticky `top`, so the numeral
+             is already at its resting offset at scroll 0 and never jumps once
+             the reader starts moving. It lands on the running head's line. */
+          "--numeral-top": "calc(var(--header-h) + 2rem)",
+          /* The two em constants the size law divides by. See `heroFit`. */
+          "--em-bow": fit.bow,
+          "--em-strike": fit.strike,
+        } as CSSProperties
+      }
     >
-      {/* masthead */}
-      <div className="wrap">
-        <Settle className="hero__masthead" mode="load" delay={d(0.06)} duration={d(0.7)}>
-          <p className="t-mono hero__eyebrow text-ink-2">{hero.eyebrow[locale]}</p>
-          {/* The binding margin does not exist under 768, so the chapter count
-              prints in the running head instead — the same `.folio-inline` the
-              other nine chapters carry. Without it the manual's first chapter
-              was the only unnumbered page in the book on a phone. */}
-          <span className="folio-inline t-mono">
-            <Kanji id="ichi" className="chapter__kanji" label={null} /> 01
-          </span>
-          <p className="t-accent hero__aside">— {hero.aside[locale]}</p>
-        </Settle>
-        {/* a chapter's own opening rule is the strong one; the folio's closing
-            hairline below is the standard weight */}
-        <motion.div
-          className="rule rule--strong hero__masthead-rule"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: d(1), delay: d(0.14), ease: EASE_OUT }}
-        />
-      </div>
+      {/*
+        The plate. One photograph at the size of the screen, printed in the two
+        inks the chapter is printed in, running to all four trimmed edges.
 
-      <div className="hero__stage" style={{ "--em-wide": fit.wide, "--em-narrow": fit.narrow } as CSSProperties}>
+        `art` serves the upright cut of the same frame through a <picture>, so
+        the screen that gets it downloads that file and only that file. The
+        query is on the SHAPE of the viewport and not on its width, because the
+        thing that ruins the wide cut is a tall box, not a narrow one: a 3:2
+        landscape asked to cover 390 x 844 shows a 31% vertical slice of itself
+        and 768 x 1024 is barely better, while 1024 x 1366 — wider than the
+        phone breakpoint by a long way — is worse than both. `4 / 5` is the
+        shape at which the wide frame stops holding its subject.
+
+        The scale is on the WRAPPER and not on the image, so the <img> that the
+        browser measures for LCP is never itself transformed, and `useStillness`
+        decides the `initial` — Motion serialises `initial` into the SSR markup
+        and React will not patch a mismatched style attribute, so reading the
+        media query directly would leave a reader who asked for stillness with a
+        permanently over-scaled plate.
+      */}
+      <motion.div
+        className="hero__plate"
+        initial={{ scale: still ? 1 : PLATE_SETTLE }}
+        animate={{ scale: 1 }}
+        transition={{ duration: still ? 0 : 1.9, ease: EASE_OUT }}
+      >
+        <Photo
+          slot="firstScreen"
+          art={{ slot: "firstScreenTall", media: "(max-aspect-ratio: 4 / 5)", sizes: "170vw" }}
+          grade="duotone"
+          sizes="100vw"
+        />
+        {/*
+          AND THE PLATE IS MADE, ONCE.
+
+          The belt is drawn tight over 2.34s and then the sheet is a photograph
+          — no loop, nothing ambient. That is not restraint for its own sake: it
+          is the same sentence this file already ends on, and the same one
+          hero.css ends on. The gesture is also the chapter's subject; 一 is
+          «Первая черта» and the belt is the first thing tied.
+
+          It lies OVER the plate and is never the plate. <Photo> above prints
+          the reel's own frame 0, and that <img> is the LCP element, the alt
+          text, and what the reader keeps if the reel is held back — which it is
+          on a phone, on a reduced-motion machine, and anywhere autoplay is
+          refused. ui/Reel carries the three conditions and why each is decided
+          on the client.
+
+          THE QUERY IS THE SAME ONE <Photo art> IS GIVEN, inverted: the upright
+          cut and the reel are two answers to one question about the shape of
+          the viewport, and they must never both be right. Keep them in step.
+
+          It is NOT inside the load sequence above and takes no delay from it.
+          The reel starts when the file can start; the front crossing the sheet
+          is type, and the plate was never part of it.
+        */}
+        <Reel slot="firstScreen" className="hero__reel" when="(min-aspect-ratio: 4 / 5)" />
+      </motion.div>
+      <div className="hero__scrim" aria-hidden="true" />
+      {/*
+        THE SURFACE, AND WHY IT IS NOT <Grain>.
+
+        <Grain> screens a noise field back in. Screen is the operator that bites
+        on ink and does nothing worth a compositing layer on paper — About.tsx
+        says so where it declines to print one, and this chapter is paper now.
+        The paper chapters' surface is the STOCK: two near-white tiles
+        multiplied into the ground by `.ground-paper`.
+
+        But the stock is on the GROUND and this chapter's ground is covered, to
+        all four trimmed edges, by the plate. So the same two tiles are printed
+        again here, over the plate, at multiply — the tooth the rest of the book
+        has, applied where it can actually be seen. No new token, and the
+        photograph is inside the paper's grain rather than sitting on top of it,
+        which is what a printed plate does.
+      */}
+      <div className="hero__stock" aria-hidden="true" />
+
+      <div className="hero__sheet">
+        {/*
+          The sentence. One <h1>, announced once and whole to a screen reader
+          through the sr-only span; the two visible lines are masked, animated
+          and `aria-hidden` (LineReveal does that itself when `label` is null),
+          and the screen of plate between them is decorative. Never an
+          aria-label on the h1 — it would silently win over the real content.
+
+          The two lines are a screen apart and still one heading: the <h1> takes
+          rows 2–4 of the sheet's grid and hands them straight through with
+          `grid-template-rows: subgrid`. See hero.css for why not
+          `display: contents`.
+        */}
         <h1 id="hero-title" className="hero__title t-display">
           <span className="sr-only">
-            {hero.line1[locale]} {line2}
+            {line1} {line2}
           </span>
 
-          <span className="hero__head" aria-hidden="true">
-            <span className="hero__line">
-              <motion.span
-                className="hero__line-in"
-                initial={RISE}
-                animate={SET}
-                transition={{ duration: d(1.1), delay: d(0.24), ease: EASE_OUT }}
-              >
-                {hero.line1[locale]}
-              </motion.span>
-            </span>
-          </span>
-
-          <span className="hero__deck" aria-hidden="true">
-            <span className="hero__line">
-              <motion.span
-                className="hero__line-in"
-                initial={RISE}
-                animate={SET}
-                transition={{ duration: d(1.1), delay: d(0.4), ease: EASE_OUT }}
-              >
-                {line2}
-              </motion.span>
-            </span>
-
-            {/*
-              The first stroke. It is the mark and nothing else now: pure
-              vermilion, laid straight across the sheet under the headline and
-              running off the right trim. It used to carry the hero photograph
-              inside it as a mask — an idea that read, at screen resolution, as
-              a torn JPEG: the plate was squeezed to 7.5:1 and unreadable, and
-              the dry tail's bristle ribbons looked like scan lines. The
-              photograph now has its own frame in the register below, where it
-              can be seen, and the brush is allowed to be a brush.
-            */}
-            <span className="hero__press" ref={press} aria-hidden="true">
-              <motion.span
-                className="hero__band"
-                initial={{ clipPath: wipe(0) }}
-                animate={{ clipPath: drawn ? wipe(1) : wipe(0) }}
-                transition={{ duration: d(hand), delay: d(0.62), ease: EASE_BRUSH }}
-              />
-            </span>
-          </span>
-        </h1>
-      </div>
-
-      {/* Printed under the plate: its colophon on the left, the lead in the
-          middle and the offer ranged hard right — two columns under 1440,
-          three ranged blocks on the page grid above it, four fields from 1600
-          where the plate takes a column more and its legend keeps its own.
-          Nothing sits on the tail — by then the stroke has broken into bristle
-          ribbons and no type could be read across them. */}
-      <div className="wrap hero__base">
-        <figure className="hero__colophon">
-          {/* The photograph, at last legible: its own frame, its own crop, its
-              own caption — and the LCP element of the page.
-
-              It opens from the LEFT, because that is the direction the brush
-              travelled: the plate floods in behind the same front rather than
-              fading up in place. It used to drift 13px under the scroll and
-              lean 4px under the pointer, which is the cost of a `useScroll`, a
-              spring and a pointermove handler for an effect below the
-              threshold at which anyone reads it as depth. One legible gesture
-              beats two invisible ones. */}
-          <Curtain
-            className="hero__plate"
-            from="left"
+          <LineReveal
+            as="span"
+            className="hero__line hero__line--bow"
+            lines={[line1]}
+            label={null}
             mode="load"
-            delay={0.86}
-            duration={0.9}
-            scale={1.05}
-          >
-            <Photo
-              slot="heroStroke"
-              sizes="(min-width: 1600px) 32vw, (min-width: 1440px) 26vw, (min-width: 768px) 34vw, 92vw"
-              preload
-              fetchPriority="high"
-            />
-          </Curtain>
-          {/* a legend is printed with the plate, not flown in after it */}
-          <Settle className="hero__colophon-text" mode="load" delay={1.02} duration={0.75}>
-            <p className="t-caption">{hero.plateCaption[locale]}</p>
-            <p className="t-mono hero__hand">{hero.hand[locale]}</p>
-          </Settle>
-        </figure>
-
-        {/* The lead and the offer come into register along one baseline rather
-            than arriving as a block: from 1440 `.hero__pitch` is
-            `display: contents` and Register's two item wrappers are placed
-            straight onto the page grid, so the button stands on the same
-            vertical as the aside above it and the scroll cue below it. */}
-        <Register className="hero__pitch" mode="load" delay={1.14} stagger={0.16} duration={0.78} x={-14}>
-          <p className="hero__lead">{hero.lead[locale]}</p>
-          <div className="hero__act">
-            <a href="#join" className="hero__cta">
-              <span className="hero__cta-label t-mono">{hero.ctaPrimaryShort[locale]}</span>
-              {/* the page's one action gets a landing of its own: the seal is
-                  pressed onto the button on `--ease-press`, which overshoots,
-                  because a press rebounds. Transform only — the tile's box
-                  never moves. */}
-              <motion.span
-                className="hero__cta-seal"
-                aria-hidden="true"
-                initial={{ scale: 0.84 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: d(0.55), delay: d(1.5), ease: EASE_PRESS }}
-              >
-                <span className="hero__cta-arrow">→</span>
-              </motion.span>
-            </a>
-            <p className="hero__trial t-mono">
-              <span>{hero.trial[locale]}</span>
-              <a href={club.telegram} className="hero__tg" rel="noopener">
-                Telegram <span aria-hidden="true">→</span>
-              </a>
-            </p>
-          </div>
-        </Register>
-      </div>
-
-      {/* folio */}
-      <div className="hero__folio">
-        <div className="wrap">
-          <motion.div
-            className="rule hero__folio-rule"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: d(0.85), delay: d(1.38), ease: EASE_OUT }}
+            delay={T.bow}
+            duration={1}
+            bleed={0.16}
           />
-          <Register
-            className="hero__folio-row"
-            itemClassName="hero__folio-cell"
+
+          <LineReveal
+            as="span"
+            className="hero__line hero__line--strike"
+            lines={[line2]}
+            label={null}
             mode="load"
-            delay={1.55}
-            stagger={0.09}
-            duration={0.7}
-            x={-12}
-          >
-            <NextSessionStrip href="#schedule" className="hero__next" />
-            <a href="#about" className="hero__scroll t-mono">
-              {hero.scroll[locale]}
-              {/* ruled out once, left → right, and then left printed. A rule
-                  that arrives last says "there is more below" better than one
-                  that twitches for as long as the reader stays. */}
-              <motion.span
-                className="hero__scroll-line"
-                aria-hidden="true"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: d(0.7), delay: d(1.8), ease: EASE_OUT }}
-              />
-            </a>
-          </Register>
+            delay={T.strike}
+            duration={1}
+            bleed={0.16}
+          />
+        </h1>
+
+        {/*
+          The offer. The sheet's only sentence of prose and the page's only
+          action, ranged to the right trim and standing on the strike's own
+          baseline band. The prose is set in SENTENCE CASE at caption size on
+          purpose: `.t-mono` is for labels of three words or fewer, and this is
+          a sentence, to be read rather than counted.
+
+          The control is the press — the same object the header, the contents
+          page, the schedule and the mobile bar print — so the page asks for the
+          one thing it wants in one voice, and its vermilion arrow tile is the
+          seal, which is job two of the three red is allowed.
+        */}
+        <div className="hero__offer">
+          <Settle mode="load" delay={T.offer} duration={0.55}>
+            <p className="t-caption hero__qualifier">{hero.offer[locale]}</p>
+          </Settle>
+          <Settle mode="load" delay={T.press} duration={0.55}>
+            <Button href={cta.href} className="hero__press">
+              {hero.ctaPrimary[locale]}
+            </Button>
+          </Settle>
         </div>
       </div>
     </Chapter>

@@ -68,18 +68,13 @@
     proportion (padding ≈ 11% of the sheet) the same as it is at 1440.
   */
   --pad-block: 7rem;
-  /* the margin numeral is set on the chapter's opening rule, as in 三 */
+  /* the margin numeral is set on the chapter's opening line, as in 三 */
   --numeral-top: var(--pad-block);
-  /* running head → body. Was mt-12 / md:mt-16, now with a ceiling. */
-  --rhythm: 3rem;
   /* the gap between one ruled field and the next (was gap-8) */
   --field-gap: 2rem;
   /* the field column's own measure — see the head of this file. Unset
      below 1600, where the form slot is still narrower than it. */
   --field-measure: none;
-  /* what the colophon costs, and therefore what the sheet gives back at the
-     foot so that closing the chapter does not simply make it taller */
-  --foot-give: clamp(2.5rem, 4vw, 5rem);
   /*
     THE RING, AND THE WORD INSIDE IT.
 
@@ -116,7 +111,6 @@
 @media (min-width: 768px) {
   .join {
     --pad-block: clamp(10rem, 10vw, 16rem);
-    --rhythm: clamp(4rem, 4vw, 6.5rem);
   }
 }
 
@@ -151,11 +145,7 @@
 }
 
 .join__sheet {
-  padding-top: var(--pad-block);
-  /* the chapter now closes with a colophon it did not have, so it gives back
-     roughly the height that colophon costs. The floor matters at 390, where
-     --pad-block is 7rem and the footer follows immediately. */
-  padding-bottom: max(3rem, calc(var(--pad-block) - var(--foot-give)));
+  padding-block: var(--pad-block);
 }
 
 /*
@@ -163,8 +153,9 @@
   invitation's left edge and the form's rules land on the same verticals as
   every other chapter's, at every width.
 */
+/* the running head it used to stand off is gone; the sheet's own top padding
+   is the air above the chapter's first line now */
 .join__body {
-  margin-top: var(--rhythm);
   display: grid;
   row-gap: 3.5rem;
   column-gap: var(--col-gap);
@@ -513,8 +504,8 @@
 /* ------------------------------------------------------------------ */
 /* Exits — the Telegram alternative and the notice's route              */
 /*                                                                     */
-/* The same object as `.chapter-foot__link`, and it takes the same mark: */
-/* a 44px target whose rule doubles under the pointer rather than        */
+/* The book's exit link: a 44px target whose rule doubles under the      */
+/* pointer rather than                                                   */
 /* changing hue. The rule sits under the LABEL rather than under the     */
 /* link box, because a 44px box puts its own border a finger's width     */
 /* below the type it is supposed to underline.                          */

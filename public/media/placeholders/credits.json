@@ -320,5 +320,21 @@
   "title": "Тихтенген. Чегем.jpg",
   "author": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:S.katrinaH&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"Use",
   "license": "CC BY 4.0"
+ },
+ {
+  "file": "snow-kick-1970.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File%3AOchi%20%288%29.jpg",
+  "title": "Ochi (8).jpg",
+  "author": "Andreas Fecker",
+  "license": "CC BY-SA 4.0",
+  "modified": "cropped to 3:2; downscaled to 2560px; converted to grayscale"
+ },
+ {
+  "file": "snow-kick-1970-portrait.jpg",
+  "source": "https://commons.wikimedia.org/wiki/File%3AOchi%20%288%29.jpg",
+  "title": "Ochi (8).jpg (portrait crop)",
+  "author": "Andreas Fecker",
+  "license": "CC BY-SA 4.0",
+  "modified": "cropped to 4:5; downscaled to 1536px; converted to grayscale"
  }
 ]

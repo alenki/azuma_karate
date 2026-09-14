@@ -7,19 +7,12 @@ import { useLocale } from "@/i18n/LocaleProvider";
 import { chapters, join, schedule as timetable } from "@/content/home";
 import { club } from "@/content/schedule";
 import { Chapter } from "@/components/layout/Chapter";
-import { ChapterFoot } from "@/components/layout/ChapterFoot";
 import { Brush } from "@/components/brush/Brush";
-import { Kanji } from "@/components/brush/Kanji";
 import { Grain } from "@/components/ui/Grain";
 import { LineReveal } from "@/components/ui/LineReveal";
 import { Reveal, Settle } from "@/components/ui/Reveal";
 
 const chapter = chapters.find((c) => c.id === "join")!;
-/* the two exits the last page of a book is allowed: back to the timetable, and
-   back to the first stroke. Both labels are the chapters' own titles, so the
-   colophon never invents a name for a chapter that already has one. */
-const scheduleChapter = chapters.find((c) => c.id === "schedule")!;
-const firstChapter = chapters.find((c) => c.id === "hero")!;
 const HEADING_ID = "join-title";
 
 type Field = "name" | "age" | "contact";
@@ -160,14 +153,6 @@ export function Join() {
       bleed={<Grain opacity={0.22} />}
     >
       <div className="join__sheet wrap relative z-10">
-        <div className="rule rule--strong" />
-        <Reveal delay={0.1} y={12} duration={0.8} className="flex items-baseline justify-between gap-6 pt-4">
-          <p className="t-mono text-bone-2">{t.eyebrow[locale]}</p>
-          <span className="folio-inline t-mono text-bone-2">
-            <Kanji id="ju" className="chapter__kanji" label={null} /> 10
-          </span>
-        </Reveal>
-
         <div className="join__body">
           {/* ---- the invitation ---- */}
           <div className="join__invite">
@@ -265,13 +250,6 @@ export function Join() {
           </div>
         </div>
 
-        <ChapterFoot
-          index={chapter.index}
-          links={[
-            { href: "#schedule", label: scheduleChapter.title[locale] },
-            { href: "#hero", label: firstChapter.title[locale] },
-          ]}
-        />
       </div>
     </Chapter>
   );

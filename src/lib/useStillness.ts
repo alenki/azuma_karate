@@ -31,8 +31,10 @@ const onServer = () => false;
  * Use this for anything that decides an `initial` prop or a serialised `style`.
  * For a plain `animate`/`whileInView` transition, prefer Motion's own
  * `<MotionConfig reducedMotion="user">`, which already handles it. To pin a
- * scroll-linked transform at rest, prefer CSS — see the note at the top of
- * `components/figures/AzumaFigure.tsx`.
+ * scroll-linked transform at rest, prefer CSS — a `transform: none !important`
+ * rule is the only thing that can win against the inline transform Motion
+ * rewrites every frame, and `sections/Morning.tsx` is the one place on the page
+ * that still needs it.
  */
 export function useStillness(): boolean {
   const reduced = useReducedMotion();

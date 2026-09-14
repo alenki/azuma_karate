@@ -372,7 +372,8 @@
 /* ------------------------------------------------------------------ */
 @theme {
   --stock-tooth: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='t' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='3' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncG type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncB type='linear' slope='0.02' intercept='0.98'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E");
-  --stock-cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.28' numOctaves='4' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncG type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncB type='linear' slope='0.02' intercept='0.98'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");}
+  --stock-cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.28' numOctaves='4' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncG type='linear' slope='0.02' intercept='0.98'/%3E%3CfeFuncB type='linear' slope='0.02' intercept='0.98'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
+}
 
 /* paper and ink grounds */
 .ground-paper {
@@ -521,15 +522,6 @@
 .site-header--ink .lang-toggle {
   color: var(--color-bone);
 }
-/*
-  The running head is printed with a `text-ink-2` utility, which is #5A554E —
-  6.4:1 on paper but 2.1:1 on ink. A utility beats an unlayered rule on the
-  parent, so the ink ramp's own secondary tone has to be set on the element
-  itself and marked, which is the one place in this file that earns it.
-*/
-.site-header--ink .site-header__head-text {
-  color: var(--color-bone-2) !important;
-}
 .site-header--ink .nav-link::after {
   background: var(--color-bone);
 }
@@ -664,33 +656,139 @@
   text-transform: uppercase;
 }
 
-/* timetable */
-.timetable__col--today {
-  background: var(--color-paper-3);
+/* ------------------------------------------------------------------ */
+/* The timetable — colour and transition only                          */
+/*                                                                     */
+/* Geometry, type size and the band's flex row live in                 */
+/* `styles/sections/schedule.css`; neither file declares the other's   */
+/* properties. Where one line needs both — a hairline is a `border`,   */
+/* which carries a width AND a colour — the geometry file writes       */
+/* `1px solid var(--tt-cell-rule)` and this file decides what          */
+/* `--tt-cell-rule` is, so each declaration still has exactly one home.*/
+/*                                                                     */
+/* THREE STATES, NO HUE. A session is printed, struck or quieted:      */
+/*   printed   ink on paper, ruled off with a hairline                 */
+/*   struck    the group the reader asked for — the ground inverts,    */
+/*             bone on ink, the same mark the band cell wears          */
+/*   quieted   one step down the ink ramp AND unruled. It recedes by   */
+/*             losing its RULES, not its legibility: ink-2 is 6.9:1    */
+/*             and ink-quiet 5.04:1, where the `opacity: .3` this      */
+/*             replaces composited to about 2.1:1 — under the floor,   */
+/*             and still not visibly absent against the stock's grain. */
+/*             On a table whose whole identity is its ruling, taking   */
+/*             the ruling away is the larger signal anyway.            */
+/*                                                                     */
+/* Nothing here is vermilion, in any state. The only red a band cell   */
+/* can show is the reader's own focus ring.                            */
+/*                                                                     */
+/* `.timetable__col--today` used to sit here — the paper-3 card behind */
+/* today's column, retired when today became a 2px ink rule plus the   */
+/* word plus the tick. The live class is `--now`; this one was dead.   */
+/* ------------------------------------------------------------------ */
+.timetable__cell,
+.timetable__session,
+.timetable__day-row {
+  --tt-cell-ink: var(--color-ink);
+  --tt-cell-quiet: var(--color-ink-2);
+  --tt-cell-rule: var(--color-rule-hair);
+  color: var(--tt-cell-ink);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
 }
-.timetable__cell { transition: opacity var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out); }
-.timetable__cell--hi { background: var(--color-paper-2); }
-.legend__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  color: var(--color-ink-2);
+/* a day's row on the mobile agenda is a block boundary, not a separation
+   inside one, so it keeps the standard hairline */
+.timetable__day-row { --tt-cell-rule: var(--color-rule); }
+
+.timetable__cell--hi,
+.timetable__session--hi {
+  --tt-cell-ink: var(--color-bone);
+  --tt-cell-quiet: var(--color-bone-2);
+  --tt-cell-rule: transparent;
+  background-color: var(--color-ink);
+}
+
+.timetable__cell--off,
+.timetable__session--off,
+.timetable__day-row--off {
+  --tt-cell-ink: var(--color-ink-2);
+  --tt-cell-quiet: var(--color-ink-quiet);
+}
+/* only the sessions go unruled. A day row on the agenda keeps its rule — the
+   mobile week is MADE of those seven lines, and dropping four of them reads
+   as a broken table rather than as a quieted one. */
+.timetable__cell--off,
+.timetable__session--off { --tt-cell-rule: transparent; }
+
+/* The quiet second line of a session, and the agenda of times on a mobile day
+   row. They read their tone off the cell so they invert with it. The
+   transition is declared here rather than inherited because a custom property
+   cannot itself be animated — but the property that consumes it can, and
+   `color` recomputes when the var changes, so this transitions properly. */
+.timetable__ages,
+.timetable__session-ages,
+.timetable__day-times {
+  color: var(--tt-cell-quiet);
   transition: color var(--duration-fast) var(--ease-out);
 }
-.legend__btn--on, .legend__btn:hover { color: var(--color-ink); }
+
+/* ---- the register band ---- */
+/* The band's caption: a label of one word, so `.t-mono`, in the tone the ramp
+   reserves for marks a reader counts rather than reads. */
+.timetable__band-cap { color: var(--color-ink-quiet); }
+
+.legend__cell {
+  /* the three weights the band is ruled in. The top rule is the standard
+     hairline; the verticals BETWEEN two cells are the lightest — the band
+     divides five groups, the table divides seven days, and the lighter grade
+     is what keeps five-over-seven reading as two orders of division rather
+     than as a failed alignment — and the seam where the band meets the table
+     is the heaviest rule the chapter has. */
+  --tt-band-rule: var(--color-rule);
+  --tt-band-rule-v: var(--color-rule-hair);
+  --tt-band-seam: var(--color-rule-strong);
+
+  --tt-band-ink: var(--color-ink);
+  --tt-band-counted: var(--color-ink-quiet); /* the age band under the name */
+
+  color: var(--tt-band-ink);
+  background-color: transparent;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+/*
+  Marked: the ground inverts. A fill, not a hue — and a luminance flip, so it
+  survives greyscale (1.4.1) on its own, before the dot is counted.
+*/
+.legend__cell--on {
+  --tt-band-ink: var(--color-bone);
+  --tt-band-counted: var(--color-bone-2);
+  background-color: var(--color-ink);
+}
+.legend__ages {
+  color: var(--tt-band-counted);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
 /*
   Empty square / filled square. The filter's state was carried by turning the
   dot red, which is both a job vermilion does not have and a colour-only signal
   (1.4.1); an outline that fills is a shape change, legible in greyscale and in
   the ink ramp, and it costs the page nothing.
+
+  It is layered on top of the inversion now, because the two mean different
+  things: the inverted ground says "this group is marked in the table", the
+  filled dot says "you chose it, and it will stay" — which is exactly what
+  `aria-pressed` reports. Hovering inverts; clicking fills.
 */
 .legend__dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border: 1px solid currentColor;
-  background: transparent;
+  border-color: currentColor;
+  background-color: transparent;
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
-.legend__btn--on .legend__dot { background: currentColor; }
+.legend__cell--pinned .legend__dot { background-color: currentColor; }
 
 /* accordion */
 .accordion__btn { color: var(--color-ink); }
@@ -772,10 +870,10 @@
   box-shadow: 0 -1px 0 var(--color-rule-dark);
 }
 /*
-  Same trap as the header's running head: the label is printed with a
-  `text-ink-2` utility (#5A554E — 6.4:1 on paper, 2.1:1 on ink) and a utility
+  The one `!important` in this file, and it earns it: the label is printed with
+  a `text-ink-2` utility (#5A554E — 6.4:1 on paper, 2.1:1 on ink) and a utility
   beats an unlayered rule on the parent, so the ink ramp's own secondary tone
-  has to be set on the element and marked.
+  has to be aimed at the element itself and marked.
 */
 .mobile-bar--ink .mobile-bar__label {
   color: var(--color-bone-2) !important;
@@ -876,10 +974,14 @@
 /* The numeral lives IN the margin, not merely near it. Given a fixed   */
 /* `left` and a `clamp()` width, the glyph's right edge and the trim     */
 /* grow at different rates, and between roughly 1024 and 1600 the kanji */
-/* crossed the trim and printed on top of the running head — 二 through */
-/* the «Г» of «ГЛАВА ВТОРАЯ», and the same in chapters 06, 07, 09 and   */
-/* 10. Binding the box to the gutter makes the collision impossible at  */
-/* every width instead of tuned away at a few.                          */
+/* crossed the trim and printed on top of the display type. Binding the */
+/* box to the gutter makes the collision impossible at every width      */
+/* instead of tuned away at a few.                                      */
+/*                                                                     */
+/* The rail prints NO rule. It carried a 1px gradient down its right    */
+/* edge, and because the chapters stack flush their separate rules      */
+/* read as one unbroken line running the length of the site. The margin */
+/* is paper; the numeral riding it is the only mark it makes.           */
 /* ------------------------------------------------------------------ */
 .chapter__rail {
   position: absolute;
@@ -887,33 +989,6 @@
   left: 0;
   width: var(--binding);
   pointer-events: none;
-  /*
-    The margin rule the whole metaphor was asserting and never printing. It
-    fades out at both ends so it closes inside the chapter instead of butting
-    into the trim or bleeding across a paper→ink change, which is how a real
-    margin rule behaves and what stops ten of them reading as one long line.
-  */
-  background-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    var(--color-rule-hair) 5rem,
-    var(--color-rule-hair) calc(100% - 5rem),
-    transparent 100%
-  );
-  background-repeat: no-repeat;
-  background-size: 1px 100%;
-  /* held a hair inside the trim rather than flush against it, so the rule does
-     not read as an underline hanging off the left edge of the display type */
-  background-position: right 0.25rem top 0;
-}
-.ground-ink .chapter__rail {
-  background-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    var(--color-rule-dark-hair) 5rem,
-    var(--color-rule-dark-hair) calc(100% - 5rem),
-    transparent 100%
-  );
 }
 .chapter__numeral {
   /*
@@ -946,124 +1021,18 @@
 }
 .ground-ink .chapter__folio { color: var(--color-bone-2); }
 @media (max-width: 767px) {
-  /* the binding margin does not exist on phones; chapters print their folio in
-     flow (`.folio-inline`), so the whole rail goes — rule included */
-  .chapter__rail { display: none; }
-}
-.folio-inline {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-.folio-inline .chapter__kanji { width: 1rem; }
-@media (min-width: 768px) {
-  .folio-inline { display: none; }
-}
+  /*
+    The binding margin does not exist on phones — the gutter is 20px at 390,
+    which is narrower than the numeral. The rail goes with it.
 
-/* ------------------------------------------------------------------ */
-/* The foot of a chapter — layout/ChapterFoot                          */
-/*                                                                     */
-/* The counterweight to the opening rule + eyebrow + title. Three       */
-/* fields on one line, ranged across the whole trim: the folio against  */
-/* the binding, the closing note in the middle, the exits at the right  */
-/* edge. The middle track is `minmax(0, 1fr)` and stays in the grid     */
-/* even when there is no note, because the exits belong at the trim,    */
-/* not tucked in beside the folio.                                     */
-/*                                                                     */
-/* Below 768 the sheet has no binding margin and no right trim worth    */
-/* ranging to, so it stacks and the folio becomes the only one on the   */
-/* page (the margin numeral is hidden there).                           */
-/* ------------------------------------------------------------------ */
-.chapter-foot {
-  margin-top: clamp(2.5rem, 4vw, 5rem);
-}
-.chapter-foot__row {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding-top: clamp(1rem, 0.9vw, 1.75rem);
-}
-@media (min-width: 768px) {
-  .chapter-foot__row {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: baseline;
-    column-gap: clamp(1.5rem, 3vw, 4rem);
-  }
-}
-.chapter-foot__folio {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  /* the lightest legal tone: a folio is counted, not read, but it is still
-     type — never --color-ink-3, which is 2.4:1 on this paper */
-  color: var(--color-ink-quiet);
-}
-.ground-ink .chapter-foot__folio { color: var(--color-bone-2); }
-.chapter-foot__kanji {
-  width: 0.75rem;
-  height: auto;
-}
-/* the placeholder that holds the middle track open when a chapter closes with
-   no note; it has nothing to space on the stacked layout, so it is not there */
-.chapter-foot__gap { display: none; }
-@media (min-width: 768px) {
-  .chapter-foot__gap { display: block; }
-}
-.chapter-foot__note {
-  max-width: var(--measure-caption);
-  color: var(--color-ink-2);
-}
-.ground-ink .chapter-foot__note { color: var(--color-bone-2); }
-.chapter-foot__links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 2rem;
-  justify-self: end;
-}
-/*
-  An exit is a link, so it is underlined at rest — and the rule under it is the
-  hover state too: it doubles rather than changes hue. The old pattern turned
-  vermilion on hover, which spent the page's one accent on a mouse position.
-  `box-shadow` draws the second line without touching layout, so nothing on the
-  row shifts by a pixel when the pointer crosses it.
-*/
-.chapter-foot__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 2.75rem;
-  color: var(--color-ink);
-  transition: color var(--duration-fast) var(--ease-out);
-}
-.ground-ink .chapter-foot__link { color: var(--color-bone); }
-.chapter-foot__link-label {
-  border-bottom: 1px solid var(--color-rule-strong);
-  padding-bottom: 0.2em;
-  transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
-}
-.ground-ink .chapter-foot__link-label { border-bottom-color: var(--color-rule-dark-strong); }
-.chapter-foot__link:hover .chapter-foot__link-label,
-.chapter-foot__link:focus-visible .chapter-foot__link-label {
-  border-bottom-color: currentColor;
-  box-shadow: 0 2px 0 -1px currentColor;
-}
-.chapter-foot__arrow {
-  transition: transform var(--duration-fast) var(--ease-out);
-}
-.chapter-foot__link:hover .chapter-foot__arrow,
-.chapter-foot__link:focus-visible .chapter-foot__arrow {
-  transform: translateX(0.25rem);
-}
-/* the rule still doubles when the reader has asked for stillness — it is a
-   state, not an animation. Only the thing that MOVES is withdrawn. */
-@media (prefers-reduced-motion: reduce) {
-  .chapter-foot__arrow { transition: none; }
-  .chapter-foot__link:hover .chapter-foot__arrow,
-  .chapter-foot__link:focus-visible .chapter-foot__arrow {
-    transform: none;
-  }
+    A phone therefore prints no chapter numeral at all. It used to fall back to
+    `.folio-inline`, an in-flow 一 01 set at the far end of each chapter's
+    running head; the running heads are gone, and a folio with no head to hang
+    in is a loose pair of digits floating over the first line of a chapter.
+    <Chapter> still announces "title — 07" to assistive technology at every
+    width, so nothing is lost but the ornament.
+  */
+  .chapter__rail { display: none; }
 }
 
 /* Lenis */

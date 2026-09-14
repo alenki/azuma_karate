@@ -7,9 +7,7 @@ import { useId, useRef } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { chapters, results } from "@/content/home";
 import { Chapter } from "@/components/layout/Chapter";
-import { ChapterFoot } from "@/components/layout/ChapterFoot";
 import { Brush } from "@/components/brush/Brush";
-import { Kanji } from "@/components/brush/Kanji";
 import { brushMarks } from "@/components/brush/marks";
 import { Curtain } from "@/components/ui/Curtain";
 import { Grain } from "@/components/ui/Grain";
@@ -211,19 +209,6 @@ export function Results() {
       bleed={<Grain opacity={0.25} />}
     >
       <div className="wrap results__sheet relative z-10">
-        <div className="rule" />
-        <Register
-          className="flex items-baseline justify-between gap-6 pt-4"
-          delay={0.1}
-          duration={0.7}
-          stagger={0.08}
-        >
-          <p className="t-mono text-bone-2">{t.eyebrow[locale]}</p>
-          <span className="folio-inline t-mono text-bone-2">
-            <Kanji id="go" className="chapter__kanji" label={null} /> 05
-          </span>
-        </Register>
-
         {/*
           The masthead is one grid at every width. Up to 1600 the deck and the
           ledger share a six-column stack (`.results__col`); past it the column
@@ -291,27 +276,20 @@ export function Results() {
         </div>
 
         {/*
-          The colophon closes the chapter, and the season's record closes the
-          colophon. The record used to be a 2px vermilion box animated on
-          scaleX — a rule impersonating a brush — with its line set in red mono
-          beside it. The line is ink now and the mark under it is a real one:
-          the sensei's underline, pulled through the press, and the only
-          vermilion in the whole chapter.
+          The season's record closes the chapter. It used to be a 2px vermilion
+          box animated on scaleX — a rule impersonating a brush — with its line
+          set in red mono beside it; the line is ink now and the mark under it
+          is a real one: the sensei's underline, pulled through the press, and
+          the only vermilion in the whole chapter.
 
-          `rule={false}` because the chronicle above already closes itself with
-          a hairline, and two rules a finger's width apart is a printing error,
-          not a colophon.
+          It prints no rule of its own — the chronicle above already closes
+          itself with a hairline, and two rules a finger's width apart is a
+          printing error.
         */}
-        <ChapterFoot
-          rule={false}
-          index={chapter.index}
-          note={
-            <>
-              <span className="results__record">{t.best[locale]}</span>
-              <Brush kind="underline" className="results__record-mark" delay={0.45} duration={1.1} />
-            </>
-          }
-        />
+        <Reveal delay={0.1} y={10} duration={0.7} className="results__closing">
+          <p className="t-note results__record">{t.best[locale]}</p>
+          <Brush kind="underline" className="results__record-mark" delay={0.45} duration={1.1} />
+        </Reveal>
       </div>
     </Chapter>
   );

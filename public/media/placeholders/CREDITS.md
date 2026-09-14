@@ -50,3 +50,29 @@ All photos in this folder are **temporary placeholders** from Wikimedia Commons,
 | mountain-dusk-grass-2.jpg | 1600×1066 | Ночь в горах, долина Эрнедыген-Мехтыген, северо-восточная граница Кабардино-Балкарского горного заповедника.jpg | Vyacheslav Argenberg | CC BY 4.0 | https://commons.wikimedia.org/wiki/File%3A%D0%9D%D0%BE%D1%87%D1%8C%20%D0%B2%20%D0%B3%D0%BE%D1%80%D0%B0%D1%85%2C%20%D0%B4%D0%BE%D0%BB%D0%B8%D0%BD%D0%B0%20%D0%AD%D1%80%D0%BD%D0%B5%D0%B4%D1%8B%D0%B3%D0%B5%D0%BD-%D0%9C%D0%B5%D1%85%D1%82%D1%8B%D0%B3%D0%B5%D0%BD%2C%20%D1%81%D0%B5%D0%B2%D0%B5%D1%80%D0%BE-%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B0%D1%8F%20%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0%20%D0%9A%D0%B0%D0%B1%D0%B0%D1%80%D0%B4%D0%B8%D0%BD%D0%BE-%D0%91%D0%B0%D0%BB%D0%BA%D0%B0%D1%80%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%20%D0%B3%D0%BE%D1%80%D0%BD%D0%BE%D0%B3%D0%BE%20%D0%B7%D0%B0%D0%BF%D0%BE%D0%B2%D0%B5%D0%B4%D0%BD%D0%B8%D0%BA%D0%B0.jpg |
 | mountain-dusk-grass-3.jpg | 1600×900 | Ночь на склонах горы Эрнедыген, северо-восточная граница Кабардино-Балкарского горного заповедника.jpg | Vyacheslav Argenberg | CC BY 4.0 | https://commons.wikimedia.org/wiki/File%3A%D0%9D%D0%BE%D1%87%D1%8C%20%D0%BD%D0%B0%20%D1%81%D0%BA%D0%BB%D0%BE%D0%BD%D0%B0%D1%85%20%D0%B3%D0%BE%D1%80%D1%8B%20%D0%AD%D1%80%D0%BD%D0%B5%D0%B4%D1%8B%D0%B3%D0%B5%D0%BD%2C%20%D1%81%D0%B5%D0%B2%D0%B5%D1%80%D0%BE-%D0%B2%D0%BE%D1%81%D1%82%D0%BE%D1%87%D0%BD%D0%B0%D1%8F%20%D0%B3%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0%20%D0%9A%D0%B0%D0%B1%D0%B0%D1%80%D0%B4%D0%B8%D0%BD%D0%BE-%D0%91%D0%B0%D0%BB%D0%BA%D0%B0%D1%80%D1%81%D0%BA%D0%BE%D0%B3%D0%BE%20%D0%B3%D0%BE%D1%80%D0%BD%D0%BE%D0%B3%D0%BE%20%D0%B7%D0%B0%D0%BF%D0%BE%D0%B2%D0%B5%D0%B4%D0%BD%D0%B8%D0%BA%D0%B0.jpg |
 | tikhtengen-peak.jpg | 1600×1066 | Тихтенген. Чегем.jpg | <a href="//commons.wikimedia.org/w/index.php?title=User:S.katrinaH&amp;action=edit&amp;redlink=1" class="new" title="Use | CC BY 4.0 | https://commons.wikimedia.org/wiki/File%3A%D0%A2%D0%B8%D1%85%D1%82%D0%B5%D0%BD%D0%B3%D0%B5%D0%BD.%20%D0%A7%D0%B5%D0%B3%D0%B5%D0%BC.jpg |
+| snow-kick-1970.jpg | 2560×1705 | Ochi (8).jpg | Andreas Fecker | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File%3AOchi%20%288%29.jpg |
+| snow-kick-1970-portrait.jpg | 1536×1920 | Ochi (8).jpg (portrait crop) | Andreas Fecker | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File%3AOchi%20%288%29.jpg |
+
+## Note on the hero plate
+
+`snow-kick-1970.jpg` and its portrait crop are two cuts of one 3996×2642
+original — Hideo Ochi photographed in a snowfield near Konstanz on 6 December
+1970. **Modifications:** cropped (3:2 and 4:5), downscaled, and converted to
+grayscale. CC BY-SA 4.0 requires that modifications be indicated; this note is
+that indication, and both derivatives are shared under the same licence.
+
+Nothing was retouched and nothing needed to be: the frame carries no
+third-party wordmark. The characters embroidered on the chest are the
+photographed karateka's own dojo marking, not a maker's mark, and at the size
+this plate is printed they are about twenty pixels tall.
+
+The colour planes were dropped on purpose. `#duotone-paper-ink` discards chroma
+before it does anything else, so they were file weight and nothing else — 1.27 MB
+became 444 KB. Take the Commons original if you ever want this frame in colour.
+
+TWO THINGS MAKE THIS A PLACEHOLDER AND NOT A CHOICE THE CLUB HAS MADE. The
+karateka is an identifiable and well-known Shotokan master, and SK AZUMA is a
+Kyokushin club; and it is a photograph of neither this club, this town, nor this
+decade. `placeholder: true` in `media.ts` is what holds the page back from
+claiming otherwise — no caption names him, no credit line is printed. The club's
+own photography replaces it and this whole block goes with it.

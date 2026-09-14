@@ -24,8 +24,8 @@ const copy = {
   // so the label EXTENDS the visible token rather than replacing it ("EN —
   // Switch to English"): 2.5.3 Label in Name requires the name to contain the
   // visible label, and a speech-input user says "click EN".
-  ru: { menu: "Меню", close: "Закрыть", chapter: "Глава", contents: "Содержание", skip: "К содержанию", lang: "Язык", switchTo: "Switch to English" },
-  en: { menu: "Menu", close: "Close", chapter: "Chapter", contents: "Contents", skip: "Skip to content", lang: "Language", switchTo: "Переключить на русский" },
+  ru: { menu: "Меню", close: "Закрыть", contents: "Содержание", skip: "К содержанию", lang: "Язык", switchTo: "Switch to English" },
+  en: { menu: "Menu", close: "Close", contents: "Contents", skip: "Skip to content", lang: "Language", switchTo: "Переключить на русский" },
 };
 
 export type ChapterLink = { id: string; index: number; title: string };
@@ -75,10 +75,38 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
   useMotionValueEvent(scrollY, "change", (y) => setScrolled(y > 24));
 
   /*
+    THE CONTENTS PAGE CLOSES WHEN ITS HANDLE STOPS BEING PRINTED.
+
+    From 1280 up the four entries are printed in the bar and the handle is not
+    printed at all (chrome.css §2a). Without this, a reader who opens the
+    contents on a phone and rotates it — or drags a desktop window wider — is
+    sealed inside a modal whose only visible control has just vanished: the
+    panel is `inset-0`, `aria-modal` tells assistive technology to ignore
+    everything outside it, the trap holds Tab inside it, and the toggle that
+    would close it is `display: none`. Escape still works, which is not a thing
+    a reader can be expected to know.
+
+    THIS EFFECT AND THAT MEDIA QUERY ARE ONE DECISION. If the handle is ever
+    printed at every width again — and it has been, twice — delete this with
+    it, or a desktop reader who opens the contents page will watch it shut the
+    moment they resize the window by a pixel across 1280.
+  */
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 1280px)");
+    const shut = () => {
+      if (wide.matches) setOpen(false);
+    };
+    shut();
+    wide.addEventListener("change", shut);
+    return () => wide.removeEventListener("change", shut);
+  }, []);
+
+  /*
     The overlay declares `aria-modal`, which tells assistive technology to
     ignore everything outside it — so it has to behave like a modal, not just
-    say it is one. Since the handle is printed at every width this is a
-    desktop keyboard surface too, and three things have to hold:
+    say it is one. Under 1280 the handle is the reader's only navigation and
+    the panel is a keyboard surface like any other, so three things have to
+    hold:
 
       · focus moves INTO the dialog when it opens. Left on the toggle, focus
         would sit in <header>, a sibling of the dialog and therefore outside
@@ -156,8 +184,6 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
     };
   }, [open, lenis]);
 
-  const showRunningHead = active && active.index > 1;
-
   return (
     <>
       <a href="#main" className="skip-link t-mono">
@@ -179,89 +205,65 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
         )}
       >
         {/*
-          Three bands on one grid — see chrome.css §1. The head margin is
-          ranged left / centred / ranged right, so the running head stands on
-          the sheet's own centre line instead of wherever four flex children
-          happened to leave a gap.
+          Three bands on one grid — see chrome.css §1. Ranged left / centred /
+          ranged right, and it is the NAV that stands in the middle band now,
+          on the sheet's own centre line rather than tucked against the
+          wordmark. The running head that used to be printed there is gone:
+          on a full-bleed sheet the bar was carrying the entries, a chapter
+          announcement and the cluster at once, and the announcement was the
+          only one of the three the reader could not act on.
         */}
         <div className="site-header__bar wrap">
           <div className="site-header__lead">
             <Link href={href("/")} className="site-header__brand shrink-0">
               <Logo />
             </Link>
-
-            {/* in-page anchors, not routes — see SECTION_ANCHOR above. Because
-                they are anchors they can also say where the reader is, which
-                four dead links could not. */}
-            <nav aria-label={locale === "ru" ? "Основная навигация" : "Primary"} className="hidden xl:flex items-center gap-7">
-              {navItems.map((item) => {
-                const id = sectionAnchor(item.href);
-                return (
-                  <a
-                    key={item.href}
-                    href={`#${id}`}
-                    className="nav-link t-mono"
-                    aria-current={active?.id === id ? "location" : undefined}
-                  >
-                    {item.label[locale]}
-                  </a>
-                );
-              })}
-            </nav>
           </div>
 
-          <div className="site-header__head" aria-live="polite">
-            <AnimatePresence mode="wait" initial={false}>
-              {showRunningHead && (
-                <motion.span
-                  key={active.id}
-                  className="site-header__head-text t-mono text-ink-2"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.35, ease: EASE_OUT }}
+          {/* in-page anchors, not routes — see SECTION_ANCHOR above. Because
+              they are anchors they can also say where the reader is, which
+              four dead links could not.
+
+              PRINTED FROM 1280 ONLY, and that is done in chrome.css §1 — NOT
+              with a `hidden xl:flex` here. The band sets `display` from an
+              unlayered stylesheet, and an unlayered rule beats a layered
+              utility however specific: the utility would have lost and the
+              labels would have printed on a 390 sheet. Same trap as the press
+              and the contents handle. */}
+          <nav aria-label={locale === "ru" ? "Основная навигация" : "Primary"} className="site-header__nav">
+            {navItems.map((item) => {
+              const id = sectionAnchor(item.href);
+              return (
+                <a
+                  key={item.href}
+                  href={`#${id}`}
+                  className="nav-link t-mono"
+                  aria-current={active?.id === id ? "location" : undefined}
                 >
-                  {t.chapter} {String(active.index).padStart(2, "0")} · {active.title}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </div>
+                  {item.label[locale]}
+                </a>
+              );
+            })}
+          </nav>
 
           <div className="site-header__aside">
             {/*
-              RU | EN. Two tokens either side of a hairline rule: the locale
-              you are reading, inert, and the one you can go to, a link. It
-              used to be ONE link wrapping both labels, so clicking the token
-              marked as current navigated away from it — a coin-flip target.
-              `lang`/`hrefLang` belong on the anchor alone; the inert token
-              inherits <html lang> and must not claim to be the other language.
-            */}
-            <div className="lang-toggle t-mono whitespace-nowrap" role="group" aria-label={t.lang}>
-              <span className="lang-toggle__current" aria-current="true">
-                {locale.toUpperCase()}
-              </span>
-              <span aria-hidden="true" className="lang-toggle__rule" />
-              <Link
-                href={localeHref(other, "/")}
-                hrefLang={other}
-                lang={other}
-                prefetch={false}
-                className="lang-toggle__link"
-                aria-label={`${other.toUpperCase()} — ${t.switchTo}`}
-              >
-                {other.toUpperCase()}
-              </Link>
-            </div>
-            <div className="hidden md:block">
-              <Button href={cta.href} className="site-header__cta">
-                {cta.label[locale]}
-              </Button>
-            </div>
-            {/*
-              Printed at every width, where it used to be `xl:hidden`. The
-              overlay is the manual's contents page — it is the only way to
-              reach the ten numbered chapters — and hiding its handle above
-              1280 meant no desktop reader could open it at all.
+              PRINTED UNDER 1280 ONLY, and that is done in chrome.css §2a —
+              NOT with an `xl:hidden` here. `.menu-toggle` sets `display` from
+              an unlayered stylesheet and an unlayered rule beats a layered
+              utility, so the class would have lost and the handle would have
+              printed next to the very labels it opens (the same trap that put
+              the press on a 390 sheet — see chrome.css §1).
+
+              1280 is where the nav beside the wordmark starts printing. Above
+              that line the bar already carries the four entries, so a handle
+              is a second route to them standing beside the first; below it,
+              it is the only route there is.
+
+              The overlay's other block — the ten numbered chapters — goes with
+              it, and that is the cost of this: on a wide sheet nothing lists
+              the chapters, and the colophon lists the same four sections the
+              bar does. §2a carries the argument in full.
             */}
             <button
               ref={toggleRef}
@@ -295,6 +297,52 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
               </span>
               <span className="menu-toggle__label">{open ? t.close : t.menu}</span>
             </button>
+            {/*
+              RU | EN. Two tokens either side of a hairline rule: the locale
+              you are reading, inert, and the one you can go to, a link. It
+              used to be ONE link wrapping both labels, so clicking the token
+              marked as current navigated away from it — a coin-flip target.
+              `lang`/`hrefLang` belong on the anchor alone; the inert token
+              inherits <html lang> and must not claim to be the other language.
+            */}
+            <div className="lang-toggle t-mono whitespace-nowrap" role="group" aria-label={t.lang}>
+              <span className="lang-toggle__current" aria-current="true">
+                {locale.toUpperCase()}
+              </span>
+              <span aria-hidden="true" className="lang-toggle__rule" />
+              <Link
+                href={localeHref(other, "/")}
+                hrefLang={other}
+                lang={other}
+                prefetch={false}
+                className="lang-toggle__link"
+                aria-label={`${other.toUpperCase()} — ${t.switchTo}`}
+              >
+                {other.toUpperCase()}
+              </Link>
+            </div>
+            {/*
+              The press, welded into the corner of the sheet — flush with the
+              top trim and with the right one (chrome.css §1). It is LAST in the
+              band because that is what lets it sit in the corner at all, and
+              the reading order and the tab order are therefore the same.
+
+              `seal={false}`: this instance is fixed on screen in every chapter
+              at every scroll position, and the vermilion square is one of the
+              three jobs red has on this page. An accent that is never absent is
+              not an accent — the same argument that took the red out of the
+              wordmark. The seal is spent on the two controls that are actually
+              being pressed, in chapter 一 and chapter 十.
+
+              It is not printed below 768 and that is done in chrome.css, not
+              with a `hidden md:inline-flex` here: `.btn-press` sets `display`
+              from an unlayered stylesheet, and an unlayered rule beats
+              Tailwind's layered `hidden` — the slab printed on a 390 sheet and
+              drove through the lockup.
+            */}
+            <Button href={cta.href} seal={false} className="site-header__cta">
+              {cta.label[locale]}
+            </Button>
           </div>
         </div>
       </header>
@@ -315,7 +363,7 @@ export function Header({ chapters }: { chapters: ChapterLink[] }) {
             transition={{ duration: 0.35, ease: EASE_OUT }}
           >
             {/*
-              The contents page. Three blocks — the entries, the ten chapters,
+              The contents page. Three blocks — the entries, the chapters,
               the club's particulars — flattened out of the old column-inside-
               a-column so chrome.css can stand each of them on the page grid
               once the sheet is wide enough to hold three verticals.

@@ -32,7 +32,7 @@ type ChapterProps = {
  *
  * The numeral rides the margin rather than printing once at the head. It used
  * to be a single absolutely positioned block, which meant the device the whole
- * book is built on — ten chapters counted 一 二 三 … 十 in the binding — was on
+ * book is built on — the chapters counted 一 二 三 … 七 in the binding — was on
  * screen for about a second per chapter and then the margin was blank paper for
  * the remaining 1000–2400px. It is now a full-height rail with a sticky glyph
  * inside it, so the count travels with the reader and the folio is legible the

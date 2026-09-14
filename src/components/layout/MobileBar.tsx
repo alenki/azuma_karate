@@ -89,8 +89,8 @@ export function MobileBar({ hideWhenVisible = HIDE_WHEN_VISIBLE }: { hideWhenVis
                 `mobile-bar__label` is the hook the ink override needs: the tone
                 is set by a `text-ink-2` utility (#5A554E — 6.4:1 on paper, 2.1:1
                 on ink) and a utility beats an unlayered rule on the parent, so
-                the ink ramp's own secondary tone has to be aimed at the element.
-                Same trap, same fix, as the header's running head.
+                the ink ramp's own secondary tone has to be aimed at the element
+                itself and marked — see the rule in globals.css.
               */}
               <span className="mobile-bar__label t-mono text-[0.625rem] text-ink-2 truncate">{f.label}</span>
               {/* the group's NAME, not the group line: «Дети · 7–11 лет» was

@@ -2,10 +2,19 @@ import type { Locale } from "@/i18n/config";
 import { pendingFact } from "@/content/home";
 
 /**
- * Weekly timetable — PLACEHOLDER DATA.
- * Every time, group and age band below must be confirmed with the club before
- * launch. One data source drives the programme rows, the timetable and the
- * "next session" strip.
+ * Weekly timetable — PART PLACEHOLDER.
+ *
+ * THE AGE BANDS AND THE TWO FAMILIES ARE THE CLUB'S OWN, confirmed by them:
+ * 4–6, 6–11 and 12–16 for «Мальчики и девочки», 16+ for «Мужчины и девушки».
+ * The bands overlap at 6 and at 16 because the club runs them that way — a
+ * six-year-old goes to whichever group they are ready for — so do not "tidy"
+ * either seam into 4–5 / 7–11 / 17+. Chapter 二's roster and chapter 三's
+ * timetable legend both read them from here, which is the only reason the two
+ * cannot disagree.
+ *
+ * Every TIME below is still placeholder and must be confirmed before launch,
+ * as are the group names — the club gave us bands, not names. One data source
+ * drives the timetable, the JSON-LD opening hours and the "next session" strip.
  *
  * Typeset strings here follow the BOUND SPACES rule stated in `home.ts`: a
  * non-breaking space is written as the escape `\u00A0`, and binds a figure to
@@ -15,7 +24,23 @@ import { pendingFact } from "@/content/home";
  * no third content file to state the convention in, and stating it twice is
  * how two conventions are born.
  */
-export type GroupId = "kids-4-6" | "kids-7-11" | "teens-12-16" | "adults" | "morning";
+export type GroupId = "kids-4-6" | "kids-6-11" | "teens-12-16" | "adults" | "morning";
+
+/**
+ * The club sorts its groups into two FAMILIES, and these are its own words for
+ * them. They are not a second set of groups: nobody trains in a family, and the
+ * timetable never prints one. They exist because the club states its intake as
+ * two sentences — «Мальчики и девочки: 4–6 / 6–11 / 12–16», «Мужчины и девушки:
+ * 16+» — and chapter 二 states it the same way, as a roster of two terms with
+ * their bands hung off them. A group with `family: null` is in neither: it runs
+ * alongside every other group rather than beside them in a band.
+ */
+export type FamilyId = "children" | "adults";
+
+export const families: { id: FamilyId; label: Record<Locale, string> }[] = [
+  { id: "children", label: { ru: "Мальчики и\u00A0девочки", en: "Boys and girls" } },
+  { id: "adults", label: { ru: "Мужчины и\u00A0девушки", en: "Men and women" } },
+];
 
 export type Group = {
   id: GroupId;
@@ -23,12 +48,15 @@ export type Group = {
   ages: Record<Locale, string>;
   /** Short line under the group name. */
   note: Record<Locale, string>;
+  /** Which of the club's two intake families this group belongs to. */
+  family: FamilyId | null;
   /**
-   * The group's place on chapter three's age chart, in whole years.
-   * `to: null` is an open band that never closes («17+»). `ageSpan: null`
-   * means the group has no age band at all — it runs alongside every other
-   * group, and the chart draws it as the rail crossing them rather than as a
-   * band among them. Keep it in step with `ages` above.
+   * The group's age band in whole years, as figures rather than as a typeset
+   * string. `to: null` is an open band that never closes (16+); `ageSpan: null`
+   * means the group has no band at all — it runs alongside every other group
+   * rather than beside them in one. `ageBand()` in `lib/schedule.ts` sets it for
+   * chapter 二's roster, so this and `ages` above are one fact written twice:
+   * change either and change the other.
    */
   ageSpan: { from: number; to: number | null } | null;
 };
@@ -39,34 +67,39 @@ export const groups: Group[] = [
     name: { ru: "Первый шаг", en: "First Step" },
     ages: { ru: "4–6\u00A0лет", en: "ages\u00A04–6" },
     note: { ru: "Игра, координация, дисциплина. Без спаррингов.", en: "Play, coordination, discipline. No sparring." },
+    family: "children",
     ageSpan: { from: 4, to: 6 },
   },
   {
-    id: "kids-7-11",
+    id: "kids-6-11",
     name: { ru: "Дети", en: "Kids" },
-    ages: { ru: "7–11\u00A0лет", en: "ages\u00A07–11" },
+    ages: { ru: "6–11\u00A0лет", en: "ages\u00A06–11" },
     note: { ru: "Кихон, ката, первые аттестации.", en: "Kihon, kata, first gradings." },
-    ageSpan: { from: 7, to: 11 },
+    family: "children",
+    ageSpan: { from: 6, to: 11 },
   },
   {
     id: "teens-12-16",
     name: { ru: "Подростки", en: "Teens" },
     ages: { ru: "12–16\u00A0лет", en: "ages\u00A012–16" },
     note: { ru: "Кумитэ в\u00A0защите, соревнования по\u00A0желанию.", en: "Protected kumite, competitions optional." },
+    family: "children",
     ageSpan: { from: 12, to: 16 },
   },
   {
     id: "adults",
     name: { ru: "Взрослые", en: "Adults" },
-    ages: { ru: "17+", en: "17+" },
+    ages: { ru: "16+", en: "16+" },
     note: { ru: "С\u00A0нуля или с\u00A0опытом. Вечерняя группа.", en: "Beginners or experienced. Evening group." },
-    ageSpan: { from: 17, to: null },
+    family: "adults",
+    ageSpan: { from: 16, to: null },
   },
   {
     id: "morning",
     name: { ru: "Утренние в\u00A0парке", en: "Park mornings" },
     ages: { ru: "все группы", en: "all groups" },
     note: { ru: "Точку сбора публикуем в\u00A0Telegram.", en: "Meeting point posted on Telegram." },
+    family: null,
     ageSpan: null,
   },
 ];
@@ -76,19 +109,19 @@ export type Session = { day: 1 | 2 | 3 | 4 | 5 | 6 | 7; time: string; group: Gro
 
 export const sessions: Session[] = [
   { day: 1, time: "17:00", group: "kids-4-6", minutes: 60 },
-  { day: 1, time: "18:00", group: "kids-7-11", minutes: 75 },
+  { day: 1, time: "18:00", group: "kids-6-11", minutes: 75 },
   { day: 1, time: "19:30", group: "teens-12-16", minutes: 90 },
   { day: 1, time: "20:30", group: "adults", minutes: 90 },
-  { day: 2, time: "18:00", group: "kids-7-11", minutes: 75 },
+  { day: 2, time: "18:00", group: "kids-6-11", minutes: 75 },
   { day: 2, time: "19:30", group: "adults", minutes: 90 },
   { day: 3, time: "17:00", group: "kids-4-6", minutes: 60 },
-  { day: 3, time: "18:00", group: "kids-7-11", minutes: 75 },
+  { day: 3, time: "18:00", group: "kids-6-11", minutes: 75 },
   { day: 3, time: "19:30", group: "teens-12-16", minutes: 90 },
   { day: 3, time: "20:30", group: "adults", minutes: 90 },
-  { day: 4, time: "18:00", group: "kids-7-11", minutes: 75 },
+  { day: 4, time: "18:00", group: "kids-6-11", minutes: 75 },
   { day: 4, time: "19:30", group: "adults", minutes: 90 },
   { day: 5, time: "17:00", group: "kids-4-6", minutes: 60 },
-  { day: 5, time: "18:00", group: "kids-7-11", minutes: 75 },
+  { day: 5, time: "18:00", group: "kids-6-11", minutes: 75 },
   { day: 5, time: "19:30", group: "teens-12-16", minutes: 90 },
   { day: 6, time: "08:00", group: "morning", minutes: 90 },
   { day: 7, time: "08:00", group: "morning", minutes: 90 },
