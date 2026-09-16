@@ -34,10 +34,21 @@ function ph(file: string, width: number, height: number, alt: Record<Locale, str
   return { src: `${P}/${file}`, width, height, alt, focus, placeholder: true };
 }
 
-/** The club's own material, under `/media/…` rather than `/media/placeholders/…`.
- *  Same slot, `placeholder: false` — nothing about it has to be held back. */
-function own(file: string, width: number, height: number, alt: Record<Locale, string>, focus?: string): MediaSlot {
-  return { src: `/media/${file}`, width, height, alt, focus, placeholder: false };
+/**
+ * A plate that is PRESSED rather than downloaded: `scripts/press-hero-reel.sh`
+ * cuts it out of a source clip and writes it to `/media/hero/`, so it sits
+ * outside the Commons pool while being every bit as provisional as the rest of
+ * it. `CREDITS.md` carries the source and the licence either way.
+ *
+ * This replaced `own()`, which marked the club's OWN material — same slot,
+ * `placeholder: false`, nothing about it held back. Nothing claims that at the
+ * moment: the club's belt footage was chapter 一's plate until this pass, and
+ * the chapter needed a dark frame, which ninety-one seconds of a brightly lit
+ * sports hall cannot give. Re-add `own()` the day the client's photography
+ * lands. It is one line, and it is the point of this file.
+ */
+function pressed(file: string, width: number, height: number, alt: Record<Locale, string>, focus?: string): MediaSlot {
+  return { src: `/media/hero/${file}`, width, height, alt, focus, placeholder: true };
 }
 
 /**
@@ -77,54 +88,72 @@ export const media = {
     `reels.firstScreen` below, which is this exact frame and takes over from it
     without a seam.
 
-    WHAT IT IS NOW. A black belt, drawn tight over a white gi, a hand on each
-    end. Cut from the club's own reel of the all-styles championship in
-    Nalchik; `scripts/press-hero-reel.sh` carries the cut and the arithmetic.
-    It replaces a 1970 Commons frame of a karateka kicking in a snowfield,
-    which was a placeholder and read like one.
+    WHAT IT IS NOW. One karateka alone in a black room, in a back stance with
+    the arm folded — the frame the strike is thrown from. Cut by
+    `scripts/press-hero-reel.sh`, which carries the cut and the arithmetic. It
+    replaces the club's own belt-tying frame, which was the right photograph
+    for a chapter printed on paper and is the wrong one for a chapter printed
+    on ink: a white gi filling the screen is a bright even field, and darkening
+    it only makes it a grey one.
 
-    IT MEETS THE SLOT'S OWN BRIEF ALMOST BY ACCIDENT, and the brief is worth
-    keeping written down because the next replacement has to meet it too:
+    THE BRIEF INVERTED WITH THE GROUND, and that is the whole of this pass. The
+    chapter printed on PAPER and the type was INK, so the plate had to be light
+    and EVEN — held at or above L 0.480 everywhere the headline fell, so it
+    could clear 4.5:1. The chapter prints on INK now and the type is BONE, so
+    every term flips, and the next replacement has to meet the new ones:
 
-      · a ground that is genuinely light and genuinely EVEN. The chapter prints
-        on PAPER, so the type is INK and ink needs the plate's local tone at or
-        ABOVE L 0.480 to clear 4.5:1 (hero.css states the arithmetic). A dark
-        frame cannot be scrimmed into legibility here — it can only be veiled
-        until the photograph is a grey field. A gi at this size is nothing but
-        even light.
-      · ONE subject. At the size of a screen a hall full of them reads as
-        texture, which is what ruled out every other shot in the reel.
-      · nothing competing in the bottom-left quadrant — that quadrant is
-        «Потом удар.». The belt runs through the middle third and leaves both
-        the bow's band and the strike's band as bare gi.
-      · real tonal separation, because the duotone press throws away every
-        trace of colour and a frame that is only legible through its colour
-        comes out flat. Black on white is the most a plate can have.
-      · no third-party wordmark anywhere in it.
+      · a ground that is genuinely DARK, and dark everywhere the type falls.
+        This frame's mean luminance is 0.015 and the field around the figure is
+        #000, so bone type stands on it at better than 18:1 with no scrim at
+        all. That is what «filters less extreme» actually bought: the three
+        measured ramps that used to carry the foot are a bleed now, not a
+        crutch.
+      · ONE subject, unchanged. At the size of a screen a hall full of them
+        reads as texture.
+      · the figure OUT of the left 62% of the trim, because that column is
+        «Потом удар.». He is padded off centre in the press rather than nudged
+        with `object-position` — a 16:9 plate covering a 1512 x 900 sheet has
+        88px of horizontal slack in total, which is not enough to move anyone.
+      · real tonal separation, unchanged, and this frame is the extreme case:
+        a white gi and a black belt against black.
+      · no third-party wordmark. There is a small embroidered maker's mark on
+        the thigh, about 14px wide at 1512, and nothing else.
 
-    STORED GRAYSCALE, both cuts. The press discards chroma before it does
-    anything else, so the colour planes are weight and nothing else. They are
-    NOT pressed on disk: `<Photo grade="duotone">` applies
-    `grayscale(1) contrast(1.06) url(#duotone-paper-ink)` in CSS, which is what
-    keeps the image half of this plate retunable. The VIDEO half carries the
-    same press baked in, for reasons the script explains.
+    STORED IN COLOUR, both cuts and the reel, and NOTHING IS BAKED. The plate
+    used to be stored grayscale with a two-ink press computed into the video by
+    hand, because `url(#duotone-paper-ink)` is an SVG reference filter and a
+    full-screen one over 30fps is a per-frame pass on the machines least able
+    to afford it. The grade is `saturate() contrast() brightness()` now — a
+    colour matrix the compositor does for free — so hero.css grades the still
+    and the reel with the SAME declaration, the tungsten warmth of the room
+    survives, and the plate stays retunable without re-encoding a frame.
+
+    WHAT IT COSTS, stated rather than hidden: the uniform is a taekwondo dobok,
+    not a karate gi. The V-neck is the tell and no crop removes it. That is the
+    one thing in this slot a Kyokushin reader will catch, and it is the gap the
+    client's own photography closes.
   */
-  firstScreen: own("hero/belt-plate.jpg", 1280, 720, {
-    ru: "Чёрный пояс, затянутый поверх белого кимоно",
-    en: "A black belt pulled tight over a white gi",
+  firstScreen: pressed("kata-plate.jpg", 2560, 1080, {
+    ru: "Каратист в белом кимоно с чёрным поясом в стойке на чёрном фоне",
+    en: "A karateka in a white gi and black belt, in a stance against black",
   }),
   /*
-    The same frame, cut upright at 4:5 for a tall viewport, and on a phone this
-    is the WHOLE plate — the reel does not play there (ui/Reel, and the query
-    the hero passes it). A sideways 720p source can give 576 x 720 and no more,
-    which would be too little almost anywhere else and is enough here: a white
-    gi and a black belt have no fine detail for the upscale to lose, and the
-    knot survives a 45% punch-in where the frames either side of it — measured,
-    `blurdetect` — do not.
+    The upright cut — and NOT the same frame, which is the one convention this
+    pass drops. The wide still has to be the reel's frame 0 because the reel
+    lies over it; nothing lies over this one, because ui/Reel declines to mount
+    below 4:5. So it is free to be the best frame in the cut rather than the
+    first, and that is the punch itself.
+
+    A phone does not see this cut either. 390 x 844 is far taller than 4:5, so
+    `cover` takes the difference out of the WIDTH and shows a 0.46:1 strip of
+    it, x 0.27–0.73. The figure is therefore set in a black field rather than
+    filling one — 0.49 of the source frame, standing at x 0.31–0.69 — so the
+    punching fist and the rear foot survive the strip, and the foot of the
+    sheet stays black for the strike and the offer stacked under it.
   */
-  firstScreenTall: own("hero/belt-plate-portrait.jpg", 576, 720, {
-    ru: "Чёрный пояс, затянутый поверх белого кимоно",
-    en: "A black belt pulled tight over a white gi",
+  firstScreenTall: pressed("kata-plate-portrait.jpg", 864, 1080, {
+    ru: "Каратист в белом кимоно с чёрным поясом наносит прямой удар рукой",
+    en: "A karateka in a white gi and black belt driving a straight punch",
   }),
 
   /* The hero plate is shown inside the first stroke, so it is cropped to a
@@ -147,57 +176,139 @@ export const media = {
     ru: "Дети в шлемах и защите проводят учебный спарринг",
     en: "Children in headgear and protection during a supervised sparring drill",
   }, "50% 40%"),
+  /*
+    THE CHRONICLE'S PLATES — chapter 五, printed in colour rather than pressed.
+
+    An exemption from the press is a decision that has to be argued each time,
+    never a licence, so here is this one's. Chapter 四's reason is that the
+    chapter is about a person. This one's is different: a victory is gold,
+    ribbons and a red mat, and a chronicle of victories printed in two inks is
+    a chronicle with its subject taken out — the plate below is the proof, a
+    table of cups that came out of the press as grey crockery.
+
+    (Grep `grade="color"` for the current set rather than trusting a count
+    written in a comment. This file has been wrong about that before.)
+
+    WHAT COLOUR COSTS, and the test every replacement has to pass. Pressed to
+    bone, a federation banner in the background of a stock frame was texture.
+    In full colour at plate scale it is READABLE, and it says the club belongs
+    to an organisation it does not. Two otherwise perfect frames are on disk
+    and are NOT used for exactly that:
+
+      · kids-podium-trophies.jpg — «ISRAEL UNITED KYOKUSHIN KARATE» across the
+        top AND a second circular logo of the same body low in the frame. No
+        single crop removes both.
+      · champion-medal-team.jpg — «FIRST EUROPEAN KYOKUSHIN/SHINKYOKUSHIN» on
+        the diploma and a KARATE 極真 banner top-right.
+
+    So a replacement needs all four: the club's own competition, real colour
+    worth printing (a flat hall under fluorescent light wastes the exception),
+    a subject that survives a hard crop to 3:4 or 4:3, and NO third-party
+    federation wordmark anywhere legible. The same test `firstScreen` states
+    for the first screen, applied to a plate the reader looks at for longer.
+
+    The focal points below are crops, and they are arithmetic, not taste — each
+    one is solved for the box its panel gives it. See `results.css`.
+  */
   kidsPodium: ph("kids-podium-trophies.jpg", 1600, 1337, {
     ru: "Юные спортсмены с кубками на пьедестале",
     en: "Young athletes with trophies on the podium",
   }),
+  /* chronicle, wide panel (4:3). 179px of horizontal overflow, so the focus
+     barely moves the frame — it only keeps the cups off the right trim. */
   trophies: ph("trophies-table.jpg", 1600, 1066, {
     ru: "Кубки и медали на столе перед награждением",
     en: "Trophies and medals on a table before the awards",
-  }),
+  }, "62% 50%"),
+  /* chronicle, tall panel (3:4). A 3:2 landscape cropped to 3:4 keeps only
+     800 of 1600 columns, so the focus is what decides whether the frame holds
+     a fight or half a referee: 60% puts the window at [480, 1280], which is
+     both fighters' heads (≈600 and ≈1250) and neither edge of the hall. */
   kumiteKick: ph("mawashi-geri-kumite.jpg", 1600, 1066, {
     ru: "Маваши-гери в кумитэ на татами",
     en: "Mawashi-geri during kumite on the tatami",
-  }, "50% 35%"),
+  }, "60% 50%"),
   /*
-    CHAPTER 四 — THE ONE COLOUR PLATE IN THE BOOK.
+    CHAPTER 四 — THE TWO COLOUR PLATES IN THE BOOK.
 
     Every other plate on this site is pressed through the duotone filters and
-    comes out in the page's own two inks. This one is printed in full sRGB,
-    because 四 is the one chapter about a person rather than about a practice.
-    It is the single exception in the palette and it is spent here.
+    comes out in the page's own two inks. These are printed in full sRGB,
+    because 四 is the one chapter about people rather than about a practice.
+    It is the single exception in the palette and it is spent here — on a
+    spread of two coaches, so the exception is one decision, not two.
 
-    WHY THIS FILE AND NOT A PORTRAIT. The slot used to be `coachPortrait` →
-    `karateka-fist-bw.jpg`: the right picture (one older man, black belt, a
-    coiled kata guard, a quiet ground) and unusable, because that file is a
-    TRUE GREYSCALE ORIGINAL — single-channel on Wikimedia Commons too, not a
-    local conversion. The chapter's whole point is colour, so a frame with no
-    chroma to print could not stay. Of the colour frames on disk this is the
-    only one that is anonymous, cleanly lit and free of another federation's
-    branding: `sensei-blue-belt-portrait.jpg` carries 極真館 — a DIFFERENT
-    organisation from the club's Kyokushinkai — brush-written across the chest,
-    between the face and the belt, so no crop removes it.
+    WHY THESE FILES AND NOT PORTRAITS. The head coach's slot used to be
+    `coachPortrait` → `karateka-fist-bw.jpg`: the right picture (one older man,
+    black belt, a coiled kata guard, a quiet ground) and unusable, because that
+    file is a TRUE GREYSCALE ORIGINAL — single-channel on Wikimedia Commons
+    too, not a local conversion. The chapter's whole point is colour, so a
+    frame with no chroma to print could not stay.
 
-    WHAT IT COSTS, stated rather than hidden: this is two fighters, not one
-    man, and the belts are yellow and blue. In knockdown competition those are
-    identification belts worn over rank, so they are not a claim about grade —
-    but the chapter names one man and the plate shows two, and that is the gap
-    the client's own photograph closes.
+    AND FOUR OF THE FIVE REMAINING PORTRAIT FRAMES ARE OUT FOR ONE REASON:
+    they are all the same Peruvian dojo, and they carry 極真館 / «CLUB DE
+    KARATE MUSHA DOJO» — a DIFFERENT organisation from the club's
+    Kyokushinkai — brush-written across a chest or hung on the wall behind the
+    subject, where no crop reaches it. `sensei-blue-belt-portrait.jpg`
+    (the `seniorSensei` slot), `sensei-seated-smile.jpg`,
+    `mae-geri-jodan-portrait.jpg` and `kick-pairs-portrait.jpg` all fail on
+    that one test. Printing another federation's name on a club's own coaches
+    page is not a placeholder, it is a claim about who they train with.
 
-    WHAT A REPLACEMENT MUST SATISFY — it needs all five:
-      · A. Zhambeev himself, alone in the frame.
-      · Upright, 3:4 or taller. The chapter sets it 4:5 below 1024 and 3:4 above.
-      · Chest-up or a held technique, with the face readable. This is the only
-        plate in the book where a person is looked at rather than watched.
-      · STORED IN COLOUR, and worth printing in colour: real skin, a real hall,
-        one saturated event. It is the only full-colour image on the site, so a
-        flat or fluorescent frame wastes the exception.
-      · No third-party federation name or wordmark anywhere legible.
+    So the two that survive are the two below, and neither is a portrait.
+  */
+  /*
+    WHAT THE HEAD COACH'S PLATE COSTS, stated rather than hidden: this is two
+    fighters, not one man, and the belts are yellow and blue. In knockdown
+    competition those are identification belts worn over rank, so they are not
+    a claim about grade — but the chapter names one man and the plate shows
+    two, and that is the gap the client's own photograph closes.
   */
   senseiPlate: ph("knockdown-kumite-kick.jpg", 1200, 1600, {
     ru: "Бой на турнире по киокушин — удар ногой",
     en: "Kyokushin tournament fight — a kick lands",
   }, "50% 20%"),
+  /*
+    THE SECOND COACH'S PLATE — and it is a PLACEHOLDER STANDING BESIDE A
+    PLACEHOLDER. The man in the second half of the spread is invented
+    (`assistant` in `content/home.ts`); so is this frame's relationship to him.
+    Both are replaced together or neither is.
+
+    `tameshiwari-bricks-vintage.jpg` was an orphan on disk with no slot. It is
+    here because it is the only colour frame left that clears every test the
+    branding rules out the others on: ONE adult, upright (1104 × 1600), a real
+    karate event, and nothing on the man or behind him naming another
+    federation — the poster at his shoulder is a venue bill, not a mark.
+
+    WHAT IT COSTS: it is a 1970s or 80s frame and it prints like one, warm and
+    faded beside the modern tournament plate next to it, with a crowd behind
+    the break. That reads as a club with an archive rather than as an error,
+    which is the most a stand-in can do — but two coaches photographed thirty
+    years apart is not a spread, and the client's own two frames are what close
+    it.
+
+    WHAT A REPLACEMENT MUST SATISFY — both plates need all five:
+      · The coach himself, alone in the frame.
+      · Upright, 3:4 or taller. The chapter sets them 4:5 below 1024 and 3:4
+        above, and caps their height so a 2560 sheet does not print a plate
+        taller than the screen.
+      · Chest-up or a held technique, with the face readable. This is the only
+        chapter in the book where a person is looked at rather than watched.
+      · STORED IN COLOUR, and worth printing in colour: real skin, a real hall,
+        one saturated event. These are the only full-colour images on the site,
+        so a flat or fluorescent frame wastes the exception.
+      · No third-party federation name or wordmark anywhere legible.
+
+    And the pair has a sixth: they are printed side by side at the same size on
+    the same row, so they have to look like one commission — the same room or
+    the same light, not one studio portrait against one snapshot.
+  */
+  assistantPlate: ph("tameshiwari-bricks-vintage.jpg", 1104, 1600, {
+    ru: "Тамэсивари — разбивание кирпичей на показательном выступлении",
+    en: "Tameshiwari — breaking bricks at a demonstration",
+  }, "55% 45%"),
+  /* chronicle, tall panel (3:4). The 800-column window sits centred here: the
+     jumper spans ≈500–950 and the belt held across his path reaches ≈1200, so
+     the default focus keeps the gesture and what it clears in one frame. */
   flyingKick: ph("flying-kick-dojo.jpg", 1600, 1066, {
     ru: "Прыжковый удар ногой на тренировке",
     en: "A jumping kick during training",
@@ -354,46 +465,49 @@ export const placeholderBase = P;
 /**
  * THE ONE MOVING PLATE.
  *
- * A belt being drawn tight, 2.34s, once, and then the sheet is a photograph
- * for as long as the reader stays on it. It is deliberately not a loop and
+ * A strike being thrown, 2.17s, once, and then the sheet is a photograph for
+ * as long as the reader stays on it. It is deliberately not a loop and
  * deliberately not ambient: hero.css says of this sheet that "nothing on it
  * moves again — no loop, no breathing hairline, no scroll-linked transform, no
  * pointer lean", and a background quietly cycling every four seconds is
- * exactly the thing that sentence forbids. The gesture is also the chapter's
- * own subject. 一 is «Первая черта»; the belt is the first thing tied.
+ * exactly the thing that sentence forbids.
  *
- * THE SOURCE decided most of this. It is a 720 x 1280 phone clip carrying no
- * rotation metadata and ninety degrees of rotation in the pixels, so upright
- * it is 1280 x 720 and that is all the resolution there is. Ninety-one seconds
- * of a championship, of which this is the only shot that is one subject, evenly
- * lit, and free of sponsor boards — and within it, `blurdetect` says only
- * 3.33s to 5.32s is sharp. Everything in `scripts/press-hero-reel.sh` follows
- * from those two measurements.
+ * THE GESTURE IS THE CHAPTER'S OWN SENTENCE. 一 reads «Сначала поклон. / Потом
+ * удар.», and the cut is the second half of it: guard, step, strike, hold. It
+ * used to be a belt being tied, which was the first half.
+ *
+ * THE SOURCE is 1920 x 1080 at 23.976fps, ten and a half seconds of kata in a
+ * black room with no fade at either end — `signalstats` YAVG sits flat at
+ * 20.5/255 throughout, so the cut could be taken anywhere and the ground needs
+ * no help. What decided 8.20–9.72 is that it is the only second and a half in
+ * which anything happens: everything before it is held stances.
  *
  * WHO SEES IT. Wide viewports only, and only after hydration — `ui/Reel` holds
  * it back behind `useMediaQuery` so a phone, which is shown `firstScreenTall`
  * instead, never has the element in its markup to preload. Reduced motion gets
- * the still, which is the same frame, so nothing is lost but the movement.
+ * the still, which is this reel's own frame 0, so nothing is lost but the
+ * movement.
  *
- * THE PRESS IS BAKED IN, unlike every other plate in the book. A full-screen
- * SVG reference filter over 30fps is a per-frame pass on the machines least
- * able to afford one. The script computes what the CSS would have, so the two
- * halves of this plate agree — re-run it if `--color-paper` or `--color-ink`
- * ever move.
+ * NOTHING IS BAKED IN any more, and that is the change that made the script
+ * half its old length. The press used to be computed into the video by hand
+ * because `url(#duotone-paper-ink)` is an SVG reference filter and a
+ * full-screen per-frame pass; the grade is three plain colour-matrix functions
+ * now, so hero.css declares it once for the still and the reel together and
+ * the two halves of the plate cannot drift apart.
  */
 export const reels = {
   firstScreen: {
-    /* VP9 first: 242 KB against H.264's 445 KB for the same cut, and every
+    /* VP9 first: 142 KB against H.264's 235 KB for the same cut, and every
        browser that cannot read it falls through to the mp4 on the next line. */
     sources: [
-      { src: "/media/hero/belt-reel.webm", type: "video/webm" },
-      { src: "/media/hero/belt-reel.mp4", type: "video/mp4" },
+      { src: "/media/hero/kata-reel.webm", type: "video/webm" },
+      { src: "/media/hero/kata-reel.mp4", type: "video/mp4" },
     ],
-    width: 1280,
-    height: 720,
+    width: 2560,
+    height: 1080,
     still: "firstScreen",
-    seconds: 2.34,
-    placeholder: false,
+    seconds: 2.17,
+    placeholder: true,
   },
 } satisfies Record<string, ReelSlot>;
 

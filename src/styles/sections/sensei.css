@@ -1,48 +1,48 @@
 /* ------------------------------------------------------------------ */
-/* Chapter 四 — «Тренер»: the one colour page                           */
+/* Chapter 四 — «Тренеры»: the colour spread, and the unruled chapter    */
 /*                                                                      */
-/* The manual is printed in two inks. Every other plate on this site is  */
-/* pulled through the duotone press in the page's own paper and ink.     */
-/* This chapter is printed in FULL COLOUR, because it is the one chapter */
-/* about a person rather than about a practice — and the book closes     */
-/* straight back into ink afterwards, since 五 and 六 are dark. An       */
-/* exception that happens exactly once, on the page that earns it, is a  */
-/* decision; it is the argument the rota already makes for vermilion,    */
-/* applied to the press.                                                 */
+/* A SPREAD, NOT A FRONTISPIECE. This chapter set one man at poster      */
+/* scale with his record beside him for as long as the club had one      */
+/* coach on the page. It sets TWO now, on the two halves of the sheet,   */
+/* and everything below follows from that one change.                    */
 /*                                                                      */
-/* THE FLIP IS THE COMPOSITION. The plate used to sit at the binding     */
-/* (1 / span 5) with the biography at the fore-edge (7 / -1). They have  */
-/* swapped. The entry ranges to the BINDING, so the man's name is set at */
-/* chapter scale on the same vertical the numeral 四 hangs in — display  */
-/* type and the chapter count sharing one margin, which is what a        */
-/* frontispiece is. The plate holds the FORE-EDGE and breaks upward      */
-/* across the chapter boundary there.                                    */
+/* THE TWO HALVES SHARE THEIR HORIZONTALS, and that is the whole idea.   */
+/* Each entry is four rows — plate, name, rank, record — and they are    */
+/* the SAME four rows, not four rows each: `.sensei-body` owns the       */
+/* tracks and each `.sensei-coach` takes them with                       */
+/* `grid-template-rows: subgrid`. So the two names sit on one line and   */
+/* the two records start on one line however the type wraps, which is    */
+/* what a printed spread does and what makes this a spread rather than   */
+/* two cards standing next to each other. Without subgrid the rule is    */
+/* simply dropped and the halves stack correctly, unaligned: a browser   */
+/* that cannot do it prints a worse page, never a broken one.            */
 /*                                                                      */
-/* The plate kept its column COUNT, so its width ladder did not move:    */
-/* 545px at 1440, 756px at 1999, 599px at 2000, 768px at 2560 — the      */
-/* figures the previous composition solved for. Nothing below 1600       */
-/* changes size, and `PLATE_SIZES` in the component is unchanged.        */
+/* THE COLOUR PAGES. The manual is printed in two inks and every other   */
+/* plate on the site is pulled through the duotone press. These two are  */
+/* printed in full colour, because 四 is the one chapter about people    */
+/* rather than about a practice — and the exception is still ONE         */
+/* decision, spent on the chapter and not on each photograph. The book   */
+/* closes straight back into ink afterwards, since 五 and 六 are dark.   */
 /*                                                                      */
-/* ONE register now, not four:                                          */
+/* THE RULING. There were four horizontal rules here once: over the      */
+/* rank, over the citation, over the registers, and a hairline between   */
+/* them. Chapter 三 is a timetable built almost entirely out of          */
+/* hairlines and 五 rules its chronicle off line by line, so 四 read as  */
+/* a third table — a spec sheet for a man. There is now NO HORIZONTAL    */
+/* RULE IN THIS CHAPTER AT ALL, and hierarchy is face, scale and air.    */
 /*                                                                      */
-/*   the entry at the binding, the plate at the fore-edge, sharing       */
-/*   row 1. From 1600 the entry nests its own tracks and the citation    */
-/*   leaves the reading column for the channel between the two.          */
+/* The one line left is VERTICAL, down the centre of the sheet, and the  */
+/* second coach is what it was waiting for: it is the FOLD of the        */
+/* spread, with a coach on each side of it, rather than a divider        */
+/* between two paragraphs by the same man. It is drawn on the body       */
+/* rather than on either half, because a fold belongs to neither page.   */
 /*                                                                      */
-/* GONE: the second coach's register (the club never gave a name, and a  */
-/* register whose whole content is a ruled blank is not a register); the */
-/* colour toggle and its apparatus, the second <Photo> layer and the     */
-/* travelling clip-path front (the plate is simply in colour, and the    */
-/* file the control revealed was a true greyscale original, so it never  */
-/* did anything); the hover path, which opened the plate while           */
-/* `aria-pressed` still read `false`; and the ≥1600 negative hang on     */
-/* the headline, which under the new placement would have printed 四 on  */
-/* «Астемир».                                                            */
-/*                                                                      */
-/* ALSO GONE: the quote, the seal and the signature that closed the      */
-/* chapter under a rule — a coda saying at display size what the entry   */
-/* had already said in the man's own record. The seal is stamped where   */
-/* a reader signs up, not where a biography ends.                        */
+/* And one of the four horizontal rules did not go away — it became      */
+/* INK. A 一 at poster scale, in vermilion, opens the chapter across     */
+/* the trim: the first stroke, which is what the book is named after     */
+/* and what both of these men draw for a student before anything else.   */
+/* It does the job `--color-rule-strong` does at the head of every other */
+/* chapter. It belongs to neither coach, which is why it is above both.  */
 /*                                                                      */
 /* Two things hold at every width and are structure, not decoration:     */
 /*                                                                      */
@@ -54,34 +54,17 @@
 /*     complete inside its trim, so repeating that bleed here would      */
 /*     print the same gesture twice in eight hundred pixels.             */
 /*                                                                      */
-/*  2. The ink ramp stays role-typed. --color-ink-quiet carries the      */
-/*     three mono labels and nothing else; it sits on the 4.5:1 floor    */
-/*     measured against the GRAINED ground and has no headroom. If a     */
-/*     label must be louder the answer is --color-ink-2, never a         */
-/*     lighter tone, and never --color-ink-3, which is 2.4:1 and is      */
-/*     ornament only.                                                    */
+/*  2. The ink ramp stays role-typed. Nothing in this chapter is set in  */
+/*     --color-ink-quiet (the three mono labels that carried it have all */
+/*     gone) and nothing is set in --color-ink-3, which is 2.4:1 and is  */
+/*     ornament only. The fold takes --color-rule, the standard printed  */
+/*     hairline: at 1.3:1 the hair grade was barely on the paper at      */
+/*     1512, and invisible is not quiet, it is absent.                   */
 /* ------------------------------------------------------------------ */
 
 .sensei {
   /*
-    How far the plate breaks upward across the chapter's top edge. Unchanged
-    in value; what changed is the side it is spent on. 5vw resolves to exactly
-    4rem at 1280, and it keeps the overlap proportional to the plate above it
-    (80px at 1600, 128px at 2560) instead of leaving a fixed nick in a plate a
-    thousand pixels tall.
-
-    The cap is 8rem because the overlap is spent on the chapter ABOVE this one
-    — it hangs into chapter 三's closing padding, whose floor is 15rem from 768
-    up (`--sch-pad-bottom`), so the pull can never eat into the timetable's
-    last rule however wide the screen gets. (The comment that used to stand
-    here justified the cap as "the smallest bottom padding any chapter on this
-    sheet sets". That was stale: `.hero` sets clamp(1.5rem, 5.2svh, 4.5rem).
-    Only chapter 三's floor is load-bearing, because only 三 is above this one.)
-  */
-  --plate-pull: clamp(4rem, 5vw, 8rem);
-
-  /*
-    The unit the entry column's gaps are counted in. 0.5rem here so that every
+    The unit the entry's gaps are counted in. 0.5rem here so that every
     `calc(var(--rhythm) * n)` below reproduces exactly the step it overrides;
     it only grows in the >=1600 tier, where the reasoning is written out.
     Declared at the base so no rule can ever resolve it to nothing.
@@ -89,22 +72,24 @@
   --rhythm: 0.5rem;
 
   /*
-    The head space above the name, and the register the binding numeral is
-    printed to. It carries the whole top of the chapter now: `.sensei__inner`
-    has no top padding at any width, so the plate can hang above the box while
-    `--numeral-top` stays a single value with no arithmetic in it.
+    The head space, and the register the binding numeral is printed to. The
+    chapter opens on the 一 now rather than on a plate hanging above its own
+    top edge, so this is a plain top padding again and `--numeral-top` is one
+    value with no arithmetic in it: 四 and the stroke start on the same line,
+    which is right, because they are the same mark at two sizes.
 
-    It reproduces the previous composition's top space exactly at every tier —
-    56px at 390, 64px at 768, 56px from 1024, and rhythm×7 from 1600 (56px,
-    growing to 89.6px at 2560) — so the seam with chapter 三 does not move.
+    (`--plate-pull` lived here and is gone with the composition that needed
+    it. The plate used to break upward across the chapter boundary into 三's
+    closing padding; the first thing in the chapter is the stroke now, and
+    pulling THAT up would print it over the timetable's last rule.)
   */
   --sen-head: 3.5rem;
   --numeral-top: var(--sen-head);
 
   /*
-    The chapter reaches no edge now that the seal has gone, but `body {
-    overflow-x: clip }` does not stop the document scrolling sideways when a
-    child bleeds past the page, so the chapter keeps clipping its own axis.
+    The chapter reaches no edge, but `body { overflow-x: clip }` does not stop
+    the document scrolling sideways when a child bleeds past the page, so the
+    chapter keeps clipping its own axis.
 
     `clip`, never `hidden`: `hidden` would make `.sensei` a scroll container
     and kill the sticky numeral in the binding rail.
@@ -122,13 +107,9 @@
   exactly; 8vw resolves to 8rem at 1600, so the padding is unchanged for every
   width the old layout was drawn for and only starts growing above it — a 2560
   sheet closes on 205px of paper instead of reading as a squashed strip.
-
-  There is no top padding at any width: the entry carries it (`--sen-head`), so
-  the plate can break upward out of the box without a negative margin fighting
-  a positive one.
 */
 .sensei__inner {
-  padding-top: 0;
+  padding-top: var(--sen-head);
   padding-bottom: 5rem;
 }
 @media (min-width: 768px) {
@@ -143,330 +124,302 @@
 }
 
 /* ---------------------------------------------------------------- */
+/* 一 — the chapter's one vermilion, and its opening rule            */
+/* ---------------------------------------------------------------- */
+/*
+  The first stroke, printed at poster scale across the trim at the head of the
+  chapter. It is the last of this chapter's four horizontal hairlines, turned
+  into the one thing the rota lets red do: a mark the sensei made. Everything
+  about it refuses to be a rule — it is pressed, it tapers, it dries into
+  bristle ribbons at the tail, and it is drawn left to right when the reader
+  reaches it.
+
+  It is the width of the trim, so it is anchored on the same two verticals the
+  spread is, and capped at 100rem: past about 1830 it stops short of the
+  fore-edge, and the dry tail is what makes that read as ink running out rather
+  than as a mark that was cut. The cap is where it is because of the FOLD — the
+  ink has to finish well inside the second half, or on a 2560 sheet the chapter's
+  one mark would belong to the head coach and not to both men. At 100rem it ends
+  370px past the centre; at 84rem it cleared it by barely a hundred.
+
+  `block-size: auto`, never arithmetic on the width: the <svg> carries its own
+  1000 × 120 attributes, so the intrinsic ratio gives the height for free — and
+  a `calc()` off a custom property holding a PERCENTAGE would resolve that
+  percentage against the block axis instead.
+*/
+.sensei-mark {
+  inline-size: min(100%, 100rem);
+  block-size: auto;
+  color: var(--color-shu);
+  /* the ink sits IN the paper: multiply lets the stock's tooth and cloud show
+     through the stroke, the same way the seal is printed */
+  mix-blend-mode: multiply;
+  margin-bottom: clamp(2.5rem, 3.6vw, 5.5rem);
+}
+
+/* ---------------------------------------------------------------- */
 /* The field                                                         */
 /* ---------------------------------------------------------------- */
-/* Below the spread breakpoint the chapter is one column and the two
-   registers simply stack. Above it they stand on the page grid — the same
-   twelve verticals every other chapter is set on, not a private grid. */
+/*
+  Below 768 the two coaches simply stack, a whole entry at a time, separated
+  by more paper than anything inside an entry ever gets — which is the only
+  thing telling the reader that the second name starts a new person.
+*/
 .sensei-body {
   display: grid;
+  gap: clamp(3.5rem, 9vw, 6rem);
 }
 
-.sensei-entry {
-  padding-top: var(--sen-head);
-}
-
-/* the plate's stacked box, declared before the field so the field's overrides
-   are the later rule — a media query adds no specificity, so base declarations
-   written further down the sheet would win at every width */
-.sensei-figure {
-  margin-top: 2rem;
-}
-@media (min-width: 768px) {
-  /*
-    On a tablet the plate is a plate, not a full-trim band — and it takes the
-    fore-edge early, so the chapter reads the way it will at 1024.
-
-    `justify-self: end` and NOT `margin-inline-start: auto`. An auto inline
-    margin takes a grid item out of its default `stretch`, and this item has no
-    intrinsic width to fall back on — <Curtain> is a relative box whose only
-    child is absolutely positioned — so the plate resolved to zero width and
-    the chapter printed no photograph at all between 768 and 1023. `width:100%`
-    capped by `max-width` gives it the 26rem to range.
-  */
-  .sensei-figure {
-    width: 100%;
-    max-width: 26rem;
-    justify-self: end;
-  }
-}
-
-@media (min-width: 1024px) {
-  .sensei {
-    --sen-head: 3.5rem;
-  }
-
-  .sensei-body {
+/*
+  768–1023: each coach is a BAND — plate at the binding, type at the fore-edge,
+  on the page grid. The chapter reads as two entries rather than as four
+  photographs' worth of scrolling, and it rehearses the shape the spread takes
+  at 1024 without needing the width for two plates side by side.
+*/
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .sensei-coach {
+    display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
     align-items: start;
   }
+  .sensei-figure {
+    grid-column: 1 / span 5;
+    grid-row: 1 / span 3;
+  }
+  .sensei-name,
+  .sensei-rank,
+  .sensei-registers {
+    grid-column: 7 / -1;
+  }
+  .sensei-name {
+    grid-row: 1;
+  }
+  .sensei-rank {
+    grid-row: 2;
+  }
+  .sensei-registers {
+    grid-row: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  /*
+    THE SPREAD. Five columns of plate and type on each side of a two-column
+    channel — 5 + 2 + 5 — so each half is 726px at 1920, which is exactly the
+    width the single plate was solved for at that tier. The channel is the
+    gutter of the spread and the hairline runs down its centre.
+
+    The tracks are declared HERE and taken by each half through subgrid, so
+    every horizontal in the chapter is shared: see the note at the head of the
+    file. `row-gap: 0` on purpose — the space between the four rows is a margin
+    on the child that opens each one, and a margin is identical on both halves
+    where a row gap would have to be guessed at twice.
+  */
+  .sensei-body {
+    position: relative;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: repeat(4, auto);
+    column-gap: var(--col-gap);
+    row-gap: 0;
+    align-items: start;
+  }
 
   /*
-    One explicit row rather than auto-placement, because the registers are
-    the composition: the entry and the plate SHARE it (whichever is taller
-    sets its height), so a tall plate can never push the headline down the
-    way a row-spanning figure does.
-
-    Column 7 is left empty at this tier. It is the channel between the man's
-    life and his photograph, and from 1600 it is where the citation goes.
+    The fold. It is drawn on the body rather than on either half, because a
+    fold belongs to neither page — and at the body's exact centre, which is the
+    centre of the channel only because the two halves are equal and the field
+    is symmetrical. Change 5 + 2 + 5 and this has to be re-solved.
   */
-  .sensei-entry {
-    grid-column: 1 / span 6;
-    grid-row: 1;
+  .sensei-body::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: calc(50% - 0.5px);
+    inline-size: 1px;
+    background: var(--color-rule);
   }
 
-  .sensei-figure {
+  .sensei-coach {
+    grid-row: 1 / -1;
+    display: grid;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+  }
+  .sensei-coach:nth-child(1) {
+    grid-column: 1 / span 5;
+  }
+  .sensei-coach:nth-child(2) {
     grid-column: 8 / -1;
-    grid-row: 1;
-    /* overrides the stacked margin; see --plate-pull above */
-    margin-top: calc(var(--plate-pull) * -1);
-    max-width: none;
-    justify-self: stretch;
+  }
+
+  /*
+    AND WHAT HAPPENS WHEN THERE IS ONLY ONE. The second coach is a placeholder
+    and is meant to be deleted if the club has none (see `assistant` in
+    `content/home.ts`), so the chapter has to survive losing him rather than
+    print half a spread with a fold down the middle of nothing. One entry takes
+    seven columns — the width the single-coach composition was set to — and the
+    fold is only drawn when there is something on both sides of it. That is the
+    whole of the guard, and it is CSS rather than a prop, because the component
+    does not know how many coaches there are either: it maps over the array.
+  */
+  .sensei-coach:only-child {
+    grid-column: 1 / span 7;
+  }
+  .sensei-body:not(:has(.sensei-coach + .sensei-coach))::before {
+    content: none;
   }
 }
 
+/* ---------------------------------------------------------------- */
+/* The plates — the only full-colour images on the site              */
+/* ---------------------------------------------------------------- */
 /*
-  The plate keeps five columns to 2000 and its 3:4 slot. Measured against the
-  field (100vw − 2 × gutter, twelve columns, `--col-gap` between them) that is
-  545px wide at 1440 and 756px at 1999 — a plate, and still shorter than the
-  entry beside it. Past 2000 five columns runs away: it would be 969px wide and
-  1292px tall at 2560, taller than the viewport it is read in. So at 2000 the
-  plate drops to four columns (599px at 2000, 768px at 2560) and hands the
-  column it gave up to the entry, which needs it for the margin the citation
-  lives in. The trade is exact: the plate loses 157px and the entry gains the
-  same 157px. Nothing is stranded on either side of it.
+  Neither carries a caption. Every other plate in the manual is numbered and
+  described; these are not, because a frontispiece portrait is captioned by the
+  headword beside it, and both headwords are set one row below, on the same
+  line as each other. The alt text in `media.ts` is the only description of
+  either plate that is true of the file on disk.
+
+  4:5 on a phone and 3:4 from 768, which is the pair the single plate used and
+  which did not need re-solving. What IS new is the ceiling: five columns of a
+  2560 sheet is 965px wide, and at 3:4 that is a 1287px plate — taller than the
+  screen it is read on, twice over, side by side. Past about 1900 the plate
+  stops growing taller and grows only wider, so the crop opens out instead of
+  running off the page. `object-fit: cover` on <Photo> does the rest.
 */
-@media (min-width: 2000px) {
-  .sensei {
-    --entry-cols: 8;
+.sensei-plate {
+  aspect-ratio: 4 / 5;
+}
+@media (min-width: 768px) {
+  .sensei-plate {
+    aspect-ratio: 3 / 4;
   }
-  .sensei-entry {
-    grid-column: 1 / span 8;
-  }
-  .sensei-figure {
-    grid-column: 9 / -1;
+}
+@media (min-width: 1024px) {
+  .sensei-plate {
+    max-block-size: 62rem;
   }
 }
 
 /* ---------------------------------------------------------------- */
-/* I · the entry                                                     */
+/* The name and the credential                                       */
 /* ---------------------------------------------------------------- */
 /*
-  The name carries no margin of its own: `--sen-head` is the head space, and
-  two mechanisms setting the same gap is how the old file ended up with a
-  headline whose top was computed in three places.
+  The name carries the space above it as a margin rather than as a row gap, so
+  both halves of the spread open their second row on the same line. Every gap
+  in this chapter is set the same way and for the same reason.
 */
 .sensei-name {
-  margin-top: 0;
-}
-
-.sensei-rank__line {
-  margin-top: 1.5rem;
-  max-width: 24ch;
-  /*
-    «Мастер спорта международного класса» is the fact a parent is actually
-    weighing, and it used to be set in --color-ink-2, the same tone as the
-    folios. It prints in full ink and is ruled off above like an award line
-    rather than like a caption.
-  */
-  color: var(--color-ink);
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--color-rule);
-}
-
-.sensei-decree__note {
-  margin-top: 1rem;
-  max-width: 52ch;
-  color: var(--color-ink-2);
+  margin-top: clamp(1.5rem, 2.2vw, 3rem);
 }
 
 /*
-  The citation reference — the decree's number and date.
+  «Мастер спорта международного класса» is the fact a parent is actually
+  weighing. It used to be set in --color-ink-2, the same tone as the folios,
+  and then ruled off above like an award line. It is full ink and the second
+  size in the chapter now: the rule was saying what the scale was already
+  saying, one line under a name set at 5.6vw.
 
-  It printed as «(номер и дата — уточняются)» inside the honour's own sentence,
-  which set the gap in the club's records as though the parenthesis were part
-  of the award. A manual does not footnote its own uncertainty in a subtitle:
-  it prints the label, rules the line the value will be set on, and says beside
-  it what is missing. The rule is `aria-hidden` and the note is the accessible
-  content, so a screen reader hears what is outstanding instead of a gap.
-
-  <Register> wraps each field in its own element, so the three fields are block
-  items in this flex row rather than inline ones; `align-items: baseline` is
-  what keeps them on the line they share while they slide into register.
+  24ch breaks both ranks onto two lines in both languages — «Мастер спорта /
+  международного класса», «Кандидат в / мастера спорта», «Master of Sport, /
+  International Class», «Candidate Master / of Sport» — which is what keeps the
+  two halves' fourth row starting on one line without the grid having to force
+  it.
 */
-.sensei-ref {
-  margin-top: 0.9rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 0.75rem;
+.sensei-rank {
+  margin-top: 1.5rem;
 }
-.sensei-ref__label {
-  color: var(--color-ink-quiet);
-}
-.sensei-ref__blank {
-  /* a rule ON the line, not a box: zero height, so its border draws exactly
-     where the missing figures would have sat */
-  display: inline-block;
-  inline-size: 7ch;
-  block-size: 0;
-  border-block-end: 1px solid var(--color-rule-strong);
-}
-.sensei-ref__await,
-.sensei-ref__value {
-  color: var(--color-ink-2);
+.sensei-rank__line {
+  max-width: 24ch;
+  color: var(--color-ink);
 }
 
 /* ---------------------------------------------------------------- */
-/* THE TWO REGISTERS — one man, read twice                           */
+/* THE REGISTERS — a man, read twice, and both men read the same way */
 /* ---------------------------------------------------------------- */
 /*
   This was one paragraph of biography, and it was always two things: what he
-  has done, and what he does. It is the same sentences, ruled apart under the
-  two words the copy already used for him.
+  has done, and what he does. It is the same sentences, in the same words,
+  under the two words the copy already used for him — and the second coach's
+  entry takes the SAME two words, so the spread is one register system read
+  twice rather than two biographies that happen to be adjacent.
 
-  The block opens on a `--color-rule` hairline and the two rows are separated
-  by a `--color-rule-hair` — a separation INSIDE a block, which is that grade's
-  exact and only role, and the first thing in this chapter that has ever needed
-  it. Hierarchy here is rule and tone, never scale: both bodies are set at the
-  same `--text-lead` as each other, because neither register outranks the other.
+  They stack inside their half and are separated by space alone. They were two
+  columns with a hairline between them when one man had the whole sheet; a half
+  of the spread is 726px at 1920 and splitting that again would print three
+  vertical rules on a page whose whole argument is that it has one.
 
-  <Register> wraps each field, so the label and the body are the two grid cells
-  of `.sensei-register` directly. They align on the BASELINE from 768 up, which
-  is the whole reason these rows come into register rather than rising: a
-  vertical arrival would break the line the pair shares.
+  Hierarchy inside a register is FACE and SCALE — the display serif over the
+  body sans, about 1.65 : 1 — which is exactly the distinction the 11px tracked
+  mono label was failing to make from 8rem away.
 */
 .sensei-registers {
-  margin-top: 2.5rem;
-  border-top: 1px solid var(--color-rule);
-}
-@media (min-width: 768px) {
-  .sensei-registers {
-    margin-top: 3rem;
-  }
-}
-
-.sensei-register {
+  margin-top: clamp(1.75rem, 2.6vw, 3.5rem);
   display: grid;
-  gap: 0.35rem;
-  padding-block: 1.25rem;
-}
-.sensei-register + .sensei-register {
-  border-top: 1px solid var(--color-rule-hair);
-}
-@media (min-width: 768px) {
-  .sensei-register {
-    /* the label rail. 8rem holds «СПОРТСМЕН» — nine characters of Plex Mono at
-       --text-micro with 0.12em tracking, about 84px — with room for a longer
-       word if the copy ever changes. */
-    grid-template-columns: 8rem minmax(0, 1fr);
-    align-items: baseline;
-    gap: 1.5rem;
-    padding-block: 1.5rem;
-  }
-}
-.sensei-register__label {
-  color: var(--color-ink-quiet);
-}
-.sensei-register__body {
-  /* the measure lives on the text, in ch, never on the column */
-  max-width: 60ch;
-  color: var(--color-ink);
+  gap: clamp(1.5rem, 2vw, 2.75rem);
 }
 
 /*
-  From 1600 up the entry is not one block of prose in a wide column — it is a
-  reading column with an outer margin, the way a manual sets a credential and
-  its citation. The block spans seven page columns at 1600 and eight at 2000,
-  and reproduces the parent's tracks exactly: equal columns, the same
-  `--col-gap`, spanning a whole number of parent columns, so a nested
-  `repeat(n, 1fr)` lands on the page grid's verticals without subgrid.
+  The head. `--text-h3` was 1.6vw against a body at 1.4vw — three pixels apart
+  at 1440, which is not a rank, so this role sets its own ceiling. Both clamps
+  below are solved to land at about 2560, the same width every ceiling in
+  `@theme` is solved for: 2.6rem at 1.63vw tops out at 2552, 1.6rem at 1vw at
+  2560. The ratio between them holds near 1.65 : 1 across the whole range, and
+  both are one step down from the single-entry composition, because a half of a
+  spread is not a whole column.
+*/
+.sensei-register__head {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 1.63vw, 2.6rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.005em;
+  color: var(--color-ink);
+}
 
-  The citation sits in `6 / -1` on the RANK's row, because a citation annotates
-  the credential it cites — and that margin is 227px at 1600 and 567px at 2560,
-  which is the channel between the type and the plate. THE ONE FACT THE CLUB
-  HAS NOT GIVEN IS SET IN THE EMPTIEST COLUMN ON THE SHEET. That is not an
-  invention; it is a consequence of the flip, and it costs one `grid-column`.
+.sensei-register__body {
+  margin-top: 0.6rem;
+  line-height: 1.55;
+  font-size: clamp(1rem, 1vw, 1.6rem);
+  color: var(--color-ink);
+  /*
+    The measure lives on the text, in ch — but only while the text is the width
+    of the trim. From 1024 the half of the spread IS the measure (about 56
+    characters at 1512 and 60 at 2560), and a cap here would leave the first
+    half short of the fold while the second ran to the fore-edge: two pages of
+    one spread, ragged by different amounts, with the fold between them to
+    prove it.
+  */
+  max-width: var(--measure-lead);
+}
+@media (min-width: 1024px) {
+  .sensei-register__body {
+    max-width: none;
+  }
+}
 
-  Note what is NOT here: the headline's negative hang. The old composition
-  pulled `.sensei-name` one page column into the field so it stood a single gap
-  from the photograph. With the entry at the binding, that same rule would push
-  «Астемир» ~126px into the gutter at 1600 and print the numeral 四 on the name.
+/*
+  From 1600 the chapter's leading grows with the sheet.
+
+  Its type takes the raised ceilings — `--text-chapter` to 9rem,
+  `--text-statement` to 4.15rem. Its GAPS used to be fixed steps chosen against
+  a 1312 column, so at 2560 a name set at 143px stood in the same 24px of paper
+  it had when it was 88px.
+
+  One unit, and the gaps that are not already `vw`-scaled are whole multiples
+  of it. 0.5vw is exactly 0.5rem at 1600, so the rule below reproduces the step
+  it overrides at that width and nothing at or below 1600 moves. By 2560 the
+  unit has grown 1.60× — the same factor the chapter title grows over the same
+  range. Capped at 0.875rem so the gaps stop before the page does.
 */
 @media (min-width: 1600px) {
   .sensei {
     --rhythm: clamp(0.5rem, 0.5vw, 0.875rem);
     --sen-head: calc(var(--rhythm) * 7);
-    --entry-cols: 7;
   }
 
-  .sensei-entry {
-    grid-column: 1 / span 7;
-    display: grid;
-    grid-template-columns: repeat(var(--entry-cols, 7), minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    align-items: start;
-  }
-
-  .sensei-name {
-    grid-column: 1 / span 5;
-    grid-row: 1;
-  }
   .sensei-rank {
-    grid-column: 1 / span 5;
-    grid-row: 2;
-  }
-  .sensei-cite {
-    grid-column: 6 / -1;
-    grid-row: 2;
-  }
-  .sensei-registers {
-    grid-column: 1 / span 5;
-    grid-row: 3;
-  }
-
-  /*
-    The citation stops being a line under the rank and becomes a note in the
-    margin, ruled off the way a printed reference is. Its margin-top matches
-    the rank's so both boxes start on the same line of the row. The margin runs
-    29ch to 38ch of mono, so the column, not the cap, is what sets the note;
-    `--measure-caption` is only there so it can never out-run a caption measure
-    if the margin ever widens.
-  */
-  .sensei-decree__note {
     margin-top: calc(var(--rhythm) * 3);
-    max-width: var(--measure-caption);
-    padding-top: 0.7rem;
-    border-top: 1px solid var(--color-rule);
-  }
-
-  /*
-    The entry column's leading.
-
-    Its type takes the raised ceilings — `--text-chapter` to 9rem,
-    `--text-statement` to 4.15rem, `--text-lead` to 2.25rem. Its GAPS used to
-    be fixed steps chosen against a 1312 column, so at 2560 a name set at 143px
-    stood in the same 24px of paper it had when it was 88px.
-
-    One unit, and every gap in the column is a whole multiple of it. 0.5vw is
-    exactly 0.5rem at 1600, so each rule below reproduces the step it overrides
-    at that width and nothing at or below 1600 moves. By 2560 the unit has
-    grown 1.60× — the same factor the chapter title grows over the same range —
-    so the column keeps one ratio of type to paper across the whole tier.
-    Capped at 0.875rem so the gaps stop before the page does.
-  */
-  .sensei-rank__line {
-    margin-top: calc(var(--rhythm) * 3);
-  }
-  .sensei-registers {
-    margin-top: calc(var(--rhythm) * 6);
   }
 }
-
-/* ---------------------------------------------------------------- */
-/* I · the plate — the only full-colour image on the site            */
-/* ---------------------------------------------------------------- */
-/*
-  It carries no caption. Every other plate in the manual is numbered and
-  described, and this one is not, because the caption that stood here —
-  «Илл. 04 — А. Жамбеев, портрет.» — printed the sensei's name under a
-  photograph of somebody else. A frontispiece portrait is captioned by the
-  headword beside it, and the headword here is set at chapter scale one column
-  away. The alt text in `media.ts` is the only description of this plate that
-  is true of the file on disk.
-
-  The 4:5 / 3:4 pair is unchanged from the previous composition, and so is the
-  window's width at every tier — so the plate's proportions are not a new
-  decision and did not need re-solving.
-*/

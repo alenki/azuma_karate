@@ -37,7 +37,17 @@ const HIDE_WHEN_VISIBLE = ["hero", "join", "footer"];
  * across the bottom of a black page reads as a bug rather than as chrome.
  * `.mobile-bar--ink` is in globals.css beside `.site-header--ink`.
  */
-export function MobileBar({ hideWhenVisible = HIDE_WHEN_VISIBLE }: { hideWhenVisible?: string[] }) {
+export function MobileBar({
+  hideWhenVisible = HIDE_WHEN_VISIBLE,
+  ctaHref = cta.href,
+}: {
+  hideWhenVisible?: string[];
+  /* Where the foot margin's control goes. It defaults to the home chapter; a
+     page that prints its own version of the ask points it at that instead,
+     rather than sending a thumb to another page for something this one is
+     already carrying. */
+  ctaHref?: string;
+}) {
   const { locale } = useLocale();
   const { ground } = useActiveChapter();
   const { session, live } = useNextSession();
@@ -99,7 +109,7 @@ export function MobileBar({ hideWhenVisible = HIDE_WHEN_VISIBLE }: { hideWhenVis
                 {f.when} {f.time} · {f.groupName}
               </span>
             </div>
-            <Button href={cta.href} className="mobile-bar__act">
+            <Button href={ctaHref} className="mobile-bar__act">
               {cta.label[locale]}
             </Button>
           </div>

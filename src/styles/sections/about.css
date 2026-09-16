@@ -11,17 +11,12 @@
 /*                                                                      */
 /*     СК «Азума» — секция киокушинкай каратэ в Нальчике. Вечером мы    */
 /*     работаем в зале, по выходным — в парке, лицом к восходу.         */
-/*     ───────────────────────────────────────                         */
-/*     Мальчики и девочки                       4–6 лет                 */
-/*                                             6–11 лет                 */
-/*                                            12–16 лет                 */
-/*     ───────────────────────────────────────                         */
-/*     Мужчины и девушки                            16+                 */
-/*     ───────────────────────────────────────                         */
+/*     Мальчики и девочки — 4–6, 6–11 и 12–16 лет.                     */
+/*     Мужчины и девушки — 16+.                                        */
 /*                                                                      */
 /*                                  <- the foot: the lede set LARGE,    */
-/*                                     and under it the ruled roster    */
-/*                                     at that same size                */
+/*                                     and under it the intake          */
+/*                                     line, a tone down                */
 /*                                                                      */
 /* IT WAS THREE FRAMES. «Киокуши́н — предельная истина.» was a second    */
 /* statement at this same display size, filling a second screen, with   */
@@ -47,7 +42,7 @@
 /* The board's foot of micro labels — «01 · НАШЕ ИМЯ ──── ФИГ. 02 …» —  */
 /* is GONE, along with the chapter's running head and its colophon.      */
 /* Ten chapters of mono apparatus read as scaffolding rather than as     */
-/* printing; what is left is the statement, the lede and the roster.     */
+/* printing; what is left is the statement, the lede and the intake.     */
 /*                                                                      */
 /* THE GROUND IS PAPER, and it is the manual's own. The chapter was     */
 /* printed on ink for one edit, on the argument that the board's own    */
@@ -71,9 +66,9 @@
 /* athletic, neutral, and its whole voice is scale rather than          */
 /* modulation. It is scoped here; nothing outside chapter 二 knows.     */
 /*                                                                      */
-/* ONE SIZE AT THE FOOT: the lede and the roster are set at exactly the */
-/* same size, and the roster is the one tabulated thing in the chapter  */
-/* that could have argued for its own. Hierarchy here is TONE, RULE and */
+/* ONE SIZE AT THE FOOT: the lede and the intake line are set at        */
+/* exactly the same size, and what separates them is the ink ramp       */
+/* rather than the type scale. Hierarchy here is TONE, RULE and         */
 /* MEASURE — never scale. What the statement's size is solved against,  */
 /* and why it is not solved to the trim, is at `--say` below.           */
 /*                                                                      */
@@ -182,27 +177,13 @@
     while it carried the full-contact paragraph: the copy was cut, not the
     measure.
 
-    The foot it sits in carries the roster as well now. The frame absorbs that
+    The foot it sits in carries the intake line as well. The frame absorbs that
     in its void rather than in its air — `.about__frame` is `justify-content:
     space-between` over a `min-height`, not a fixed height, so a foot with two
     blocks in it grows the frame past `--frame-min` instead of crushing the
     band above it.
   */
   --lede-measure: 32em;
-  /*
-    THE ROSTER'S MEASURE, and it is not the lede's.
-
-    The roster is a two-column table — a family ranged left, its bands ranged
-    right — so its width is the distance between the two, and at the lede's 32em
-    that distance is most of a screen of bare paper with a term at one end and
-    two figures at the other. 22em holds the pair close enough to read as one
-    row without a leader dot between them, at every width: 781px on a laptop,
-    1144px on a 2560 spread, and at 390 it is wider than the trim and simply
-    caps there, where «Мальчики и\u00A0девочки» and «12–16\u00A0лет» still sit on one
-    line with room to spare. In `em` of the lede, like the lede's own measure,
-    so both are properties of the type and not of a container.
-  */
-  --roster-measure: 22em;
 
   /*
     THE ONE TONE LEFT, AND IT IS NOT TEXT.
@@ -297,7 +278,7 @@
 /* The frame — and there is only one of them now                     */
 /*                                                                   */
 /* Two children and the void between them: the statement at the top, */
-/* and a foot that carries the lede AND the roster under it. That is */
+/* and a foot that carries the lede AND the intake under it. That is */
 /* the board's composition exactly — all of the air in ONE place, in */
 /* the middle, where it separates the claim from its explanation.    */
 /*                                                                   */
@@ -457,77 +438,43 @@
 */
 
 /* ---------------------------------------------------------------- */
-/* The roster — the second block in the frame's foot                 */
-/*                                                                   */
-/* The club states its intake as two sentences — «Мальчики и девочки: */
-/* 4–6 / 6–11 / 12–16» and «Мужчины и девушки: 16+» — and this   */
-/* prints them as two, as a ruled roster and not as a second        */
-/* timetable. The week is chapter 三's job; this says only who the    */
-/* club takes.                                                      */
-/*                                                                   */
-/* IT USED TO OPEN A FRAME OF ITS OWN, under «С четырёх лет — и без   */
-/* потолка.» at display size. That statement was cut, which left the */
-/* table holding a screen with nothing over it, so it came up into   */
-/* the lede's foot. It is the same table; only its neighbours moved. */
-/*                                                                   */
-/* SET AT THE LEDE'S SIZE, which is the one size the frame's foot has.*/
-/* The chapter's rule is that hierarchy is carried by tone and by a  */
-/* rule, never by scale, and the one tabulated thing in it is not    */
-/* the exception: the term and its bands are the same size and the   */
-/* same ink, and what separates one family from the other is a       */
-/* hairline. Nothing here is mono — the mono apparatus is what this  */
-/* chapter spent its last edit removing, and these are figures a     */
-/* parent READS rather than marks they count.                       */
+/* The intake — the second block in the frame's foot                */
+/*                                                                  */
+/* The club states its intake as two sentences — «Мальчики и        */
+/* девочки: 4–6 / 6–11 / 12–16» and «Мужчины и девушки: 16+» —      */
+/* and this prints them as two sentences. The week is chapter       */
+/* 三's job; this says only who the club takes.                      */
+/*                                                                  */
+/* IT WAS A RULED <dl>: the family ranged left, its bands           */
+/* stacked right against a 22em measure of their own, hairlines     */
+/* over and under, three lines deep. A table is a promise that      */
+/* there is something to look ACROSS, and there is not — two        */
+/* terms and four bands are a sentence, and the rules around        */
+/* them made a chapter of prose look like a second timetable.       */
+/*                                                                  */
+/* SO IT IS SET AS PROSE, at the lede's size — the one size the     */
+/* frame's foot has — on the lede's own measure, one step down      */
+/* the ink ramp. The chapter's rule that hierarchy is TONE and      */
+/* RULE and never scale still holds; with the hairlines gone,       */
+/* the tone is the whole of it. Nothing here is mono: these are     */
+/* figures a parent READS, not marks they count.                    */
+/*                                                                  */
+/* NO `white-space` RULE EITHER. What may not break — a figure      */
+/* from its unit, «и» from the band it joins — is bound in the      */
+/* content layer, by `ageBands()` in `lib/schedule.ts`.             */
 /* ---------------------------------------------------------------- */
-.about__roster {
+.about__intake {
   position: relative;
   z-index: 1;
-  max-width: var(--roster-measure);
+  max-width: var(--lede-measure);
   font-size: var(--lede);
   line-height: 1.32;
   letter-spacing: -0.01em;
-  color: var(--color-ink);
-}
-
-/*
-  A row is the <div> <Reveal> renders between the <dl> and its <dt>/<dd>, so
-  the grid is declared here rather than on the list: the two families arrive
-  one after the other, and each one is its own two-column row.
-
-  BASELINE, not centre. The children's row carries three bands against one
-  term; aligning the boxes would float «Мальчики и девочки» to the middle
-  of a three-line stack, which is a caption. On the shared baseline the term
-  sits against the FIRST band, the way an entry sits against the first of its
-  sub-entries in a printed index.
-*/
-.about__roster-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  column-gap: clamp(1.5rem, 4vw, 5rem);
-  padding-block: clamp(0.85rem, 1.5vw, 1.75rem);
-  /* `--color-rule`, the standard printed hairline: these are the boundaries
-     of a block and the rules of a table, not separations inside one. */
-  border-top: 1px solid var(--color-rule);
-}
-/* the table is closed at the foot, so it reads as ruled matter and not as two
-   paragraphs that happen to have lines over them */
-.about__roster-row:last-child {
-  border-bottom: 1px solid var(--color-rule);
-}
-
-.about__roster-bands {
-  /* Tailwind's preflight already zeroes this; declared so the roster does not
-     depend on a reset for its geometry */
-  margin: 0;
-  display: grid;
-  justify-items: end;
-  text-align: end;
-  /* three bands stacked — the figures line up on their columns */
-  font-variant-numeric: tabular-nums;
-}
-/* a band is bound to its unit by a non-breaking space in the content layer;
-   this stops the en-dashed pair itself breaking across two lines */
-.about__band {
-  white-space: nowrap;
+  /*
+    THE ONLY SECOND TEXT TONE THIS CHAPTER IS ALLOWED. `--color-ink-2` is
+    the manual's secondary text role; `--color-ink-3` next to it is ORNAMENT
+    and never type, and the ghost that used to carry hierarchy here was cut
+    with the second display line it was solved for. Do not reach for either.
+  */
+  color: var(--color-ink-2);
 }

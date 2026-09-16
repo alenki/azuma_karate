@@ -11,9 +11,10 @@ import { Kanji } from "@/components/brush/Kanji";
 import { Reveal, Settle } from "@/components/ui/Reveal";
 import { createLiveStore, useLiveStore } from "@/lib/useLiveValue";
 import { useGroundReporter } from "@/components/layout/ChapterContext";
-/* the four printed section labels are chapter anchors, not routes — the map
-   and the argument for it are in Header, which prints the same four */
-import { sectionAnchor } from "@/components/layout/Header";
+/* three of the four printed section labels are chapter anchors and one is a
+   page — the map and the argument for it are in lib/sections, and the bar
+   prints the same four through the same resolver */
+import { sectionLink } from "@/lib/sections";
 
 /*
   The belt ladder.
@@ -90,7 +91,7 @@ const yearStore = createLiveStore<number>(
   60 * 60 * 1000,
 );
 
-export function Footer() {
+export function Footer({ route = "/" }: { route?: string }) {
   const { locale } = useLocale();
   const t = copy[locale];
   const year = useLiveStore(yearStore, EDITION_YEAR);
@@ -142,26 +143,59 @@ export function Footer() {
           <div className="footer__col footer__col--sections">
             <p className="footer__col-label t-mono text-bone-2">{t.sections}</p>
             <ul className="footer__list">
-              {navItems.map((item) => (
-                <li key={item.href}>
-                  <a href={`#${sectionAnchor(item.href)}`} className="footer-link t-caption">
-                    {item.label[locale]}
-                  </a>
-                </li>
-              ))}
+              {navItems.map((item) => {
+                const link = sectionLink(item.href, locale, route);
+                return (
+                  <li key={item.href}>
+                    {link.inPage ? (
+                      <a href={link.href} className="footer-link t-caption">
+                        {item.label[locale]}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="footer-link t-caption"
+                        aria-current={link.current ? "page" : undefined}
+                      >
+                        {item.label[locale]}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
           <div className="footer__col footer__col--contacts">
             <p className="footer__col-label t-mono text-bone-2">{t.contacts}</p>
+            {/*
+              TWO ENTRIES LEFT THIS LIST AND BOTH WERE ACTED ON RATHER THAN
+              MERELY READ, which is what made them worse than an ordinary
+              placeholder — `content/schedule.ts` marks both `pending` and says
+              so at the record itself.
+
+              `club.phone` was rendered here as a live `tel:` link, so a parent
+              could tap «+7 (900) 000-00-00» and reach nobody. `coordsLabel` was
+              printed to the arc-minute as though the hall had been surveyed,
+              when the figures are the CITY's — the record's own comment says
+              «approximate coordinates of Nalchik; confirm the exact hall
+              location». The colophon is the last thing on every page, so both
+              were printed on every page, including the contacts page, which
+              prints the phone the way the convention asks: a ruled blank with
+              what is awaited beside it. A page that shows a blank and then a
+              number three screens later contradicts itself inside one scroll.
+
+              Neither is deleted from the content layer — they come back here,
+              as facts, the day the club confirms them.
+            */}
             <ul className="footer__list t-caption">
               <li>{club.city[locale]}, {club.address[locale]}</li>
-              <li className="text-bone-2">{club.coordsLabel}</li>
-              <li><a href={club.phoneHref} className="footer-link">{club.phone}</a></li>
               <li><a href={club.telegram} className="footer-link" rel="noopener">Telegram</a></li>
               <li><a href={club.instagram} className="footer-link" rel="noopener">Instagram</a></li>
               <li className="pt-3">
-                <Link href={localeHref(otherLocale(locale), "/")} hrefLang={otherLocale(locale)} className="footer-link">
+                {/* the other language of THIS page — see the same argument in
+                    the bar's RU | EN toggle */}
+                <Link href={localeHref(otherLocale(locale), route)} hrefLang={otherLocale(locale)} className="footer-link">
                   {t.lang}
                 </Link>
               </li>

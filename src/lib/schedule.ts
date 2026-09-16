@@ -1,4 +1,4 @@
-import { club, groups, sessions, type FamilyId, type Group, type GroupId, type Session } from "@/content/schedule";
+import { club, groups, sessions, type FamilyId, type GroupId, type Session } from "@/content/schedule";
 import type { Locale } from "@/i18n/config";
 
 const DAY_SHORT: Record<Locale, string[]> = {
@@ -25,20 +25,38 @@ export function groupsInFamily(family: FamilyId) {
   return groups.filter((g) => g.family === family);
 }
 
+/** Russian binds the space AFTER a one-letter conjunction; English binds nothing here. */
+const AND: Record<Locale, string> = { ru: "и\u00A0", en: "and " };
+
 /**
- * A group's age band, typeset from its figures: «4–6\u00A0лет» for a closed band,
- * «16+» for one that never closes. Chapter 二's roster prints these under the
- * two family names, where `ages` would repeat the word "ages" down a column in
- * English and the unit down a column in Russian.
+ * A family's age bands as running PROSE rather than as a column: «4–6, 6–11
+ * и\u00A012–16\u00A0лет», "ages\u00A04–6, 6–11 and 12–16", «16+».
  *
- * The figure is bound to its unit with a non-breaking space, per the rule in
- * `content/home.ts`: «6–11\u00A0лет» may not break across the two.
+ * IT USED TO BE ONE BAND AT A TIME. Chapter 二 printed the intake as a ruled
+ * two-column table — a family ranged left, its bands stacked right — and each
+ * band carried its own unit, because a column has no last item to hang one off.
+ * The chapter states the intake in a SENTENCE now, and «4–6\u00A0лет, 6–11\u00A0лет
+ * и\u00A012–16\u00A0лет» is a column read aloud: the unit is printed ONCE, at the end
+ * of the list. A band that never closes carries its plus sign and takes no unit
+ * at all, which is why the affix is decided by the whole list and not per band.
+ *
+ * The figures are read off `content/schedule.ts` — the same record chapter 三's
+ * timetable legend reads — so the sentence and the week cannot disagree, and a
+ * band is added or moved by editing the groups there and nothing here.
  */
-export function ageBand(g: Group, locale: Locale) {
-  if (!g.ageSpan) return g.ages[locale];
-  const { from, to } = g.ageSpan;
-  if (to === null) return `${from}+`;
-  return `${from}–${to}\u00A0${locale === "ru" ? "лет" : "years"}`;
+export function ageBands(family: FamilyId, locale: Locale) {
+  const bands = groupsInFamily(family).map((g) => {
+    if (!g.ageSpan) return { text: g.ages[locale], closed: false };
+    const { from, to } = g.ageSpan;
+    return to === null ? { text: `${from}+`, closed: false } : { text: `${from}–${to}`, closed: true };
+  });
+  if (bands.length === 0) return "";
+  const head = bands.slice(0, -1).map((b) => b.text).join(", ");
+  const tail = bands[bands.length - 1].text;
+  const list = head ? `${head} ${AND[locale]}${tail}` : tail;
+  /* every figure in the list is bound to one unit, or none of them is */
+  if (!bands.every((b) => b.closed)) return list;
+  return locale === "ru" ? `${list}\u00A0лет` : `ages\u00A0${list}`;
 }
 
 /** Current wall-clock in the club's time zone: ISO weekday (1–7) and minutes since midnight. */

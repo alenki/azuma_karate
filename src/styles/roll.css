@@ -1,0 +1,208 @@
+/* ------------------------------------------------------------------ */
+/* The roll — a sheet read by unrolling it sideways                    */
+/*                                                                      */
+/* Imported by `ui/Roll.tsx`, the way a section imports its own file.    */
+/*                                                                      */
+/* THE BASE LAYOUT IS A COLUMN, and that is deliberate: every state in   */
+/* which the roll must not travel — a narrow screen, a reader who has    */
+/* asked for less motion, a browser that never ran the JS — is the       */
+/* absence of an override rather than an override of its own. The wide   */
+/* screen opts IN, in one media query, and the reduced-motion block      */
+/* simply opts back out.                                                 */
+/*                                                                      */
+/* Two things must survive any later edit:                               */
+/*                                                                       */
+/*  · NOTHING ABOVE `.roll__stage` MAY DECLARE `overflow`. An overflow   */
+/*    on an ancestor makes that ancestor the sticky element's containing */
+/*    block, and the pin dies silently — the section just scrolls past.  */
+/*    The stage clips ITSELF, which is harmless, because the stage is    */
+/*    the sticky element rather than one of its ancestors.               */
+/*  · `transform: none !important` in the reduced-motion block is not    */
+/*    belt and braces. Motion rewrites an inline transform every frame   */
+/*    and the media query cannot be read from the server, so the track   */
+/*    is briefly pinned during hydration and keeps whatever transform    */
+/*    was written when the preference resolves. A stylesheet is the only */
+/*    thing that outranks an inline style.                               */
+/* ------------------------------------------------------------------ */
+
+.roll {
+  --stage-h: 100vh;
+  /* the horizontal overflow of the track, measured and written by ui/Roll.
+     Zero here so the SSR markup, and a page whose JS never arrives, get a
+     one-stage section holding a strip the reader can still scroll by hand. */
+  --roll-travel: 0px;
+  --roll-gap: clamp(2rem, 4vw, 5.5rem);
+  position: relative;
+}
+
+.roll__track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--roll-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform-origin: 50% 50%;
+}
+
+/*
+  A BLOCK, not a flex row.
+
+  As a flex container the panel sized its child to the child's own content,
+  which is invisible while the pinned form gives every panel an explicit
+  width — and wrong the moment it does not: in the column fallback the plates
+  collapsed to their intrinsic width and sat in a quarter of the trim with
+  three quarters of empty ink beside them. A block panel lets the column fill
+  and still shrink-wraps the explicit width in the travelling form.
+*/
+.roll__panel {
+  display: block;
+}
+
+/* the printed word is a poster device: it belongs to the travelling sheet and
+   has nothing to say in a column */
+.roll__backdrop,
+.roll__chrome {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* ≥1024 and nobody has asked for less — the sheet travels             */
+/*                                                                      */
+/* Stillness is written into the QUERY rather than undone after it, so   */
+/* there is exactly one copy of the column layout and no chance of the   */
+/* two drifting apart. The `prefers-reduced-motion` block below is only  */
+/* the inline-transform guard; it is not an alternative layout.          */
+/* ------------------------------------------------------------------ */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .roll {
+    /* the spacer IS the travel: one stage to read the open sheet in, plus a
+       pixel of scroll for every pixel the track has to move */
+    height: calc(var(--stage-h) + var(--roll-travel));
+  }
+
+  .roll__stage {
+    position: sticky;
+    top: 0;
+    height: var(--stage-h);
+    display: flex;
+    align-items: stretch;
+    /*
+      Scrollable until the pin is live. Before hydration, and for a browser
+      with no JS, `--roll-travel` is 0 and the track simply overflows — so the
+      strip is left as a real scroll container and the chronicle stays
+      reachable. `data-pinned` swaps it for a clip the moment the transform
+      takes over, or the reader would be dragging one axis while the scroll
+      drove the other.
+    */
+    overflow: auto hidden;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+  }
+  .roll[data-pinned] .roll__stage {
+    overflow: clip;
+    scroll-snap-type: none;
+  }
+
+  /*
+    The printed word sits HIGH on the sheet, not centred on it.
+
+    Centred, it runs straight through the band every panel sets its own type
+    in, and the collision is not a tuning problem — it is geometric. The word
+    is wider than the stage and travels slower than the track, so it cannot be
+    padded clear of the first and last sheets without either overtaking the
+    plates or shrinking to nothing. Moving it up the sheet solves it once, for
+    every panel and every count: the word occupies the band the plates cross,
+    the panels set their matter below it, and nothing on this chapter is ever
+    read against an ornament tone again.
+  */
+  .roll__backdrop {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    z-index: 0;
+    display: flex;
+    align-items: flex-start;
+    width: max-content;
+    padding-inline: var(--gutter);
+    padding-block-start: var(--roll-backdrop-top, 0px);
+    pointer-events: none;
+  }
+
+  .roll__track {
+    position: relative;
+    z-index: 1;
+    flex-direction: row;
+    align-items: stretch;
+    width: max-content;
+    /* the first sheet opens at the trim and the last one closes on it */
+    padding-inline: var(--gutter);
+  }
+
+  .roll__panel {
+    flex: none;
+    scroll-snap-align: center;
+  }
+
+  /* ---- the roll's own apparatus: which sheet is open, how much is left ---- */
+  .roll__chrome {
+    position: absolute;
+    z-index: 2;
+    inset-inline: var(--gutter);
+    bottom: clamp(1.5rem, 3.2vh, 2.75rem);
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 1.6vw, 2rem);
+    pointer-events: none;
+  }
+  .roll__folio {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    color: var(--color-bone-2);
+  }
+  /* the sheet the reader is on is the only loud figure in the pair */
+  .roll__folio-now {
+    color: var(--color-bone);
+  }
+  .roll__folio-rule {
+    display: block;
+    width: clamp(1rem, 1.4vw, 1.75rem);
+    height: 1px;
+    background: var(--color-rule-dark-strong);
+  }
+
+  .roll__gauge {
+    position: relative;
+    flex: 1;
+    height: 1px;
+    background: var(--color-rule-dark);
+  }
+  .roll__gauge-run {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    background: var(--color-bone-2);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Stillness — the inline-transform guard                              */
+/*                                                                      */
+/* The layout is already a column here: the block above never applied.   */
+/* What this has to undo is a TRANSFORM, which nothing else can. Neither */
+/* the media query nor the reduced-motion preference can be read on the  */
+/* server, so `useStillness` reports `false` through the hydrating render */
+/* by design — the track is pinned for those few frames, Motion writes    */
+/* an inline `transform`, and when the preference resolves the component  */
+/* stops passing a style but the last written transform stays on the      */
+/* node. A stylesheet is the only thing that outranks it.                 */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .roll__track,
+  .roll__backdrop {
+    transform: none !important;
+  }
+}

@@ -36,12 +36,19 @@ type PhotoProps = Omit<ImageProps, "src" | "alt" | "width" | "height"> & {
    * paper-white highlight of the first blows a hole in the ground. `bw` is the
    * plain grayscale grade.
    *
-   * `color` is not a plate — it is the press running a full pass, and it has
-   * exactly one consumer: chapter 04's plate, the one page in the manual about
-   * a person rather than about a practice. It used to be gated behind a
-   * control the reader turned on; it is simply printed now, because a colour
-   * page the reader has to ask for is a setting, and this is a decision the
-   * book makes. It stays the ONLY unpressed image on the site.
+   * `color` is not a plate at all — it is the press declining to run, and it
+   * means two different things to its two consumers. Chapter 04's plate is the
+   * COLOUR EXCEPTION: the one page in the manual about a person rather than
+   * about a practice, printed in full sRGB on purpose. It used to be gated
+   * behind a control the reader turned on; it is simply printed now, because a
+   * colour page the reader has to ask for is a setting, and this is a decision
+   * the book makes.
+   *
+   * Chapter 01's plate asks for it for the opposite reason: it is not on the
+   * shared press because it carries its OWN grade, declared once in hero.css
+   * for the still and the reel together (`saturate() contrast() brightness()`).
+   * Passing `duotone` there and overriding it in the section stylesheet would
+   * work by specificity and read as an accident.
    *
    * The trophies used to claim it too, and that was simply a hole in the
    * palette: gold cups, a yellow cloth and blue ribbons, printed, on a black

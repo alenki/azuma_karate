@@ -1,178 +1,139 @@
 #!/usr/bin/env bash
 # ------------------------------------------------------------------
-# Chapter 一's plate, pressed from the club's own footage.
+# Chapter 一's plate.
 #
-#   ./scripts/press-hero-reel.sh <source.mp4>
+#   ./scripts/press-hero-reel.sh [source.mp4]
 #
-# The source is a 720x1280 phone clip carrying NO rotation metadata and
-# 90 degrees of rotation in the pixels, so `transpose=2` (counter-clockwise)
-# is what makes it upright. It comes out 1280x720 and that is all the
-# resolution there is — see media.ts for what that costs and who gets it.
+# With no argument it fetches the source itself; pass a path to press a
+# local copy instead. Everything the chapter shows — the wide plate, the
+# upright plate and the reel — comes out of this one file.
 #
-# WHAT THIS BAKES, AND WHY IT IS BAKED.
+# WHAT CHANGED, AND WHY THE SCRIPT GOT SHORTER.
 #
-# Every other plate in the book is pressed in CSS:
+# This used to bake a two-ink press into the video: a luma matrix, a
+# dodge, and a lookup ramp evaluated by hand so the mp4 matched the
+# `url(#duotone-paper-ink)` the CSS put on the still. All of that existed
+# because an SVG REFERENCE filter is a per-frame pass, and a full-screen
+# one over 30fps forces the compositor off the fast path.
 #
-#     filter: grayscale(1) contrast(1.06) url("#duotone-paper-ink")
+# The chapter is graded now, not pressed — `saturate() contrast()
+# brightness()`, which are plain colour-matrix operations the compositor
+# does for free. So the CSS can grade the video and the still with the
+# SAME declaration (hero.css, `.hero__plate img, .hero__reel`), nothing is
+# baked, and the plate stays retunable without re-encoding anything. The
+# dodge is gone too: it existed to lift one near-black seam in a gi that
+# ink type had to be legible on, and the type is bone on black now.
 #
-# An SVG reference filter is a per-frame pass, and a full-screen one over
-# 30fps forces the compositor off the fast path on exactly the machines
-# least able to afford it. So the video carries the press already applied
-# and the CSS filter is NOT declared on it. The arithmetic below is that
-# declaration, evaluated by hand:
-#
-#   L = 0.2126 R + 0.7152 G + 0.0722 B          grayscale(1), and the LUMA
-#                                               matrix ui/PressDefs feeds the
-#                                               duotone — the same numbers
-#   C = clip(1.06 L - 0.03, 0, 1)               contrast(1.06): slope 1.06
-#                                               about the 0.5 midpoint
-#   R' = 0.082 + 0.871 C                        #duotone-paper-ink's own ramp:
-#   G' = 0.075 + 0.862 C                        ink #151311 at L 0 to
-#   B' = 0.067 + 0.835 C                        paper #F3EFE6 at L 1
-#
-# all of it in sRGB, because the filter declares colorInterpolationFilters
-# ="sRGB" and CSS filter functions are specified there too.
-#
-# THE COST OF BAKING is that the file is stale if `--color-paper` or
-# `--color-ink` ever move. They are the paper stock and the paper stock is
-# one decision (see globals.css); if they do move, re-run this.
-#
-# The STILLS are deliberately NOT pressed. They go through <Photo
-# grade="duotone">, which is the CSS path, so the image half of the plate
-# stays retunable and the two halves still agree — this script and that
-# filter compute the same thing.
+# The files therefore carry the photograph AS SHOT, in colour. Do not
+# grade them here; hero.css owns the grade.
 # ------------------------------------------------------------------
 set -euo pipefail
 
-SRC=${1:?usage: press-hero-reel.sh <source.mp4>}
 DIR=public/media/hero
+# Mixkit 49632, "A young man practicing karate moves" — 1920x1080, 23.976fps,
+# 10.8s. Mixkit Free License: commercial use, no attribution required, and no
+# redistribution as stock. See public/media/placeholders/CREDITS.md.
+URL=https://assets.mixkit.co/videos/49632/49632-1080.mp4
+SRC=${1:-}
+
+if [ -z "$SRC" ]; then
+  SRC=$(mktemp -t hero-src-XXXXXX).mp4
+  echo "fetching $URL"
+  curl -fsSL -A "Mozilla/5.0" -o "$SRC" "$URL"
+fi
 
 # ---- the cut ------------------------------------------------------
-# The reel opens on a black belt being tied and nothing else: a white gi
-# filling the frame, one dark mass across it, no sponsor board anywhere in
-# it. The chapter prints on paper and the type is INK, so the plate has to
-# be light and EVEN, and this is the only shot in ninety-one seconds that
-# is both.
+# One figure in a black room, and the room is genuinely black: YAVG sits
+# flat at 20.5/255 for all 10.8s, with no fade at either end, so the cut
+# can be taken anywhere and the ground needs no help from a scrim.
 #
-# IT IS ONE GESTURE AND IT DOES NOT LOOP, which is the whole shape of this
-# cut. Read at 4fps the shot is three movements — the knot is tied (2.2 to
-# 2.9, hands busy and blurred), the two ends are pulled taut (2.9 to 4.4,
-# slow and symmetric), the hands drop away (4.4 to 5.3). Start and end
-# states are therefore nothing like each other, and a tail-onto-head
-# dissolve double-exposes the hands: a first pass spent 0.9s of every 4.3
-# showing four of them. Reversing it instead prints a man UNTYING his belt.
+# Read at 5fps the clip is a kata with one real event in it. 0.0-8.2 is
+# preparation and held stances — handsome, and nothing happens. At 8.2 he
+# is in a back stance with the arm folded; over the next second and a half
+# he steps through into a deep front stance and drives a straight punch
+# out; at 9.6 it is fully extended and HELD; by 9.8 he has already drawn
+# back for a second one.
 #
-# So the cut is the middle movement only, it runs ONCE, and it settles.
-# That is also what the sheet already says of itself — hero.css: "Nothing
-# on this sheet moves again: no loop, no breathing hairline, no
-# scroll-linked transform, no pointer lean." The belt is pulled tight as
-# the page loads and then the plate is a photograph.
+# So the cut is that single gesture: guard, step, strike, hold. It runs
+# ONCE and it settles, which is the rule this sheet states about itself —
+# hero.css: "Nothing on this sheet moves again: no loop, no breathing
+# hairline, no scroll-linked transform, no pointer lean."
 #
-# IN AND OUT ARE MEASURED, not eyeballed, and BOTH metrics had to be read
-# before this cut was right. `signalstats` YAVG climbs out of the opening
-# fade until 2.15s and starts falling into the next one at 5.30s, which is
-# the widest the shot can be. But `blurdetect` over that window peaks at
-# 2.93 — the cinch itself is the most motion-blurred frame in the whole
-# shot, and a first pass cut from exactly there, which put a smeared frame
-# under the headline as the page's LCP. Blur falls to a flat ~8.2 from 3.33
-# and stays there to the fade.
-#
-# So the cut is the sharp plateau: the two ends drawn taut, and nothing
-# else.
-IN=3.33
-OUT=5.32
-# 0.85x. The gesture is 1.99s at speed; this holds it to 2.34s, which is
-# also very close to the 2.05s the sheet's own load front takes to cross it
-# (Hero.tsx) — the belt finishes being pulled about when the sentence
-# finishes being printed. 25.5 unique frames a second into 30 is one
-# duplicate in six, and on motion this slow it cannot be seen.
-SPEED=0.85
-FPS=30
+# It is also the chapter's own sentence. 一 reads «Сначала поклон. / Потом
+# удар.» and the reel is the second half of it.
+IN=8.20
+OUT=9.72
+# 0.70x. The gesture is 1.52s as shot and 2.17s here, which is close to
+# the 2.05s the sheet's load front takes to cross it (Hero.tsx): the punch
+# lands about when the sentence finishes printing. The source is 23.976fps
+# and the output is 24, so 0.70x means about one frame in three is a
+# duplicate — invisible on a movement this slow, and cheaper than asking a
+# phone to interpolate.
+SPEED=0.70
+FPS=24
 
 PLAY=$(awk "BEGIN{printf \"%.2f\", ($OUT-$IN)/$SPEED}")
 
-# ---- the press, as one filter string ------------------------------
-C='clip(1.06*val/255-0.03,0,1)'
-LUMA='colorchannelmixer=rr=0.2126:rg=0.7152:rb=0.0722:gr=0.2126:gg=0.7152:gb=0.0722:br=0.2126:bg=0.7152:bb=0.0722'
-# ---- THE DODGE ----------------------------------------------------
-# One crevice, lifted, because a ramp cannot lift it.
+# ---- the field ----------------------------------------------------
+# THE FIGURE IS MOVED OFF CENTRE BY PADDING, not by `object-position`.
 #
-# The gi is even light almost everywhere, but the shadow between the
-# sleeve and the body is a near-black seam running from the top of the
-# frame down to the belt — measured at the render, sRGB 37 where the bow's
-# band crosses it, which the scrim lifts to 89 and cannot lift further
-# without veiling the whole head of the plate. «Сначала поклон.» came out
-# at 2.51:1 there against 4.9:1 everywhere else along the same line.
+# He stands dead centre of the source frame — tracked across the cut he
+# occupies x 0.38-0.69, y 0.15-0.93 — and dead centre is the one place he
+# cannot be: «Потом удар.» is set across the left 62% of the trim and
+# would cross his legs. `object-position` cannot fix that, because a 16:9
+# plate covering a 1512x900 sheet has 88px of horizontal slack in total.
 #
-# hero.css states the rule this runs into: "a ramp can lift a whole
-# region, but it cannot lift one bare twig out of a band of type." The
-# printer's answer to one bad passage is not a heavier screen over the
-# whole plate — it is to DODGE that passage while the plate is being made.
-# So it is dodged here, once, and the scrim is left alone.
-#
-# It is surgical in both axes:
-#   · in TONE, `pow(1-v,3)` puts almost all of the lift into the near-
-#     blacks — the seam gains ~0.28, a mid-grey fold ~0.03, the lit gi
-#     nothing it can be seen in.
-#   · in SPACE, the mask is full strength to Y 180 and gone by Y 260,
-#     which is above the belt at every frame of the cut. THE BELT MUST
-#     STAY INK. It is the only dark mass the composition has and the whole
-#     plate is built on its separation from the gi; lift it and this stops
-#     being a black belt on white cloth.
-#
-# It runs AFTER the luma matrix and BEFORE the ramp, where all three
-# channels are equal and one expression is the whole correction, and it is
-# in the STILL chain too — the still is pressed by CSS at runtime, so a
-# dodge applied to only one of them would print two different plates.
-LIFT=0.45
-V='(r(X,Y)/255)'
-MASK='min(1,max(0,(260-Y)/80))'
-D="min(1,$V+$LIFT*pow(1-$V,3)*$MASK)"
-DODGE="geq=r='255*$D':g='255*$D':b='255*$D'"
+# The ground is #000, so the frame can simply be made wider. 640px of
+# black on the binding side takes the plate to 2560x1080 (2.37:1) and puts
+# him at x 0.54-0.77 — clear of the strike's column, and with enough slack
+# left over that `object-position` becomes a real control again.
+PAD_W=2560
+PAD_X=640
 
-DUO="lutrgb=r='255*(0.082+0.871*$C)':g='255*(0.075+0.862*$C)':b='255*(0.067+0.835*$C)'"
+CUT="trim=start=$IN:end=$OUT,setpts=(PTS-STARTPTS)/$SPEED,fps=$FPS"
+FIELD="pad=$PAD_W:1080:$PAD_X:0:black"
 
-# ---- the pass -----------------------------------------------------
-# One trim, one press, no loop machinery at all. See the cut above for why
-# there is none.
-CHAIN="trim=start=$IN:end=$OUT,setpts=(PTS-STARTPTS)/$SPEED,transpose=2,fps=$FPS,format=rgb24,$LUMA,$DODGE,$DUO,format=yuv420p"
+echo "cut ${IN}-${OUT}s at ${SPEED}x -> ${PLAY}s, one gesture, ${FPS}fps, ${PAD_W}x1080"
 
-echo "cut ${IN}-${OUT}s at ${SPEED}x -> ${PLAY}s, one shot, ${FPS}fps"
-
-ffmpeg -v error -y -i "$SRC" -vf "$CHAIN" -an \
+# ---- the reel -----------------------------------------------------
+# VP9 first and H.264 behind it; ui/Reel lists them in that order and a
+# browser that cannot read the first falls through to the second.
+ffmpeg -v error -y -i "$SRC" -vf "$CUT,$FIELD,format=yuv420p" -an \
   -c:v libx264 -profile:v high -pix_fmt yuv420p -crf 21 -preset veryslow \
-  -g $((FPS*2)) -movflags +faststart \
+  -g $((FPS * 2)) -movflags +faststart \
   -color_primaries bt709 -color_trc bt709 -colorspace bt709 -color_range tv \
-  "$DIR/belt-reel.mp4"
+  "$DIR/kata-reel.mp4"
 
-ffmpeg -v error -y -i "$SRC" -vf "$CHAIN" -an \
+ffmpeg -v error -y -i "$SRC" -vf "$CUT,$FIELD,format=yuv420p" -an \
   -c:v libvpx-vp9 -crf 34 -b:v 0 -row-mt 1 -deadline good -cpu-used 1 \
-  "$DIR/belt-reel.webm"
+  "$DIR/kata-reel.webm"
 
-# ---- the stills ---------------------------------------------------
-# THE SAME FRAME AS THE VIDEO'S FRAME 0 — `trim=start=$IN` and not `-ss`,
-# so it is selected by the identical rule and the two cannot land a frame
-# apart. The <img> and the video's first frame are then one image, and the
-# handover is invisible: a photograph that starts moving, never a cut.
+# ---- the wide plate -----------------------------------------------
+# THE REEL'S OWN FRAME 0, selected by the identical rule — `trim=start=$IN`
+# and not `-ss`, so the two cannot land a frame apart. The <img> under the
+# video and the video's first frame are then one image and the handover is
+# invisible: a photograph that starts moving, never a cut.
+ffmpeg -v error -y -i "$SRC" -vf "trim=start=$IN,$FIELD" -frames:v 1 -q:v 3 \
+  "$DIR/kata-plate.jpg"
+
+# ---- the upright plate --------------------------------------------
+# A DIFFERENT FRAME, and that is deliberate. The wide still has to be the
+# reel's frame 0 because the reel lies over it; the upright still has no
+# reel over it at all — ui/Reel declines to mount below 4:5 — so it is
+# free to be the best frame in the cut rather than the first, and the best
+# frame is the punch itself at 9.45.
 #
-# UNPRESSED, and that is the one thing in this script that is easy to get
-# backwards. These go through <Photo grade="duotone">, which applies
-# `grayscale(1) contrast(1.06) url(#duotone-paper-ink)` in CSS — so pulling
-# them out of the ALREADY PRESSED mp4 would press them twice and the still
-# would not match the video it sits under. They come off the raw source
-# with the luma matrix and nothing else, and CSS does the press once.
-#
-# Grayscale on disk because the press discards chroma before it does
-# anything else, so the colour planes are weight and nothing else. The same
-# reasoning media.ts records for the frames these replace.
-STILL="trim=start=$IN,transpose=2,format=rgb24,$LUMA,$DODGE,format=gray"
-
-ffmpeg -v error -y -i "$SRC" -vf "$STILL" -frames:v 1 -q:v 3 "$DIR/belt-plate.jpg"
-
-# The upright cut, 4:5 — the same frame, centred, because the knot is the
-# subject and the knot is centred. 576x720 is all a sideways 720p clip can
-# give, and it is enough HERE and almost nowhere else: a white gi and a
-# black belt have no fine detail for an upscale to lose. See media.ts.
-ffmpeg -v error -y -i "$SRC" -vf "$STILL,crop=576:720:352:0" -frames:v 1 -q:v 3 "$DIR/belt-plate-portrait.jpg"
+# It is also the WHOLE hero on a phone, and a phone does not show this cut
+# — it shows a 0.46:1 STRIP of it, x 0.27-0.73, because 390x844 is far
+# taller than 4:5 and `cover` takes the difference out of the width. A
+# figure at full height loses the punching fist and the rear foot to that
+# strip. So he is set in a black field rather than filling one: scaled to
+# 0.49 of the source frame and placed at x 0.31-0.69, y 0.18-0.57, which
+# survives the strip with room either side and leaves the foot of the
+# sheet black for «Потом удар.» and the offer stacked under it.
+PUNCH=9.45
+ffmpeg -v error -y -i "$SRC" \
+  -vf "trim=start=$PUNCH,crop=864:1080:595:0,scale=424:529,pad=864:1080:208:121:black" \
+  -frames:v 1 -q:v 3 "$DIR/kata-plate-portrait.jpg"
 
 ls -l "$DIR"

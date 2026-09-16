@@ -11,6 +11,7 @@ import { Settle } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
 import { Photo } from "@/components/ui/Photo";
 import { Reel } from "@/components/ui/Reel";
+import { Grain } from "@/components/ui/Grain";
 import { useStillness } from "@/lib/useStillness";
 import { EASE_OUT } from "@/lib/ease";
 import "@/styles/sections/hero.css";
@@ -25,24 +26,25 @@ import "@/styles/sections/hero.css";
  * rather than by punctuation, and the interval the reader's eye has to cross to
  * get from the bow to the strike is the count a student holds between them.
  *
- * What changed is what the interval is made of. It was a band of bare paper;
- * it is a man mid-kick at the size of the screen. Same composition, same
- * relationship, but it now states its own subject instead of gesturing at it —
- * and swap the copy for a coffee brand and none of it means anything, which is
- * the test.
+ * What changed is what the interval is made of. It was a band of bare paper,
+ * then a screen of white gi; it is a black room with one figure standing in it.
+ * Same composition, same relationship — but the sheet is DARK now, and the
+ * silence between the bow and the strike is the room the strike is thrown in.
+ * Swap the copy for a coffee brand and none of it means anything, which is the
+ * test.
  *
  * SIX THINGS ARE ON THIS SHEET: the chapter mark 一/01 in the binding margin, a
  * running head, the bow, the plate, the strike, and the offer with its control.
  *
- * THE PLATE IS THE GROUND, not an illustration on it. The chapter is `paper`,
- * so the fixed bar does NOT invert over it — the ground reporter that already
- * exists (layout/ChapterContext) is told `paper` and the bar stays ink, which
- * is one fewer thing happening on the first screen and costs nothing here.
- * Chapter 二 is paper too, so the plate's foot does not end on a tonal cliff:
- * it runs out into the page's own paper, the way a plate bled to a trimmed
- * edge meets the sheet it is printed on. That dissolve is what stops a
- * photograph at this size reading as a website hero image; hero.css carries
- * the measurement of the seam.
+ * THE PLATE IS THE GROUND, not an illustration on it. The chapter is `ink`,
+ * so the fixed bar inverts over it — the ground reporter that already exists
+ * (layout/ChapterContext) is told `ink`, the bar prints in bone, and a dark
+ * first screen gets the header a dark first screen wants. Chapter 二 is paper,
+ * so the plate's foot ends on a TRIMMED EDGE rather than a dissolve: the
+ * photograph runs to black and the next sheet begins. That is the ordinary
+ * arrangement in this book — every ink chapter meets its neighbour that way —
+ * and it is the thing the paper version of this chapter could not do, which is
+ * why it spent three measured ramps buying itself a seam.
  *
  * THERE IS NO VERMILION ON THIS SHEET except the seal welded to the control,
  * which is one of the three jobs red has on this page. There is deliberately no
@@ -103,7 +105,7 @@ export function Hero() {
       id={ch.id}
       index={1}
       title={ch.title[locale]}
-      ground="paper"
+      ground="ink"
       labelledBy="hero-title"
       className="hero"
       style={
@@ -119,11 +121,14 @@ export function Hero() {
       }
     >
       {/*
-        The plate. One photograph at the size of the screen, printed in the two
-        inks the chapter is printed in, running to all four trimmed edges.
+        The plate. One photograph at the size of the screen, GRADED rather than
+        pressed — hero.css owns the whole declaration, which is why `grade` is
+        `color` here: not "the colour exception" (that is still 四) but "this
+        plate is not on the shared press". It runs to all four trimmed edges.
 
-        `art` serves the upright cut of the same frame through a <picture>, so
-        the screen that gets it downloads that file and only that file. The
+        `art` serves the upright cut through a <picture>, so the screen that
+        gets it downloads that file and only that file. It is a DIFFERENT frame
+        of the same cut — see content/media, which carries why. The
         query is on the SHAPE of the viewport and not on its width, because the
         thing that ruins the wide cut is a tall box, not a narrow one: a 3:2
         landscape asked to cover 390 x 844 shows a 31% vertical slice of itself
@@ -147,17 +152,17 @@ export function Hero() {
         <Photo
           slot="firstScreen"
           art={{ slot: "firstScreenTall", media: "(max-aspect-ratio: 4 / 5)", sizes: "170vw" }}
-          grade="duotone"
+          grade="color"
           sizes="100vw"
         />
         {/*
           AND THE PLATE IS MADE, ONCE.
 
-          The belt is drawn tight over 2.34s and then the sheet is a photograph
-          — no loop, nothing ambient. That is not restraint for its own sake: it
+          The strike is thrown over 2.17s and then the sheet is a photograph —
+          no loop, nothing ambient. That is not restraint for its own sake: it
           is the same sentence this file already ends on, and the same one
-          hero.css ends on. The gesture is also the chapter's subject; 一 is
-          «Первая черта» and the belt is the first thing tied.
+          hero.css ends on. The gesture is also the chapter's own sentence; 一
+          reads «Сначала поклон. / Потом удар.» and the cut is the second half.
 
           It lies OVER the plate and is never the plate. <Photo> above prints
           the reel's own frame 0, and that <img> is the LCP element, the alt
@@ -170,6 +175,12 @@ export function Hero() {
           cut and the reel are two answers to one question about the shape of
           the viewport, and they must never both be right. Keep them in step.
 
+          IT CARRIES NO PRESS OF ITS OWN any more. The video used to have the
+          two-ink duotone baked into its frames because an SVG reference filter
+          is a per-frame pass; the grade is three colour-matrix functions now,
+          so hero.css declares it once for the <img> and the <video> together
+          and the two halves of this plate cannot drift apart.
+
           It is NOT inside the load sequence above and takes no delay from it.
           The reel starts when the file can start; the front crossing the sheet
           is type, and the plate was never part of it.
@@ -178,22 +189,21 @@ export function Hero() {
       </motion.div>
       <div className="hero__scrim" aria-hidden="true" />
       {/*
-        THE SURFACE, AND WHY IT IS NOT <Grain>.
+        THE SURFACE, AND WHY IT IS <Grain> AGAIN.
 
-        <Grain> screens a noise field back in. Screen is the operator that bites
-        on ink and does nothing worth a compositing layer on paper — About.tsx
-        says so where it declines to print one, and this chapter is paper now.
-        The paper chapters' surface is the STOCK: two near-white tiles
-        multiplied into the ground by `.ground-paper`.
+        This used to be `.hero__stock` — the paper chapters' two near-white
+        tiles, multiplied over the plate, because the chapter's ground was paper
+        and the plate covered it. Multiply has nothing to take from a frame
+        whose field is #000: the tooth simply vanished the moment the plate went
+        dark.
 
-        But the stock is on the GROUND and this chapter's ground is covered, to
-        all four trimmed edges, by the plate. So the same two tiles are printed
-        again here, over the plate, at multiply — the tooth the rest of the book
-        has, applied where it can actually be seen. No new token, and the
-        photograph is inside the paper's grain rather than sitting on top of it,
-        which is what a printed plate does.
+        Screen is the operator that bites on ink, and <Grain> is the calibrated
+        one — primitives.css sets its two slopes from a contrast budget, not by
+        eye, so the worst grained pixel is still known. It is the surface the
+        other ink chapters already carry, applied here where a full screen of
+        near-black would otherwise be a flat digital void.
       */}
-      <div className="hero__stock" aria-hidden="true" />
+      <Grain />
 
       <div className="hero__sheet">
         {/*

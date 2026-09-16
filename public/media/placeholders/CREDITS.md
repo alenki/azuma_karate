@@ -2,6 +2,8 @@
 
 All photos in this folder are **temporary placeholders** from Wikimedia Commons, used under the licences listed below. They have been downscaled to 1600px and recompressed for review. Replace them with SK AZUMA's own photography before launch, then update `src/content/media.ts`.
 
+Chapter 一's plate does not live in this folder — it is pressed into `public/media/hero/` by a script rather than downloaded — but it is a placeholder on exactly the same terms. Its source and licence are at the foot of this file.
+
 | File | Size | Title | Author | Licence | Source |
 |---|---|---|---|---|---|
 | sensei-blue-belt-portrait.jpg | 1067×1600 | Club de Karate Musha Dojo Karate Kyokushin-Kan katas.jpg | HUARINA95 | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File%3AClub%20de%20Karate%20Musha%20Dojo%20Karate%20Kyokushin-Kan%20katas.jpg |
@@ -53,7 +55,39 @@ All photos in this folder are **temporary placeholders** from Wikimedia Commons,
 | snow-kick-1970.jpg | 2560×1705 | Ochi (8).jpg | Andreas Fecker | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File%3AOchi%20%288%29.jpg |
 | snow-kick-1970-portrait.jpg | 1536×1920 | Ochi (8).jpg (portrait crop) | Andreas Fecker | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File%3AOchi%20%288%29.jpg |
 
-## Note on the hero plate
+## The hero plate
+
+| File | Size | Source | Licence |
+|---|---|---|---|
+| `../hero/kata-plate.jpg` | 2560×1080 | Mixkit clip 49632, "A young man practicing karate moves" — https://mixkit.co/free-stock-video/a-young-man-practicing-karate-moves-49632/ | Mixkit Free License |
+| `../hero/kata-plate-portrait.jpg` | 864×1080 | same clip, a different frame | Mixkit Free License |
+| `../hero/kata-reel.mp4` / `.webm` | 2560×1080, 2.17s | same clip, 8.20–9.72s at 0.70x | Mixkit Free License |
+
+All four are cut from one 1920×1080 source by `scripts/press-hero-reel.sh`, which
+fetches it if you do not pass a path. **Modifications:** trimmed, slowed, padded
+with black on the binding side, and (for the upright cut) scaled into a black
+field. Nothing is graded on disk — `src/styles/sections/hero.css` owns the grade.
+
+The Mixkit Free License permits commercial and non-commercial use with no
+attribution required, and forbids redistributing the file as stock. This entry
+is therefore a record for whoever maintains the page, not a legal obligation.
+
+THREE THINGS MAKE THIS A PLACEHOLDER AND NOT A CHOICE THE CLUB HAS MADE.
+
+1. **The uniform is wrong.** It is a taekwondo dobok — V-neck, pullover — and
+   SK AZUMA is a Kyokushin club, which wears a wrap-over gi. No crop removes
+   the collar. Anyone who trains will see it.
+2. It is a photograph of neither this club, this town, nor these students.
+3. There is a small embroidered maker's mark on the thigh, about 14px wide at
+   1512. It is not a federation wordmark and nothing else in the frame carries
+   branding, but it is a mark the club did not choose.
+
+`placeholder: true` in `media.ts` is what holds the page back from claiming
+otherwise: no caption names anyone, no credit line is printed. The club's own
+photography replaces all four files and this whole block goes with it — and the
+slot's brief, written out in `media.ts`, is what the replacement has to meet.
+
+## Note on two files no longer used
 
 `snow-kick-1970.jpg` and its portrait crop are two cuts of one 3996×2642
 original — Hideo Ochi photographed in a snowfield near Konstanz on 6 December
@@ -61,18 +95,5 @@ original — Hideo Ochi photographed in a snowfield near Konstanz on 6 December
 grayscale. CC BY-SA 4.0 requires that modifications be indicated; this note is
 that indication, and both derivatives are shared under the same licence.
 
-Nothing was retouched and nothing needed to be: the frame carries no
-third-party wordmark. The characters embroidered on the chest are the
-photographed karateka's own dojo marking, not a maker's mark, and at the size
-this plate is printed they are about twenty pixels tall.
-
-The colour planes were dropped on purpose. `#duotone-paper-ink` discards chroma
-before it does anything else, so they were file weight and nothing else — 1.27 MB
-became 444 KB. Take the Commons original if you ever want this frame in colour.
-
-TWO THINGS MAKE THIS A PLACEHOLDER AND NOT A CHOICE THE CLUB HAS MADE. The
-karateka is an identifiable and well-known Shotokan master, and SK AZUMA is a
-Kyokushin club; and it is a photograph of neither this club, this town, nor this
-decade. `placeholder: true` in `media.ts` is what holds the page back from
-claiming otherwise — no caption names him, no credit line is printed. The club's
-own photography replaces it and this whole block goes with it.
+They were chapter 一's plate two passes ago. Nothing in `media.ts` references
+them now.

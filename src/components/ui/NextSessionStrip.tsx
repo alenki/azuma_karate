@@ -41,7 +41,7 @@ export function formatNextSession(session: NextSession, live: boolean, locale: L
     /* the group alone, for the 56px foot margin — the ages are what pushed
        that line past its column and into an ellipsis */
     groupName: group.name[locale],
-    place: session.group === "morning" ? (locale === "ru" ? "Парк" : "Park") : club.address[locale],
+    place: club.address[locale],
   };
 }
 

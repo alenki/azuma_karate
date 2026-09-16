@@ -8,9 +8,9 @@ import { pendingFact } from "@/content/home";
  * 4–6, 6–11 and 12–16 for «Мальчики и девочки», 16+ for «Мужчины и девушки».
  * The bands overlap at 6 and at 16 because the club runs them that way — a
  * six-year-old goes to whichever group they are ready for — so do not "tidy"
- * either seam into 4–5 / 7–11 / 17+. Chapter 二's roster and chapter 三's
- * timetable legend both read them from here, which is the only reason the two
- * cannot disagree.
+ * either seam into 4–5 / 7–11 / 17+. Chapter 二's intake line and chapter
+ * 三's timetable legend both read them from here, which is the only reason
+ * the two cannot disagree.
  *
  * Every TIME below is still placeholder and must be confirmed before launch,
  * as are the group names — the club gave us bands, not names. One data source
@@ -24,16 +24,16 @@ import { pendingFact } from "@/content/home";
  * no third content file to state the convention in, and stating it twice is
  * how two conventions are born.
  */
-export type GroupId = "kids-4-6" | "kids-6-11" | "teens-12-16" | "adults" | "morning";
+export type GroupId = "kids-4-6" | "kids-6-11" | "teens-12-16" | "adults";
 
 /**
  * The club sorts its groups into two FAMILIES, and these are its own words for
  * them. They are not a second set of groups: nobody trains in a family, and the
  * timetable never prints one. They exist because the club states its intake as
  * two sentences — «Мальчики и девочки: 4–6 / 6–11 / 12–16», «Мужчины и девушки:
- * 16+» — and chapter 二 states it the same way, as a roster of two terms with
- * their bands hung off them. A group with `family: null` is in neither: it runs
- * alongside every other group rather than beside them in a band.
+ * 16+» — and chapter 二 states it the same way, as one sentence with a
+ * term and its bands. `family: null` stays legal for a group in neither
+ * of them, though no group is set that way now.
  */
 export type FamilyId = "children" | "adults";
 
@@ -53,9 +53,9 @@ export type Group = {
   /**
    * The group's age band in whole years, as figures rather than as a typeset
    * string. `to: null` is an open band that never closes (16+); `ageSpan: null`
-   * means the group has no band at all — it runs alongside every other group
-   * rather than beside them in one. `ageBand()` in `lib/schedule.ts` sets it for
-   * chapter 二's roster, so this and `ages` above are one fact written twice:
+   * is a group with no band at all, which none of them currently is.
+   * `ageBands()` in `lib/schedule.ts` typesets it for
+   * chapter 二's intake line, so this and `ages` above are one fact written twice:
    * change either and change the other.
    */
   ageSpan: { from: number; to: number | null } | null;
@@ -94,14 +94,6 @@ export const groups: Group[] = [
     family: "adults",
     ageSpan: { from: 16, to: null },
   },
-  {
-    id: "morning",
-    name: { ru: "Утренние в\u00A0парке", en: "Park mornings" },
-    ages: { ru: "все группы", en: "all groups" },
-    note: { ru: "Точку сбора публикуем в\u00A0Telegram.", en: "Meeting point posted on Telegram." },
-    family: null,
-    ageSpan: null,
-  },
 ];
 
 /** 1 = Monday … 7 = Sunday (ISO). */
@@ -123,13 +115,20 @@ export const sessions: Session[] = [
   { day: 5, time: "17:00", group: "kids-4-6", minutes: 60 },
   { day: 5, time: "18:00", group: "kids-6-11", minutes: 75 },
   { day: 5, time: "19:30", group: "teens-12-16", minutes: 90 },
-  { day: 6, time: "08:00", group: "morning", minutes: 90 },
-  { day: 7, time: "08:00", group: "morning", minutes: 90 },
 ];
 
 export const club = {
   name: "SK AZUMA",
   city: { ru: "Нальчик", en: "Nalchik" } as Record<Locale, string>,
+  /*
+    The republic. It is geography rather than a claim about the club, and it
+    lives here because it is part of ONE address with one home — the contacts
+    page sets the particulars the way a posted address is set (addressee,
+    street, city, republic) and must not retype a line of it into a copy file.
+    Nothing on the home page prints it; a reader on /en outside the republic
+    is who it is for.
+  */
+  region: { ru: "Кабардино-Балкария", en: "Kabardino-Balkaria" } as Record<Locale, string>,
   address: { ru: "ул.\u00A0Кирова,\u00A0157", en: "Kirova St,\u00A0157" } as Record<Locale, string>,
   /**
    * Approximate coordinates of Nalchik, used to compute the park sunrise — a

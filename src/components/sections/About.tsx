@@ -5,7 +5,7 @@ import "@/styles/sections/about.css";
 import { useLocale } from "@/i18n/LocaleProvider";
 import { about, chapters } from "@/content/home";
 import { families } from "@/content/schedule";
-import { ageBand, groupsInFamily } from "@/lib/schedule";
+import { ageBands } from "@/lib/schedule";
 import { Chapter } from "@/components/layout/Chapter";
 import { AzumaFigure } from "@/components/figures/AzumaFigure";
 import { LineReveal } from "@/components/ui/LineReveal";
@@ -49,8 +49,7 @@ const SAY_BLEED = 0.2;
  *                              東
  *              (void)
  *     СК «Азума» — секция киокушинкай каратэ в Нальчике…
- *     ──────────────────────────────────────
- *     Мальчики и девочки            4–6 лет
+ *     Мальчики и девочки — 4–6, 6–11 и 12–16 лет. Мужчины и девушки — 16+.
  *
  * NOTHING ANSWERS THE NAME ANY MORE, and that is the cut with the most
  * consequences. The chapter's hierarchy was a two-line device — one solid line
@@ -88,25 +87,28 @@ const SAY_BLEED = 0.2;
  * beside the figure — that apparatus was removed from this chapter once
  * already.
  *
- * THE ROSTER IS THE CHAPTER'S ONLY TABLE and the only hard fact it states. It
- * shares the foot with the lede now rather than standing under a statement of
- * its own: «Мальчики и девочки» against three bands, «Мужчины и девушки»
- * against one.
+ * THE INTAKE IS A MENTION, and it is the only hard fact the chapter states.
+ * It shares the foot with the lede: «Мальчики и девочки» against three bands,
+ * «Мужчины и девушки» against one, set as one sentence on one line.
  *
- * THE BANDS ARE NOT COPY. They are read off `content/schedule.ts` through
- * `ageBand()` — the same record chapter 三's timetable legend reads — so the
- * roster and the week cannot print different figures, and a band is added or
- * moved by editing the groups there and nothing here. A <dl> is what it is:
- * two terms, each with the bands that belong to it.
+ * IT WAS A RULED <dl> — the families ranged left, their bands stacked right,
+ * hairlines over and under. That printed the club's two sentences as a second
+ * timetable in a chapter that has no other tabulated matter, and the week is
+ * chapter 三's job. What is left says only who the club takes.
  *
- * The roster is RULED, not sized. It is set at the lede's size like everything
- * else at the frame's foot, and what separates the two families is a hairline —
- * the chapter's rule that hierarchy is tone and rule, never scale, holds for
- * the one thing in it that is tabulated.
+ * THE BANDS ARE STILL NOT COPY. They are read off `content/schedule.ts`
+ * through `ageBands()` — the same record chapter 三's timetable legend reads —
+ * so this line and the week cannot print different figures, and a band is
+ * added or moved by editing the groups there and nothing here.
+ *
+ * It is set at the lede's size, like everything else at the frame's foot, and
+ * one step down the ink ramp. The chapter's rule that hierarchy is tone and
+ * rule, never scale, is what separates the two paragraphs now that no hairline
+ * does.
  *
  * MOTION IS ONE CASCADE, not two frames' worth. The name rises inside its mask,
- * the lede reveals under it, the two roster rows follow. The rows used to open
- * a second frame at 0.25 / 0.37 with a whole screen between them and the lede;
+ * the lede reveals under it, the intake line follows. It used to open a second
+ * frame at 0.25 / 0.37 with a whole screen between it and the lede;
  * in one foot those delays read as three things landing together, so they were
  * pushed back behind the lede rather than started alongside it. 東 is wiped in
  * once from the foot up, on its own timing. Nothing here is drawn stroke by
@@ -173,25 +175,26 @@ export function About() {
             </Reveal>
 
             {/*
-              A <div> between <dl> and its <dt>/<dd> is valid and is what lets
-              each family arrive on its own — <Reveal> renders that div. Two
-              rows, so the stagger is a beat and not a run, and both fall in
-              behind the lede they now share a foot with.
+              ONE SENTENCE, not a table. The intake used to be a ruled two-column
+              <dl> — a family ranged left, its bands stacked right — which printed
+              the club's own two sentences as a second timetable, three lines deep,
+              in a chapter whose only other matter is prose. It is MENTIONED now:
+              who the club takes, in the order the club says it, on one line at the
+              lede's size and a tone below it. One block, so one <Reveal> and one
+              delay — the stagger the two rows carried has nothing left to stagger.
+
+              The string is assembled here rather than written into `content/home.ts`:
+              the terms are the club's own (`families`) and the figures are read off
+              `content/schedule.ts` through `ageBands()`, the same record chapter 三's
+              timetable reads, so the sentence and the week cannot disagree. Bound
+              spaces are built from escapes for the same reason they are everywhere
+              else — see the rule at the head of `content/home.ts`.
             */}
-            <dl className="about__roster">
-              {families.map((f, i) => (
-                <Reveal key={f.id} className="about__roster-row" delay={0.42 + i * 0.12} y={18} duration={0.8}>
-                  <dt className="about__roster-who">{f.label[locale]}</dt>
-                  <dd className="about__roster-bands">
-                    {groupsInFamily(f.id).map((g) => (
-                      <span key={g.id} className="about__band">
-                        {ageBand(g, locale)}
-                      </span>
-                    ))}
-                  </dd>
-                </Reveal>
-              ))}
-            </dl>
+            <Reveal delay={0.42} y={18} duration={0.8}>
+              <p className="about__intake">
+                {families.map((f) => `${f.label[locale]}\u00A0— ${ageBands(f.id, locale)}.`).join(" ")}
+              </p>
+            </Reveal>
           </div>
         </div>
       </div>

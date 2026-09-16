@@ -105,15 +105,14 @@ function endOf(time: string, minutes: number): string {
 /*
   The hall's hours, derived from the timetable rather than restated beside it:
   a day opens with its first session and closes when its last one ends, and days
-  that keep the same window are one specification. The park mornings are left
-  out on purpose — they are the only sessions that do not happen at this address
-  (their meeting point is posted in Telegram), and these are the hours of a
-  place, not of the club's week.
+  that keep the same window are one specification. Every session on the
+  timetable happens at this address; one that did not — a session whose meeting
+  point is posted in Telegram rather than held in the hall — would have to be
+  skipped here, because these are the hours of a place, not of the club's week.
 */
 function openingHours() {
   const perDay = new Map<number, { opens: string; closes: string }>();
   for (const session of sessions) {
-    if (session.group === "morning") continue;
     const closes = endOf(session.time, session.minutes);
     const seen = perDay.get(session.day);
     perDay.set(session.day, {

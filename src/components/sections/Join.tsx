@@ -2,141 +2,79 @@
 
 import "@/styles/sections/join.css";
 
-import { useId, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useLocale } from "@/i18n/LocaleProvider";
-import { chapters, join, schedule as timetable } from "@/content/home";
+import { chapters, join } from "@/content/home";
 import { club } from "@/content/schedule";
+import type { KanjiId } from "@/content/kanji";
 import { Chapter } from "@/components/layout/Chapter";
 import { Brush } from "@/components/brush/Brush";
+import { Kanji } from "@/components/brush/Kanji";
 import { Grain } from "@/components/ui/Grain";
 import { LineReveal } from "@/components/ui/LineReveal";
-import { Reveal, Settle } from "@/components/ui/Reveal";
+import { Reveal } from "@/components/ui/Reveal";
 
 const chapter = chapters.find((c) => c.id === "join")!;
 const HEADING_ID = "join-title";
 
-type Field = "name" | "age" | "contact";
-type Errors = Partial<Record<Field, string>>;
-
 /**
- * Two states, and neither of them is «отправлено».
+ * 押忍 — the watermark, and the only thing on this sheet that is not read.
  *
- * The form has no route to post to: there is no bot token, no chat id, and the
- * club has not confirmed which channel an enquiry should land in. What stood
- * here was `setStatus("sending")` followed by a 700ms `setTimeout` that printed
- * «Осу! Мы получили заявку» beside the club's seal — a receipt for a message
- * that was never sent, on a page a parent is trusting with a child's name and
- * age. A manual does not print a fact it does not have, and it certainly does
- * not print a confirmation it has not earned.
+ * DRAWN, NOT TYPESET, and that is not a stylistic preference. The page ships
+ * two Latin faces and one mono and no CJK whatsoever, so a text node here would
+ * resolve to Yu Gothic on Windows, Hiragino on macOS, Noto on a Linux box that
+ * happens to have it and tofu on one that does not — four different marks at
+ * the size of a headline. `content/kanji.ts` already holds both characters as
+ * KanjiVG centrelines, and `<Kanji>` already strokes them through the same
+ * taper table as the chapter numerals 一…六, so the glyph below is the same
+ * printed type as the numeral in the binding margin, on every machine.
  *
- * So the second state is `unsent`: the entry is validated, the reader is told
- * plainly that nothing left the page, and the working route — the club's
- * Telegram — is put under their thumb with their own answers still on screen to
- * copy across. The moment a route exists this becomes `idle | sending | sent |
- * error`, the submit awaits it, and `t.success` finally has something true to
- * say. Until then the honest state is the only state.
+ * It is never DRAWN in the animated sense (`draw` stays false). The one
+ * hand-made mark in this chapter is the sensei's brush; a watermark that
+ * writes itself in front of the reader is a different claim entirely, and it
+ * would also be the second gesture competing with the ensō below it.
  */
-type Status = "idle" | "unsent";
+const GHOST: readonly KanjiId[] = ["ou", "su"];
 
 /**
- * Chapter 十 / 10 — «Запись».
+ * Chapter 六 / 06 — «Запись». The last plate of the manual.
  *
- * The closing ink block and the last mark of the manual: the ensō, drawn in one
- * breath around the word that ends the page.
+ * WHAT THIS CHAPTER STOPPED DOING. It carried a four-field enquiry form whose
+ * own `Status` type admitted the problem in as many words — `"idle" | "unsent"`
+ * — because there was no bot token, no chat id, and no confirmed channel for an
+ * enquiry to land in. Pressing the button validated the entry and then told the
+ * reader, honestly, that nothing had left the page.
  *
- * Three bands, and the geometry lives in `join.css` because the bands re-order
- * by media query and nothing here should have to know at which width:
+ * The route exists now, and it turned out not to be a route but a page.
+ * `/contacts` ships «Дверь», «Ваша группа» and «Письмо», and «Письмо» is the
+ * enquiry — assembled in the reader's own browser and carried across. Two asks
+ * for one act, one of which cannot complete, is one ask too many. So this
+ * chapter stops collecting and starts closing.
  *
- *   the invitation   ranged hard left, bottoming out on the form's baseline
- *   the form         capped at a real form measure, never a table
- *   the closing act  the ensō with the ask inside it — the mark's own band on
- *                    the right trim from 1600 up, under the fields below that
+ * FIVE THINGS, CENTRED, and the centring is the exception this chapter earns
+ * and no other one does. `.wrap` is still the trim and there is still no centred
+ * column anywhere in this book — what is centred here is the CONTENT of the last
+ * sheet, which is the one sheet a printed manual does centre. Chapter 五 above
+ * it is ranged left like every other; the change of axis is how the reader knows
+ * the book has ended.
  *
- * The act is a SIBLING of the form rather than a row inside it (the submit
- * reaches its form by `form=`, which is what that attribute is for). Two things
- * fall out of that and both are the point: the ring is drawn once and stays
- * drawn whatever the form does — it is the chapter's closing mark, not a
- * progress indicator that appears and vanishes with a request — and the ask
- * below 1024 can be the width of the field column while the mark keeps its own
- * size above it.
+ *   the watermark   押忍, at the size of the sheet, a tone off the ground
+ *   the title       «Первая тренировка», over the watermark's lower third
+ *   one line        what happens if you press
+ *   the act         the ensō, with the door inside it
+ *   the exit        a hairline, then the Telegram route and what it promises
+ *
+ * THE ENSŌ NOW HOLDS A DOOR, NOT A SUBMIT. The ring is drawn once and stays
+ * drawn — it is the chapter's closing mark, never a progress indicator — and
+ * the thing inside it is an <a>, because the act it performs is navigation.
+ * There is no consent line under it any more: no personal data is collected on
+ * this sheet, and a 152-ФЗ consent printed beneath a button that only navigates
+ * tells the reader they have agreed to something they have not. That line
+ * belongs to «Письмо», where the data actually is.
  */
 export function Join() {
-  const { locale } = useLocale();
+  const { locale, href } = useLocale();
   const t = join;
-  const uid = useId().replace(/:/g, "");
-  const formId = `${uid}-form`;
-  const [status, setStatus] = useState<Status>("idle");
-  const [values, setValues] = useState({ name: "", age: "", contact: "", note: "" });
-  const [errors, setErrors] = useState<Errors>({});
-
-  const validate = (field: Field, value: string): string | undefined => {
-    if (field === "name") return value.trim().length >= 2 ? undefined : t.errors.name[locale];
-    if (field === "age") {
-      const n = Number(value);
-      return Number.isFinite(n) && n >= 4 && n <= 99 ? undefined : t.errors.age[locale];
-    }
-    return value.trim().length >= 4 ? undefined : t.errors.contact[locale];
-  };
-
-  const onBlur = (field: Field) => setErrors((e) => ({ ...e, [field]: validate(field, values[field]) }));
-
-  /* An edited entry is a new entry, so the notice withdraws on the first
-     keystroke: without this, pressing the button a second time would change
-     nothing on the sheet and read as a dead control. */
-  const onEdit = (name: Field | "note", value: string) => {
-    setValues((v) => ({ ...v, [name]: value }));
-    setStatus("idle");
-  };
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const next: Errors = {};
-    (["name", "age", "contact"] as Field[]).forEach((f) => {
-      const msg = validate(f, values[f]);
-      if (msg) next[f] = msg;
-    });
-    setErrors(next);
-    const firstBad = (["name", "age", "contact"] as Field[]).find((f) => next[f]);
-    if (firstBad) {
-      setStatus("idle");
-      document.getElementById(`${uid}-${firstBad}`)?.focus();
-      return;
-    }
-    /* No fetch, and no timer pretending to be one — see `Status` above. */
-    setStatus("unsent");
-  };
-
-  const field = (name: Field, type: string, autoComplete?: string, extra?: Record<string, string | number>) => {
-    const id = `${uid}-${name}`;
-    const errId = `${id}-err`;
-    const err = errors[name];
-    return (
-      <div className="join-field">
-        <label htmlFor={id} className="t-mono text-bone-2">
-          {t.fields[name][locale]}
-        </label>
-        <input
-          id={id}
-          name={name}
-          type={type}
-          autoComplete={autoComplete}
-          className="join-input"
-          placeholder={t.placeholders[name][locale]}
-          value={values[name]}
-          aria-invalid={err ? true : undefined}
-          aria-describedby={err ? errId : undefined}
-          onChange={(e) => onEdit(name, e.target.value)}
-          onBlur={() => onBlur(name)}
-          {...extra}
-        />
-        {err && (
-          <p id={errId} role="alert" className="t-caption join-error">
-            {err}
-          </p>
-        )}
-      </div>
-    );
-  };
 
   return (
     <Chapter
@@ -148,108 +86,60 @@ export function Join() {
       /* `overflow-x-clip`, never `overflow-hidden`: hidden on either axis makes
          this section its own scroll container, which would pin the sticky
          binding numeral at the chapter head and undo the rail. Clip holds the
-         ensō's hang inside the paper without that side effect. */
+         watermark's overhang inside the paper without that side effect. */
       className="join relative overflow-x-clip"
       bleed={<Grain opacity={0.22} />}
     >
       <div className="join__sheet wrap relative z-10">
-        <div className="join__body">
-          {/* ---- the invitation ---- */}
-          <div className="join__invite">
-            <h2 id={HEADING_ID} className="t-chapter text-bone">
+        <div className="join__plate">
+          {/* ---- the watermark and the title, in that order and in one box ----
+              The glyphs are positioned OUT of flow so the title alone sets the
+              height of this block. In flow they would be two 400px squares
+              deciding the chapter's proportions, and the mark would stop being
+              a watermark and start being a picture with a caption. */}
+          <div className="join__head">
+            <div className="join__ghost" aria-hidden="true">
+              {GHOST.map((id) => (
+                <Kanji key={id} id={id} className="join__ghost-glyph" weight={5.5} label={null} />
+              ))}
+            </div>
+
+            <h2 id={HEADING_ID} className="t-chapter">
               <LineReveal as="span" className="block" lines={[t.title[locale]]} />
             </h2>
-            <Reveal delay={0.2} className="mt-8">
-              <p className="t-lead max-w-[40ch] text-bone-2">{t.lead[locale]}</p>
-            </Reveal>
-            {/*
-              The foot of the column, and from 1024 up it is ranged to the
-              bottom of it rather than left hanging under the lead — the two
-              columns of this spread now end together on the same baseline
-              instead of the left one dying at 60% of the sheet.
-            */}
-            <Reveal delay={0.35} className="join__invite-foot">
-              <a href={club.telegram} className="join-out t-note" rel="noopener">
-                <span className="join-out__label">{t.alt[locale]}</span>
-                <span aria-hidden="true" className="join-out__arrow">
-                  →
-                </span>
-              </a>
-              <p className="t-note text-bone-2">{t.trust[locale]}</p>
-            </Reveal>
           </div>
 
-          {/* ---- the form ---- */}
-          <div className="join__form-col">
-            <form noValidate id={formId} onSubmit={onSubmit} className="join-form">
-              <div className="join-form__pair">
-                <Reveal delay={0.1}>{field("name", "text", "given-name")}</Reveal>
-                <Reveal delay={0.16}>{field("age", "number", "off", { min: 4, max: 99, inputMode: "numeric" })}</Reveal>
-              </div>
-              <Reveal delay={0.22}>{field("contact", "text", "tel")}</Reveal>
-              <Reveal delay={0.28}>
-                <div className="join-field">
-                  <label htmlFor={`${uid}-note`} className="t-mono text-bone-2">
-                    {t.fields.note[locale]}
-                  </label>
-                  <textarea
-                    id={`${uid}-note`}
-                    name="note"
-                    rows={3}
-                    className="join-input join-input--area"
-                    value={values.note}
-                    onChange={(e) => onEdit("note", e.target.value)}
-                  />
-                </div>
-              </Reveal>
+          <Reveal delay={0.2} className="join__lead-band">
+            <p className="t-lead join__lead">{t.lead[locale]}</p>
+          </Reveal>
 
-              {/* honeypot. Nothing is posted yet, so it protects nothing yet —
-                  it stays because the route that will read it is the same route
-                  that will make the field worth reading. */}
-              <input type="text" name="company" tabIndex={-1} autoComplete="off" className="join-hp" aria-hidden="true" />
-            </form>
+          {/* ---- the act ---- */}
+          <Reveal delay={0.34} className="join__act-band">
+            <div className="join-act">
+              <Brush kind="enso" className="join-enso" delay={0.5} />
+              <Link href={href("/contacts")} className="join-cta t-mono">
+                {t.submit[locale]}
+              </Link>
+            </div>
+          </Reveal>
 
-            <Reveal delay={0.36} className="join-close">
-              <div className="join-act">
-                <Brush kind="enso" className="join-enso" delay={0.5} />
-                {/* outside the <form> element, owned by it through `form=`: the
-                    ring has to be able to hold the button without the form's
-                    grid holding the ring. Implicit submission on Enter follows
-                    the form OWNER, not the DOM ancestor, so it is unaffected. */}
-                <button type="submit" form={formId} className="join-submit t-mono">
-                  {t.submit[locale]}
-                </button>
-              </div>
-
-              {/*
-                The live region is in the DOM from the first paint and empty
-                until there is something to say — a status region that mounts
-                already carrying its text is announced by some screen readers
-                and missed by others.
-              */}
-              <div className="join-notice" role="status">
-                {status === "unsent" && (
-                  <Settle mode="load" duration={0.55} className="join-notice__slip">
-                    <div className="rule rule--hair" />
-                    <p className="t-note join-notice__line">{t.error[locale]}</p>
-                    <a href={club.telegram} className="join-out t-mono" rel="noopener">
-                      <span className="join-out__label">{timetable.telegram[locale]}</span>
-                      <span aria-hidden="true" className="join-out__arrow">
-                        →
-                      </span>
-                    </a>
-                  </Settle>
-                )}
-              </div>
-
-              {/* set in `.t-note`, not `.t-mono`: it is a sentence a reader
-                  reads, and 0.12em of tracking on all-caps Cyrillic is a line
-                  decoded letter by letter. */}
-              <p className="t-note join-consent">{t.privacy[locale]}</p>
-            </Reveal>
-          </div>
+          {/* ---- the exit ----
+              Still «или напишите в Telegram»: the word «или» is doing real work
+              now that the thing it offers an alternative TO is a page rather
+              than a form. The trust line stays with it rather than following
+              the lead, so that what the club promises is printed next to the
+              route that delivers it. */}
+          <Reveal delay={0.46} className="join__exit">
+            <div className="rule rule--hair join__exit-rule" />
+            <a href={club.telegram} className="join-out t-note" rel="noopener">
+              <span className="join-out__label">{t.alt[locale]}</span>
+              <span aria-hidden="true" className="join-out__arrow">
+                →
+              </span>
+            </a>
+            <p className="t-note join__trust">{t.trust[locale]}</p>
+          </Reveal>
         </div>
-
       </div>
     </Chapter>
   );

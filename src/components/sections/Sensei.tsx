@@ -3,107 +3,88 @@
 import "@/styles/sections/sensei.css";
 
 import { useLocale } from "@/i18n/LocaleProvider";
-import { chapters, isPending, sensei } from "@/content/home";
+import { chapters, coaches } from "@/content/home";
 import { Chapter } from "@/components/layout/Chapter";
+import { Brush } from "@/components/brush/Brush";
 import { Photo } from "@/components/ui/Photo";
 import { Curtain } from "@/components/ui/Curtain";
 import { LineReveal } from "@/components/ui/LineReveal";
-import { Register, Reveal } from "@/components/ui/Reveal";
+import { Reveal } from "@/components/ui/Reveal";
 
 const chapter = chapters.find((c) => c.id === "sensei")!;
 const HEADING_ID = "sensei-heading";
 
 /*
-  The plate's share of the sheet, expressed the way the CSS lays it out.
-  `.wrap` is the trim, so the field is 100vw − 2 × gutter ≈ 92.8vw, and the
-  plate takes five of its twelve columns up to 2000 (≈ 38vw, requested as 40)
-  and four of them above it (≈ 30vw, requested as 32). The first matching
-  condition wins, so the widest breakpoint has to be listed first.
+  A plate's share of the sheet, expressed the way the CSS lays it out.
 
-  UNCHANGED by the redesign, and that is load-bearing rather than lazy: the
-  plate swapped SIDES but kept its column COUNT, so its width ladder is the
-  same at every tier — 545px at 1440, 756px at 1999, 599px at 2000, 768px at
-  2560. `sizes` describes width and nothing else, so it did not need re-solving.
+  `.wrap` is the trim, so the field is 100vw − 2 × gutter ≈ 92.8vw. From 1024
+  each coach takes five of its twelve columns — about 38vw, requested as 40 —
+  and that holds at every width above it, because the spread never changes its
+  column count; past about 1900 the plate stops growing TALLER instead (see
+  `max-block-size` in the stylesheet), which costs `sizes` nothing, since
+  `sizes` describes width and nothing else.
+
+  Between 768 and 1023 each coach is a band with the plate at 5 of 12 columns
+  of the trim, which is the same 38vw; below that the plate is the trim.
 */
-const PLATE_SIZES =
-  "(min-width: 2000px) 32vw, (min-width: 1024px) 40vw, (min-width: 768px) 26rem, 100vw";
+const PLATE_SIZES = "(min-width: 768px) 40vw, 93vw";
 
 /**
- * Chapter 四 / 04 — «Тренер».
+ * Chapter 四 / 04 — «Тренеры».
  *
- * THE ONE COLOUR PAGE. The manual is printed in two inks, and every other
- * plate on this site is pulled through the duotone press in the page's own
- * paper and ink. This chapter is printed in full colour, because it is the one
- * chapter about a person rather than about a practice — and the book closes
- * straight back into ink afterwards, since 五 and 六 are dark chapters. An
- * exception that happens exactly once, on the page that earns it, is a
- * decision: the same argument the rota already makes for vermilion, applied to
- * the press.
+ * A SPREAD, NOT A FRONTISPIECE. This chapter set one man at poster scale with
+ * his record beside him for as long as the club had one coach on the page. It
+ * now sets TWO, on the two halves of the sheet, and the change is structural
+ * rather than additive: the component maps over `coaches` and lays one entry
+ * per half, so the chapter's arithmetic is the length of that array. A third
+ * coach is a content edit. Losing the second one is a deletion. Neither is a
+ * change to this file.
  *
- * That is also what "one man, two ways" is built out of here. The BINDING side
- * of the sheet is what the ministry knows about him — the name, the rank, the
- * decree and its still-missing order number, the record — all of it set in the
- * book's own two colours. The FORE-EDGE is the man, in colour. The reader does
- * not have to press anything to get the second reading; it is the composition.
+ * Both halves are the same four rows — plate, name, rank, record — and they
+ * are the SAME four rows, not four rows each: the two entries stand on a
+ * shared four-track grid (`grid-template-rows: subgrid`), so the two names sit
+ * on one line and the two records start on one line however the type wraps.
+ * That is what makes it a spread rather than two cards side by side, and it is
+ * the one thing a reader would notice immediately if it broke.
  *
- * ONE register: the entry ranged to the binding, so the name is set at
- * chapter scale on the same vertical 四 hangs in — which is what a
- * frontispiece is. The plate holds the fore-edge and breaks upward across
- * the chapter boundary there. From 1600 the citation leaves the reading
- * column for the channel between the two.
+ * THE COLOUR PAGES. The manual is printed in two inks and every other plate on
+ * the site goes through the duotone press; these two are printed in full sRGB,
+ * because 四 is the one chapter about people rather than about a practice. The
+ * exception is still ONE decision — it is spent on this chapter, not on each
+ * photograph — and the book closes straight back into ink afterwards, since 五
+ * and 六 are dark.
  *
- * WHAT WENT, and why none of it is coming back:
+ * THE RULING. There is no horizontal rule in this chapter, and that survives
+ * the redesign: 三 is a timetable built out of hairlines and 五 rules its
+ * chronicle off line by line, so a third ruled chapter would have read as a
+ * spec sheet for two men instead of one. The only line is VERTICAL, down the
+ * centre of the sheet, and it now has the job it was invented for — the fold
+ * of the spread, with a coach on each side of it.
  *
- *   · The second coach. The club never gave a name, so the fourth register
- *     printed a label, a ruled blank and a note saying the name was awaited.
- *     A register whose entire content is an absence is not a register, and
- *     the chapter is about one man.
- *   · The colour toggle, and everything built to serve it — the second
- *     <Photo> layer, the travelling clip-path front, the apparatus that held
- *     the control. The plate is simply in colour now. All of that was
- *     scaffolding around a door that is already open — and it never worked:
- *     the file it revealed (`karateka-fist-bw.jpg`) is a true greyscale
- *     original, single-channel on Wikimedia Commons as well, so the control
- *     changed nothing a reader could see.
- *   · The hover path with it. It did not merely fail on a phone, it LIED:
- *     hovering opened the plate while `aria-pressed` still reported `false`,
- *     the identical defect this file's own comments record having removed
- *     from `:focus-within`.
- *   · The plate caption, which printed the sensei's name under a Wikimedia
- *     stranger — an invented fact hiding in the apparatus rather than in the
- *     copy, which is exactly where nobody goes looking for one.
- *   · The quote, the seal and the signature. A coda set under a rule at
- *     the foot of the chapter, saying at display size what the registers
- *     had already said in the man's own record. The seal went with it: it
- *     is stamped where a reader signs up (ч. десять), not where a
- *     biography ends.
+ * THE ONE VERMILION IS A 一, at the head of the chapter and across the trim.
+ * The rota reserves red for three things and the first of them is an actual
+ * <Brush> mark; this is the first stroke, which is what the book is named
+ * after and what both of these men draw for a student before anything else.
+ * It opens the chapter the way `--color-rule-strong` opens every other one,
+ * except that it is ink: pressed (tooth, mottle and bleed through the filters
+ * in ui/PressDefs), tapered, dried out into bristle ribbons at the tail, and
+ * DRAWN left to right, once, when the reader reaches it. It belongs to neither
+ * coach, which is why it is above both and not inside either.
  *
- * The chapter now holds NO STATE. There is no `useState`, no effect, no timer
- * and no `useStillness()` call here: nothing in it decides a Motion `initial`
- * or a serialised style, so <Curtain> handles stillness internally
- * and everything else runs under <MotionConfig reducedMotion="user">.
+ * ONE MAN HERE IS INVENTED. `assistant` in `content/home.ts` — his name, his
+ * rank, his belt and the groups he works with — is a placeholder, and so is
+ * the frame beside it. Both carry their own warning and both are in the
+ * README's «Before this can go live» list. The head coach's own «Ведёт детские
+ * и взрослую группы САМ» lost its «сам» to make room for him, because a second
+ * coach and a man who does it all himself cannot both be printed on one page.
  *
- * ONE fact in this chapter is still not the club's — the decree's number and
- * date. It prints as `PENDING SLOT`: the label and the ruled line stay, the
- * value is a blank, and a mono note says what is missing. Nothing is invented
- * in the display face.
+ * The chapter holds NO STATE: no `useState`, no effect, no timer, no
+ * `useStillness()`. Nothing here decides a Motion `initial` or a serialised
+ * style, so <Curtain> handles stillness internally and everything else runs
+ * under <MotionConfig reducedMotion="user">.
  */
 export function Sensei() {
   const { locale } = useLocale();
-  const t = sensei;
-
-  /* first name / surname on their own lines — both locales are two words */
-  const nameLines = t.name[locale].split(" ");
-
-  /*
-    The one fact the club has not given yet. `pendingText()` still READS as the
-    blank mark for any consumer that does not know the convention; this one
-    does, so it asks. The value is taken first and the question second: what a
-    pending fact holds is what to print WHEN it lands, and `awaiting` is what
-    to print until it does.
-  */
-  const decreeRef = t.decreeRef[locale];
-  const decreeRefAwaiting = isPending(t.decreeRef) ? t.decreeRef.awaiting[locale] : null;
 
   return (
     <Chapter
@@ -114,89 +95,92 @@ export function Sensei() {
       className="sensei"
     >
       <div className="wrap sensei__inner">
+        {/*
+          The chapter's own heading, and the only one that names the chapter
+          rather than a person. It is not printed: the manual titles its
+          chapters in the running head and in the contents, never on the page —
+          but the section still has to have an accessible name, and with two
+          coaches on the sheet neither man's name can be it.
+        */}
+        <h2 id={HEADING_ID} className="sr-only">
+          {chapter.title[locale]}
+        </h2>
+
+        {/* The first stroke. Decorative, and it says so: no `label`, so
+            <Brush> marks it `aria-hidden`. The numeral 四 in the binding rail
+            already speaks the character. */}
+        <Brush kind="ichi" className="sensei-mark" delay={0.15} duration={1.3} />
+
         <div className="sensei-body">
-          {/* ---- I · the entry, ranged to the BINDING ---- */}
-          <div className="sensei-entry">
-            <h2 id={HEADING_ID} className="sensei-name t-chapter">
-              <LineReveal
-                as="span"
-                className="block"
-                lines={nameLines}
-                label={t.name[locale]}
-                stagger={0.1}
-                duration={1.1}
-              />
-            </h2>
+          {coaches.map((coach, i) => {
+            /* one beat between the two halves — they arrive together, but not
+               in lockstep, which is the difference between a spread being
+               printed and a pair of cards animating */
+            const beat = i * 0.12;
+            return (
+              <article key={coach.name.en} className="sensei-coach">
+                <figure className="sensei-figure">
+                  <Curtain className="sensei-plate" delay={0.05 + beat} duration={1.2}>
+                    <Photo slot={coach.plate} grade="color" priority={false} sizes={PLATE_SIZES} />
+                  </Curtain>
+                </figure>
 
-            <Reveal delay={0.22} y={22} className="sensei-rank">
-              <p className="t-statement sensei-rank__line">{t.rank[locale]}</p>
-            </Reveal>
+                {/*
+                  The name at chapter scale. No caption under either plate: a
+                  frontispiece portrait is captioned by the headword beside it,
+                  and both headwords are set here, one row down and on the same
+                  line as each other. `media.ts` carries the alt text, and that
+                  is the only description of either plate that is true of the
+                  file on disk.
+                */}
+                <h3 className="sensei-name t-chapter">
+                  <LineReveal
+                    as="span"
+                    className="block"
+                    lines={coach.name[locale].split(" ")}
+                    label={coach.name[locale]}
+                    delay={0.2 + beat}
+                    stagger={0.1}
+                    duration={1.1}
+                  />
+                </h3>
 
-            {/* The citation. It is READ, so it is set in `.t-note` — the mono
-                voice for matter that is read — not in tracked all-caps. From
-                1600 it leaves the reading column for the channel between the
-                type and the plate, which is the emptiest column on the sheet:
-                the one fact the club still owes is set in the one place the
-                composition has nothing else to say. */}
-            <div className="sensei-cite">
-              <Reveal delay={0.3} duration={0.7}>
-                <p className="t-note sensei-decree__note">{t.decree[locale]}</p>
-              </Reveal>
-              {/* label, ruled blank and awaiting note are three fields sharing
-                  one baseline — a tabulated row, which is what <Register> is
-                  for. A vertical rise would break the line they share. */}
-              <Register className="sensei-ref" delay={0.38} stagger={0.08} x={-14} duration={0.7}>
-                <span className="t-mono sensei-ref__label">{t.decreeRefLabel[locale]}</span>
-                {decreeRefAwaiting ? (
-                  <span className="sensei-ref__blank" aria-hidden="true" />
-                ) : (
-                  <span className="t-note sensei-ref__value">{decreeRef}</span>
-                )}
-                {decreeRefAwaiting ? (
-                  <span className="t-note sensei-ref__await">{decreeRefAwaiting}</span>
-                ) : null}
-              </Register>
-            </div>
+                {/* The credential, and the fact a parent is actually weighing.
+                    It used to be ruled off above like an award line; it is
+                    simply the second size in the chapter now, which says the
+                    same thing without printing a line to say it. */}
+                <Reveal delay={0.34 + beat} y={22} className="sensei-rank">
+                  <p className="t-statement sensei-rank__line">{coach.rank[locale]}</p>
+                </Reveal>
 
-            {/*
-              THE TWO REGISTERS — the chapter's device, and the whole of "one
-              man, two ways" on the type side of the sheet.
+                {/*
+                  THE TWO REGISTERS — a man, read twice, and now both men read
+                  the same two ways. The labels are the copy's own vocabulary
+                  and they are deliberately the SAME pair on both halves, so the
+                  spread is one register system rather than two biographies: the
+                  reader compares «Спортсмен» with «Спортсмен» across the fold
+                  without being asked to.
 
-              This was one paragraph of biography. It is the same sentences,
-              ruled apart under the two words the copy already used for him.
-              Each row is a label and its matter on one baseline, so each row
-              comes into REGISTER rather than rising: they are tabulated, not
-              prose. The hairline between them is the only rule a separation
-              INSIDE a block may take.
-            */}
-            <div className="sensei-registers">
-              {t.registers.map((entry, i) => (
-                <Register
-                  key={entry.label.en}
-                  className="sensei-register"
-                  delay={0.42 + i * 0.09}
-                  stagger={0.08}
-                  x={-14}
-                  duration={0.7}
-                >
-                  <p className="t-mono sensei-register__label">{entry.label[locale]}</p>
-                  <p className="t-lead sensei-register__body">{entry.body[locale]}</p>
-                </Register>
-              ))}
-            </div>
-          </div>
-
-          {/* ---- I · the plate, holding the FORE-EDGE ----
-                  The only full-colour image on the site. It carries no caption:
-                  its subject is named at chapter scale one column away, which
-                  is how a frontispiece portrait has always been captioned, and
-                  the caption that stood here named a man the photograph is
-                  not. `media.ts` states what a replacement must satisfy. */}
-          <figure className="sensei-figure">
-            <Curtain className="sensei-plate aspect-[4/5] lg:aspect-[3/4]" duration={1.2}>
-              <Photo slot="senseiPlate" grade="color" priority={false} sizes={PLATE_SIZES} />
-            </Curtain>
-          </figure>
+                  They REVEAL rather than come into register: a register is for
+                  matter that shares a baseline, and these are copy blocks.
+                */}
+                <div className="sensei-registers">
+                  {coach.registers.map((entry, j) => (
+                    <Reveal
+                      key={entry.label.en}
+                      className="sensei-register"
+                      delay={0.44 + beat + j * 0.1}
+                      y={18}
+                      duration={0.8}
+                    >
+                      <h4 className="sensei-register__head">{entry.label[locale]}</h4>
+                      <p className="sensei-register__body">{entry.body[locale]}</p>
+                    </Reveal>
+                  ))}
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </Chapter>

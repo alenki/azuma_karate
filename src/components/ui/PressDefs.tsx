@@ -278,10 +278,16 @@ function HeroInk() {
  * quote brackets are set at twenty or thirty pixels, where a displacement of a
  * fraction of a unit is invisible and a mottle at forty cycles per unit is
  * moiré. They stay as they are drawn.
+ *
+ * `ichi` joined the list when chapter four started printing one at the width of
+ * its own column — a thousand CSS pixels of vermilion, which is the largest
+ * mark in the book and the one that can least afford to render as a vector
+ * leaf. Its `thick` is 64, so every fraction below resolves against a stroke
+ * more than twice the underline's: the formula did not need a special case.
  */
-export const INKED: BrushKind[] = ["enso", "circle", "underline"];
+export const INKED: BrushKind[] = ["enso", "circle", "underline", "ichi"];
 /** …and of those, the ones whose gesture runs along x, so a tail can dry. */
-export const DRIED: BrushKind[] = ["underline"];
+export const DRIED: BrushKind[] = ["underline", "ichi"];
 
 /**
  * `variant` is the impression, 0…PRESS_SEEDS-1, normally `pressVariant(hash)`.

@@ -2,174 +2,104 @@
 
 import "@/styles/sections/results.css";
 
-import { motion, useInView } from "motion/react";
-import { useId, useRef } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
-import { chapters, results } from "@/content/home";
+import { chapters, results, type ChronicleEntry } from "@/content/home";
 import { Chapter } from "@/components/layout/Chapter";
 import { Brush } from "@/components/brush/Brush";
-import { brushMarks } from "@/components/brush/marks";
 import { Curtain } from "@/components/ui/Curtain";
 import { Grain } from "@/components/ui/Grain";
 import { LineReveal } from "@/components/ui/LineReveal";
 import { Photo } from "@/components/ui/Photo";
-import { seedHash, seedSigned } from "@/components/ui/PressDefs";
-import { Register, Reveal, Settle } from "@/components/ui/Reveal";
-import { EASE_BRUSH } from "@/lib/ease";
-import { useStillness } from "@/lib/useStillness";
+import { Register, Reveal } from "@/components/ui/Reveal";
+import { Roll } from "@/components/ui/Roll";
+import { TallyRow } from "@/components/sections/results/Tally";
+import { cn } from "@/lib/cn";
 
 const chapter = chapters.find((c) => c.id === "results")!;
 const HEADING_ID = "results-title";
-const SEI = brushMarks.sei;
-
-/*
-  The pace of the counting hand, set once so a partial five keeps time with the
-  whole ones beside it. 0.6s for five strokes is faster than <Brush>'s own 0.9s
-  default for 正, and deliberately so: a tally is flicked onto a board, not
-  composed. The longest count is nine glyphs, and at 0.075s apart the whole row
-  is written in well under a second — long enough to read as a hand counting,
-  short enough that a reader scrolling past still sees it happen.
-*/
-const MARK_DURATION = 0.6;
-const MARK_STAGGER = 0.075;
 
 /**
- * A partial 正: the first `strokes` of the five, written by the same hand that
- * writes the whole ones beside it.
- *
- * <Brush> draws a mark in FULL, and a tally's last five is by definition
- * unfinished, so the reveal is repeated here rather than shared: each stroke is
- * masked by its own centreline drawn on `pathLength`, so the ink appears under
- * the bristles instead of fading in. There is no filter to reproduce — 正 is
- * not one of PressDefs' INKED kinds, because at the size a tally prints the
- * press's tooth is sub-pixel — only the hand, which is why the seed tilts and
- * slips this glyph exactly as it does the others. Nine marks in a row that all
- * sit dead straight read as a font, not as someone counting.
- *
- * If <Brush> ever takes a stroke count, this collapses into it.
+ * The chapter's opening sheet: what the chronicle is, and the one line that
+ * says it moves. It travels away with the rest of the roll rather than
+ * standing above it, so the first thing the reader unrolls is the title.
  */
-function PartialTally({
-  strokes,
-  seed,
-  delay,
-  className,
-}: {
-  strokes: number;
-  seed: string;
-  delay: number;
-  className?: string;
-}) {
-  const ref = useRef<SVGSVGElement>(null);
-  const uid = useId().replace(/:/g, "");
-  const inView = useInView(ref, { once: true, margin: "-10% 0px -10% 0px" as never });
-  const still = useStillness();
-  const hand = seedHash(seed);
-
-  /* a stroke of a partial takes a fifth of a whole 正, never a fifth of itself */
-  const per = MARK_DURATION / SEI.strokes.length;
-  const cx = SEI.width / 2;
-  const cy = SEI.height / 2;
-  const slip = 0.06 * SEI.thick;
-  const settle =
-    `translate(${(cx + seedSigned(hand, 4) * slip).toFixed(3)} ${(cy + seedSigned(hand, 5) * slip).toFixed(3)})` +
-    ` rotate(${(seedSigned(hand, 1) * 0.85).toFixed(3)}) translate(${-cx} ${-cy})`;
-
-  const drawn = { pathLength: 1, opacity: 1 };
-  const hidden = { pathLength: 0, opacity: 0 };
-
+function Masthead() {
+  const { locale } = useLocale();
   return (
-    <svg ref={ref} viewBox={SEI.viewBox} className={className} aria-hidden="true">
-      <g transform={settle}>
-        {SEI.strokes.slice(0, strokes).map((stroke, i) => {
-          const maskId = `${uid}-open-${i}`;
-          const at = delay + i * per;
-          return (
-            <g key={i}>
-              <mask id={maskId} maskUnits="userSpaceOnUse">
-                <motion.path
-                  d={stroke.center}
-                  fill="none"
-                  stroke="#fff"
-                  strokeWidth={SEI.thick * 1.25}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  initial={hidden}
-                  animate={inView || still ? drawn : hidden}
-                  transition={{
-                    duration: still ? 0 : per,
-                    delay: still ? 0 : at,
-                    ease: EASE_BRUSH,
-                    /* opacity rides along so an undrawn stroke never shows the
-                       mask's round-cap dot */
-                    opacity: { duration: 0.06, delay: still ? 0 : at },
-                  }}
-                />
-              </mask>
-              <path d={stroke.fill} fill="currentColor" mask={`url(#${maskId})`} />
-            </g>
-          );
-        })}
-      </g>
-    </svg>
+    <div className="chronicle-head">
+      <h2 id={HEADING_ID} className="t-chapter text-bone chronicle-head__title">
+        <LineReveal as="span" className="block" lines={[results.title[locale]]} />
+      </h2>
+      <Reveal delay={0.2}>
+        <p className="t-lead text-bone-2 chronicle-head__lead">{results.lead[locale]}</p>
+      </Reveal>
+      <Reveal delay={0.38}>
+        <p className="t-mono chronicle-head__hint">{results.hint[locale]}</p>
+      </Reveal>
+    </div>
   );
 }
 
 /**
- * One counted row: the label, and then the count — 正 marks and the arabic
- * figure as ONE run, the figure written immediately after the last stroke.
+ * One sheet of the chronicle: the plate, the hairline it is tipped in above,
+ * and the ledger — date, title, note.
  *
- * The figure used to be ranged to the far trim, which printed every count twice
- * at full weight with half a sheet of black between the two halves. A ledger
- * writes the total at the END of the strokes, so the marks and the figure are
- * now items of the same wrapping flex line: the count is one phrase, it breaks
- * where it must, and the rag it leaves on the right is the point — the length
- * of the run IS the size of the count.
+ * THE FORM ALTERNATES BY INDEX, and that is the whole of the rhythm: an odd
+ * entry takes a wide plate dropped down the sheet, an even one a tall plate
+ * standing near the top. It is derived rather than authored so a fourth event
+ * pasted into `results.events` composes itself; and it is the reason the
+ * ledgers do NOT share a baseline across panels — each one follows its own
+ * plate, which is what keeps a row of photographs from reading as a carousel
+ * of equal boxes.
  *
- * Nothing here is vermilion. A tally is not a mark the sensei is making, it is
- * a count, so it is set in the ink ramp: the complete fives quiet (bone-2), the
- * open five loud (bone). That tone only backs up a difference the reader can
- * already see — the last character is unfinished — so nothing is signalled by
- * colour, and the chapter's one red is left for the mark at its foot.
+ * The plates are printed in COLOUR. See the note over the chronicle's slots in
+ * `media.ts` for why this chapter is the second exception to the press, and
+ * for the test a replacement photograph has to pass.
  */
-function TallyRow({ label, value, index }: { label: string; value: number; index: number }) {
-  const fives = Math.floor(value / 5);
-  const rest = value % 5;
-  const base = 0.08 + index * 0.16;
+function Entry({ entry, index }: { entry: ChronicleEntry; index: number }) {
+  const { locale } = useLocale();
+  const wide = index % 2 === 1;
   return (
-    <div className="tally-row">
-      <p className="t-mono tally-row__label">{label}</p>
-      <div className="tally-row__count">
-        {Array.from({ length: fives }, (_, i) => (
-          <Brush
-            key={i}
-            kind="sei"
-            /* the seed is PINNED rather than left to <Brush>'s per-instance id:
-               the same count must write the same hand every time this chapter
-               renders, including when the reader switches language */
-            seed={`tally-${index}-${i}`}
-            className="tally__glyph"
-            delay={base + i * MARK_STAGGER}
-            duration={MARK_DURATION}
-          />
+    <article className={cn("entry", wide ? "entry--wide" : "entry--tall")}>
+      <Curtain className="entry__frame" duration={1.05} amount={0.25} from="bottom">
+        <Photo
+          slot={entry.plate}
+          grade="color"
+          sizes={wide ? "(min-width: 1024px) 44vw, 88vw" : "(min-width: 1024px) 28vw, 88vw"}
+        />
+      </Curtain>
+
+      <div className="rule entry__rule" />
+      <p className="t-mono entry__date">{entry.date[locale]}</p>
+      <h3 className="t-h3 font-display text-bone entry__title">
+        <LineReveal as="span" className="block" lines={[entry.title[locale]]} duration={0.9} />
+      </h3>
+      <Reveal delay={0.12} y={16} duration={0.8}>
+        <p className="t-caption text-bone-2 entry__note">{entry.note[locale]}</p>
+      </Reveal>
+    </article>
+  );
+}
+
+/**
+ * The roll's last sheet. A chronicle ends on its count, not on another
+ * photograph — three counted rows struck in 正, and under them the season's
+ * record with the sensei's underline, which is the only vermilion in the
+ * chapter and the one place red is doing the job the rota reserves for it.
+ */
+function Colophon() {
+  const { locale } = useLocale();
+  return (
+    <div className="chronicle-foot">
+      <Register className="chronicle-foot__board" delay={0.05} stagger={0.1} x={-14} duration={0.75}>
+        {results.tallies.map((tally, i) => (
+          <TallyRow key={tally.label.en} label={tally.label[locale]} value={tally.value} index={i} />
         ))}
-        {rest > 0 && (
-          <PartialTally
-            strokes={rest}
-            seed={`tally-${index}-open`}
-            delay={base + fives * MARK_STAGGER}
-            className="tally__glyph tally__glyph--open"
-          />
-        )}
-        {/* the figure is PRINTED, not flown in — it is the ledger's own
-            confirmation of the strokes, so it lands once they are counted */}
-        <Settle
-          className="tally-row__value"
-          delay={base + (fives + 1) * MARK_STAGGER + 0.3}
-          duration={0.55}
-        >
-          {value}
-        </Settle>
-      </div>
+      </Register>
+      <Reveal delay={0.1} y={10} duration={0.7} className="chronicle-foot__closing">
+        <p className="t-note chronicle-foot__record">{results.best[locale]}</p>
+        <Brush kind="underline" className="chronicle-foot__mark" delay={0.45} duration={1.1} />
+      </Reveal>
     </div>
   );
 }
@@ -177,26 +107,28 @@ function TallyRow({ label, value, index }: { label: string; value: number; index
 /**
  * Chapter 五 / 05 — «Хроника».
  *
- * The page's first ink block. Medals, gradings and tournaments are counted the
- * way a dojo counts them — in 正 tally marks, five strokes at a time, struck
- * onto the board as the section enters — and the season is listed as a printed
- * timeline. The chapter's plate, the trophies, is pressed ink-to-bone.
+ * THE SEASON UNROLLS. A makimono is a chronicle read by unrolling it sideways,
+ * which is what a season's record is, so this is the one chapter in the manual
+ * that does not run down the page: the reader scrolls down and the sheets
+ * travel across. The mechanism is `ui/Roll` and nothing about it is in here —
+ * this file is the composition.
  *
- * The sheet is the viewport, so the chapter is composed as a ledger PAGE and
- * changes shape twice as the paper grows (the arithmetic is in results.css):
- * one column below 1024; two fields on the shared twelve-column page grid from
- * 1024; and past 1600 the deck leaves the ledger column, each counted row
- * becomes a single ledger line — label rail, then the count — and the plate
- * bleeds off the right edge of the paper.
+ * Three layers move at three rates. «Хроника» is PRINTED on the page at poster
+ * scale and travels on its own overflow; the sheets are tipped in over it and
+ * travel on theirs, so the letters a reader can see at any moment are the ones
+ * no photograph is covering. The roll's folio and gauge stand still.
  *
- * Motion is by verb, not by habit: the running head and every tabulated row
- * come into REGISTER along their baseline, the copy REVEALS, the plate opens
- * under a CURTAIN, and the figures SETTLE as though the sheet went to press
- * with them. The only thing drawn by a hand is the count.
+ * The chapter is the page's first ink spread and its plates are the only ones
+ * on the site besides chapter 四's printed in colour. A victory is gold,
+ * ribbons and a red mat; a chronicle of victories pressed into two inks is a
+ * chronicle with its subject removed.
+ *
+ * Below 1024, and for a reader who has asked for less motion, none of this
+ * happens: the sheets are a column, in the same order, and the chapter reads
+ * as the rest of the manual does.
  */
 export function Results() {
   const { locale } = useLocale();
-  const t = results;
 
   return (
     <Chapter
@@ -205,92 +137,20 @@ export function Results() {
       title={chapter.title[locale]}
       labelledBy={HEADING_ID}
       ground="ink"
-      className="results relative overflow-hidden"
+      className="results relative"
       bleed={<Grain opacity={0.25} />}
     >
-      <div className="wrap results__sheet relative z-10">
-        {/*
-          The masthead is one grid at every width. Up to 1600 the deck and the
-          ledger share a six-column stack (`.results__col`); past it the column
-          dissolves — `display: contents` — and title, lead and board are placed
-          on the page grid themselves. Source order is already reading order, so
-          the promotion changes no focus order and nothing is announced twice.
-        */}
-        <div className="results__masthead">
-          {/* ---- title, lead, tally board ---- */}
-          <div className="results__col">
-            <h2 id={HEADING_ID} className="t-chapter text-bone results__title">
-              <LineReveal as="span" className="block" lines={[t.title[locale]]} />
-            </h2>
-            <Reveal delay={0.2} className="results__lead">
-              <p className="t-lead max-w-[40ch] text-bone-2">{t.lead[locale]}</p>
-            </Reveal>
-
-            {/* the board is a tabulated set, so its rows come into register one
-                after another rather than each rising on its own */}
-            <Register className="results__board" delay={0.05} stagger={0.1} x={-14} duration={0.75}>
-              {t.tallies.map((tally, i) => (
-                <TallyRow key={tally.label.en} label={tally.label[locale]} value={tally.value} index={i} />
-              ))}
-            </Register>
-          </div>
-
-          {/* ---- the chapter's plate: five columns to 1600, then four that
-                  bleed to the paper edge — hence the two `sizes` steps.
-                  Pressed ink-to-bone, not ink-to-paper: this is a dark
-                  chapter, and a plate whose highlight is paper-white punches
-                  a hole in the ground it is printed on. ---- */}
-          <figure className="results__plate">
-            <Curtain className="results__plate-frame" duration={1.1}>
-              <Photo
-                slot="trophies"
-                grade="duotone-ink"
-                sizes="(min-width: 1600px) 34vw, (min-width: 1024px) 38vw, 100vw"
-              />
-            </Curtain>
-            <figcaption className="t-caption text-bone-2 results__plate-caption">{t.plateCaption[locale]}</figcaption>
-          </figure>
-        </div>
-
-        {/* ---- season timeline ---- */}
-        <div className="results__timeline">
-          <ol className="m-0 list-none p-0">
-            {t.timeline.map((row, i) => (
-              <li key={row.title.en}>
-                {/*
-                  A chronicle line is tabulated matter, so it comes into
-                  register: date, title and note hold one baseline and arrive
-                  along it, left to right. <Register> wraps each field in its
-                  own element, which is why the grid columns in results.css are
-                  addressed by POSITION rather than by the classes below.
-                */}
-                <Register className="timeline-row" delay={0.05 + i * 0.08} stagger={0.07} x={-12} duration={0.65}>
-                  <p className="t-mono text-bone-2 timeline-row__date">{row.date[locale]}</p>
-                  <h3 className="t-h3 font-display text-bone timeline-row__title">{row.title[locale]}</h3>
-                  <p className="t-caption text-bone-2 timeline-row__note">{row.note[locale]}</p>
-                </Register>
-              </li>
-            ))}
-          </ol>
-          <div className="rule" />
-        </div>
-
-        {/*
-          The season's record closes the chapter. It used to be a 2px vermilion
-          box animated on scaleX — a rule impersonating a brush — with its line
-          set in red mono beside it; the line is ink now and the mark under it
-          is a real one: the sensei's underline, pulled through the press, and
-          the only vermilion in the whole chapter.
-
-          It prints no rule of its own — the chronicle above already closes
-          itself with a hairline, and two rules a finger's width apart is a
-          printing error.
-        */}
-        <Reveal delay={0.1} y={10} duration={0.7} className="results__closing">
-          <p className="t-note results__record">{t.best[locale]}</p>
-          <Brush kind="underline" className="results__record-mark" delay={0.45} duration={1.1} />
-        </Reveal>
-      </div>
+      <Roll
+        className="results__roll"
+        labelledBy={HEADING_ID}
+        backdrop={<span className="chronicle-mark">{chapter.title[locale]}</span>}
+      >
+        {[
+          <Masthead key="head" />,
+          ...results.events.map((entry, i) => <Entry key={entry.title.en} entry={entry} index={i} />),
+          <Colophon key="foot" />,
+        ]}
+      </Roll>
     </Chapter>
   );
 }

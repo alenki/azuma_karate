@@ -1,4 +1,5 @@
 import type { Locale } from "@/i18n/config";
+import type { MediaKey } from "./media";
 
 /**
  * Home page copy — «Первая черта» / "The First Stroke".
@@ -86,7 +87,7 @@ export const chapters: { id: string; index: number; title: L<string> }[] = [
   { id: "hero", index: 1, title: { ru: "Первая черта", en: "The first stroke" } },
   { id: "about", index: 2, title: { ru: "О\u00A0клубе", en: "About" } },
   { id: "schedule", index: 3, title: { ru: "Расписание", en: "Schedule" } },
-  { id: "sensei", index: 4, title: { ru: "Тренер", en: "Sensei" } },
+  { id: "sensei", index: 4, title: { ru: "Тренеры", en: "Coaches" } },
   { id: "results", index: 5, title: { ru: "Хроника", en: "Chronicle" } },
   { id: "join", index: 6, title: { ru: "Запись", en: "Join" } },
 ];
@@ -247,6 +248,8 @@ export const about = {
 };
 
 export const sensei = {
+  /** The slot in `media.ts` — the head coach's half of the spread. */
+  plate: "senseiPlate",
   /*
     Sensei.tsx splits this on its space to set the two lines of the name, so
     this one string must never carry a bound space — a nbsp here would print
@@ -255,18 +258,20 @@ export const sensei = {
   name: { ru: "Астемир Жамбеев", en: "Astemir Zhambeev" },
   rank: { ru: "Мастер спорта международного класса", en: "Master of Sport, International Class" },
   /*
-    The confirmed half of the citation. It used to end «(номер и дата —
-    уточняются)», which set the gap in the club's own records as though the
-    parenthesis were part of the honour. The gap is a pending fact now
-    (`decreeRef`), so this line states only what is true.
+    RETIRED HERE: `decree`, `decreeRefLabel` and `decreeRef` — the citation.
+
+    It printed a rule, the sentence «Звание присвоено приказом Минспорта
+    России.», the label «ПРИКАЗ», a ruled blank and a note saying the number
+    and the date were awaited. Two of those three were apparatus and the third
+    was an absence, and from 1600 the whole block was dropped into the channel
+    between the type and the plate, where it stood as a fragment with nothing
+    above or below it. The chapter is the man's name, his rank and his record;
+    the loudest thing this block said was that the club had not answered yet.
+
+    The ministry sentence is a CONFIRMED fact and it is the one thing the
+    chapter gave up. If the club wants it back it belongs under the rank as a
+    sentence — not as a label, a rule and a blank.
   */
-  decree: {
-    ru: "Звание присвоено приказом Минспорта России.",
-    en: "Title conferred by order of the Russian Ministry of Sport.",
-  },
-  decreeRefLabel: { ru: "Приказ", en: "Order" },
-  /** PENDING — the decree's number and date. Print the label and a ruled blank. */
-  decreeRef: pendingText({ ru: "номер и\u00A0дата приказа", en: "order number and date" }),
   /*
     THE TWO REGISTERS — one man, read twice.
 
@@ -295,8 +300,8 @@ export const sensei = {
     {
       label: { ru: "Тренер", en: "Coach" },
       body: {
-        ru: "Основатель и\u00A0главный тренер SK\u00A0AZUMA. Ведёт детские и\u00A0взрослую группы сам\u00A0— от\u00A0первого поклона до\u00A0чёрного пояса.",
-        en: "Founder and head coach of SK\u00A0AZUMA. He coaches the children's and adult groups himself\u00A0— from the first bow to the black belt.",
+        ru: "Основатель и\u00A0главный тренер SK\u00A0AZUMA. Ведёт детские и\u00A0взрослую группы\u00A0— от\u00A0первого поклона до\u00A0чёрного пояса.",
+        en: "Founder and head coach of SK\u00A0AZUMA. He coaches the children's and adult groups\u00A0— from the first bow to the black belt.",
       },
     },
   ],
@@ -311,11 +316,13 @@ export const sensei = {
     captioned. `media.ts` carries the alt text, and that is the only
     description of this plate that is true of the file on disk.
 
-    ALSO RETIRED HERE: `second` — the second coach. The club never gave a name,
-    so the slot printed a label, a ruled blank and a note saying the name was
-    awaited. A register whose entire content is an absence is not a register,
-    and the chapter is about one man. The pending fact retires with the slot
-    rather than lingering unrendered.
+    THE SECOND COACH IS BACK, AND HE IS INVENTED. `second` used to live here
+    as a pending fact — a label, a ruled blank and a note saying the name was
+    awaited — and it was deleted because a register whose entire content is an
+    absence is not a register. The chapter now sets two coaches as a spread,
+    so the second one needed a name, a rank and a record to stand up at all.
+    He has them and none of them came from the club: see `assistant` below,
+    which carries the whole argument and the instructions for deleting him.
 
     AND `hoverHint` — «Наведите — увидите его таким, каким видят ученики». It
     was already unreferenced, and this chapter now has no hover at all.
@@ -325,25 +332,163 @@ export const sensei = {
     own record, and the seal beside it belongs where a reader signs up, not
     where a biography ends.
   */
+} as const;
+
+/**
+ * THE SECOND COACH — AND THE ONLY INVENTED PERSON ON THIS SITE.
+ *
+ * Read this before touching anything in it.
+ *
+ * Everything below is a PLACEHOLDER. The name, the rank, the belt, the groups
+ * he works with: none of it came from the club. It is written the way real
+ * copy is written — a plausible Kabardian name, a real Russian sporting rank
+ * one step under the head coach's, the club's own confirmed age bands — so
+ * that the composition can be judged at full strength and so the client can
+ * see the spread they are being asked to fill. That is the whole of its job.
+ *
+ * It breaks this file's own rule on purpose. The convention here is that a
+ * fact the club has not given is modelled as PENDING (`pendingText()` /
+ * `pendingFact()`) and prints as a ruled blank, never as plausible copy — and
+ * that is exactly what the old `second` slot did, and exactly why it was
+ * deleted: a register whose entire content is an absence is not a register.
+ * The chapter now gives this man half the sheet, a plate and a name at chapter
+ * scale, and half a spread of ruled blanks is not a design anyone can judge.
+ * So the decision was made the other way, ONCE, in the open, here.
+ *
+ * WHICH MEANS IT CANNOT SHIP. It is listed in the README under «Before this
+ * can go live» with the photography and the prices. If the club has no second
+ * coach, delete this export, delete `assistantPlate` from `media.ts`, and the
+ * chapter falls back to one entry — `Sensei.tsx` maps over `coaches` and does
+ * not care how many there are.
+ *
+ * The one thing NOT invented is the age bands: 4–6 and 6–11 are the club's own
+ * and are confirmed, and they are written here exactly as `schedule.ts` writes
+ * them, so a reader who compares the two chapters is not told two stories.
+ */
+export const assistant = {
+  /** The slot in `media.ts`. See the note there: the frame is a stand-in too. */
+  plate: "assistantPlate",
+  /*
+    Split on its space for the two lines of the name, like the head coach's —
+    so this string must never carry a bound space either.
+  */
+  name: { ru: "Руслан Тхагапсоев", en: "Ruslan Tkhagapsoev" },
+  rank: { ru: "Кандидат в мастера спорта", en: "Candidate Master of Sport" },
+  /*
+    The same two registers under the same two words the head coach's entry
+    uses. That is the point of them: the spread is one register system read
+    twice, so the two men are set in the same terms and the reader can compare
+    them without being told to.
+  */
+  registers: [
+    {
+      label: { ru: "Спортсмен", en: "Competitor" },
+      body: {
+        ru: "Кандидат в\u00A0мастера спорта по\u00A0киокушин. Чёрный пояс, 1\u00A0дан.",
+        en: "Candidate Master of Sport in Kyokushin. Black belt, 1st\u00A0dan.",
+      },
+    },
+    {
+      label: { ru: "Тренер", en: "Coach" },
+      body: {
+        ru: "Ассистент главного тренера. Работает с\u00A0детскими группами 4–6 и\u00A06–11\u00A0лет.",
+        en: "Assistant to the head coach. Works with the children's groups, ages\u00A04–6 and 6–11.",
+      },
+    },
+  ],
+} as const;
+
+/**
+ * The chapter, in reading order: the founder, then his assistant.
+ *
+ * `Sensei.tsx` maps over this and lays one entry per half of the spread, so
+ * the chapter's arithmetic is the length of this array and nothing else.
+ * Adding a third coach is a content edit; taking the second one away is a
+ * deletion, and neither is a change to the component.
+ *
+ * `sensei` keeps its own export because it is not only a chapter entry: the
+ * contacts page prints the club's head coach by name from it
+ * (`sections/contacts/Particulars.tsx`), and that row means the FOUNDER, not
+ * whoever happens to be first in a list.
+ */
+export const coaches = [sensei, assistant] as const;
+
+/**
+ * One entry in the chronicle: what it was, when, and the plate it is
+ * evidenced by. `plate` is a slot in `media.ts`, which stays the only file on
+ * the site where a photograph is named.
+ */
+export type ChronicleEntry = {
+  date: L<string>;
+  title: L<string>;
+  note: L<string>;
+  plate: MediaKey;
 };
 
 export const results = {
   title: { ru: "Сезон 2025/26", en: "Season 2025/26" },
-  lead: { ru: "Медали считаем так, как считают в\u00A0додзё: по\u00A0пять черт.", en: "We count medals the dojo way: five strokes at a time." },
-  /** PLACEHOLDER counts — the club's to confirm, never ours to adjust. */
+  lead: {
+    ru: "Турнир за\u00A0турниром\u00A0— и\u00A0счёт, который в\u00A0додзё ведут по\u00A0пять черт.",
+    en: "Tournament by tournament\u00A0— and the count a dojo keeps five strokes at a time.",
+  },
+  /* The chronicle moves sideways, which is the one thing about it a reader
+     cannot infer from a still frame. One line, printed once, in the masthead. */
+  hint: { ru: "Листайте\u00A0→", en: "Scroll\u00A0→" },
+
+  /*
+    THE CHRONICLE — the club's own record, newest first, and CONFIRMED.
+
+    This array is the only thing that has to grow. Chapter 五 alternates a tall
+    plate and a wide one by index, so a fourth entry takes the wide form and a
+    fifth the tall one with no component touched; it needs a `plate` slot in
+    `media.ts` and nothing else.
+
+    A note does NOT restate its own date. A chronicle is ordered by date, the
+    date is printed as its own field beside the title, and a note opening
+    «26 июля 2025 года…» sets the same fact twice inside one panel.
+  */
+  events: [
+    {
+      date: { ru: "26\u00A0июля 2025", en: "26\u00A0July 2025" },
+      title: { ru: "RCC Kyokushin Fight\u00A04", en: "RCC Kyokushin Fight\u00A04" },
+      note: {
+        ru: "Профессиональный турнир по\u00A0киокусинкай на\u00A0арене Академии единоборств РМК. Спортсмены клуба взяли призовые места и\u00A0соревновательный опыт.",
+        en: "A professional kyokushin tournament at the RMK combat sports academy. The club's athletes took podium places and real competitive experience.",
+      },
+      plate: "kumiteKick",
+    },
+    {
+      date: { ru: "5–6\u00A0октября 2024", en: "5–6\u00A0October 2024" },
+      title: { ru: "Чемпионат и\u00A0Первенство России", en: "Russian Championship and Youth Championship" },
+      note: {
+        ru: "Спортсмены клуба показали высокий уровень подготовки и\u00A0вернулись с\u00A0большим количеством призовых мест.",
+        en: "The club's athletes showed a high level of preparation and came back with a large number of podium places.",
+      },
+      plate: "trophies",
+    },
+    {
+      date: { ru: "20–23\u00A0февраля 2025", en: "20–23\u00A0February 2025" },
+      title: { ru: "Russian Open Cup 2025", en: "Russian Open Cup 2025" },
+      note: {
+        ru: "Международные соревнования в\u00A0Московском центре боевых искусств\u00A0— от\u00A08\u00A0лет до\u00A0взрослых, весовые категории и\u00A0ката. В\u00A0условиях высокой конкуренции спортсмены клуба достойно представили себя.",
+        en: "An international competition at the Moscow Martial Arts Centre\u00A0— from age\u00A08 to adults, weight categories and kata. Against strong opposition the club's athletes represented themselves well.",
+      },
+      plate: "flyingKick",
+    },
+  ] satisfies ChronicleEntry[],
+
+  /*
+    THE COLOPHON. The roll ends on the count rather than on another
+    photograph — three counted rows, struck in 正, five strokes at a time.
+
+    PLACEHOLDER counts: the club's to confirm, never ours to adjust.
+  */
   tallies: [
     { label: { ru: "Медали сезона", en: "Season medals" }, value: 23 },
     { label: { ru: "Аттестаций сдано", en: "Gradings passed" }, value: 41 },
     { label: { ru: "Турниров", en: "Tournaments" }, value: 7 },
   ],
-  timeline: [
-    { date: { ru: "Март\u00A02026", en: "March\u00A02026" }, title: { ru: "Первенство России по\u00A0киокушин", en: "Russian Kyokushin Youth Championship" }, note: { ru: "золото и\u00A0бронза, Москва", en: "gold and bronze, Moscow" } },
-    { date: { ru: "Февраль\u00A02026", en: "February\u00A02026" }, title: { ru: "Чемпионат России по\u00A0киокушин", en: "Russian Kyokushin Championship" }, note: { ru: "выход в\u00A0финал", en: "reached the final" } },
-    { date: { ru: "Декабрь\u00A02025", en: "December\u00A02025" }, title: { ru: "Первенство КБР", en: "Kabardino-Balkaria Youth Championship" }, note: { ru: "12\u00A0призовых мест", en: "12\u00A0podium places" } },
-    { date: { ru: "Октябрь\u00A02025", en: "October\u00A02025" }, title: { ru: "Аттестация на\u00A0пояса", en: "Belt grading" }, note: { ru: "41\u00A0ученик, первые оранжевые пояса", en: "41\u00A0students, first orange belts" } },
-  ],
   best: { ru: "Лучший спортсмен года\u00A0· сезон\u00A02025–2026", en: "Athlete of the year\u00A0· season\u00A02025–2026" },
-  plateCaption: { ru: "Илл.\u00A005\u00A0— кубки перед награждением.", en: "Plate\u00A005\u00A0— trophies before the awards." },
 };
 
 export const schedule = {
@@ -372,7 +517,28 @@ export const schedule = {
 
 export const join = {
   title: { ru: "Первая тренировка", en: "The first session" },
-  lead: { ru: "Оставьте имя и\u00A0возраст ученика\u00A0— мы ответим в\u00A0Telegram в\u00A0течение дня и\u00A0подберём группу.", en: "Leave the student's name and age\u00A0— we will reply on Telegram within the day and suggest a group." },
+  /*
+    One line, and it states the act and its outcome and nothing else. The lead
+    this replaces told the reader to leave a name and an age ON THIS SHEET,
+    which stopped being true when the enquiry moved to `Letter` on /contacts.
+    Neither claim here is new — both were already in this block. Nothing about
+    price or a free first session is asserted; those are still pending facts.
+  */
+  lead: { ru: "Оставьте заявку\u00A0— мы подберём группу.", en: "Leave a request\u00A0— we will suggest a group." },
+  /*
+    DEAD AS OF 2026-09-15, AND KEPT ON PURPOSE.
+
+    Chapter 六 stopped collecting: it is the manual's closing plate now, and the
+    enquiry it used to carry is `Letter` on /contacts, which owns its own copy
+    in `content/contacts.ts`. So `fields`, `placeholders`, `errors` and the
+    three status strings (`sending`, `success`, `error`) have no consumer left,
+    and neither do `privacy` / `privacyLead` / `privacyLink` / `privacyTail` —
+    no personal data is collected on this sheet, so no consent is printed on it.
+
+    They are not deleted yet because `content/contacts.ts` still reasons about
+    `join.privacy` and `join.trust` by name while that page is being finished.
+    Sweep them in one pass once it settles. Nothing may start reading them again.
+  */
   fields: {
     name: { ru: "Имя ученика", en: "Student's name" },
     age: { ru: "Возраст ученика", en: "Student's age" },

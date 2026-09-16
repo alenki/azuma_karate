@@ -2,9 +2,10 @@
 /* Chapter 八 — «Неделя»: the week, set as a printed table              */
 /*                                                                      */
 /* This is the one chapter of the manual whose subject genuinely wants  */
-/* the whole sheet. Seven weekdays are seven columns; a column can only */
-/* be as wide as a seventh of the page it is printed on, so every pixel */
-/* the trim gains here is a pixel the week gains. From 1280 up the      */
+/* the whole sheet. The club's five training days are five columns; a   */
+/* column can only be as wide as a fifth of the page it is printed on,  */
+/* so every pixel the trim gains here is a pixel the week gains. From   */
+/* 1280 up the                                                          */
 /* table is therefore printed OUTSIDE the trim, to the true paper edge, */
 /* the way a wide table is trimmed in a printed manual — and the frame  */
 /* that used to be drawn around it (`md:border md:p-6` in the markup)   */
@@ -14,19 +15,19 @@
 /* THE RULING RIDES THE COLUMNS. It used to be drawn as a 1px grid gap  */
 /* over a rule-coloured ground on `.timetable__week`, which is the      */
 /* cheapest way to rule a table and the wrong one here: the week is     */
-/* animated column by column now (<Register>, seven forms pulled left   */
+/* animated column by column now (<Register>, five forms pulled left    */
 /* to right), and a coloured ground on the container does not animate   */
 /* with its children — it prints as a solid taupe rectangle for the     */
 /* half-second before the first column arrives. So every line of the    */
 /* table is a border on a column instead: each column carries its own   */
 /* leading vertical and the block rules over and under it, the last one */
 /* closes the frame, and because grid items stretch to a common height  */
-/* the seven top borders and the seven bottom borders meet as two       */
+/* the columns' top borders and their bottom borders meet as two        */
 /* continuous rules across the table. Ink and paper arrive together.    */
 /*                                                                      */
 /* No ground under a column, either. The sheet carries the stock (two   */
 /* multiplied noise fields, `.ground-paper`), and a `bg-paper` fill on  */
-/* each column flattened exactly the seven rectangles the table covers  */
+/* each column flattened exactly the rectangles the table covers        */
 /* — a panel over paper, which is the component-library reading this    */
 /* chapter is trying to get away from. The table is ruling on the same  */
 /* stock as everything around it.                                       */
@@ -77,10 +78,10 @@
 /* THE BAND IS THE TABLE'S HEAD. The key used to be `.timetable__legend`*/
 /* — a flex row of five mono labels with a 2rem margin under it, 148px  */
 /* tall and three ragged rows on a phone, standing between the reader   */
-/* and the thing they came for. It is five ruled cells now, sharing the */
-/* week's bleed from 1280 and carrying the whole of a group: the        */
-/* counter 01–05, the name in the display face, the age band, and the   */
-/* club's own line about the group, which had been sitting unprinted in */
+/* and the thing they came for. It is four ruled cells now, sharing the */
+/* week's bleed from 1280 and carrying the whole of a group: the name   */
+/* in the display face, the age band, and the club's own line about     */
+/* the group, which had been sitting unprinted in                       */
 /* `content/schedule.ts` since that file was written.                   */
 /*                                                                      */
 /* THE SEAM IS DRAWN ONCE. The band's bottom rule is                    */
@@ -91,8 +92,8 @@
 /* for the reason set out above — a container's border prints at full   */
 /* strength before the first cell arrives.                              */
 /*                                                                      */
-/* Its five internal verticals will not line up with the table's six,   */
-/* because five groups are not seven days. That is answered by GRADE,   */
+/* Its own internal verticals will not line up with the table's six,   */
+/* because four groups are not five days. That is answered by GRADE,    */
 /* not geometry: the band rules itself in --color-rule-hair where the   */
 /* table uses --color-rule, so the two read as two orders of division   */
 /* rather than as a failed alignment.                                   */
@@ -208,7 +209,7 @@
   ---- the full-sheet tiers ------------------------------------------------
   Above ~1600 the table is the only thing on the page that has been handed a
   third more paper, and it must be redrawn for it rather than stretched. Held
-  at the 1280 values a 2560 sheet prints seven 365px columns whose type is
+  at the 1280 values a 2560 sheet prints five 512px columns whose type is
   still 14px and whose floor is still 16rem: a very large table of very small
   print, with a band of white under every day.
 
@@ -216,13 +217,16 @@
   air inside a cell, and the size of the print — move together:
 
     tier   column   floor    weekday   name    Monday's four rows measure
-    1280   182px    18rem    1.125rem  0.875   ~322px + 40 padding = 362px
-    1600   228px    21rem    1.375rem  1rem    ~356px + 48 padding = 404px
-    2000   365px    24rem    1.625rem  1.0625  ~392px + 56 padding = 448px
+    1280   256px    18rem    1.125rem  0.875   ~322px + 40 padding = 362px
+    1600   320px    21rem    1.375rem  1rem    ~356px + 48 padding = 404px
+    2000   512px    24rem    1.625rem  1.0625  ~392px + 56 padding = 448px
 
-  Monday clears the floor at every tier, so the floor only ever holds up the
-  quiet end of the week (Saturday and Sunday carry one session each). If the
-  club adds a session the column grows; nothing here is a fixed height.
+  The column figures are the bled sheet divided by five; the heights are
+  measured and are ceilings, since a wider column wraps less than the seven-day
+  one these were taken from. Monday carries four sessions and clears the floor
+  at every tier, so the floor only ever holds up the quiet days — Tuesday and
+  Thursday carry two each. If the club adds a session the column grows;
+  nothing here is a fixed height.
 */
 @media (min-width: 1600px) {
   .schedule {
@@ -370,8 +374,8 @@
 }
 .legend__cellwrap {
   display: flex;
-  /* a flex item's automatic minimum size can outrun its basis — RU
-     «Утренние в парке» in a 142px cell at 768 is exactly the case */
+  /* a flex item's automatic minimum size can outrun its basis — a long RU
+     group name in a 142px cell at 768 is exactly the case */
   min-inline-size: 0;
 }
 @media (min-width: 768px) {
@@ -379,8 +383,8 @@
 }
 
 .legend__cell {
-  /* fill the wrapper, and take the row's stretched height, so the five top
-     borders meet as the band's top rule and the five bottom borders meet as
+  /* fill the wrapper, and take the row's stretched height, so the cells' top
+     borders meet as the band's top rule and their bottom borders meet as
      one continuous seam across the table */
   flex: 1 0 auto;
   inline-size: 100%;
@@ -405,7 +409,7 @@
 
 /* the state mark, ranged to the far end of the cell's head line. The line used
    to carry a printed ordinal on the left as well; with the counter gone the
-   mark keeps its position rather than sliding to the leading edge, so the five
+   mark keeps its position rather than sliding to the leading edge, so the
    marks still read as one column down the band's right side. */
 .legend__head {
   display: flex;
@@ -459,16 +463,16 @@
 }
 
 /*
-  Below 768 the band is a bled scroller: one row of five cells, well under the
+  Below 768 the band is a bled scroller: one row of four cells, well under the
   148px and three ragged rows the old legend cost — so the week, not its key,
   is what a phone meets first.
 
-  A scroller rather than a two-up grid, for two reasons. Five cells two-up is
-  three rows with a hole in the last, which is the exact raggedness this
-  replaces, and it is TALLER than what it replaces. And the band stays one idea
-  at every width instead of becoming a different object on a phone. What is
-  off-screen is declared by the cut edge: the track bleeds, so the fifth cell
-  is visibly mid-cell at the trim rather than ending neatly there.
+  A scroller rather than a two-up grid, for two reasons. Four cells two-up is
+  two rows of the band's tallest cell, TALLER than the one row this replaces.
+  And the band stays one idea at every width instead of becoming a different
+  object on a phone. What is off-screen is declared by the cut edge: the track
+  bleeds, so the last cell is visibly mid-cell at the trim rather than ending
+  neatly there.
 
   The track bleeds and then pays the gutter back as padding: the first cell's
   leading rule therefore stands on the trim, with every other rule in the
@@ -501,16 +505,17 @@
   }
 }
 
-/* the week. Seven equal columns, each carrying its own ruling — see the note
-   at the head of this file for why the rules are not a grid gap any more.
-   Below 768 it is not printed at all; the mobile week is. */
+/* the week. Five equal columns — the club's training days; see `WEEK` in
+   `Timetable.tsx` for why the weekend is not printed — each carrying its own
+   ruling. The note at the head of this file says why the rules are not a grid
+   gap any more. Below 768 it is not printed at all; the mobile week is. */
 .timetable__week {
   display: none;
 }
 @media (min-width: 768px) {
   .timetable__week {
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -522,8 +527,8 @@
   display: flex;
   flex-direction: column;
   /* the track is `minmax(0, 1fr)`, but a grid item's own automatic minimum
-     size can still push past it — «Утренние в парке» in a 116px edge column
-     at 1280 is exactly the case */
+     size can still push past it — a long RU group name in a narrow edge
+     column is exactly the case */
   min-inline-size: 0;
 }
 
@@ -539,7 +544,7 @@
   /* the table's ruling: the rule UNDER the table, plus this column's leading
      vertical. Its top rule is the band's seam — the band is the table's head
      and draws the line where the two meet, or the two would stack as a 2px
-     double. Seven leading verticals give the six between the days and the one
+     double. Five leading verticals give the four between the days and the one
      that opens the table; the last column closes it. */
   border-block-end: 1px solid var(--color-rule);
   border-inline-start: 1px solid var(--color-rule);
@@ -578,7 +583,7 @@
   that one column reads as a doubled rule. Drawn as an inset shadow rather
   than a border because an inner shadow is painted inside the padding edge
   and costs no layout — the marked column stays exactly as tall as the other
-  six, and nothing on the row moves by a pixel when the clock rolls over at
+  four, and nothing on the row moves by a pixel when the clock rolls over at
   midnight. The word «сегодня» and the brush tick carry the rest of the
   signal: a weight, a word and a drawn mark, so nothing here is announced by
   colour alone (1.4.1), and none of the three is vermilion except the brush.
@@ -668,7 +673,9 @@
   display: block;
   margin-top: 0.25rem;
 }
-/* a day with no class. The em dash is content, not ornament, so it is set
+/* a day with no class — every printed day currently has one, so this is the
+   convention held open for a rest day inside the week rather than something
+   the table prints today. The em dash is content, not ornament, so it is set
    in readable ink like everything else. */
 .timetable__empty {
   color: var(--color-ink-2);
@@ -677,7 +684,7 @@
 /* ---------------------------------------------------------------- */
 /* The mobile week                                                   */
 /*                                                                   */
-/* Below 768 the seven columns will not fit, but the seven days must  */
+/* Below 768 the five columns will not fit, but the five days must    */
 /* still be a printed table rather than a disclosure widget. What was */
 /* here was built entirely out of inline utilities — `border-b`,      */
 /* `py-4`, `font-display text-xl` and a bare unlabelled integer at    */
@@ -689,8 +696,8 @@
 /* to find out which group is in the hall at 18:00. That is the thing */
 /* the desktop table does and the old accordion did not — and it also */
 /* retires the naked digit, which counted something the row never     */
-/* named. The em dash on Tuesday is the same convention the desktop   */
-/* column uses for a day with no class.                               */
+/* named. A day with no class prints the em dash, the same convention */
+/* the desktop column uses.                                           */
 /* ---------------------------------------------------------------- */
 /* no top rule: the band's seam is the mobile week's top rule, exactly as it
    is the desktop table's — drawn once, by the band. */

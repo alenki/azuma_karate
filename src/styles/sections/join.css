@@ -1,111 +1,102 @@
 /* ------------------------------------------------------------------ */
-/* Chapter 十 — Запись: hairline form fields on ink                     */
+/* Chapter 六 — «Запись»: the closing plate                            */
 /*                                                                      */
-/* The sheet is the viewport, so this chapter is no longer a 5/6 split  */
-/* of a centred column — it is three bands set across the whole page:   */
+/* This chapter used to be three bands across the sheet — an invitation */
+/* ranged hard left, a capped field column, and the ensō swung out onto */
+/* the right trim. That geometry existed to serve a form. The form has  */
+/* moved to «Письмо» on /contacts, and what is left is not a smaller    */
+/* version of the same spread: it is a different kind of page.          */
 /*                                                                      */
-/*   the invitation   ranged hard left, its first character on the trim */
-/*   the form         capped at a real form measure, never a table      */
-/*   the closing act  the ensō with the ask inside it, ranged hard      */
-/*                    right from 1600 up and hanging into the outer     */
-/*                    margin exactly as the numeral 十 hangs into the   */
-/*                    binding margin on the other side of the sheet     */
+/* SO THIS ONE SHEET IS CENTRED, and it is the only one in the book     */
+/* that is. `.wrap` is still the trim and there is still no centred     */
+/* COLUMN anywhere — the measure is held on the text in `ch`, exactly   */
+/* as everywhere else. What is centred is the axis of the last sheet,   */
+/* which is the one sheet a printed manual does centre. Chapter 五      */
+/* above it is ranged left like all the rest; the change of axis is how */
+/* a reader who has been told none of this knows the book has ended.    */
 /*                                                                      */
-/* The reason the form is CAPPED rather than widened: the fields are    */
-/* bottom-ruled only, so their width IS the drawing. Let a two-up row   */
-/* run the whole slot and at 2560 you get two 580px rules with a name   */
-/* typed at one end of each — legible, but it reads as a ledger, not as */
-/* a form. So the field column is frozen at ~32rem (the width a form    */
-/* wants) and the width the sheet gained is spent on the third band     */
-/* instead: below 1600 the act sits under the fields, at 1600 and up    */
-/* it swings out beside them and closes the manual on the right trim.   */
+/* Four measured things, and each of them is load-bearing:              */
 /*                                                                      */
-/* Measured (sheet = viewport − 2 × gutter, 12 columns, --col-gap):     */
-/*   1600 · gutter 57.6 · sheet 1485 · col 101.8 · gap 24               */
-/*          invite 1–5 = 605   form 6–12 = 856                          */
-/*          856 = 512 fields + 24 + 320 for the mark (18rem needs 264)  */
-/*   1920 · gutter 69.1 · sheet 1782 · col 122.1 · gap 28.8             */
-/*          invite 725   form 1028 = 512 + 29 + 487                     */
-/*   2560 · gutter 92.2 · sheet 2376 · col 165.0 · gap 36               */
-/*          invite 969   form 1371 = 544 + 36 + 791                     */
-/* The paper left over at 2560 (~470px between the last field rule and  */
-/* the mark) is the chapter's air, and it is deliberate: three anchored */
-/* bands with one open middle, not a small layout stranded in a big     */
-/* page.                                                               */
+/*   THE WATERMARK SITS OUT OF FLOW, centred on the title and on        */
+/*   nothing else. In flow it would be two ~400px squares deciding the  */
+/*   chapter's proportions, and 押忍 would stop being a watermark and   */
+/*   start being an illustration with a caption under it. Out of flow   */
+/*   the title alone sets the height and the mark overhangs into the    */
+/*   chapter's own padding, top and bottom — which is why --pad-block   */
+/*   and --ghost-glyph are a pair and neither can be retuned alone.     */
+/*   At every tier the overhang is comfortably inside the padding:      */
+/*     390   glyph 152 · title 72  · overhang 40  · padding 112         */
+/*     1440  glyph 288 · title 81  · overhang 104 · padding 160         */
+/*     2560  glyph 432 · title 144 · overhang 144 · padding 256         */
+/*   (the 1440 padding is 160 and not 144: clamp(10rem, 10vw, 16rem)    */
+/*   is floored by its FIRST argument, and 10vw is 144 there.)          */
 /*                                                                      */
-/* THE ACT IS A SIBLING OF THE FORM, not a row inside it (the submit    */
-/* reaches its form through `form=`). That is a layout decision with    */
-/* two consequences, and both are why it was made:                      */
-/*   · the ring is drawn once and STAYS drawn whatever the form does.   */
-/*     It used to live inside the form and vanish the moment the state  */
-/*     changed, which is the behaviour of a spinner, not of a mark.     */
-/*   · below 1024 the ask can be the width of the field column while    */
-/*     the mark above it keeps a size of its own. A circle cannot be    */
-/*     drawn around a 350px slab on a 350px sheet, and the ask on the   */
-/*     one conversion point in the manual is not going to be the        */
-/*     smallest button on the page so that the ring can keep hold of it.*/
+/*   IT IS PAINTED AT z-index -1, NOT 0. A positioned element at z-0    */
+/*   paints ABOVE static in-flow siblings, so the mark would print over */
+/*   the lead where the two overlap. -1 puts it under every line on the */
+/*   sheet and still above the ground, because .join__sheet carries     */
+/*   z-10 and is therefore the stacking context it is measured in.      */
+/*                                                                      */
+/*   ITS TONE IS OPAQUE, mixed from bone INTO ink rather than bone at   */
+/*   7% alpha. Kanji strokes each centreline seven times over — that is */
+/*   what the taper IS — and seven stacked alphas compound into a glyph */
+/*   several times darker than asked for, unevenly, heaviest where the  */
+/*   passes pile up at the entry press. One opaque tone is flat by      */
+/*   construction.                                                      */
+/*                                                                      */
+/*   THE RING HOLDS THE WORD AT EVERY WIDTH NOW. It used to take the    */
+/*   button back only from 1024 up, because below that the ask had to   */
+/*   be the width of a field column that no longer exists. Freed of it, */
+/*   the button is sized from the ring at every tier by --submit-fill,  */
+/*   and the corners clear the ink by ~10px throughout. 390 is the      */
+/*   tight one — ring 216, opening radius 79, button half-diagonal 70 — */
+/*   so check that width first if either number is ever retuned.        */
 /*                                                                      */
 /* Rules for this chapter that must survive any later edit:             */
-/*   · Quiet type on ink is --color-bone-2 (labels, trust, consent).    */
-/*     --color-ink-3 never appears on this ground at all.               */
-/*   · Red on ink is --color-shu-lift, and it has exactly two jobs      */
-/*     here: the brush mark, and the reader's own focus ring. It is NOT */
-/*     the invalid state and NOT the submit's hover — both of those are */
-/*     now marked the way a printed page marks a state, by weight and   */
-/*     by a ground swap. A hue is not a signal (1.4.1) and red spent on */
-/*     a pointer position is red the brush can no longer arrive with.   */
-/*   · From 1024 the submit lives INSIDE the ensō and the two are sized */
-/*     from one token, so the ink never touches the type and the        */
-/*     gesture stays unmistakably AROUND the word.                      */
+/*   · Quiet type on ink is --color-bone-2. --color-ink-3 never appears */
+/*     on this ground at all, and --color-ink-quiet is a paper tone.    */
+/*   · Red on ink is --color-shu-lift and it has ONE job on this sheet: */
+/*     the ensō. Not the hover, not a state, not the rule. The CTA      */
+/*     hover is a ground swap — a ~12:1 luminance event, legible in     */
+/*     greyscale — which is the same move every other button makes.     */
+/*   · The watermark is ornament and is aria-hidden, so no contrast     */
+/*     floor applies to it. That is not licence to lift it: past ~9%    */
+/*     it stops being paper and starts competing with the title.        */
 /* ------------------------------------------------------------------ */
 
 .join {
   /*
-    Vertical rhythm. py-28 / md:py-40 were chosen against a 1312 column and
-    froze there; the vw term below reaches the old 10rem at exactly 1600, so
-    every width the club has ever seen is unchanged and only a sheet wider
-    than that opens up — 16rem lands at 2560, which keeps the chapter's
-    proportion (padding ≈ 11% of the sheet) the same as it is at 1440.
+    Vertical rhythm, unchanged from the spread this replaces: the vw term
+    reaches the old 10rem at exactly 1600, so every width the club has ever
+    seen is untouched and only a sheet wider than that opens up. It is also
+    the room the watermark overhangs into — see the head of this file.
   */
   --pad-block: 7rem;
   /* the margin numeral is set on the chapter's opening line, as in 三 */
   --numeral-top: var(--pad-block);
-  /* the gap between one ruled field and the next (was gap-8) */
-  --field-gap: 2rem;
-  /* the field column's own measure — see the head of this file. Unset
-     below 1600, where the form slot is still narrower than it. */
-  --field-measure: none;
-  /*
-    THE RING, AND THE WORD INSIDE IT.
 
-    The mark is 500 units wide. Its centreline circle measures ~426 of those
-    and the stroke is 60, so the ring's INNER OPENING is (426 − 60) / 500 ≈
-    0.73 of the box, whatever the box is set to.
+  /* ---- the watermark ---- */
+  /* One glyph. Two of them plus the gap must stay inside the trim at every
+     width; 20vw is ~45% of the sheet each, which is the proportion the mark
+     wants against a title set at 5.6vw. The 9.5rem FLOOR is not cosmetic: at
+     17vw a phone got a 112px mark behind a title that wraps to two lines and
+     covers it completely, so the watermark simply was not on the page at the
+     width most readers will meet it. 9.5rem clears the wrapped title on both
+     flanks and still leaves 19px of trim at 390. */
+  --ghost-glyph: clamp(9.5rem, 20vw, 27rem);
+  --ghost-gap: clamp(0.5rem, 1.5vw, 2rem);
+  /* opaque, never an alpha — see the head of this file */
+  --ghost-tone: color-mix(in oklab, var(--color-bone) 7%, var(--color-ink));
 
-    Below 1024 the ring is not around anything: it is the chapter's closing
-    mark, printed above an ask that is the full width of the field column, and
-    it takes a size from the sheet (66% of the column, capped at 16rem).
-
-    From 1024 up it holds the button, and the two are sized from this one
-    token: the button is 0.6 of the box, which is 0.82 of the opening, and at
-    a 3–3.5rem button height that leaves ~10px of paper between the type's
-    corners and the ink at every tier. Wider and the ink touches the word;
-    much narrower and you are back to a large red doughnut with a small
-    sticker in the middle, which is how a seal turns into a progress ring.
-  */
-  --enso-size: min(16rem, 66%);
+  /* ---- the ring, and the word inside it ----
+     The mark is 500 units wide. Its centreline circle measures ~426 of those
+     and the stroke is 60, so the ring's INNER OPENING is (426 − 60) / 500 ≈
+     0.73 of the box. The button is 0.6 of the box, which is 0.82 of that
+     opening: wider and the ink touches the word, much narrower and this is a
+     large red doughnut with a small sticker in the middle of it, which is how
+     a seal turns into a progress ring. */
+  --enso-size: clamp(13.5rem, 40vw, 14rem);
   --submit-fill: 0.6;
-  /* the ask below 1024: the width of the field column, held to a sane slab on
-     a tablet where that column is most of the sheet */
-  --submit-max: 26rem;
-  /*
-    The ink hangs out of its box so the CIRCLE, not the SVG's bounding box,
-    lines up with the field rules — the mark's artwork carries ~4% of padding
-    inside its 500-unit viewBox. Capped at the gutter so the hang can never
-    cross the paper edge: at 390 the gutter is 20px and the mark used to
-    stand 4px outside the sheet (clipped, but clipped ink is still a defect).
-  */
-  --enso-hang: min(1.5rem, var(--gutter));
 }
 
 @media (min-width: 768px) {
@@ -113,34 +104,20 @@
     --pad-block: clamp(10rem, 10vw, 16rem);
   }
 }
-
-/* ---- the full-sheet tiers ---------------------------------------- */
+/* the tuned tiers the ring already had, kept exactly */
 @media (min-width: 1024px) {
-  /* where the ring takes the button back: the form slot is half the sheet
-     from here up, so a slab the width of that slot would be a banner */
   .join {
     --enso-size: 14rem;
   }
 }
 @media (min-width: 1600px) {
   .join {
-    /* 32rem = 512px: a two-up row is 240px per field, the same target width
-       the form has at 1024, and the contact placeholder
-       «+7 900 000-00-00 или @username» sets in ~230px at 16px Golos. */
-    --field-measure: 32rem;
     --enso-size: 15rem;
   }
 }
 @media (min-width: 2000px) {
   .join {
-    /* body copy takes its one step to 18px between 2133 and 2400, so the
-       same 32rem would hold fewer characters than it does at 1600. 34rem
-       keeps the field at the same ~50-character target. */
-    --field-measure: 34rem;
-    /* the mark is alone in its band here and reads at arm's length — but it
-       still tracks the button, which has grown by only one padding step */
     --enso-size: 16rem;
-    --enso-hang: 2rem;
   }
 }
 
@@ -148,277 +125,114 @@
   padding-block: var(--pad-block);
 }
 
+/* ------------------------------------------------------------------ */
+/* The plate                                                           */
+/* ------------------------------------------------------------------ */
 /*
-  The chapter body stands on the page grid (12 columns, --col-gap), so the
-  invitation's left edge and the form's rules land on the same verticals as
-  every other chapter's, at every width.
+  No `gap`. Each part carries its own step, because the interval between the
+  title and its line is not the interval between the line and the act, and one
+  gap would make them the same number for no reason but convenience.
 */
-/* the running head it used to stand off is gone; the sheet's own top padding
-   is the air above the chapter's first line now */
-.join__body {
-  display: grid;
-  row-gap: 3.5rem;
-  column-gap: var(--col-gap);
-}
-@media (min-width: 1024px) {
-  .join__body {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-  /* 5 columns, not 4: the chapter title is set in Prata at up to 9rem, and
-     «тренировка» alone measures ~750px there. Four columns (768px at 2560)
-     would leave it a handful of pixels of slack, and LineReveal clips every
-     line to its own box — a title that outgrows the column is CUT, not
-     wrapped. Five columns give it 969px at 2560 and 605px at 1600. */
-  .join__invite {
-    grid-column: 1 / span 5;
-    /* a column, so its foot can be ranged to the bottom of it. As a grid item
-       it already stretches to the row's height — the row being as tall as the
-       form beside it — which is the whole mechanism: `margin-top: auto` on the
-       foot spends the difference and the two columns end together. Before
-       this the invitation stopped at 60% of the chapter and the last page of
-       the book closed on 645 × 430 of unbroken black. */
-    display: flex;
-    flex-direction: column;
-  }
-  .join__form-col {
-    grid-column: 7 / span 6;
-  }
-}
-@media (min-width: 1600px) {
-  /* the form takes the sixth column too — it now carries the field column
-     AND the mark's band, so the chapter's air moves inside it. */
-  .join__form-col {
-    grid-column: 6 / span 7;
-  }
-}
-
-/* ---- the foot of the invitation ---------------------------------- */
-.join__invite-foot {
-  margin-top: 2.5rem;
+.join__plate {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 1rem;
-}
-@media (min-width: 1024px) {
-  /* the rule was a 1600-only ornament; it belongs wherever the invitation has
-     a form standing beside it, which is from 1024 up. It turns the Telegram
-     alternative and the trust line into the FOOT of the invitation instead of
-     two more lines drifting under the lead. */
-  .join__invite-foot {
-    margin-top: auto;
-    padding-top: 2rem;
-    border-top: 1px solid var(--color-rule-dark);
-    align-self: stretch;
-  }
+  align-items: center;
+  text-align: center;
 }
 
-/* ------------------------------------------------------------------ */
-/* The form                                                            */
-/* ------------------------------------------------------------------ */
-.join-form {
-  display: grid;
-  row-gap: var(--field-gap);
-}
-.join-form__pair {
-  display: grid;
-  gap: var(--field-gap);
-}
-@media (min-width: 768px) {
-  .join-form__pair {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (min-width: 1600px) {
-  /*
-    Two tracks, and they are the form column's now rather than the form's: a
-    FIXED field column (a `minmax(0, …)` track would size to the max-content of
-    an <input>, about 180px, and collapse the form) and the rest of the slot
-    for the closing act. `align-items: center` sets the mark against the middle
-    of the field stack — the two are different heights by design, and the ring
-    reads as hung beside the fields rather than as a fourth row of them.
-  */
-  .join__form-col {
-    display: grid;
-    grid-template-columns: var(--field-measure) minmax(0, 1fr);
-    column-gap: var(--col-gap);
-    align-items: center;
-  }
-  .join-form {
-    grid-column: 1;
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Fields                                                              */
-/* ------------------------------------------------------------------ */
-.join-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.join-input {
-  /* 3rem holds until 2000 (2.4vw), then the rule follows the sheet up to
-     56px — a 48px field under 18px body copy reads as a leftover from a
-     narrower page. It never drops below the 44px hit target. */
-  height: clamp(3rem, 2.4vw, 3.5rem);
-  padding: 0 0 0.5rem;
-  color: var(--color-bone);
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--color-bone-2);
-  border-radius: 0;
-  font-family: var(--font-body);
-  /* the body ramp from globals, restated: an input inherits neither */
-  font-size: clamp(1rem, 0.75vw, 1.125rem);
-  transition: border-color var(--duration-fast) var(--ease-out);
-  appearance: none;
-}
-.join-input::placeholder {
-  color: color-mix(in oklab, var(--color-bone-2) 70%, transparent);
-}
-.join-input:focus {
-  outline: none;
-  border-bottom-color: var(--color-shu-lift);
-}
-.join-input:focus-visible {
-  outline: 2px solid var(--color-shu-lift);
-  outline-offset: 4px;
+/* ---- the watermark and the title, in one box ---------------------- */
+.join__head {
+  position: relative;
+  /* positioned, z-index auto — deliberately NOT a stacking context, so the
+     mark inside it is measured against .join__sheet and lands under every
+     line on the plate rather than only under this heading */
+  width: 100%;
 }
 /*
-  The invalid state, marked the way a proof is marked: the rule under the field
-  DOUBLES in weight and goes to full-strength bone. It used to turn vermilion,
-  which put the page's one accent on a validation state and signalled by hue —
-  and the message below the field is the actual signal either way. The height is
-  fixed and the box is border-box, so the extra pixel moves nothing.
+  LEFT/RIGHT 0 AND CENTRED BY `justify-content`, never `left: 50%` + a -50%
+  translate. Both centre the box, and the second one silently lies about its
+  size: an absolutely positioned element with `width: auto` and `left: 50%`
+  shrink-to-fits into what is left of the containing block, which is HALF of
+  it. The translate then centres that half-width box, so the composition looks
+  right and the mark is quietly squeezed. Measured at 390 it cost more than
+  half the glyph — the token asked for 152px and the SVG rendered at 84 —
+  while 1440 was correct only because 598px of content happened to fit inside
+  the 668px it was allowed. Every width below ~620 was wrong and none of them
+  looked broken, which is the worst kind of wrong.
 */
-.join-input[aria-invalid="true"] {
-  border-bottom-width: 2px;
-  border-bottom-color: var(--color-bone);
-}
-.join-input--area {
-  height: auto;
-  min-height: clamp(5rem, 4vw, 6.5rem);
-  padding-top: 0.5rem;
-  line-height: 1.5;
-  resize: vertical;
-}
-/* the number field keeps tabular figures and no spinners */
-.join-input[type="number"] {
-  font-variant-numeric: tabular-nums;
-  -moz-appearance: textfield;
-}
-.join-input[type="number"]::-webkit-outer-spin-button,
-.join-input[type="number"]::-webkit-inner-spin-button {
-  appearance: none;
-  margin: 0;
-}
-/* the error is announced (role="alert") and printed at full strength; it is
-   not red, because red on this page is the brush and the reader's focus */
-.join-error {
-  color: var(--color-bone);
-}
-
-/* honeypot: off-screen, never focusable by pointer or tab */
-.join-hp {
+.join__ghost {
   position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
+  top: 50%;
+  left: 0;
+  right: 0;
+  translate: 0 -50%;
+  z-index: -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ghost-gap);
+  color: var(--ghost-tone);
   pointer-events: none;
 }
-
-/* ------------------------------------------------------------------ */
-/* The closing act — the ensō, the ask, the notice, the consent         */
-/* ------------------------------------------------------------------ */
-.join-close {
-  /* the field row-gap (2rem) plus a step: the closing block stands further
-     from the last field than the fields stand from each other */
-  margin-top: 3rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  /* no `gap`: the notice below is a live region that is present and EMPTY
-     until the reader presses, and a gap would reserve a band of ink for it
-     on every sheet that never shows one. Each part carries its own step. */
-}
-@media (min-width: 1600px) {
-  .join-close {
-    grid-column: 2;
-    margin-top: 0;
-    /* the mark's band closes the manual on the right trim, so everything hung
-       under it ranges to that edge too */
-    align-items: flex-end;
-    text-align: right;
-  }
+.join__ghost-glyph {
+  /* `0 0 auto`: the row is sized to fit the trim at every tier, so a glyph that
+     shrank would mean the sizing above it had gone wrong — better it overflow
+     into the chapter's `overflow-x-clip` where it can be seen and fixed. */
+  flex: 0 0 auto;
+  width: var(--ghost-glyph);
+  height: auto;
 }
 
-/* below 1024: the mark, then the ask at the width of the field column */
+/* ---- the line ----------------------------------------------------- */
+.join__lead-band {
+  margin-top: clamp(1.75rem, 2.2vw, 3rem);
+}
+/* the measure is held on the TEXT, in ch, never on a container */
+.join__lead {
+  max-width: 32ch;
+  color: var(--color-bone-2);
+}
+
+/* ------------------------------------------------------------------ */
+/* The act — the ensō, with the door inside it                         */
+/* ------------------------------------------------------------------ */
+.join__act-band {
+  margin-top: clamp(2.5rem, 4vw, 4.5rem);
+}
 .join-act {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1.75rem;
-  width: 100%;
-  max-width: var(--submit-max);
+  display: grid;
+  place-items: center;
+  width: var(--enso-size);
+  aspect-ratio: 1 / 1;
 }
 .join-enso {
-  width: var(--enso-size);
-  height: auto;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   /* the one red thing in this chapter, and it is the sensei's brush */
   color: var(--color-shu-lift);
-  margin-left: calc(var(--enso-hang) * -1);
   pointer-events: none;
 }
 
-@media (min-width: 1024px) {
-  /* the ring takes the button back: one square box, the mark filling it, the
-     word centred in the opening */
-  .join-act {
-    display: grid;
-    place-items: center;
-    gap: 0;
-    width: var(--enso-size);
-    max-width: none;
-    aspect-ratio: 1 / 1;
-    margin-left: calc(var(--enso-hang) * -1);
-  }
-  .join-enso {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    margin-left: 0;
-  }
-}
-@media (min-width: 1600px) {
-  /* beside the fields the hang mirrors. The act's box ends on the trim and the
-     ink reaches 24–32px past it, into a gutter that is never narrower than
-     57.6px at these widths — so no ink can leave the paper, and the type below
-     the mark still lines up on the trim. */
-  .join-act {
-    margin-left: 0;
-    margin-right: calc(var(--enso-hang) * -1);
-  }
-}
-
-.join-submit {
+.join-cta {
   position: relative;
   /* above the mark: the ring is drawn behind the word, never over it */
   z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  min-height: 3.25rem;
-  padding-inline: 1.25rem;
+  min-width: calc(var(--enso-size) * var(--submit-fill));
+  /* taller than a field, deliberately: a 48px slab in a 164px opening leaves
+     58px of empty ink above and below the word, which is the proportion of a
+     loading ring. At 52–64px the word is a block the circle closes around. */
+  min-height: clamp(3.25rem, 2.8vw, 4rem);
+  padding-inline: 1rem;
   /* .t-mono sets this at --text-micro (11px), which is a label size. This is
      the last ask in the manual and the word the ensō is drawn around, so it is
-     set a step up — big enough to fill the ring's opening, capped so that a
-     long Russian label can never outgrow the box the ring holds. */
+     set a step up — capped so that a long Russian label can never outgrow the
+     box the ring holds. */
   font-size: clamp(0.8125rem, 0.62vw, 1rem);
   text-align: center;
   color: var(--color-ink);
@@ -432,82 +246,57 @@
     transform var(--duration-fast) var(--ease-out);
 }
 /*
-  The hover is a ground swap, not a hue: the slab inverts to the chapter's own
-  ink and keeps its bone rule. That is a ~12:1 luminance event, legible in
-  greyscale, and it is the same move every other button on the page makes
-  (`.ground-ink .btn-ink:hover`). It is opaque on purpose — the ensō is drawn
-  behind this button, and a slab that went transparent would show the ink of
-  the ring through the word.
+  A ground swap, not a hue. The slab inverts to the chapter's own ink and keeps
+  its bone rule — legible in greyscale, and the same move every other button on
+  the page makes. It stays OPAQUE on purpose: the ensō is drawn behind this
+  word, and a slab that went transparent would show the ring's ink through it.
 */
-.join-submit:hover {
+.join-cta:hover {
   background: var(--color-ink);
   color: var(--color-bone);
 }
-.join-submit:active {
+.join-cta:active {
   transform: translateY(1px);
 }
 @media (prefers-reduced-motion: reduce) {
-  .join-submit:active {
+  .join-cta:active {
     transform: none;
   }
 }
-@media (min-width: 1024px) {
-  .join-submit {
-    width: auto;
-    min-width: calc(var(--enso-size) * var(--submit-fill));
-    /* taller inside the ring than a field is, deliberately: a 48px slab in a
-       164px opening leaves 58px of empty ink above and below the word, which
-       is the proportion of a loading ring. At 52–64px the word is a block the
-       circle closes around. The corners still clear the ink by ~10px at every
-       tier — check that first if either number is ever retuned. */
-    min-height: clamp(3.25rem, 2.8vw, 4rem);
-    padding-inline: 1rem;
-  }
-}
 
-/* ---- the notice ---------------------------------------------------
-   Empty until the reader presses, and never `display: none` — a live region
-   has to be in the render tree BEFORE its text arrives or half the screen
-   readers on the market will not announce it. Empty it is a zero-height flex
-   item that costs nothing; the slip inside it carries the step. What it says
-   is that nothing was sent (see the `Status` note in Join.tsx), so it is set
-   as apparatus, in the mono voice for matter that is read, with the working
-   route under it. */
-.join-notice__slip {
-  margin-top: 1.5rem;
+/* ------------------------------------------------------------------ */
+/* The exit — the rule that closes the manual, and the working route   */
+/* ------------------------------------------------------------------ */
+/*
+  The hairline runs the full width of the trim rather than sitting only under
+  the type it precedes. At 2560 that is a 2376px rule across the foot of the
+  last sheet, which is the mark a printed book ends on; a 34rem line centred
+  under a 2376px plate would read as a divider between two paragraphs.
+*/
+.join__exit {
+  margin-top: clamp(3rem, 5vw, 5.5rem);
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.875rem;
-  max-width: 42ch;
+  align-items: center;
+  gap: 1rem;
 }
-/* `.rule` carries a height and a colour, never a width: as a flex item it has
-   to be told to span its box or it measures nothing at all */
-.join-notice__slip > .rule {
+.join__exit-rule {
+  /* `.rule` carries a height and a colour, never a width: as a flex item it
+     has to be told to span its box or it measures nothing at all */
   align-self: stretch;
+  margin-bottom: clamp(1.5rem, 2vw, 2.5rem);
 }
-.join-notice__line {
-  color: var(--color-bone);
-}
-@media (min-width: 1600px) {
-  .join-notice__slip {
-    align-items: flex-end;
-  }
-}
-
-.join-consent {
-  margin-top: 1.5rem;
-  max-width: 42ch;
+.join__trust {
   color: var(--color-bone-2);
 }
 
 /* ------------------------------------------------------------------ */
-/* Exits — the Telegram alternative and the notice's route              */
+/* The exit link                                                       */
 /*                                                                     */
-/* The book's exit link: a 44px target whose rule doubles under the      */
-/* pointer rather than                                                   */
-/* changing hue. The rule sits under the LABEL rather than under the     */
-/* link box, because a 44px box puts its own border a finger's width     */
+/* A 44px target whose rule doubles under the pointer rather than       */
+/* changing hue. The rule sits under the LABEL rather than under the    */
+/* link box, because a 44px box puts its own border a finger's width    */
 /* below the type it is supposed to underline.                          */
 /* ------------------------------------------------------------------ */
 .join-out {

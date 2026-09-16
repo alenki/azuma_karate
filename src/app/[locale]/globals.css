@@ -716,7 +716,7 @@
   --tt-cell-quiet: var(--color-ink-quiet);
 }
 /* only the sessions go unruled. A day row on the agenda keeps its rule — the
-   mobile week is MADE of those seven lines, and dropping four of them reads
+   mobile week is MADE of those five lines, and dropping some of them reads
    as a broken table rather than as a quieted one. */
 .timetable__cell--off,
 .timetable__session--off { --tt-cell-rule: transparent; }
@@ -741,8 +741,8 @@
 .legend__cell {
   /* the three weights the band is ruled in. The top rule is the standard
      hairline; the verticals BETWEEN two cells are the lightest — the band
-     divides five groups, the table divides seven days, and the lighter grade
-     is what keeps five-over-seven reading as two orders of division rather
+     divides four groups, the table divides five days, and the lighter grade
+     is what keeps four-over-five reading as two orders of division rather
      than as a failed alignment — and the seam where the band meets the table
      is the heaviest rule the chapter has. */
   --tt-band-rule: var(--color-rule);

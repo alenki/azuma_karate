@@ -15,17 +15,28 @@ import { Register, EASE_OUT } from "@/components/ui/Reveal";
 const SERVER_DAY: number | null = null;
 const todayStore = createLiveStore<number | null>(() => nowInClubTime().day, (d) => String(d));
 
-/** ISO weekdays, in reading order. The week is printed left to right. */
-const WEEK = [1, 2, 3, 4, 5, 6, 7] as const;
+/**
+ * The club's week, in reading order — the days this table prints, left to
+ * right. The club trains Monday to Friday, so the weekend is not printed at
+ * all rather than printed empty: `.timetable__empty`'s em dash states a rest
+ * day INSIDE the week the table covers, and Saturday and Sunday are outside
+ * it. Both the desktop columns and the mobile agenda iterate this list, and
+ * `byDay()` is keyed by ISO weekday, so a session added on day 6 or 7 would
+ * need this list widened before it printed anywhere.
+ *
+ * `Session["day"]` keeps the full ISO range on purpose: `nowInClubTime()`
+ * reports the real weekday, and on a weekend no printed column is today.
+ */
+const WEEK = [1, 2, 3, 4, 5] as const;
 
 /**
  * The weekly timetable as a printed table.
  *
  * MOTION. The week is the largest artefact on the site, and it used to arrive
- * as one 24px fade-up: seven day columns, seventeen sessions and every rule in
- * the table appearing together in a single block, with no internal order at
- * all. It is a press pulling seven forms now — <Register>, the verb for a row
- * of counted things coming into register, staggering the seven columns left to
+ * as one 24px fade-up: every day column, every session and every rule in the
+ * table appearing together in a single block, with no internal order at all.
+ * It is a press pulling five forms now — <Register>, the verb for a row of
+ * counted things coming into register, staggering the five columns left to
  * right along the baseline they share. The band above it registers the same
  * way, and today's brush tick is timed to land after the last column, so the
  * chapter's one red mark is the last thing that happens rather than the first.
@@ -44,10 +55,9 @@ const WEEK = [1, 2, 3, 4, 5, 6, 7] as const;
  *
  * THE BAND. The key used to be five mono labels on a flex row with a 2rem
  * margin under it — a strip of UI floating over a printed table, and three
- * ragged rows of small caps on a phone. It is the table's own head now: five
- * ruled cells, bled with the week from 1280, carrying the counter 01–05, the
- * group in the display face, its age band, and the club's own line about the
- * group (`Group.note`, which was written for this file and printed nowhere
+ * ragged rows of small caps on a phone. It is the table's own head now: four
+ * ruled cells, bled with the week from 1280, carrying the group in the display
+ * face, its age band, and the club's own line about the group (`Group.note`, which was written for this file and printed nowhere
  * until now). Its bottom rule IS the table's top rule — the week's columns and
  * the mobile agenda stopped drawing their own, or the two would stack as a 2px
  * double.
@@ -111,14 +121,14 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
       {/*
         ---- the register band ----
         The table's key, printed as the table's own head rather than as a line
-        of labels floating above it: five ruled cells sharing the week's bleed,
+        of labels floating above it: four ruled cells sharing the week's bleed,
         its hairline grade and its seam. Each cell is still one filter toggle.
 
         The caption stays inside the trim while the band bleeds past it, and it
         is a VISIBLE label now — `role="group"` is pointed at it with
         `aria-labelledby`, so the name a screen reader announces is the one a
         sighted reader can read. It used to be an `aria-label` hardcoded in this
-        file, which meant the five buttons carried no printed label at all.
+        file, which meant the four buttons carried no printed label at all.
 
         `itemClassName` matters: <Register> wraps every child in a box of its
         own, so THAT box is the flex item and the button has to fill it —
@@ -166,9 +176,9 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
       </Register>
 
       {/*
-        desktop: the week in seven columns, trimmed to the paper edge from
+        desktop: the week in five columns, trimmed to the paper edge from
         1280. `amount` holds the stagger back until a fifth of the table is in
-        front of the reader — the whole run is 7 × 70ms and would otherwise be
+        front of the reader — the whole run is 5 × 70ms and would otherwise be
         over before the first column cleared the fold.
       */}
       <Register
@@ -198,7 +208,7 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
                       moment the client learned the weekday — which, for a
                       chapter eight screens down the sheet, meant it had
                       already been drawn by the time anyone arrived. The delay
-                      puts it after the seventh column lands.
+                      puts it after the last column lands.
                     */}
                     <Brush kind="tick" className="timetable__tick text-shu" delay={0.65} />
                   </span>

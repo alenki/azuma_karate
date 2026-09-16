@@ -13,42 +13,44 @@
 /*     Потом удар.                    Детям с четырёх лет…              */
 /*                                    [ Записаться → ]                  */
 /*                                                                      */
-/* It used to be a band of bare paper. It is a photograph now, printed  */
-/* to all four trimmed edges, and the reader crosses it to get from the */
-/* bow to the strike. Same interval, same count a student holds between */
-/* them — but the thing being held is the technique itself, so the      */
-/* composition now states its own subject instead of gesturing at it.   */
+/* It used to be a band of bare paper, then a screen of white gi. It is */
+/* a black room with one figure standing in it, printed to all four     */
+/* trimmed edges, and the reader crosses it to get from the bow to the  */
+/* strike. Same interval, same count a student holds between them — but */
+/* the silence is now the room the strike is thrown in.                 */
 /*                                                                      */
-/* THE CHAPTER PRINTS ON PAPER, and that is the whole of this pass.     */
+/* THE CHAPTER PRINTS ON INK, and that is the whole of this pass.       */
 /*                                                                      */
-/* It printed on ink: a studio kick on a black seamless, the headline   */
-/* knocked out in bone, the bar inverting as the reader arrived. The    */
-/* plate is a snowfield now, the type is ink, and the bar stays ink.    */
-/* Everything below follows from that one change of ground.             */
+/* It printed on paper: a white gi filling the screen, ink type, and a  */
+/* header that stayed ink because nothing under it ever went dark. The  */
+/* plate is near-black now, the type is bone, and the bar inverts as    */
+/* the reader arrives. Everything below follows from that one change of */
+/* ground.                                                              */
 /*                                                                      */
-/* WHAT IT BUYS. A plate at the size of the screen has no top edge to   */
-/* dissolve, so the ink version had to end on a hard trimmed edge at    */
-/* 100svh and call it a fold. This one does not have to: 二 is a paper   */
-/* chapter (About.tsx, `ground="paper"`), so the plate's foot runs out  */
-/* into the page's own paper, which is the thing that stopped a         */
-/* photograph this size reading as a website hero image in the first    */
-/* place. The seam is a dissolve, not a cliff, and 二's own opening      */
-/* carries the chapter break.                                           */
+/* WHAT IT COST AND WHAT IT BOUGHT. The paper version could dissolve    */
+/* its foot into 二's own paper, and it spent three measured ramps on   */
+/* doing it. This one cannot: 二 is a paper chapter (About.tsx), so the */
+/* foot ends on a TRIMMED EDGE — the photograph runs to black and the   */
+/* next sheet begins. That is the ordinary arrangement in this book;    */
+/* every other ink chapter meets its neighbour the same way.            */
 /*                                                                      */
-/* An earlier draft of this file asserted 二 was ink and measured the    */
-/* seam as a 1.6-level step on that basis. It was already wrong when it */
-/* was written — About has been `paper` throughout. Judge this file     */
-/* against the render.                                                  */
+/* In exchange the ramps stop being structural. The paper version's     */
+/* scrim was "the only thing making the foot legible" and every stop in */
+/* it was solved against a contrast floor. Bone on this plate's field   */
+/* is better than 18:1 before any scrim at all, so what is left is a    */
+/* BLEED — a foot that seats the type and trims clean, a head that      */
+/* insures the bar, and nothing at all on the binding side, which is    */
+/* bare black already.                                                  */
 /*                                                                      */
-/* The plate is pressed to paper (`#duotone-paper-ink`), like every     */
-/* other plate on a light chapter: its lightest tone is exactly the     */
-/* page's own paper, so there is no edge where the photograph stops     */
-/* and the sheet starts.                                                */
-/*                                                                      */
-/* THE ARITHMETIC INVERTS. Ink type needs the plate's local tone at or  */
-/* ABOVE L 0.480 to clear 4.5:1, where bone needed it at or under       */
-/* 0.403. The scrim's three ramps therefore bleed to PAPER and lift     */
-/* rather than darken, and they are the only reason the foot reads.     */
+/* THE PLATE IS GRADED, NOT PRESSED, and that is the other half of the  */
+/* pass. Every other plate in the book goes through `url(#duotone-…)`,  */
+/* an SVG reference filter that maps luminance onto the line between    */
+/* two inks — which is exactly what blew a lit gi to paper-white and    */
+/* why this sheet read as washed. Here the grade is three plain colour- */
+/* matrix functions, so the tungsten warmth of the room survives and    */
+/* the same declaration can be given to the <img> and the <video>       */
+/* together. Nothing is baked into the video any more; see              */
+/* scripts/press-hero-reel.sh, which got half as long.                  */
 /*                                                                      */
 /* NOTHING BELOW ~1600px CHANGES SIZE that did not have to. Every clamp */
 /* here is hero-scoped; no global token is added, changed or overridden. */
@@ -64,11 +66,26 @@
   min-height: 100svh;
   position: relative;
   /*
-    The stock over the plate blends at `multiply`. Without a stacking context
-    of its own that blend reaches back through the section and darkens whatever
-    is painted behind it.
+    <Grain> over the plate blends at `screen`. Without a stacking context of its
+    own that blend reaches back through the section and lifts whatever is
+    painted behind it. (It was `multiply` and the paper stock while this chapter
+    was paper; the reason for the isolate is the same either way.)
   */
   isolation: isolate;
+
+  /*
+    WHERE THE FIGURE STANDS — a real control here, not a focal-point hint.
+
+    The plate is 2560x1080 with 640px of black padded onto the binding side
+    (scripts/press-hero-reel.sh), which puts the figure at x 0.555-0.746 of the
+    file. Covering a 1512x900 sheet it is cropped to 70.9% of its width, and
+    35% slides that window left so he lands at screen x 0.639-0.909 — clear of
+    the strike's column, which ends at 0.614, and inside the trim.
+
+    Keep it in step with `.hero__reel`'s own `object-position`: the video lies
+    directly over the still, and a disagreement here is a jump on play.
+  */
+  --plate-focus: 35% 50%;
 
   /* ---- the vertical rhythm, top to bottom ------------------------- */
   --pad-top: calc(var(--header-h) + clamp(0.75rem, 2.6svh, 2.75rem));
@@ -142,9 +159,13 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  /* the ground, so the box is the page's own paper before the plate paints —
-     there is no flash of black under a chapter that is printed on paper */
-  background: var(--color-paper);
+  /* the ground, so the box is already the chapter's own ink before the plate
+     paints and there is no flash of PAPER under a chapter printed on ink. This
+     read `--color-paper` while the chapter was paper, for the mirror-image
+     reason; it is the one line in this file that has to be turned over by hand
+     whenever the ground does, because `.ground-ink` paints the SECTION and this
+     box is painted over it. */
+  background: var(--color-ink);
 }
 .hero__plate picture,
 .hero__plate img {
@@ -155,28 +176,54 @@
   height: 100%;
 }
 /*
-  THE GRADE. The same press every other plate on a light chapter goes through —
-  luminance mapped onto the line between ink and paper — pulled a little
-  harder, because this one is doing structural work no other plate does: it is
-  the chapter's ground and the type is set on it. `grayscale(1)` leads so a
-  browser that cannot resolve the filter reference degrades to a monochrome
-  plate rather than to the original colour; the two source files are stored
-  grayscale already, so on this plate it is a no-op that costs nothing and
-  keeps the fallback honest for whatever replaces them.
-*/
-.hero__plate img {
-  object-fit: cover;
-  filter: grayscale(1) contrast(1.06) url("#duotone-paper-ink");
-}
-/* a tall viewport gets the upright cut of the same frame (see ui/Photo's
-   `art`), and the upright cut wants its own focal point — which
-   `object-position` cannot switch per <source>, so it is a variable the
-   section re-points here, inside the SAME query the component passes. Keep the
-   two in step: a mismatch prints one cut through the other's focus.
+  THE GRADE — one declaration, and BOTH halves of the plate are given it.
 
-   Nothing is re-pointed at present: both cuts are centred on the knot, which
-   is the subject of both. The hook is kept because the next frame to fill this
-   slot will almost certainly want it. */
+  This is the only plate in the book that is not on the shared press. The press
+  maps a photograph's luminance onto the line between two inks, so its lightest
+  tone is exactly the page's own paper: correct for a plate lying on a sheet,
+  and ruinous here, where it took a room lit by one tungsten source and printed
+  the gi at #F3EFE6. That is what «the filters are too extreme» was pointing at.
+
+  What replaces it is three colour-matrix functions and nothing else:
+
+    saturate(0.55)   half the chroma. The room keeps its warmth and stops short
+                     of being a photograph OF a colour.
+    contrast(1.02)   a nudge, not a grade. The frame already runs #000 to a lit
+                     white; there is no separation left to buy and a good deal
+                     to lose — 1.06 flattened the gi's own folds.
+    brightness(0.92) the last of the «darker», and last in the chain on purpose
+                     so it scales the graded result rather than the source.
+
+  Mean luminance of the file is 0.015. Through this chain the field stays black
+  and the lit gi lands near L 0.78, which is the only tone on the plate the type
+  has to be reconciled with — see the scrim.
+
+  Cheap in a way the press is not: a colour matrix is a per-pixel multiply the
+  compositor already does, where an SVG reference filter is a separate per-frame
+  pass. That is the whole reason the VIDEO can be handed the same declaration
+  instead of carrying a press baked into its frames, and why this selector has
+  two halves rather than one.
+*/
+.hero__plate img,
+.hero__reel {
+  object-fit: cover;
+  filter: saturate(0.55) contrast(1.02) brightness(0.92);
+}
+/* A tall viewport gets the upright cut (see ui/Photo's `art`), and the upright
+   cut wants its own focal point — which `object-position` cannot switch per
+   <source>, so it is a variable the section re-points here, inside the SAME
+   query the component passes. Keep the two in step: a mismatch prints one cut
+   through the other's focus.
+
+   The hook is finally earning itself. The wide cut is padded off centre and is
+   read at 35%; the upright cut has the figure standing in the middle of its own
+   black field and wants plain centre, because the phone shows a 0.46:1 strip of
+   it and any offset walks him out of the strip. */
+@media (max-aspect-ratio: 4 / 5) {
+  .hero {
+    --plate-focus: 50% 50%;
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /* The reel                                                            */
@@ -187,27 +234,33 @@
 /* happens here is a photograph beginning to move, and there is no      */
 /* moment at which two images are on the sheet.                         */
 /*                                                                     */
-/* NO `filter`, and that is the one line in this block that matters.    */
-/* Every other plate in the book is pressed in CSS. This one carries    */
-/* `grayscale(1) contrast(1.06) url(#duotone-paper-ink)` BAKED IN,      */
-/* because an SVG reference filter is a per-frame pass and a            */
-/* full-screen one over 30fps is a per-frame pass on the machines least */
-/* able to afford it. Declaring the filter here would press it twice.   */
+/* IT IS GIVEN THE FILTER NOW, and that is the one line in this block   */
+/* that changed. The video used to carry the two-ink press baked into   */
+/* its frames, because `url(#duotone-…)` is an SVG reference filter and  */
+/* a full-screen per-frame pass on the machines least able to afford    */
+/* one — so the script computed by hand what the CSS would have done,   */
+/* and the two halves of the plate could drift apart whenever a token   */
+/* moved. The grade is three colour-matrix functions now, which cost    */
+/* the compositor nothing, so the declaration is shared: see the grade  */
+/* above, whose selector names this element alongside the <img>.        */
+/*                                                                     */
+/* `object-position` MUST MATCH `--plate-focus`. The video lies exactly */
+/* over the still and they are the same frame; disagree here and the    */
+/* plate jumps sideways the instant autoplay succeeds.                  */
 /*                                                                     */
 /* IT IS TRANSPARENT UNTIL IT PLAYS. `data-lit` is set on the video's   */
 /* own `playing` event, so a refused autoplay simply leaves the sheet   */
 /* as the photograph it already was. The 280ms is insurance against a   */
-/* tone mismatch between the two presses, not a dissolve anyone is      */
-/* meant to see — if it ever reads AS a dissolve, the presses have      */
-/* drifted and the script is what to re-run.                            */
+/* tone mismatch, not a dissolve anyone is meant to see — and with one  */
+/* declaration grading both halves there is no longer a mismatch it     */
+/* could be insuring against.                                           */
 /* ------------------------------------------------------------------ */
 .hero__reel {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: 50% 50%;
+  object-position: 35% 50%;
   opacity: 0;
   transition: opacity 280ms var(--ease-out);
 }
@@ -223,73 +276,65 @@
 }
 
 /*
-  THE SCRIM — the plate sinking into the chapter's own paper.
+  THE SCRIM — a bleed now, not a crutch.
 
-  Not a white wash laid on a photograph: the solid end of every ramp below is
-  exactly `--color-paper`, which is exactly the tone `#duotone-paper-ink`
-  presses the plate's own highlights to. So the plate does not fade, it BLEEDS
-  OFF, the way a plate bled to a trimmed edge meets the paper of the page it is
-  printed on.
+  On the paper version this was "the only thing making the foot legible", and
+  every stop in it was solved against a contrast floor: the plate ran down to
+  L 0.05 in places, ink type needed L 0.480, so three ramps LIFTED the
+  photograph towards paper and the worst region was tuned to sit near 6:1.
 
-  It is also the only thing making the foot legible, and every stop below was
-  set by measurement rather than by eye. The duotone maps a source luminance L
-  onto the sRGB line from #151311 to #F3EFE6, so ink type needs the plate's
-  local tone at or ABOVE L 0.480 to clear 4.5:1 — and the belt, the hair and
-  the bare trees in this frame run down to L 0.05. The ramps were tuned against
-  the RENDER, sampling the plate with `.hero__sheet` hidden, at 390, 768, 1280,
-  1512 and 2560. Worst pixel under each element, after tuning, in Russian —
-  which is the binding locale here, English measuring about 0.3 easier
-  everywhere:
+  All of that arithmetic is gone, because the plate now answers it by itself.
+  The field around the figure is #000 and bone stands on it at better than
+  18:1. There is exactly ONE tone on this plate the type has to be reconciled
+  with — the lit gi, which the grade lands near L 0.78 — and one place the two
+  actually meet: the offer, ranged to the right trim, where the figure's legs
+  run through its prose.
 
-                    390    768   1280   1512   2560
-      the bow     10.41   8.55   6.13   6.01   5.97
-      the strike  10.23   9.66  10.17   9.98  10.16
-      the offer    7.74   7.74  10.88  10.86  10.71
-      the press    8.97   9.08  11.32   9.05   8.88
+  So there are two ramps and neither of them is a wash, and they were tuned by
+  weakening rather than by strengthening. An earlier pass at 86/74/52/24 put the
+  worst region at 9.5:1 and visibly greyed the figure's legs — which is not a
+  better page, only a greyer photograph. Past the floor a scrim buys nothing and
+  costs the plate; the paper version of this file said the same thing.
 
-  THE BOW IS THE BINDING TERM on this frame, and that is a change: on the ink
-  plate the running head failed first, because `--color-bone-2` had nothing
-  left to spend. The type is full ink now, so the scarce thing is a LIGHT
-  ground and the ramp that matters is whichever one covers the frame's darkest
-  mass. Here that is the binding side: a bare tree stands at x 0.10–0.22 and
-  runs straight through the bow's band. Lift it with the binding ramp, never by
-  moving the type.
+  MEASURED AGAINST THE RENDER, sheet hidden, on the still AND on the reel's last
+  frame (the punch at full extension, which is the frame that reaches furthest
+  into the type). Worst pixel under each element, in Russian:
 
-  THESE RAMPS WERE PULLED BACK, not up. Inverted one-for-one from the ink
-  version they put every region between 8 and 14.5:1 — which is not a better
-  page, it is a washed photograph: past the floor a scrim buys nothing and
-  costs the plate. They were weakened until the worst region sat near 6:1,
-  which is where this book's ink plate already sat (5.74–6.11 under its running
-  head). The fence line, the far trees and the bare foot in the snow are all
-  legible again at 1512, and they were not before.
+                     390   1024x768   1512    2560
+      the bow      14.10      13.63   13.63   13.48
+      the strike   13.48      13.32    8.96    7.82
+      the offer    12.80      13.17    8.73    9.00
+      the press    12.17       8.17   10.56   11.69
+
+  THE BINDING TERM IS THE STRIKE AT 2560, at 7.82:1, and it is the figure's rear
+  foot behind the final period — the one place on any sheet where the headline
+  and the photograph actually touch. The two narrow tiers never go below 8:1 for
+  the plain reason that the type is entirely on black there: the upright cut sets
+  the figure above every line of it.
+
+  THE FOOT seats the type and trims the sheet, and it is the working one. Bone
+  (#EFE9DD) needs the local plate tone at or UNDER L 0.147 to clear 4.5:1, so
+  the ramp has to take the gi from 0.78 to below that across the offer's band
+  and nowhere else. It reaches FULL ink over its last 4% so the plate meets
+  二's paper on a clean trimmed edge: this chapter cannot dissolve into the
+  next the way the paper version could, and a black plate ending in charcoal
+  reads as a mistake where one ending in black reads as a trim.
+
+  THE HEAD is insurance and nothing else. The bar is transparent until it is
+  scrolled and has no ground of its own; the top of the plate is bare black
+  everywhere except the figure's head, and 一/01 and the running head both
+  print in bone over it.
+
+  THERE IS NO BINDING RAMP. The paper version needed one because a bare tree
+  stood at x 0.10-0.22 and ran straight through the bow's band. The binding
+  side of this plate is 640px of padded black. A ramp there would be a veil
+  over nothing.
 
   IF YOU RE-MEASURE: sample with `.hero__sheet` hidden, and REMOVE the
   `nextjs-portal` element first. The dev-mode indicator is a dark disc in the
   bottom-left corner, it sits inside whichever line box reaches that corner,
   and one 26/26/26 pixel takes a 14:1 region to 1.06 and sends you hunting for
   a fault in the photograph that is not there.
-
-  Three ramps, three jobs: the foot carries the headline and the offer, the
-  binding side carries the bow and the tree behind it, and the head carries the
-  bar — which is transparent until it is scrolled and has nothing of its own.
-
-  THE FOOT RAMP'S FIRST TWO STOPS ARE THE BLEED-OFF, and they are separate from
-  its job of carrying type. Weakened enough to save the photograph, the ramp
-  stopped reaching paper at the trim and the seam stepped — which defeats the
-  one thing this chapter's ground was changed for. So the ramp goes to FULL
-  paper across its last 3% — about 27px at 900 — and is back to the tuned value
-  by 8%. Nothing is set that low: the strike's box starts at 6%, and the table
-  above is unchanged by it.
-
-  Measured at the seam, at 1512 x 900, mean row luminance approaching the
-  hero's bottom edge:
-
-      -28px  226.6     -12px  232.3     -4px  234.8
-      -20px  228.5      -8px  233.2       0px 235.8
-
-  and 二's ground is 235.8. The plate does not meet the next chapter, it
-  becomes it. Lengthen that first span and you begin veiling the strike; drop
-  it and the seam steps again.
 */
 .hero__scrim {
   position: absolute;
@@ -299,48 +344,38 @@
   background:
     linear-gradient(
       to top,
-      var(--color-paper) 0%,
-      color-mix(in srgb, var(--color-paper) 70%, transparent) 3%,
-      color-mix(in srgb, var(--color-paper) 56%, transparent) 8%,
-      color-mix(in srgb, var(--color-paper) 46%, transparent) 15%,
-      color-mix(in srgb, var(--color-paper) 28%, transparent) 27%,
-      color-mix(in srgb, var(--color-paper) 10%, transparent) 40%,
-      transparent 54%
-    ),
-    linear-gradient(
-      to right,
-      color-mix(in srgb, var(--color-paper) 40%, transparent) 0%,
-      color-mix(in srgb, var(--color-paper) 10%, transparent) 34%,
-      transparent 54%
+      var(--color-ink) 0%,
+      color-mix(in srgb, var(--color-ink) 78%, transparent) 4%,
+      color-mix(in srgb, var(--color-ink) 60%, transparent) 10%,
+      color-mix(in srgb, var(--color-ink) 50%, transparent) 18%,
+      color-mix(in srgb, var(--color-ink) 30%, transparent) 28%,
+      color-mix(in srgb, var(--color-ink) 12%, transparent) 36%,
+      transparent 46%
     ),
     linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--color-paper) 34%, transparent) 0%,
-      color-mix(in srgb, var(--color-paper) 14%, transparent) 13%,
-      transparent 28%
+      color-mix(in srgb, var(--color-ink) 40%, transparent) 0%,
+      color-mix(in srgb, var(--color-ink) 16%, transparent) 10%,
+      transparent 21%
     );
 }
 /*
-  THE STOCK, over the plate.
+  THE SURFACE, over the plate.
 
-  `.ground-paper` multiplies two near-white tiles into the ground of every
-  paper chapter; this chapter's ground is covered by the plate, so the same two
-  tiles are printed again here, on top of it. Same tokens, same sizes, same
-  operator — the photograph ends up inside the paper's tooth rather than on top
-  of it, which is what a printed plate does.
+  It was `.hero__stock`: the paper chapters' two near-white tiles, multiplied
+  over the photograph so the plate sat inside the paper's tooth rather than on
+  top of it. Multiply has nothing to take from a field of #000, so that tooth
+  vanished the instant the plate went dark — which is the same argument
+  globals.css already makes in the other direction, where it declines to give
+  the stock to the ink chapters at all.
 
-  It is NOT <Grain>: that screens a dark noise field back in, which is the
-  operator that bites on ink and does nothing on paper. See About.tsx, which
-  declines to print one for the same reason.
+  <Grain> is the ink chapters' own answer: two noise fields SCREENED back in,
+  both slopes set from a contrast budget rather than by eye (primitives.css
+  carries that measurement). Hero.tsx prints it; this rule only says where in
+  the stack it lands — above the scrim, below the sheet.
 */
-.hero__stock {
-  position: absolute;
-  inset: 0;
+.hero .grain {
   z-index: 2;
-  pointer-events: none;
-  background-image: var(--stock-tooth), var(--stock-cloud);
-  background-size: 140px 140px, 420px 420px;
-  mix-blend-mode: multiply;
 }
 
 /* ------------------------------------------------------------------ */
@@ -445,7 +480,11 @@
   letter-spacing: -0.01em;
   line-height: 0.94;
   text-wrap: wrap;
-  color: var(--color-ink);
+  /* Knocked out of the plate. `.ground-ink` already sets `color` on the
+     section, so this is strictly a re-statement — and it is kept stated,
+     because the one thing on this sheet that must never be inherited by
+     accident is which of the two inks the headline is printed in. */
+  color: var(--color-bone);
 }
 .hero__line--bow {
   grid-row: 1;
@@ -498,19 +537,23 @@
   min-width: min-content;
   max-width: 100%;
 }
+/* Bone, not `--color-bone-2`. This is the only prose on the first screen and
+   it is the sentence that answers "is my four-year-old too young" — it is not
+   a caption, and it is also the one passage on the sheet that crosses the lit
+   gi, which is what the foot ramp is measured against. */
 .hero__qualifier {
-  color: var(--color-ink);
+  color: var(--color-bone);
   line-height: 1.5;
   text-wrap: pretty;
 }
 /*
   The control is `.btn-press` — the same object the header, the contents page,
   the schedule and the mobile bar print, so the page asks for the one thing it
-  wants in one voice. It is the PAPER form of that object now — ink label,
-  `--color-shu` seal — and nothing here says so either: the `.ground-ink` rules
-  in chrome.css §0 stop matching when the chapter's ground changes, which is
-  the whole mechanism. `--press-h` is the whole size system, so the hero raises
-  the control by setting exactly one value.
+  wants in one voice. It is back to the INK form of that object — bone slab,
+  `--color-shu-lift` seal — and nothing here says so either: the `.ground-ink`
+  rules in chrome.css §0 match again the moment the chapter's ground changes,
+  which is the whole mechanism. `--press-h` is the whole size system, so the
+  hero raises the control by setting exactly one value.
 */
 .hero__press {
   --press-h: clamp(3rem, 4.4svh, 4rem);
@@ -527,9 +570,9 @@
 /* The binding margin                                                  */
 /*                                                                     */
 /* 一 and 01 hang in the gutter over the plate, so the rail is lifted   */
-/* above both the plate and its scrim. They are ink now, not bone: the  */
-/* chapter is paper, so `.ground-ink .chapter__numeral` simply stops    */
-/* matching. Nothing here says so — that is the point of the ground.    */
+/* above the plate, its scrim and its grain. They are bone again: the   */
+/* chapter is ink, so `.ground-ink .chapter__numeral` matches once more. */
+/* Nothing here says so — that is the point of the ground.              */
 /* ------------------------------------------------------------------ */
 .hero .chapter__rail {
   z-index: 4;
@@ -575,36 +618,44 @@
     max-width: 46ch;
   }
   /*
-    A TALLER FOOT RAMP, because the type moved up.
+    A SHORTER FOOT RAMP, and the reason is the upright plate rather than the
+    layout.
 
-    With the offer stacked under it the strike's cap band sits 20-34% up the
-    sheet instead of 12-20%, which on the desktop ramp is exactly where the
-    lift has already fallen away — and the plate's darkest mass, the belt and
-    the standing leg, runs straight through it. The ramp is lifted and
-    lengthened rather than the type being moved, because the composition is the
-    thing worth keeping.
+    The instinct here is the opposite one, and it is what the paper version
+    did: the strike takes the whole trim on a narrow sheet, the offer is
+    stacked under it, so the type occupies more of the page and the ramp was
+    lifted and lengthened to meet it. That was right when the plate filled its
+    frame with a subject.
 
-    The binding-side ramp goes with the second column: there is no second
-    column here, so the strike takes the whole trim and a left-hand lift would
-    wash the plate for nothing.
+    It does not any more. The upright cut sets the figure IN a black field
+    rather than filling one (content/media) — at 390 x 844 he stands from y
+    0.18 to 0.56, and every line of type is below him: the strike's band runs
+    21-28% up from the foot and the press ends at 5%. All of it is on bare
+    black already.
+
+    So the ramp only has to trim the sheet and seat the type, and it must stop
+    short of the figure's legs at 44%, because past that it is a veil over the
+    one thing on the plate worth looking at.
+
+    There is no head ramp change and no binding ramp at all: the top of the
+    upright plate is bare black, and so are both its margins.
   */
   .hero__scrim {
     background:
       linear-gradient(
         to top,
-        var(--color-paper) 0%,
-        color-mix(in srgb, var(--color-paper) 72%, transparent) 2.5%,
-        color-mix(in srgb, var(--color-paper) 56%, transparent) 7%,
-        color-mix(in srgb, var(--color-paper) 50%, transparent) 22%,
-        color-mix(in srgb, var(--color-paper) 32%, transparent) 38%,
-        color-mix(in srgb, var(--color-paper) 12%, transparent) 53%,
-        transparent 66%
+        var(--color-ink) 0%,
+        color-mix(in srgb, var(--color-ink) 70%, transparent) 4%,
+        color-mix(in srgb, var(--color-ink) 46%, transparent) 12%,
+        color-mix(in srgb, var(--color-ink) 26%, transparent) 22%,
+        color-mix(in srgb, var(--color-ink) 10%, transparent) 32%,
+        transparent 42%
       ),
       linear-gradient(
         to bottom,
-        color-mix(in srgb, var(--color-paper) 36%, transparent) 0%,
-        color-mix(in srgb, var(--color-paper) 16%, transparent) 14%,
-        transparent 30%
+        color-mix(in srgb, var(--color-ink) 44%, transparent) 0%,
+        color-mix(in srgb, var(--color-ink) 18%, transparent) 11%,
+        transparent 23%
       );
   }
   /* the press fills the trim on a phone: it is the one thing a thumb is being
@@ -612,6 +663,39 @@
      target than the sheet can afford to offer */
   .hero__press {
     --press-h: 3.25rem;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* A NARROW SHEET THAT IS STILL WIDE-SHAPED                            */
+/*                                                                     */
+/* 1024 x 768, a phone in landscape, a half-screen window. It falls    */
+/* inside the block above, so the strike takes the whole trim — and it  */
+/* is served the WIDE cut, because the plate is art-directed on the     */
+/* viewport's SHAPE and this shape is 1.33:1. The figure therefore      */
+/* stands in the right third and the headline walks straight across     */
+/* him. Measured at 1024 x 768 before this rule existed: the bow ran at */
+/* 1.65:1 over his shoulder and the strike at 3.48:1 over his thigh.    */
+/*                                                                     */
+/* A ramp cannot fix it. The bow sits 111px down a 768px sheet, where   */
+/* only the head ramp reaches, and taking his shoulder under L 0.147    */
+/* means a 57% ink veil across the top of the plate — which is not a    */
+/* legible page, it is a grey one.                                      */
+/*                                                                     */
+/* So the type gives the column back. `--strike-share` returns to the   */
+/* desktop's 0.62 and the size law does the rest: the strike solves to  */
+/* 0.62 of the trim and the bow, at half of it, to 0.43. Both end well  */
+/* left of x 0.68, where the figure begins. The OFFER stays stacked —   */
+/* that part of the block above is about room for a second vertical and */
+/* is still right here.                                                 */
+/*                                                                     */
+/* The headline is smaller than it would be at full width. That is the  */
+/* trade, it is stated rather than hidden, and it is the same trade the */
+/* desktop sheet has always made.                                       */
+/* ------------------------------------------------------------------ */
+@media (max-width: 1279px) and (min-aspect-ratio: 4 / 5) {
+  .hero {
+    --strike-share: 0.62;
   }
 }
 

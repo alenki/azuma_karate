@@ -21,14 +21,15 @@ const HEADING_ID = "schedule-title";
  * left and the one action hung on the right trim, standing on a common
  * bottom edge — and then prints the week as a table. From 1280 up that table
  * is trimmed to the true paper edge rather than framed inside the margin:
- * seven weekdays are seven columns, so the table is the one thing in the
- * manual that spends every pixel of a wide screen on its subject. The table is
+ * the club's five training days are five columns, so the table is the one
+ * thing in the manual that spends every pixel of a wide screen on its
+ * subject. The table is
  * the chapter's last word — nothing is set under it.
  *
  * MOTION. The title rises line by line, the action fades up after it, and the
  * week — the largest artefact on the site — is pulled through the press column
  * by column, left to right, with the chapter's single brush mark ticked under
- * today's weekday after the seventh column lands. The verbs are the shared
+ * today's weekday after the last column lands. The verbs are the shared
  * ones; nothing here needed a new primitive.
  *
  * The chapter's single brush mark is that tick — nothing else here is
