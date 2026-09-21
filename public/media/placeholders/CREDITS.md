@@ -2,7 +2,7 @@
 
 All photos in this folder are **temporary placeholders** from Wikimedia Commons, used under the licences listed below. They have been downscaled to 1600px and recompressed for review. Replace them with SK AZUMA's own photography before launch, then update `src/content/media.ts`.
 
-Chapter 一's plate does not live in this folder — it is pressed into `public/media/hero/` by a script rather than downloaded — but it is a placeholder on exactly the same terms. Its source and licence are at the foot of this file.
+Chapter 一's plate lives in this folder like everything else, but it comes from Pexels rather than Wikimedia Commons, so its source and licence are recorded separately at the foot of this file.
 
 | File | Size | Title | Author | Licence | Source |
 |---|---|---|---|---|---|
@@ -59,33 +59,47 @@ Chapter 一's plate does not live in this folder — it is pressed into `public/
 
 | File | Size | Source | Licence |
 |---|---|---|---|
-| `../hero/kata-plate.jpg` | 2560×1080 | Mixkit clip 49632, "A young man practicing karate moves" — https://mixkit.co/free-stock-video/a-young-man-practicing-karate-moves-49632/ | Mixkit Free License |
-| `../hero/kata-plate-portrait.jpg` | 864×1080 | same clip, a different frame | Mixkit Free License |
-| `../hero/kata-reel.mp4` / `.webm` | 2560×1080, 2.17s | same clip, 8.20–9.72s at 0.70x | Mixkit Free License |
+| sports-hall-stance.jpg | 2560×1080 | Pexels 6253300, "Man in White Kimono Kneeling on Floor" by Artem Podrez — https://www.pexels.com/photo/6253300/ | Pexels License |
+| sports-hall-stance-portrait.jpg | 864×1080 | same frame, cropped to 0.8:1 | Pexels License |
 
-All four are cut from one 1920×1080 source by `scripts/press-hero-reel.sh`, which
-fetches it if you do not pass a path. **Modifications:** trimmed, slowed, padded
-with black on the binding side, and (for the upright cut) scaled into a black
-field. Nothing is graded on disk — `src/styles/sections/hero.css` owns the grade.
+Both are cut from one 6014×3383 original. **Modifications:** cropped only — the
+wide plate to 2.370:1 and the upright one to 0.8:1, then resampled. Nothing is
+graded on disk; `src/styles/sections/hero.css` owns the grade.
 
-The Mixkit Free License permits commercial and non-commercial use with no
-attribution required, and forbids redistributing the file as stock. This entry
-is therefore a record for whoever maintains the page, not a legal obligation.
+The Pexels License permits commercial and non-commercial use with no
+attribution required, and forbids selling unmodified copies. This entry is
+therefore a record for whoever maintains the page, not a legal obligation.
 
 THREE THINGS MAKE THIS A PLACEHOLDER AND NOT A CHOICE THE CLUB HAS MADE.
 
-1. **The uniform is wrong.** It is a taekwondo dobok — V-neck, pullover — and
-   SK AZUMA is a Kyokushin club, which wears a wrap-over gi. No crop removes
-   the collar. Anyone who trains will see it.
-2. It is a photograph of neither this club, this town, nor these students.
-3. There is a small embroidered maker's mark on the thigh, about 14px wide at
-   1512. It is not a federation wordmark and nothing else in the frame carries
-   branding, but it is a mark the club did not choose.
+1. **The gi is a judogi, not a Kyokushin karate gi.** The wrap-over cut is
+   right — which the frame it replaced was not, a taekwondo dobok whose V-neck
+   no crop removed — but the weight and the skirt are a judoka's. Someone who
+   trains will see it.
+2. It is a photograph of neither this club, this town, nor these students. The
+   hall is the right *kind* of room for Nalchik, which is why it was chosen,
+   and that is as far as it goes.
+3. It is a **true greyscale original**, so this plate carries no colour of its
+   own and there is nothing in it to grade warm. That suits a manual whose
+   plates are black and white, but it is a constraint the client's own
+   photography need not inherit.
+
+The only mark on the frame is a small embroidered manufacturer's logo on the
+chest, about 10px wide at 1512. It is not a federation wordmark and nothing
+else in the frame carries branding.
+
+WHY THIS FRAME AND NOT A DARKER ONE. Chapter 一 printed on ink for one pass,
+which required a plate that was dark wherever the headline fell. The only
+photographs that clear that ceiling are a figure lit on a black set — no floor
+under them, no room behind them, no cast shadow — and that reads as a cut-out
+rather than as a club. Measured against the 4.5:1 floor, every real-room karate
+frame in the pool sits at L 0.3–0.99 where the type falls; a warm backlit dojo
+reached 0.99. So the chapter went back to paper and the plate is a real room.
+`media.ts` carries the full brief a replacement has to meet.
 
 `placeholder: true` in `media.ts` is what holds the page back from claiming
 otherwise: no caption names anyone, no credit line is printed. The club's own
-photography replaces all four files and this whole block goes with it — and the
-slot's brief, written out in `media.ts`, is what the replacement has to meet.
+photography replaces both files and this whole block goes with it.
 
 ## Note on two files no longer used
 

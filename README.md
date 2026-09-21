@@ -164,63 +164,67 @@ written across it:
 
     Сначала поклон.                                <- half size
 
-              ( one karateka, alone in a black room )
+              ( one karateka, alone in a lit sports hall )
 
     Потом удар.                     Детям с четырёх лет…
                                     [ Записаться → ]
 
 **The beat is the plate.** The sheet sets one sentence and puts the silence
 inside it — the bow at exactly half the strike, with an interval between them
-that is the count a student holds. What changed across two passes is what that
-interval is made of. It was a band of bare paper, then a screen of white gi; it
-is a black room now, and the silence is the room the strike is thrown in.
+that is the count a student holds. What changed across three passes is what that
+interval is made of. It was a band of bare paper, then a screen of white gi,
+then a black room; it is a municipal sports hall on a winter morning, and the
+silence is the length of that floor.
 
-**The chapter prints on ink**, and that is the whole of the current pass. It
-printed on paper until then: the headline in ink over a lit gi, a bar that never
-inverted. Everything else on this screen follows from the one change of ground —
-the type is bone, the header inverts the instant the reader arrives, 一/01 prints
-in bone in the binding margin, and the control is the ink form of the same press
-the rest of the page uses. None of that is said twice; the ground says it.
+**The chapter prints on paper**, and turning it back there is the whole of the
+current pass. It printed on ink for one pass: a near-black plate, bone type, a
+bar that inverted as the reader arrived. Everything on this screen follows from
+the one change of ground — the type is ink, the header keeps its own, 一/01
+prints in ink in the binding margin, and the control is the paper form of the
+same press the rest of the page uses. None of that is said twice; the ground
+says it.
+
+**The ground moved for the photograph, not the other way round.** The ink brief
+required a plate that was dark everywhere the headline fell, and the only
+photographs that clear that ceiling are a figure lit on a black set — no floor
+under them, no room behind them, no cast shadow. That reads as a cut-out rather
+than as a club, and the frame it shipped with was a taekwondo dobok besides.
+Bone needs the local plate tone at or under L 0.147; measured against that
+floor, every real-room karate frame in the pool sits at L 0.3–0.99 where the
+type falls, and a warm backlit dojo reached 0.99. No scrim closes a gap that
+size without erasing the photograph. So the terms flipped back: paper ground,
+ink type, and a plate with a room in it.
 
 **The plate is graded, not pressed,** and it is the only one in the book that
 is. Every other photograph goes through `#duotone-paper-ink` or
 `#duotone-ink-bone` — an SVG filter that maps luminance onto the line between
 two real inks, so a plate's lightest tone is exactly the page's own paper or
-bone. That is right for a plate lying on a sheet, and it is exactly what was
-blowing a tungsten-lit gi to paper-white here. The hero takes `saturate(0.55)
-contrast(1.02) brightness(0.92)` instead: three colour-matrix functions, so the
-room keeps its warmth — and because a colour matrix costs the compositor nothing
-where a reference filter is a per-frame pass, the same declaration can be handed
-to the `<img>` and the `<video>` together. Nothing is baked into the video any
-more, and `scripts/press-hero-reel.sh` lost half its length with it.
+bone. That is right for a plate lying on a sheet and wrong for a plate that *is*
+the sheet. The hero takes `contrast(1.02) brightness(1.03)` instead: two
+colour-matrix functions, which cost the compositor nothing where a reference
+filter is a separate pass. There is no `saturate()` — the frame is a true
+greyscale original, so it had nothing to act on, and leaving it out means the
+client's own colour photography will print in colour when it lands.
 
-**And the plate is made once.** It is the one moving plate in the book: 2.17s of
-a guard becoming a straight punch, and then the sheet is a photograph for as long
-as the reader stays on it. No loop and nothing ambient — a background cycling
-every few seconds is exactly what this chapter's own rule forbids. The video lies
-*over* the plate and is never the plate: `<Photo>` prints its frame 0 underneath,
-and that `<img>` is the LCP element, the alt text, and what the reader keeps on a
-phone, under reduced motion, or wherever autoplay is refused.
-`src/components/ui/Reel.tsx` holds the three conditions.
+**And the plate is made once.** There is no reel any more. It was cut from the
+same clip as the plate it lay over, so it could not survive the plate being
+replaced; `ui/Reel.tsx` and `scripts/press-hero-reel.sh` are both gone. The
+sheet is one photograph that settles — a 4.5% scale coming to rest, which is a
+transform and therefore invisible to LCP — and then nothing on it moves again.
 
-**The scrim stopped being structural.** On the paper version it was the only
-thing making the foot legible, and every stop in it was solved against a contrast
-floor. The field around the figure is `#000` now and bone stands on it at better
-than 18:1, so what is left is a bleed: a foot ramp that seats the offer and trims
-the sheet, a head ramp that insures the bar, and nothing at all on the binding
-side. Measured against the render at 390, 1024 × 768, 1512 and 2560, on the
-still and on the reel's last frame, the worst pixel under any text on this
-screen is **7.82:1** — the strike's final period at 2560, where the figure's
-rear foot passes behind it, which is the only place on any sheet where the
-headline and the photograph touch. The first version of that ramp measured
-9.5:1 and visibly greyed his legs, which is not a better page, only a greyer
-photograph. Past the floor a scrim buys nothing and costs the plate.
+**The scrim is structural again, and it points the other way.** On the ink
+version it was a bleed: the field around the figure was `#000` and bone stood
+on it at better than 18:1. Ink needs the plate at or *above* L 0.222, so the
+ramps now LIFT the photograph towards paper rather than sinking it towards
+black. The head needs almost nothing — the bow's band is blown window and lit
+wall — and the foot carries the strike, the prose and the press over a mat that
+falls to 0.21 in shadow. It stops short of the figure deliberately: he stands
+from y 0.38 to 0.87 of the file and his own cast shadow is the darkest thing on
+the mat, which is also the thing that proves there is a floor under him.
 
-Chapter 二 is paper, so the plate's foot ends on a **trimmed edge** rather than a
-dissolve: the photograph runs to black and the next sheet begins. That is the
-ordinary arrangement in this book — every ink chapter meets its neighbour the
-same way — and it is the one thing the paper version could do differently, which
-is why it spent three measured ramps buying itself a seam.
+Chapter 二 is paper too, so the plate's foot **dissolves** into the next sheet
+rather than trimming against it — the arrangement this chapter had before the
+ink pass, and the one its neighbour was always built for.
 
 Two cuts of the frame, chosen by the SHAPE of the viewport rather than its width
 — `(max-aspect-ratio: 4/5)` — because what ruins the wide cut is a tall box, not
@@ -357,26 +361,27 @@ Everything below is a placeholder and needs the client's confirmation:
   Replace them and update `src/content/media.ts` — nothing else references
   image paths.
 
-  **The first screen is a placeholder again, and a louder one.** `firstScreen`,
-  `firstScreenTall` and `reels.firstScreen` live under `public/media/hero/` and
-  are cut by `scripts/press-hero-reel.sh` from a free-licence stock clip
-  (Mixkit; see the foot of `CREDITS.md`). They replaced the club's own
-  belt-tying footage, which was the right photograph for a chapter printed on
-  paper and the wrong one for a chapter printed on ink — ninety-one seconds of
-  a brightly lit sports hall has no dark frame in it, and darkening the gi only
-  makes it grey.
+  **The first screen is a placeholder too.** `firstScreen` and
+  `firstScreenTall` are two crops of one Pexels frame (Artem Podrez, photo
+  6253300; see the foot of `CREDITS.md`) — a lone athlete in a low stance in a
+  municipal sports hall. It replaced a stock clip of a figure on a black set,
+  which had no floor, no room and no shadow, and which the ink ground had
+  forced on the chapter in the first place.
 
-  **The uniform in it is a taekwondo dobok, not a karate gi.** That is the one
-  defect worth carrying in your head: the V-neck is the tell, no crop removes
-  it, and anyone who trains will see it. It is stated in `media.ts`, in
-  `CREDITS.md`, and here, because a placeholder that looks this finished is the
-  kind that quietly ships.
+  **The gi in it is a judogi, not a Kyokushin karate gi.** That is the defect
+  worth carrying in your head. The wrap-over cut is right — the frame it
+  replaced was a taekwondo dobok whose V-neck no crop removed — but the weight
+  and the skirt are a judoka's, and anyone who trains will see it. It is stated
+  in `media.ts`, in `CREDITS.md`, and here, because a placeholder that looks
+  this finished is the kind that quietly ships. The frame is also a **true
+  greyscale original**, so this plate has no colour of its own to grade.
 
-  `media.ts` states the slot's requirements, and they INVERTED with the ground
-  — whatever replaces this has to meet the new ones, not the old: a genuinely
-  DARK ground everywhere the type falls, one subject, the figure out of the left
-  62% of the trim, real tonal separation, and no third-party wordmark. Every
-  other plate on the page is a Wikimedia stand-in.
+  `media.ts` states the slot's requirements, and they INVERTED back with the
+  ground — whatever replaces this has to meet the current ones, not the ink
+  pass's: a ground that is LIGHT where the type falls (at or above L 0.222),
+  one subject, the figure out of the left 62% of the trim, a real room with a
+  floor and a cast shadow, and no third-party wordmark. Every other plate on
+  the page is a Wikimedia stand-in.
 
   Two files under `public/media/placeholders/` are orphaned —
   `snow-kick-1970.jpg` and `snow-kick-1970-portrait.jpg`, which were the first

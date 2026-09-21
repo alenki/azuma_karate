@@ -6,7 +6,7 @@ export type NavItem = { href: string; label: Record<Locale, string> };
 export const navItems: NavItem[] = [
   { href: "/about", label: { ru: "О клубе", en: "About" } },
   { href: "/schedule", label: { ru: "Расписание", en: "Schedule" } },
-  { href: "/gallery", label: { ru: "Галерея", en: "Gallery" } },
+  { href: "/achievements", label: { ru: "Достижения", en: "Achievements" } },
   { href: "/contacts", label: { ru: "Контакты", en: "Contacts" } },
 ];
 

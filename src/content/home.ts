@@ -438,10 +438,10 @@ export const results = {
   /*
     THE CHRONICLE — the club's own record, newest first, and CONFIRMED.
 
-    This array is the only thing that has to grow. Chapter 五 alternates a tall
-    plate and a wide one by index, so a fourth entry takes the wide form and a
-    fifth the tall one with no component touched; it needs a `plate` slot in
-    `media.ts` and nothing else.
+    This array is the only thing that has to grow. Chapter 五 prints every
+    entry at the same size — one width, one 4:3 plate, one top edge — so a
+    fourth one composes itself with no component touched; it needs a `plate`
+    slot in `media.ts` and nothing else.
 
     A note does NOT restate its own date. A chronicle is ordered by date, the
     date is printed as its own field beside the title, and a note opening
@@ -518,26 +518,18 @@ export const schedule = {
 export const join = {
   title: { ru: "Первая тренировка", en: "The first session" },
   /*
-    One line, and it states the act and its outcome and nothing else. The lead
-    this replaces told the reader to leave a name and an age ON THIS SHEET,
-    which stopped being true when the enquiry moved to `Letter` on /contacts.
-    Neither claim here is new — both were already in this block. Nothing about
-    price or a free first session is asserted; those are still pending facts.
+    One line, and it states the act and its outcome and nothing else. Nothing
+    about price or a free first session is asserted; those are still pending
+    facts and they are answered in the register on /contacts.
   */
   lead: { ru: "Оставьте заявку\u00A0— мы подберём группу.", en: "Leave a request\u00A0— we will suggest a group." },
+
+  /* ---- the entry ------------------------------------------------- */
   /*
-    DEAD AS OF 2026-09-15, AND KEPT ON PURPOSE.
-
-    Chapter 六 stopped collecting: it is the manual's closing plate now, and the
-    enquiry it used to carry is `Letter` on /contacts, which owns its own copy
-    in `content/contacts.ts`. So `fields`, `placeholders`, `errors` and the
-    three status strings (`sending`, `success`, `error`) have no consumer left,
-    and neither do `privacy` / `privacyLead` / `privacyLink` / `privacyTail` —
-    no personal data is collected on this sheet, so no consent is printed on it.
-
-    They are not deleted yet because `content/contacts.ts` still reasons about
-    `join.privacy` and `join.trust` by name while that page is being finished.
-    Sweep them in one pass once it settles. Nothing may start reading them again.
+    Four asks and not one more. Name, age and a way to answer are what a coach
+    needs to put a child in a group; everything else the reader wants to say
+    goes in the comment, in their own words, because a fifth labelled field is
+    the club deciding in advance what a parent is allowed to be worried about.
   */
   fields: {
     name: { ru: "Имя ученика", en: "Student's name" },
@@ -550,26 +542,75 @@ export const join = {
     age: { ru: "6", en: "6" },
     contact: { ru: "+7\u00A0900 000-00-00 или @username", en: "+7\u00A0900 000-00-00 or @username" },
   },
-  submit: { ru: "Записаться", en: "Sign up" },
-  sending: { ru: "Отправляем…", en: "Sending…" },
-  success: { ru: "Осу! Мы получили заявку и\u00A0напишем вам сегодня.", en: "Osu! We have your request and will message you today." },
-  error: { ru: "Не\u00A0отправилось. Напишите нам в\u00A0Telegram\u00A0— ответим сразу.", en: "It did not send. Message us on Telegram\u00A0— we reply right away." },
-  /*
-    The consent line. Under 152-ФЗ the consent has to point at a stated policy
-    and there is no policy route on the site yet, so the phrase such a link
-    would wrap is kept separate: a consumer sets `privacyLead`, links
-    `privacyLink` once the route exists, and closes with `privacyTail`.
-    `privacy` stays as the single-string form for as long as nothing links it.
-  */
-  privacy: { ru: "Нажимая «Записаться», вы соглашаетесь на\u00A0обработку персональных данных.", en: "By pressing “Sign up” you agree to the processing of personal data." },
-  privacyLead: { ru: "Нажимая «Записаться», вы соглашаетесь на\u00A0", en: "By pressing “Sign up” you agree to the " },
-  privacyLink: { ru: "обработку персональных данных", en: "processing of personal data" },
-  privacyTail: { ru: ".", en: "." },
-  alt: { ru: "или напишите в\u00A0Telegram", en: "or message us on Telegram" },
-  trust: { ru: "Ответим в\u00A0Telegram в\u00A0течение дня.", en: "We reply on Telegram within the day." },
   errors: {
     name: { ru: "Напишите имя", en: "Please enter a name" },
     age: { ru: "Укажите возраст от\u00A04 до\u00A099", en: "Enter an age from 4 to 99" },
     contact: { ru: "Оставьте телефон или Telegram", en: "Leave a phone number or Telegram" },
   },
+  submit: { ru: "Записаться", en: "Sign up" },
+
+  /* ---- what the entry becomes ------------------------------------ */
+  /*
+    THE REQUEST IS ASSEMBLED IN THE READER'S OWN BROWSER AND CARRIED ACROSS BY
+    HAND, which is the same transaction `write` on /contacts performs and for
+    the same reason: there is no bot token, no chat id and no address the club
+    has agreed an enquiry should land in, so nothing here may claim to send.
+
+    `opening` is the ONE line this page contributes to a message that goes out
+    in the reader's name, and it is a statement of what they just did rather
+    than a sentence put in their mouth — they pressed «Записаться» on a sheet
+    headed «Первая тренировка». Their four answers follow it verbatim, and the
+    whole thing is printed back to them on the slip BEFORE they carry it, so
+    no word leaves this page unread by the person whose name is on it.
+
+    `years` declines the unit: «1 год», «22 года», «7 лет». The consumer picks
+    the form with `Intl.PluralRules`. English has one shape and carries it in
+    all three slots rather than letting the record differ by language.
+  */
+  opening: { ru: "Заявка на\u00A0первую тренировку.", en: "A request for a first session." },
+  years: {
+    ru: { one: "год", few: "года", many: "лет" },
+    en: { one: "year old", few: "years old", many: "years old" },
+  },
+  slip: { ru: "Готовая заявка", en: "Your request" },
+  slipNote: {
+    ru: "Заявка не\u00A0уходит сама\u00A0— откройте Telegram и\u00A0отправьте её.",
+    en: "Nothing leaves this page on its own\u00A0— open Telegram and send it.",
+  },
+  copy: { ru: "Скопировать", en: "Copy" },
+  copied: { ru: "Скопировано", en: "Copied" },
+  open: { ru: "Открыть Telegram", en: "Open Telegram" },
+
+  /* ---- the exit --------------------------------------------------- */
+  alt: { ru: "или напишите в\u00A0Telegram", en: "or message us on Telegram" },
+  trust: { ru: "Ответим в\u00A0Telegram в\u00A0течение дня.", en: "We reply on Telegram within the day." },
+
+  /*
+    DORMANT, AND KEPT ON PURPOSE.
+
+    `sending` / `success` / `error` describe a POST, and this chapter performs
+    none: the request is assembled in the browser and handed to the reader.
+    The day a route exists the submit awaits it, `success` finally has
+    something true to say, and the slip becomes the fallback rather than the
+    outcome.
+
+    `privacy` and its three parts are the 152-ФЗ consent. No consent is printed
+    on this sheet, and that is not an oversight: consent covers the PROCESSING
+    of personal data, and nothing typed here leaves the reader's own browser. A
+    legal sentence printed where no data is processed is a false statement in
+    the one register where false statements matter most. The consent arrives
+    WITH the route, and `privacyLink` is kept split from the lead and the tail
+    because it has to wrap an actual policy URL that does not exist yet.
+
+    `content/contacts.ts` still reasons about `join.privacy` and `join.trust`
+    by name. Nothing may start reading the dormant keys again until there is a
+    route behind them.
+  */
+  sending: { ru: "Отправляем…", en: "Sending…" },
+  success: { ru: "Осу! Мы получили заявку и\u00A0напишем вам сегодня.", en: "Osu! We have your request and will message you today." },
+  error: { ru: "Не\u00A0отправилось. Напишите нам в\u00A0Telegram\u00A0— ответим сразу.", en: "It did not send. Message us on Telegram\u00A0— we reply right away." },
+  privacy: { ru: "Нажимая «Записаться», вы соглашаетесь на\u00A0обработку персональных данных.", en: "By pressing “Sign up” you agree to the processing of personal data." },
+  privacyLead: { ru: "Нажимая «Записаться», вы соглашаетесь на\u00A0", en: "By pressing “Sign up” you agree to the " },
+  privacyLink: { ru: "обработку персональных данных", en: "processing of personal data" },
+  privacyTail: { ru: ".", en: "." },
 };

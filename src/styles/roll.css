@@ -61,8 +61,7 @@
 
 /* the printed word is a poster device: it belongs to the travelling sheet and
    has nothing to say in a column */
-.roll__backdrop,
-.roll__chrome {
+.roll__backdrop {
   display: none;
 }
 
@@ -142,49 +141,6 @@
   .roll__panel {
     flex: none;
     scroll-snap-align: center;
-  }
-
-  /* ---- the roll's own apparatus: which sheet is open, how much is left ---- */
-  .roll__chrome {
-    position: absolute;
-    z-index: 2;
-    inset-inline: var(--gutter);
-    bottom: clamp(1.5rem, 3.2vh, 2.75rem);
-    display: flex;
-    align-items: center;
-    gap: clamp(1rem, 1.6vw, 2rem);
-    pointer-events: none;
-  }
-  .roll__folio {
-    flex: none;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin: 0;
-    color: var(--color-bone-2);
-  }
-  /* the sheet the reader is on is the only loud figure in the pair */
-  .roll__folio-now {
-    color: var(--color-bone);
-  }
-  .roll__folio-rule {
-    display: block;
-    width: clamp(1rem, 1.4vw, 1.75rem);
-    height: 1px;
-    background: var(--color-rule-dark-strong);
-  }
-
-  .roll__gauge {
-    position: relative;
-    flex: 1;
-    height: 1px;
-    background: var(--color-rule-dark);
-  }
-  .roll__gauge-run {
-    position: absolute;
-    inset: 0;
-    transform-origin: left center;
-    background: var(--color-bone-2);
   }
 }
 

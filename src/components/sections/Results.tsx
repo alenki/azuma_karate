@@ -13,7 +13,6 @@ import { Photo } from "@/components/ui/Photo";
 import { Register, Reveal } from "@/components/ui/Reveal";
 import { Roll } from "@/components/ui/Roll";
 import { TallyRow } from "@/components/sections/results/Tally";
-import { cn } from "@/lib/cn";
 
 const chapter = chapters.find((c) => c.id === "results")!;
 const HEADING_ID = "results-title";
@@ -44,29 +43,23 @@ function Masthead() {
  * One sheet of the chronicle: the plate, the hairline it is tipped in above,
  * and the ledger — date, title, note.
  *
- * THE FORM ALTERNATES BY INDEX, and that is the whole of the rhythm: an odd
- * entry takes a wide plate dropped down the sheet, an even one a tall plate
- * standing near the top. It is derived rather than authored so a fourth event
- * pasted into `results.events` composes itself; and it is the reason the
- * ledgers do NOT share a baseline across panels — each one follows its own
- * plate, which is what keeps a row of photographs from reading as a carousel
- * of equal boxes.
+ * EVERY SHEET IS THE SAME SHEET. One width, one aspect, one top edge, so the
+ * rules and the dates under the plates stand on one baseline the whole length
+ * of the roll and the chapter reads as a record rather than as three unrelated
+ * pictures. The form used to alternate a tall plate and a dropped wide one by
+ * index; nothing is derived from the index any more, so a fourth event pasted
+ * into `results.events` needs no thought at all.
  *
  * The plates are printed in COLOUR. See the note over the chronicle's slots in
  * `media.ts` for why this chapter is the second exception to the press, and
  * for the test a replacement photograph has to pass.
  */
-function Entry({ entry, index }: { entry: ChronicleEntry; index: number }) {
+function Entry({ entry }: { entry: ChronicleEntry }) {
   const { locale } = useLocale();
-  const wide = index % 2 === 1;
   return (
-    <article className={cn("entry", wide ? "entry--wide" : "entry--tall")}>
+    <article className="entry">
       <Curtain className="entry__frame" duration={1.05} amount={0.25} from="bottom">
-        <Photo
-          slot={entry.plate}
-          grade="color"
-          sizes={wide ? "(min-width: 1024px) 44vw, 88vw" : "(min-width: 1024px) 28vw, 88vw"}
-        />
+        <Photo slot={entry.plate} grade="color" sizes="(min-width: 1024px) 38vw, 88vw" />
       </Curtain>
 
       <div className="rule entry__rule" />
@@ -113,10 +106,10 @@ function Colophon() {
  * travel across. The mechanism is `ui/Roll` and nothing about it is in here —
  * this file is the composition.
  *
- * Three layers move at three rates. «Хроника» is PRINTED on the page at poster
+ * Two layers move at two rates. «Хроника» is PRINTED on the page at poster
  * scale and travels on its own overflow; the sheets are tipped in over it and
  * travel on theirs, so the letters a reader can see at any moment are the ones
- * no photograph is covering. The roll's folio and gauge stand still.
+ * no photograph is covering.
  *
  * The chapter is the page's first ink spread and its plates are the only ones
  * on the site besides chapter 四's printed in colour. A victory is gold,
@@ -147,7 +140,7 @@ export function Results() {
       >
         {[
           <Masthead key="head" />,
-          ...results.events.map((entry, i) => <Entry key={entry.title.en} entry={entry} index={i} />),
+          ...results.events.map((entry) => <Entry key={entry.title.en} entry={entry} />),
           <Colophon key="foot" />,
         ]}
       </Roll>

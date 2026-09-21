@@ -4,7 +4,6 @@ import "@/styles/roll.css";
 
 import {
   motion,
-  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
@@ -69,7 +68,7 @@ type RollProps = {
  * rather than merely clipped: the chronicle stays readable with none of this
  * running.
  *
- * THREE LAYERS, THREE RATES. The backdrop is not the track at a fraction of
+ * TWO LAYERS, TWO RATES. The backdrop is not the track at a fraction of
  * its speed — it is mapped onto ITS OWN overflow, so however much wider or
  * narrower the printed word is than the panels over it, it starts flush left
  * and ends flush right and can never run out mid-roll or stop early.
@@ -92,11 +91,7 @@ export function Roll({ children, backdrop, labelledBy, className }: RollProps) {
   const still = useStillness();
   const pinned = wide && !still;
 
-  const count = Children.count(children);
   const [measured, setMeasured] = useState({ travel: 0, back: 0 });
-  const [read, setRead] = useState(0);
-  /** Panel centres in track coordinates, for the folio. */
-  const centres = useRef<number[]>([]);
 
   /*
     The column state is DERIVED, never written. Resetting these to zero from
@@ -107,7 +102,6 @@ export function Roll({ children, backdrop, labelledBy, className }: RollProps) {
   */
   const travel = pinned ? measured.travel : 0;
   const backTravel = pinned ? measured.back : 0;
-  const index = pinned ? read : 0;
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -120,10 +114,6 @@ export function Roll({ children, backdrop, labelledBy, className }: RollProps) {
         travel: Math.max(0, track.scrollWidth - w),
         back: Math.max(0, (backRef.current?.scrollWidth ?? 0) - w),
       };
-      centres.current = Array.from(track.children, (el) => {
-        const item = el as HTMLElement;
-        return item.offsetLeft + item.offsetWidth / 2;
-      });
       setMeasured((prev) => (prev.travel === next.travel && prev.back === next.back ? prev : next));
     };
 
@@ -147,45 +137,10 @@ export function Roll({ children, backdrop, labelledBy, className }: RollProps) {
 
   const x = useSpring(useTransform(scrollYProgress, [0, 1], [0, -travel]), ROLL);
   const bx = useSpring(useTransform(scrollYProgress, [0, 1], [0, -backTravel]), ROLL);
-  const run = useSpring(scrollYProgress, ROLL);
 
   const shear = useTransform(useSpring(useVelocity(x), SHEAR), (v) =>
     clamp(v / -SHEAR_DIV, -SHEAR_MAX, SHEAR_MAX),
   );
-
-  /*
-    Which sheet is open — and the probe SWEEPS rather than sitting at the
-    middle of the stage.
-
-    A fixed centre probe cannot reach either end of the count, because two and
-    a half sheets are open at once: at rest the middle of the stage is already
-    over sheet two, and at full travel it is still over the second to last. A
-    folio that can only ever read 02…04 of 05 reads as broken.
-
-    So the reading point starts at the stage's left edge and finishes at its
-    right one, travelling across the open sheet as the roll unrolls. At rest it
-    is the leftmost sheet, at the end it is the last, and in between it is the
-    middle of the stage — which is what it should have been all along.
-  */
-  useMotionValueEvent(x, "change", (v) => {
-    const stage = stageRef.current;
-    const marks = centres.current;
-    if (!stage || marks.length === 0) return;
-    const run = travel > 0 ? clamp(-v / travel, 0, 1) : 0;
-    const middle = -v + stage.clientWidth * run;
-    let best = 0;
-    let shortest = Infinity;
-    for (let i = 0; i < marks.length; i += 1) {
-      const d = Math.abs(marks[i] - middle);
-      if (d < shortest) {
-        shortest = d;
-        best = i;
-      }
-    }
-    setRead((prev) => (prev === best ? prev : best));
-  });
-
-  const folio = (n: number) => String(n).padStart(2, "0");
 
   return (
     <div
@@ -219,25 +174,6 @@ export function Roll({ children, backdrop, labelledBy, className }: RollProps) {
             <li className="roll__panel">{child}</li>
           ))}
         </motion.ol>
-
-        {/*
-          The roll's own apparatus: which sheet of it is open, and how much is
-          left. Both are pure position — the chronicle is announced by the
-          panels themselves, so this is hidden, and it is printed only where
-          there is travel for it to describe.
-        */}
-        {pinned && travel > 0 && (
-          <div className="roll__chrome" aria-hidden="true">
-            <p className="t-mono roll__folio">
-              <span className="roll__folio-now">{folio(index + 1)}</span>
-              <span className="roll__folio-rule" />
-              {folio(count)}
-            </p>
-            <div className="roll__gauge">
-              <motion.div className="roll__gauge-run" style={{ scaleX: run }} />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

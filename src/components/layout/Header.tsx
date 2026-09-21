@@ -34,7 +34,7 @@ export type ChapterLink = { id: string; index: number; title: string };
 /*
   THREE OF THE FOUR PRINTED SECTIONS ARE STILL CHAPTERS. ONE IS A PAGE.
 
-  `navItems` points at /about, /schedule, /gallery and /contacts, and until this
+  `navItems` points at /about, /schedule, /achievements and /contacts, and until this
   month the app had exactly one route, so all four were 404s printed three times
   over — the bar, the contents page, the colophon. The map that re-points a
   label at the chapter which already answers it moved to `lib/sections.ts`,

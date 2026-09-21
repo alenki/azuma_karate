@@ -3,7 +3,8 @@ import { localeHref, type Locale } from "@/i18n/config";
 /*
   THE FOUR PRINTED SECTIONS — WHICH ARE ROUTES AND WHICH ARE STILL CHAPTERS.
   --------------------------------------------------------------------------
-  `content/nav.ts` names four sections: /about, /schedule, /gallery, /contacts.
+  `content/nav.ts` names four sections: /about, /schedule, /achievements,
+  /contacts.
   They are printed three times over — the bar, the contents page, the colophon —
   so a label that points nowhere is a dead link printed twelve times in the
   manual's own furniture.
@@ -25,7 +26,7 @@ import { localeHref, type Locale } from "@/i18n/config";
 export const SECTION_ANCHOR: Record<string, string> = {
   "/about": "about",
   "/schedule": "schedule",
-  "/gallery": "results",
+  "/achievements": "results",
   /* "/contacts" was here, re-pointed at 六 Запись. It shipped as a page, so
      the re-point went with it — see LIVE_ROUTES. */
 };

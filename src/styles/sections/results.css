@@ -6,26 +6,30 @@
 /* DOWN and the sheets travel ACROSS. The mechanism is `styles/roll.css` */
 /* and `ui/Roll.tsx`; everything here is what is printed ON the sheets.  */
 /*                                                                      */
-/* THE FORM ALTERNATES BY INDEX. An even entry takes a tall plate        */
-/* standing near the head of the sheet, an odd one a wide plate dropped  */
-/* down it. That is the whole of the rhythm, it is derived rather than   */
-/* authored, and it is why the ledgers deliberately do NOT share a       */
-/* baseline from panel to panel — each one follows its own plate. Three  */
-/* photographs on one baseline is a carousel of equal boxes; this is a   */
-/* spread.                                                              */
+/* EVERY SHEET IS THE SAME SHEET. One width, one aspect, one top edge,   */
+/* so the rule, the date and the title under every plate stand on one    */
+/* baseline across the whole roll. The form used to alternate a tall     */
+/* plate and a dropped wide one by index; three tournaments printed at   */
+/* three sizes read as three unrelated pictures rather than as one       */
+/* record, so the rhythm is carried by the roll's own travel now and the */
+/* entries are a register. A fourth event pasted into `results.events`   */
+/* is the same size as the first three, with nothing to author.          */
 /*                                                                      */
-/* THE PLATE CAPS ARE THE LOAD-BEARING NUMBERS. A panel has exactly one  */
-/* stage to fit in, so its plate is sized by WIDTH (a fraction of the    */
+/* THE PLATE IS LANDSCAPE BECAUSE THE PHOTOGRAPHS ARE. All three         */
+/* chronicle frames are 3:2 originals: a 4:3 plate keeps 1421 of their   */
+/* 1600 columns, where the old tall plate kept 800. The focal points in  */
+/* `media.ts` are solved against 4:3 and nothing else now.               */
+/*                                                                      */
+/* THE PLATE CAP IS THE LOAD-BEARING NUMBER. A panel has exactly one     */
+/* stage to fit in, so the plate is sized by WIDTH (a fraction of the    */
 /* sheet, which is what makes the roll feel wide) and then capped by     */
 /* HEIGHT in `vh`, which is what stops a short laptop clipping the note  */
 /* off the foot of every sheet. The cap is not a distortion: the plate   */
 /* is an absolutely-filled `object-fit: cover` image inside <Curtain>,   */
 /* so a capped box crops the photograph instead of squashing it.         */
 /*                                                                      */
-/*   1512 x 950   tall  378 wide, 504 → capped 494; head 108 + ledger    */
-/*                      ~220 + foot 64 = 886 of 950.                     */
-/*                 wide  620 wide, 465 → capped 418; + the 47px drop      */
-/*                      = 857 of 950.                                    */
+/*   1512 x 950   575 wide, 431 tall — under the 47vh cap; head 108 +    */
+/*                plate 431 + ledger ~170 + foot 85 = 794 of 950.        */
 /*                                                                      */
 /* Four things must survive any later edit:                              */
 /*   · Quiet type on this ground is --color-bone-2 (5.6:1 on ink);       */
@@ -43,8 +47,6 @@
      the head of the section and rides the margin from there */
   --numeral-top: 0px;
 
-  /* how far the wide sheet hangs below the tall one beside it */
-  --drop: clamp(1.5rem, 5vh, 4rem);
   /* clearance for the fixed bar at the head of a pinned stage, and for the
      roll's own folio and gauge at its foot */
   --roll-top: calc(var(--header-h) + clamp(1.25rem, 3vh, 2.75rem));
@@ -305,14 +307,15 @@
     width: clamp(22rem, 40vw, 46rem);
   }
 
-  .entry--tall {
-    width: clamp(16rem, 27vw, 30rem);
-  }
-  .entry--wide {
-    width: clamp(26rem, 43vw, 47rem);
-    /* the drop: the wide sheet hangs below the tall one beside it, which is
-       the stagger the whole rhythm is made of */
-    padding-top: calc(var(--roll-top) + var(--drop));
+  /*
+    ONE WIDTH FOR EVERY ENTRY. It sits between the two widths it replaced —
+    wide enough that a 3:2 frame is looked at rather than glanced past, narrow
+    enough that the reader always has a second sheet on the stage and can see
+    the roll is a sequence. The masthead (36vw) and the colophon (40vw) still
+    bracket it, so the type sheets remain the widest matter in the chapter.
+  */
+  .entry {
+    width: clamp(22rem, 38vw, 42rem);
   }
 
   /*
@@ -321,17 +324,13 @@
     not a distortion: <Photo> fills the frame absolutely with `object-fit:
     cover`, so a capped box crops the photograph rather than squashing it.
 
-    Measured against the longest ledger in the chapter — the five-line Open Cup
-    note — at 1512 x 950: 108 head + 513 plate + 184 ledger + 85 foot = 890 of
-    950. The wide form carries its drop instead of two of those lines and lands
-    at 807. Raise either cap and re-measure against THAT note, not against the
-    two-line one above it.
+    Measured against the longest ledger in the chapter — the Open Cup note — at
+    1512 x 950: 108 head + 431 plate + 170 ledger + 85 foot = 794 of 950. The
+    cap only bites on a short screen: below about 917px of viewport 47vh is the
+    smaller of the two numbers and the frame crops instead of growing. Raise it
+    and re-measure against THAT note, not against the two-line one above it.
   */
-  .entry--tall .entry__frame {
-    aspect-ratio: 3 / 4;
-    max-height: 54vh;
-  }
-  .entry--wide .entry__frame {
+  .entry__frame {
     aspect-ratio: 4 / 3;
     max-height: 47vh;
   }

@@ -34,48 +34,6 @@ function ph(file: string, width: number, height: number, alt: Record<Locale, str
   return { src: `${P}/${file}`, width, height, alt, focus, placeholder: true };
 }
 
-/**
- * A plate that is PRESSED rather than downloaded: `scripts/press-hero-reel.sh`
- * cuts it out of a source clip and writes it to `/media/hero/`, so it sits
- * outside the Commons pool while being every bit as provisional as the rest of
- * it. `CREDITS.md` carries the source and the licence either way.
- *
- * This replaced `own()`, which marked the club's OWN material — same slot,
- * `placeholder: false`, nothing about it held back. Nothing claims that at the
- * moment: the club's belt footage was chapter 一's plate until this pass, and
- * the chapter needed a dark frame, which ninety-one seconds of a brightly lit
- * sports hall cannot give. Re-add `own()` the day the client's photography
- * lands. It is one line, and it is the point of this file.
- */
-function pressed(file: string, width: number, height: number, alt: Record<Locale, string>, focus?: string): MediaSlot {
-  return { src: `/media/hero/${file}`, width, height, alt, focus, placeholder: true };
-}
-
-/**
- * A MOVING plate.
- *
- * Only chapter 一 has one and probably only chapter 一 ever should: it is the
- * page's first screen and the only place where a photograph being made rather
- * than printed is worth the weight. See `reels.firstScreen` for the whole
- * argument, and `scripts/press-hero-reel.sh` for how the file is cut.
- */
-export type ReelSlot = {
-  /** Sources in the order a browser should try them — smallest first. */
-  sources: { src: string; type: string }[];
-  width: number;
-  height: number;
-  /**
-   * The plate printed UNDER it, and the reel's own frame 0. The two are the
-   * same image by construction (the press script cuts the still from the same
-   * `trim=start=` the video is cut from), so the handover is invisible: the
-   * reader sees a photograph that starts moving, never a swap.
-   */
-  still: MediaKey;
-  /** Seconds. Documentation — nothing reads it; the file is the fact. */
-  seconds: number;
-  placeholder: boolean;
-};
-
 export const media = {
   /* ---- plates used by the home page (usage-named) ---- */
 
@@ -84,76 +42,73 @@ export const media = {
 
     Chapter 一 is one plate at the size of the screen: it is the page's LCP
     element, the chapter's own ground, and the beat the headline is written
-    across. It is also the one plate in the book that MOVES — see
-    `reels.firstScreen` below, which is this exact frame and takes over from it
-    without a seam.
+    across.
 
-    WHAT IT IS NOW. One karateka alone in a black room, in a back stance with
-    the arm folded — the frame the strike is thrown from. Cut by
-    `scripts/press-hero-reel.sh`, which carries the cut and the arithmetic. It
-    replaces the club's own belt-tying frame, which was the right photograph
-    for a chapter printed on paper and is the wrong one for a chapter printed
-    on ink: a white gi filling the screen is a bright even field, and darkening
-    it only makes it a grey one.
+    WHAT IT IS NOW. One karateka alone in a municipal sports hall — a deep low
+    stance on the tatami, one hand and both feet on the mat, his own shadow
+    thrown across it, and the room's haze standing in the window light behind
+    him. Steel-framed glazing, safety netting, a radiator along the wall, bare
+    trees outside: a real hall on a real winter morning, which is the whole
+    point of this replacement.
 
-    THE BRIEF INVERTED WITH THE GROUND, and that is the whole of this pass. The
-    chapter printed on PAPER and the type was INK, so the plate had to be light
-    and EVEN — held at or above L 0.480 everywhere the headline fell, so it
-    could clear 4.5:1. The chapter prints on INK now and the type is BONE, so
-    every term flips, and the next replacement has to meet the new ones:
+    THE BRIEF INVERTED BACK WITH THE GROUND, and that is the whole of this
+    pass. The chapter printed on INK and the type was BONE, so the plate had to
+    be DARK everywhere the headline fell — and the only photographs that clear
+    that ceiling are a subject lit on a black set, with no floor, no room and
+    no depth behind them. That was not a photograph of a club, it was a cut-out;
+    the frame it replaced was also a taekwondo dobok, which no crop removed.
 
-      · a ground that is genuinely DARK, and dark everywhere the type falls.
-        This frame's mean luminance is 0.015 and the field around the figure is
-        #000, so bone type stands on it at better than 18:1 with no scrim at
-        all. That is what «filters less extreme» actually bought: the three
-        measured ramps that used to carry the foot are a bleed now, not a
-        crutch.
-      · ONE subject, unchanged. At the size of a screen a hall full of them
-        reads as texture.
+    Measured against the ceiling, every real-room karate frame in the pool sits
+    at L 0.3–0.99 where the type falls and fails outright — a warm backlit dojo
+    reached 0.99. A real room and bone type are not compatible. So the chapter
+    prints on PAPER again, the type is INK, every term flips back, and a
+    replacement has to meet these:
+
+      · a ground that is LIGHT where the type falls — at or above L 0.222, so
+        ink clears 4.5:1. This frame runs 0.35–0.97 across the bow's band and
+        0.21–0.74 across the foot; hero.css's foot ramp lifts the remainder.
+      · ONE subject. At the size of a screen a hall full of them reads as
+        texture.
       · the figure OUT of the left 62% of the trim, because that column is
-        «Потом удар.». He is padded off centre in the press rather than nudged
-        with `object-position` — a 16:9 plate covering a 1512 x 900 sheet has
-        88px of horizontal slack in total, which is not enough to move anyone.
-      · real tonal separation, unchanged, and this frame is the extreme case:
-        a white gi and a black belt against black.
+        «Потом удар.». He stands at x 0.48–0.85 of the file, so the column is
+        clear without any help from `object-position` — which is why the plate
+        is no longer padded and the focus is a plain centre.
+      · a REAL ROOM, and this is the term the previous pass could not meet at
+        all: a floor under the feet, a cast shadow on it, and depth behind the
+        subject.
       · no third-party wordmark. There is a small embroidered maker's mark on
-        the thigh, about 14px wide at 1512, and nothing else.
+        the chest, about 10px wide at 1512, and nothing else.
 
-    STORED IN COLOUR, both cuts and the reel, and NOTHING IS BAKED. The plate
-    used to be stored grayscale with a two-ink press computed into the video by
-    hand, because `url(#duotone-paper-ink)` is an SVG reference filter and a
-    full-screen one over 30fps is a per-frame pass on the machines least able
-    to afford it. The grade is `saturate() contrast() brightness()` now — a
-    colour matrix the compositor does for free — so hero.css grades the still
-    and the reel with the SAME declaration, the tungsten warmth of the room
-    survives, and the plate stays retunable without re-encoding a frame.
-
-    WHAT IT COSTS, stated rather than hidden: the uniform is a taekwondo dobok,
-    not a karate gi. The V-neck is the tell and no crop removes it. That is the
-    one thing in this slot a Kyokushin reader will catch, and it is the gap the
-    client's own photography closes.
+    WHAT IT COSTS, stated rather than hidden. The frame is a TRUE GREYSCALE
+    original, so this plate carries no colour of its own and there is nothing
+    here to grade warm if the page ever wants it. That suits a manual whose
+    plates are black and white, but it is a constraint, not a choice. And the
+    gi is a judogi rather than a Kyokushin karate gi — the wrap-over cut is
+    right, the weight is heavier than a karate gi's. Both are gaps the client's
+    own photography closes.
   */
-  firstScreen: pressed("kata-plate.jpg", 2560, 1080, {
-    ru: "Каратист в белом кимоно с чёрным поясом в стойке на чёрном фоне",
-    en: "A karateka in a white gi and black belt, in a stance against black",
+  firstScreen: ph("sports-hall-stance.jpg", 2560, 1080, {
+    ru: "Каратист в белом кимоно с чёрным поясом в низкой стойке на татами в спортивном зале",
+    en: "A karateka in a white gi and black belt in a low stance on the tatami of a sports hall",
   }),
   /*
-    The upright cut — and NOT the same frame, which is the one convention this
-    pass drops. The wide still has to be the reel's frame 0 because the reel
-    lies over it; nothing lies over this one, because ui/Reel declines to mount
-    below 4:5. So it is free to be the best frame in the cut rather than the
-    first, and that is the punch itself.
+    The upright cut — the SAME frame, cropped to 0.8:1 rather than a second
+    one. That the two cuts were different frames was the reel's convention: the
+    wide still had to be the reel's frame 0 because the video lay directly over
+    it, which left the upright cut free to be the best frame in the clip rather
+    than the first. There is no reel any more, so there is no reason for the
+    two to disagree, and one photograph read two ways is the truer thing for a
+    book.
 
-    A phone does not see this cut either. 390 x 844 is far taller than 4:5, so
+    A phone does not see this cut whole. 390 x 844 is far taller than 4:5, so
     `cover` takes the difference out of the WIDTH and shows a 0.46:1 strip of
-    it, x 0.27–0.73. The figure is therefore set in a black field rather than
-    filling one — 0.49 of the source frame, standing at x 0.31–0.69 — so the
-    punching fist and the rear foot survive the strip, and the foot of the
-    sheet stays black for the strike and the offer stacked under it.
+    it, x 0.27–0.73. The figure is centred in the file for exactly that reason:
+    the strip keeps his head, the belt and the braced arm, and loses only the
+    reaching hand and the rear foot.
   */
-  firstScreenTall: pressed("kata-plate-portrait.jpg", 864, 1080, {
-    ru: "Каратист в белом кимоно с чёрным поясом наносит прямой удар рукой",
-    en: "A karateka in a white gi and black belt driving a straight punch",
+  firstScreenTall: ph("sports-hall-stance-portrait.jpg", 864, 1080, {
+    ru: "Каратист в белом кимоно с чёрным поясом в низкой стойке в спортивном зале",
+    en: "A karateka in a white gi and black belt in a low stance in a sports hall",
   }),
 
   /* The hero plate is shown inside the first stroke, so it is cropped to a
@@ -203,27 +158,31 @@ export const media = {
 
     So a replacement needs all four: the club's own competition, real colour
     worth printing (a flat hall under fluorescent light wastes the exception),
-    a subject that survives a hard crop to 3:4 or 4:3, and NO third-party
-    federation wordmark anywhere legible. The same test `firstScreen` states
-    for the first screen, applied to a plate the reader looks at for longer.
+    a subject that survives a crop to 4:3, and NO third-party federation
+    wordmark anywhere legible. The same test `firstScreen` states for the
+    first screen, applied to a plate the reader looks at for longer.
 
-    The focal points below are crops, and they are arithmetic, not taste — each
-    one is solved for the box its panel gives it. See `results.css`.
+    EVERY CHRONICLE PANEL IS THE SAME PANEL — one width, one 4:3 plate — so
+    all three focal points below are solved against the same box: a 3:2
+    original keeps 1421 of its 1600 columns, which leaves 179px of horizontal
+    overflow for the focus to spend. They are arithmetic, not taste. See
+    `results.css`.
   */
   kidsPodium: ph("kids-podium-trophies.jpg", 1600, 1337, {
     ru: "Юные спортсмены с кубками на пьедестале",
     en: "Young athletes with trophies on the podium",
   }),
-  /* chronicle, wide panel (4:3). 179px of horizontal overflow, so the focus
-     barely moves the frame — it only keeps the cups off the right trim. */
+  /* chronicle plate. 179px of overflow, so the focus barely moves the frame —
+     it only keeps the cups off the right trim. */
   trophies: ph("trophies-table.jpg", 1600, 1066, {
     ru: "Кубки и медали на столе перед награждением",
     en: "Trophies and medals on a table before the awards",
   }, "62% 50%"),
-  /* chronicle, tall panel (3:4). A 3:2 landscape cropped to 3:4 keeps only
-     800 of 1600 columns, so the focus is what decides whether the frame holds
-     a fight or half a referee: 60% puts the window at [480, 1280], which is
-     both fighters' heads (≈600 and ≈1250) and neither edge of the hall. */
+  /* chronicle plate. The tall panel this was solved for kept only 800 columns,
+     and the focus decided whether the frame held a fight or half a referee;
+     at 4:3 it is a trim rather than a rescue — 60% sets the window at
+     [107, 1528], which holds both fighters' heads (≈600 and ≈1250) and drops
+     the empty left edge of the hall. */
   kumiteKick: ph("mawashi-geri-kumite.jpg", 1600, 1066, {
     ru: "Маваши-гери в кумитэ на татами",
     en: "Mawashi-geri during kumite on the tatami",
@@ -306,9 +265,9 @@ export const media = {
     ru: "Тамэсивари — разбивание кирпичей на показательном выступлении",
     en: "Tameshiwari — breaking bricks at a demonstration",
   }, "55% 45%"),
-  /* chronicle, tall panel (3:4). The 800-column window sits centred here: the
-     jumper spans ≈500–950 and the belt held across his path reaches ≈1200, so
-     the default focus keeps the gesture and what it clears in one frame. */
+  /* chronicle plate. The 1421-column window sits centred here: the jumper
+     spans ≈500–950 and the belt held across his path reaches ≈1200, so the
+     default focus keeps the gesture and what it clears in one frame. */
   flyingKick: ph("flying-kick-dojo.jpg", 1600, 1066, {
     ru: "Прыжковый удар ногой на тренировке",
     en: "A jumping kick during training",
@@ -461,54 +420,3 @@ export function slot(key: MediaKey): MediaSlot {
 }
 
 export const placeholderBase = P;
-
-/**
- * THE ONE MOVING PLATE.
- *
- * A strike being thrown, 2.17s, once, and then the sheet is a photograph for
- * as long as the reader stays on it. It is deliberately not a loop and
- * deliberately not ambient: hero.css says of this sheet that "nothing on it
- * moves again — no loop, no breathing hairline, no scroll-linked transform, no
- * pointer lean", and a background quietly cycling every four seconds is
- * exactly the thing that sentence forbids.
- *
- * THE GESTURE IS THE CHAPTER'S OWN SENTENCE. 一 reads «Сначала поклон. / Потом
- * удар.», and the cut is the second half of it: guard, step, strike, hold. It
- * used to be a belt being tied, which was the first half.
- *
- * THE SOURCE is 1920 x 1080 at 23.976fps, ten and a half seconds of kata in a
- * black room with no fade at either end — `signalstats` YAVG sits flat at
- * 20.5/255 throughout, so the cut could be taken anywhere and the ground needs
- * no help. What decided 8.20–9.72 is that it is the only second and a half in
- * which anything happens: everything before it is held stances.
- *
- * WHO SEES IT. Wide viewports only, and only after hydration — `ui/Reel` holds
- * it back behind `useMediaQuery` so a phone, which is shown `firstScreenTall`
- * instead, never has the element in its markup to preload. Reduced motion gets
- * the still, which is this reel's own frame 0, so nothing is lost but the
- * movement.
- *
- * NOTHING IS BAKED IN any more, and that is the change that made the script
- * half its old length. The press used to be computed into the video by hand
- * because `url(#duotone-paper-ink)` is an SVG reference filter and a
- * full-screen per-frame pass; the grade is three plain colour-matrix functions
- * now, so hero.css declares it once for the still and the reel together and
- * the two halves of the plate cannot drift apart.
- */
-export const reels = {
-  firstScreen: {
-    /* VP9 first: 142 KB against H.264's 235 KB for the same cut, and every
-       browser that cannot read it falls through to the mp4 on the next line. */
-    sources: [
-      { src: "/media/hero/kata-reel.webm", type: "video/webm" },
-      { src: "/media/hero/kata-reel.mp4", type: "video/mp4" },
-    ],
-    width: 2560,
-    height: 1080,
-    still: "firstScreen",
-    seconds: 2.17,
-    placeholder: true,
-  },
-} satisfies Record<string, ReelSlot>;
-
-export type ReelKey = keyof typeof reels;

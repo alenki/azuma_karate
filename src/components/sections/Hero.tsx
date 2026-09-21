@@ -10,8 +10,6 @@ import { LineReveal } from "@/components/ui/LineReveal";
 import { Settle } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
 import { Photo } from "@/components/ui/Photo";
-import { Reel } from "@/components/ui/Reel";
-import { Grain } from "@/components/ui/Grain";
 import { useStillness } from "@/lib/useStillness";
 import { EASE_OUT } from "@/lib/ease";
 import "@/styles/sections/hero.css";
@@ -27,24 +25,32 @@ import "@/styles/sections/hero.css";
  * get from the bow to the strike is the count a student holds between them.
  *
  * What changed is what the interval is made of. It was a band of bare paper,
- * then a screen of white gi; it is a black room with one figure standing in it.
- * Same composition, same relationship — but the sheet is DARK now, and the
- * silence between the bow and the strike is the room the strike is thrown in.
- * Swap the copy for a coffee brand and none of it means anything, which is the
- * test.
+ * then a screen of white gi, then a black room with one figure standing in it.
+ * It is a municipal sports hall on a winter morning, and the silence between
+ * the bow and the strike is the length of that floor. Swap the copy for a
+ * coffee brand and none of it means anything, which is the test.
  *
  * SIX THINGS ARE ON THIS SHEET: the chapter mark 一/01 in the binding margin, a
  * running head, the bow, the plate, the strike, and the offer with its control.
  *
- * THE PLATE IS THE GROUND, not an illustration on it. The chapter is `ink`,
- * so the fixed bar inverts over it — the ground reporter that already exists
- * (layout/ChapterContext) is told `ink`, the bar prints in bone, and a dark
- * first screen gets the header a dark first screen wants. Chapter 二 is paper,
- * so the plate's foot ends on a TRIMMED EDGE rather than a dissolve: the
- * photograph runs to black and the next sheet begins. That is the ordinary
- * arrangement in this book — every ink chapter meets its neighbour that way —
- * and it is the thing the paper version of this chapter could not do, which is
- * why it spent three measured ramps buying itself a seam.
+ * THE PLATE IS THE GROUND, not an illustration on it. The chapter is `paper`
+ * again, so the fixed bar does NOT invert over it — the ground reporter
+ * (layout/ChapterContext) is told `paper`, the bar keeps its ink, and a light
+ * first screen gets the header a light first screen wants.
+ *
+ * WHY IT TURNED BACK. The ink version required a plate that was dark wherever
+ * the headline fell, and the only photographs that clear that ceiling are a
+ * figure lit on a black set — no floor, no room, nothing behind them. That is
+ * a cut-out, not a club. Every real-room karate frame measured L 0.3–0.99
+ * where the type falls and failed bone type outright, so the ground had to
+ * move for the photograph rather than the photograph for the ground. See
+ * content/media, which carries the measurements.
+ *
+ * Chapter 二 is paper too, so the plate's foot DISSOLVES into the next sheet
+ * rather than trimming against it — the foot ramp in hero.css carries the
+ * strike and the offer and then runs out into 二's own paper, which is the
+ * arrangement this chapter had before the ink pass and the one its neighbour
+ * is built for.
  *
  * THERE IS NO VERMILION ON THIS SHEET except the seal welded to the control,
  * which is one of the three jobs red has on this page. There is deliberately no
@@ -105,7 +111,7 @@ export function Hero() {
       id={ch.id}
       index={1}
       title={ch.title[locale]}
-      ground="ink"
+      ground="paper"
       labelledBy="hero-title"
       className="hero"
       style={
@@ -155,55 +161,25 @@ export function Hero() {
           grade="color"
           sizes="100vw"
         />
-        {/*
-          AND THE PLATE IS MADE, ONCE.
-
-          The strike is thrown over 2.17s and then the sheet is a photograph —
-          no loop, nothing ambient. That is not restraint for its own sake: it
-          is the same sentence this file already ends on, and the same one
-          hero.css ends on. The gesture is also the chapter's own sentence; 一
-          reads «Сначала поклон. / Потом удар.» and the cut is the second half.
-
-          It lies OVER the plate and is never the plate. <Photo> above prints
-          the reel's own frame 0, and that <img> is the LCP element, the alt
-          text, and what the reader keeps if the reel is held back — which it is
-          on a phone, on a reduced-motion machine, and anywhere autoplay is
-          refused. ui/Reel carries the three conditions and why each is decided
-          on the client.
-
-          THE QUERY IS THE SAME ONE <Photo art> IS GIVEN, inverted: the upright
-          cut and the reel are two answers to one question about the shape of
-          the viewport, and they must never both be right. Keep them in step.
-
-          IT CARRIES NO PRESS OF ITS OWN any more. The video used to have the
-          two-ink duotone baked into its frames because an SVG reference filter
-          is a per-frame pass; the grade is three colour-matrix functions now,
-          so hero.css declares it once for the <img> and the <video> together
-          and the two halves of this plate cannot drift apart.
-
-          It is NOT inside the load sequence above and takes no delay from it.
-          The reel starts when the file can start; the front crossing the sheet
-          is type, and the plate was never part of it.
-        */}
-        <Reel slot="firstScreen" className="hero__reel" when="(min-aspect-ratio: 4 / 5)" />
       </motion.div>
       <div className="hero__scrim" aria-hidden="true" />
       {/*
-        THE SURFACE, AND WHY IT IS <Grain> AGAIN.
+        THE SURFACE — the paper stock, multiplied back over the plate.
 
-        This used to be `.hero__stock` — the paper chapters' two near-white
-        tiles, multiplied over the plate, because the chapter's ground was paper
-        and the plate covered it. Multiply has nothing to take from a frame
-        whose field is #000: the tooth simply vanished the moment the plate went
-        dark.
+        This was <Grain>: two noise fields SCREENED over a near-black plate,
+        which is the ink chapters' own answer and the only one that bites on a
+        field of #000. The chapter prints on paper again and the plate is a lit
+        hall, so screen has nothing to add and multiply has everything to take:
+        the stock's tooth reads through a photograph the moment the photograph
+        is light.
 
-        Screen is the operator that bites on ink, and <Grain> is the calibrated
-        one — primitives.css sets its two slopes from a contrast budget, not by
-        eye, so the worst grained pixel is still known. It is the surface the
-        other ink chapters already carry, applied here where a full screen of
-        near-black would otherwise be a flat digital void.
+        It is the same two tiles `.ground-paper` lays into every other paper
+        chapter (globals.css → --stock-tooth / --stock-cloud). Those are painted
+        into the SECTION's own background, which this plate covers completely —
+        so the chapter would otherwise be the one sheet in the book printed on
+        no stock at all. hero.css says where in the stack it lands.
       */}
-      <Grain />
+      <div className="hero__stock" aria-hidden="true" />
 
       <div className="hero__sheet">
         {/*
