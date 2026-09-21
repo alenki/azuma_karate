@@ -2,7 +2,6 @@
 
 import { motion } from "motion/react";
 import type { CSSProperties } from "react";
-import { useLocale } from "@/i18n/LocaleProvider";
 import { chapters, hero, heroFit } from "@/content/home";
 import { cta } from "@/content/nav";
 import { Chapter } from "@/components/layout/Chapter";
@@ -99,18 +98,17 @@ const T = {
 const PLATE_SETTLE = 1.045;
 
 export function Hero() {
-  const { locale } = useLocale();
   const ch = chapters[0];
-  const fit = heroFit[locale];
-  const line1 = hero.line1[locale];
-  const line2 = hero.line2[locale];
+  const fit = heroFit;
+  const line1 = hero.line1;
+  const line2 = hero.line2;
   const still = useStillness();
 
   return (
     <Chapter
       id={ch.id}
       index={1}
-      title={ch.title[locale]}
+      title={ch.title}
       ground="paper"
       labelledBy="hero-title"
       className="hero"
@@ -236,11 +234,11 @@ export function Hero() {
         */}
         <div className="hero__offer">
           <Settle mode="load" delay={T.offer} duration={0.55}>
-            <p className="t-caption hero__qualifier">{hero.offer[locale]}</p>
+            <p className="t-caption hero__qualifier">{hero.offer}</p>
           </Settle>
           <Settle mode="load" delay={T.press} duration={0.55}>
             <Button href={cta.href} className="hero__press">
-              {hero.ctaPrimary[locale]}
+              {hero.ctaPrimary}
             </Button>
           </Settle>
         </div>

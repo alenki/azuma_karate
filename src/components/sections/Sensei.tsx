@@ -2,7 +2,6 @@
 
 import "@/styles/sections/sensei.css";
 
-import { useLocale } from "@/i18n/LocaleProvider";
 import { chapters, coaches } from "@/content/home";
 import { Chapter } from "@/components/layout/Chapter";
 import { Brush } from "@/components/brush/Brush";
@@ -84,13 +83,12 @@ const PLATE_SIZES = "(min-width: 768px) 40vw, 93vw";
  * under <MotionConfig reducedMotion="user">.
  */
 export function Sensei() {
-  const { locale } = useLocale();
 
   return (
     <Chapter
       id={chapter.id}
       index={chapter.index}
-      title={chapter.title[locale]}
+      title={chapter.title}
       labelledBy={HEADING_ID}
       className="sensei"
     >
@@ -103,7 +101,7 @@ export function Sensei() {
           coaches on the sheet neither man's name can be it.
         */}
         <h2 id={HEADING_ID} className="sr-only">
-          {chapter.title[locale]}
+          {chapter.title}
         </h2>
 
         {/* The first stroke. Decorative, and it says so: no `label`, so
@@ -118,7 +116,7 @@ export function Sensei() {
                printed and a pair of cards animating */
             const beat = i * 0.12;
             return (
-              <article key={coach.name.en} className="sensei-coach">
+              <article key={coach.name} className="sensei-coach">
                 <figure className="sensei-figure">
                   <Curtain className="sensei-plate" delay={0.05 + beat} duration={1.2}>
                     <Photo slot={coach.plate} grade="color" priority={false} sizes={PLATE_SIZES} />
@@ -137,8 +135,8 @@ export function Sensei() {
                   <LineReveal
                     as="span"
                     className="block"
-                    lines={coach.name[locale].split(" ")}
-                    label={coach.name[locale]}
+                    lines={coach.name.split(" ")}
+                    label={coach.name}
                     delay={0.2 + beat}
                     stagger={0.1}
                     duration={1.1}
@@ -150,7 +148,7 @@ export function Sensei() {
                     simply the second size in the chapter now, which says the
                     same thing without printing a line to say it. */}
                 <Reveal delay={0.34 + beat} y={22} className="sensei-rank">
-                  <p className="t-statement sensei-rank__line">{coach.rank[locale]}</p>
+                  <p className="t-statement sensei-rank__line">{coach.rank}</p>
                 </Reveal>
 
                 {/*
@@ -167,14 +165,14 @@ export function Sensei() {
                 <div className="sensei-registers">
                   {coach.registers.map((entry, j) => (
                     <Reveal
-                      key={entry.label.en}
+                      key={entry.label}
                       className="sensei-register"
                       delay={0.44 + beat + j * 0.1}
                       y={18}
                       duration={0.8}
                     >
-                      <h4 className="sensei-register__head">{entry.label[locale]}</h4>
-                      <p className="sensei-register__body">{entry.body[locale]}</p>
+                      <h4 className="sensei-register__head">{entry.label}</h4>
+                      <p className="sensei-register__body">{entry.body}</p>
                     </Reveal>
                   ))}
                 </div>

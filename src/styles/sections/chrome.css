@@ -6,14 +6,14 @@
 /* the top of every sheet, the contents page that head opens, the bar   */
 /* pinned to the foot of a phone, and the colophon at the end.          */
 /*                                                                      */
-/* Most of the paint — `.site-header*`, `.nav-link`, `.lang-toggle*`,   */
-/* `.menu__link`, `.menu__chapter`, `.skip-link`, `.footer-link`,       */
-/* `.mobile-bar`, `.btn-text` — lives in globals.css and is NOT         */
-/* repeated here. Three things in this file are the exception, and they */
-/* are marked where they appear: `.btn-press`, `.menu-toggle__*` and    */
-/* `.belt-wedge*` are new objects with no globals.css block to extend,  */
-/* and paint that lives next to its own layout is better than paint     */
-/* split across two files for the sake of a filing rule.                */
+/* Most of the paint — `.site-header*`, `.nav-link`, `.menu__link`,     */
+/* `.menu__chapter`, `.skip-link`, `.footer-link`, `.mobile-bar`,       */
+/* `.btn-text` — lives in globals.css and is NOT repeated here. Three   */
+/* things in this file are the exception, and they are marked where     */
+/* they appear: `.btn-press`, `.menu-toggle__*` and `.belt-wedge*` are  */
+/* new objects with no globals.css block to extend, and paint that      */
+/* lives next to its own layout is better than paint split across two   */
+/* files for the sake of a filing rule.                                 */
 /*                                                                      */
 /* One rule governs the rest: the chrome is furniture, not a chapter.   */
 /* It gains air and a little scale on a wide sheet, never extra weight  */
@@ -173,7 +173,7 @@
 /*                                                                      */
 /* THE RUNNING HEAD IS NO LONGER PRINTED HERE, AND THE NAV HAS TAKEN    */
 /* THE CENTRE BAND. The head margin used to carry three things at once  */
-/* — four entries tucked against the wordmark, a chapter announcement   */
+/* — the entries tucked against the wordmark, a chapter announcement   */
 /* on the centre line, and the cluster — and the announcement was the   */
 /* only one of the three the reader could not act on. It also ran the   */
 /* band's whole budget: every pixel it needed was a pixel the left band */
@@ -197,19 +197,19 @@
 /*                                                                      */
 /*         W=  1280   1334   1440   1600   1920   2560                  */
 /*   L      104.8  104.8  104.8  104.8  104.8  127.8   the wordmark     */
-/*   N      337.5  337.5  337.5  337.5  358.2  449.0   the four entries */
+/*   N      444.7  444.7  444.7  444.7  471.9  591.1   the five entries */
 /*   R      238.4  240.7  245.4  254.0  263.0  298.2   RU|EN + press    */
-/*   N→R    225.4  250.0  298.4  369.7  510.4  749.8   clearance        */
+/*   N→R    171.8  196.5  244.8  316.2  453.5  678.8   clearance        */
 /*                                                                      */
-/* N is Russian, the longer locale (32 characters × 7.92 + 3 gaps × 28  */
-/* — English sets 306). R carries no contents handle: 1280 is the line  */
-/* the handle stops printing at (§2a) and the same line the nav starts  */
-/* printing at, which is what leaves the cluster this small.            */
+/* N is Russian, the longer locale (42 characters × 7.92 + 4 gaps × 28  */
+/* — English sets 428.9). R carries no contents handle: 1280 is the     */
+/* line the handle stops printing at (§2a) and the same line the nav    */
+/* starts printing at, which is what leaves the cluster this small.     */
 /*                                                                      */
 /* The entries are on the sheet's centre line TO THE PIXEL at all six   */
 /* widths — the nav's midpoint and the trim's midpoint agree exactly,   */
 /* including at 1280 where the clearance is tightest. R is the binding  */
-/* term now, not L, and it has 225px of slack at the narrowest width    */
+/* term now, not L, and it has 172px of slack at the narrowest width    */
 /* the nav is printed at and gains from there, so the wide tiers it     */
 /* spends (the press's padding clamp, the cluster gap) are safe. L is   */
 /* free at every width — 104.8px against a 632px half-share at 1280.    */
@@ -290,7 +290,7 @@
   NOT PRINTED UNDER 1280, and that line is declared here rather than with a
   `hidden xl:flex` at the call site: this stylesheet is UNLAYERED and beats
   Tailwind's layered utilities however specific they are, so a utility would
-  have lost and the four labels would have printed on a 390 sheet beside the
+  have lost and the five labels would have printed on a 390 sheet beside the
   handle that opens the very same list. The same trap caught the press and
   the contents handle — see §2a and the note on `.btn-press` below.
 
@@ -324,7 +324,7 @@
 }
 
 /*
-  The four printed labels are anchors into the manual now, not routes into a
+  The five printed labels are anchors into the manual now, not routes into a
   site that does not exist (Header.tsx), so they can say where the reader is.
   `aria-current="location"` is the ARIA token for a position WITHIN a page —
   `page` would claim the reader had navigated somewhere — and the mark is
@@ -430,40 +430,11 @@
 }
 
 /*
-  RU | EN. The toggle used to be one link around both labels, so the
-  44px floor could sit on the whole element. Now only the second token
-  is a control, and 11px of "EN" is a 16 × 13px target — so the floor
-  moves onto the link and nothing else: `.menu-toggle` has the same
-  44px (globals.css) and `.btn` has `min-h-11` (ui/Button.tsx), and
-  this is the third of the three.
-
-  The box is built out of padding, not an absolutely-positioned
-  expander: primitives.css draws `:focus-visible` on the border box, so
-  a pseudo-element hit area would ring type that is not where the click
-  lands. 0.875rem either side of "EN" comes to 43.84px — a sixth of a
-  pixel short — so `min-width` states the floor outright rather than
-  leaving it to the advance width of two letters. The wrapper keeps
-  no gap of its own — that padding IS the air around the
-  rule, so the target is hit area rather than visible slack. The bar is
-  `align-items: center`, so the extra height is taken symmetrically out
-  of the 80px bar and nothing moves.
+  THE RU | EN TOGGLE STOOD HERE, and the 44px floor it carried went with
+  it. Two of the three tap targets in the bar are left and they state
+  their own floor where they are declared: `.menu-toggle` has 44px in
+  globals.css and `.btn` has `min-h-11` in ui/Button.tsx.
 */
-.site-header .lang-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
-}
-.site-header .lang-toggle__current {
-  padding-inline: 0.25rem 0.875rem;
-}
-.site-header .lang-toggle__link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  min-width: 44px;
-  padding-inline: 0.875rem;
-}
 
 /* ------------------------------------------------------------------ */
 /* The header's wide tiers                                             */
@@ -514,14 +485,14 @@
 /* 2 · THE CONTENTS PAGE — UNDER 1280 ONLY                             */
 /*                                                                      */
 /* The overlay is the narrow sheet's navigation, and that is all it is. */
-/* From 1280 up the four entries are printed in the bar itself, so a    */
-/* handle there would be a second route to the same four standing right */
+/* From 1280 up the five entries are printed in the bar itself, so a    */
+/* handle there would be a second route to the same five standing right */
 /* beside the first one; below it, it is the only route there is. The   */
 /* handle is hidden at exactly that line (§2a) and Header.tsx shuts the */
 /* panel at the same one, so the bar and the overlay can never both be  */
-/* offering the reader the same four labels.                            */
+/* offering the reader the same five labels.                            */
 /*                                                                      */
-/* It is still set as what it is: a contents page. Four entries ruled   */
+/* It is still set as what it is: a contents page. Five entries ruled   */
 /* down the left, the chapters and the club's particulars beside        */
 /* them.                                                                */
 /* ================================================================== */
@@ -531,7 +502,7 @@
 /*                                                                      */
 /* The only route into the contents, and it was the least-marked thing  */
 /* in the bar: a bare word in the same mono, size, tracking and ink as  */
-/* the four nav labels beside it, with no rule, no glyph and no hover   */
+/* the five nav labels beside it, with no rule, no glyph and no hover   */
 /* mark, standing next to the loudest object in the header. The table   */
 /* of contents was quieter than the sign-up button on a page organised  */
 /* entirely around chapters.                                            */
@@ -558,16 +529,16 @@
 /*
   NOT PRINTED FROM 1280 UP. This has been argued both ways in this file and
   the client has settled it: on a wide sheet the bar is a bar — the wordmark,
-  the four labels, the language, the press — and no handle.
+  the five labels, the language, the press — and no handle.
 
-  The case for keeping it is on the record and it is not nothing: the four
+  The case for keeping it is on the record and it is not nothing: the five
   labels are not the only thing the overlay holds. Its second block is the
   contents page proper, the numbered chapters 一 through 七, and with the
   handle gone a wide-sheet reader reaches chapters 三 through 六 by scrolling
   and by the running head alone. That cost is accepted, not overlooked. If it
   is ever to be paid back it is paid by giving the chapters a route of
   their own — a rail in the binding margin, a list in the colophon — and NOT
-  by putting a second menu back in a bar that already carries four labels.
+  by putting a second menu back in a bar that already carries five labels.
 
   The rule is declared here, in this file, and NOT with an `xl:hidden` utility
   at the call site, for the same reason the press is hidden here (§1): the
@@ -579,7 +550,7 @@
   1280 is Tailwind's `xl`, which is the breakpoint the bar's own nav prints at
   (`hidden xl:flex`, Header.tsx), and Header.tsx shuts the panel at the same
   line. Three statements of one number: retune all three or none. A gap
-  between them is either a width with two routes to the same four entries or
+  between them is either a width with two routes to the same five entries or
   a width with none.
 
   `display: none` and not `visibility`/opacity: it also takes the handle out
@@ -785,8 +756,8 @@
 /* 3 · THE COLOPHON                                                    */
 /*                                                                      */
 /* The foot of the manual: one line of the school's own, the belts,     */
-/* the sections, the particulars, the imprint, and 押忍 pressed into    */
-/* the corner. On the ink ground, so quiet text is `--color-bone-2`     */
+/* the sections, the particulars, and 押忍 pressed into the corner. On  */
+/* the ink ground, so quiet text is `--color-bone-2`                    */
 /* (7.4:1 on #151311) and never `--color-ink-3`.                        */
 /* ================================================================== */
 
@@ -847,30 +818,33 @@
   gap: 0.75rem;
 }
 /* ------------------------------------------------------------------ */
-/* The step wedge                                                      */
+/* The dye card                                                        */
 /*                                                                      */
-/* The seven ranks were seven progress bars — a 44 × 6.4px track with   */
-/* an absolutely-positioned fill at 14.3%, 28.6% … 100% — which is the  */
-/* CV skill meter, seven of them stacked, and it was the colophon's     */
-/* only ornament. It also read wrong: a 10 кю is not 14% of a black     */
-/* belt, and «за один шаг» is not what a grade measures.                */
+/* Seven ranks, and for a long time seven greys: a step wedge from bone */
+/* at 白帯 to solid ink at 黒帯, on the argument that five foreign dyes */
+/* had no business in a page made of paper and ink. The form was right  */
+/* and the argument was not. On a belt ladder the colour is not a        */
+/* decoration applied to the rank — it IS the rank, and a reader who    */
+/* keeps an orange belt in a bag at home should find it here. So the    */
+/* patches carry their real dyes now, mixed for this press in           */
+/* `--color-obi-*` (globals.css, where the rota's one exception is      */
+/* argued), and the wedge is what a manual's back matter actually       */
+/* prints: the dye card, the chart of lots that lets a colour be named. */
 /*                                                                      */
-/* A printer has a truer mark for graduated ink, and the page is a      */
-/* printed manual: the step wedge, the strip of flat patches run down   */
-/* the margin of a sheet so the press can be read off it. Seven         */
-/* patches, butted into ONE continuous band, stepping from bone at the  */
-/* white belt to solid ink at 黒帯. The rank is the position in the     */
-/* band, not a distance travelled along a bar — and the aphorism        */
-/* printed above it, «Каждый чёрный пояс когда-то был белым», is        */
-/* literally the strip's two ends.                                      */
+/* The band's construction is unchanged, because it was never the       */
+/* problem. Seven patches butted into ONE strip, so the rank is a       */
+/* position in the card rather than a distance travelled along a bar —  */
+/* which is what the seven progress meters this replaced got wrong: a   */
+/* 10 кю is not 14% of a black belt. The hairline is drawn ONCE around  */
+/* the whole strip; a rule per patch would print six lines the dyes     */
+/* already draw for free. The leading between ranks is padding inside   */
+/* each row rather than a gap between them, because a gap would break   */
+/* the card back into seven loose swatches.                             */
 /*                                                                      */
-/* The last patch is the ground exactly: at full density the ink and    */
-/* the page are the same black, which is the point and not a missing    */
-/* cell. The band's hairline is what states its extent, and it is drawn */
-/* ONCE around the whole strip — a rule per patch would print six lines */
-/* that are not steps. The leading between ranks is padding inside each */
-/* row rather than a gap between them, because a gap would break the    */
-/* band into seven swatches again.                                      */
+/* 黒帯 sits a hair above the ink ground and not on it — the page and   */
+/* the belt are nearly the same black, which is the point of the last   */
+/* step, and the brown above it plus the band's own rule close the cell */
+/* so it reads as printed and not as a hole.                            */
 /* ------------------------------------------------------------------ */
 .belt-wedge {
   --wedge-w: 2.75rem;
@@ -888,40 +862,26 @@
   pointer-events: none;
 }
 .belt-wedge__rank {
+  --wedge-lead: 0.45rem;
   display: grid;
   grid-template-columns: var(--wedge-w) 1fr auto;
   align-items: center;
   column-gap: 1rem;
-  padding-block: 0.45rem;
+  padding-block: var(--wedge-lead);
 }
 .belt-wedge__cell {
   align-self: stretch;
-  background: color-mix(in oklab, var(--color-ink) var(--tone, 0%), var(--color-bone));
-}
-
-.footer__rule {
-  margin-top: clamp(4rem, 5vw, 9rem);
-}
-.footer__colophon,
-.footer__copyright {
-  margin-top: clamp(2rem, 2.5vw, 4rem);
-}
-.footer__colophon {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-@media (min-width: 768px) {
-  .footer__colophon {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
-}
-.footer__imprint {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
+  /* `stretch` fills the row's CONTENT box, so the leading — which is padding
+     INSIDE each row, not a gap between them — was printing a strip of ground
+     above and below every patch: seven loose chips, which is precisely what
+     the band is not. The patch is pulled back out over its own row's padding
+     so the seven meet edge to edge, and the lead is a variable because the
+     wide tier opens it and the two have to move together. */
+  margin-block: calc(-1 * var(--wedge-lead));
+  /* the dye is handed in per rank from the ladder in Footer.tsx, so the data
+     and the paint cannot drift out of step; the fallback is the ink ground,
+     which prints nothing rather than printing a wrong colour */
+  background: var(--dye, var(--color-ink));
 }
 
 /*
@@ -1004,7 +964,7 @@
     --wedge-w: 3.5rem;
   }
   .belt-wedge__rank {
-    padding-block: 0.6rem;
+    --wedge-lead: 0.6rem;
     column-gap: 1.5rem;
   }
   .footer .footer__aphorism {

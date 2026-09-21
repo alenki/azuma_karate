@@ -1,10 +1,8 @@
 "use client";
 
-import { useLocale } from "@/i18n/LocaleProvider";
 import { club } from "@/content/schedule";
 import { dayShort, firstSession, groupById, nextSession, type NextSession } from "@/lib/schedule";
 import { createLiveStore, useLiveStore } from "@/lib/useLiveValue";
-import type { Locale } from "@/i18n/config";
 
 type Live = { session: NextSession; live: boolean };
 
@@ -23,32 +21,31 @@ export function useNextSession(): Live {
   return useLiveStore(store, SERVER);
 }
 
-export function formatNextSession(session: NextSession, live: boolean, locale: Locale) {
+export function formatNextSession(session: NextSession, live: boolean) {
   const group = groupById(session.group);
   const when = !live
-    ? dayShort(session.day, locale)
+    ? dayShort(session.day)
     : session.isToday
-      ? locale === "ru" ? "Сегодня" : "Today"
+      ? "Сегодня"
       : session.inDays === 1
-        ? locale === "ru" ? "Завтра" : "Tomorrow"
-        : dayShort(session.day, locale);
+        ? "Завтра"
+        : dayShort(session.day);
   return {
-    label: locale === "ru" ? "Ближайшая тренировка" : "Next session",
+    label: "Ближайшая тренировка",
     when,
     time: session.time,
     /* the full line, for a strip that has the trim to set it on */
-    group: `${group.name[locale]} · ${group.ages[locale]}`,
+    group: `${group.name} · ${group.ages}`,
     /* the group alone, for the 56px foot margin — the ages are what pushed
        that line past its column and into an ellipsis */
-    groupName: group.name[locale],
-    place: club.address[locale],
+    groupName: group.name,
+    place: club.address,
   };
 }
 
 export function NextSessionStrip({ className, href }: { className?: string; href: string }) {
-  const { locale } = useLocale();
   const { session, live } = useNextSession();
-  const f = formatNextSession(session, live, locale);
+  const f = formatNextSession(session, live);
   return (
     <a href={href} className={className} data-live={live ? "true" : "false"}>
       <span className="t-mono">{f.label}</span>

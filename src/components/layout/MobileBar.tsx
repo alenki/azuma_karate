@@ -3,7 +3,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
-import { useLocale } from "@/i18n/LocaleProvider";
 import { cta } from "@/content/nav";
 import { Button } from "@/components/ui/Button";
 import { formatNextSession, useNextSession } from "@/components/ui/NextSessionStrip";
@@ -21,8 +20,8 @@ import { EASE_OUT } from "@/lib/ease";
   Nothing else on this page repeats itself.
 
   Naming the hero instead of guessing at a fraction of the viewport makes the
-  bar arrive exactly when the hero's own strip leaves, at any height, in any
-  locale. It is a module constant so the observer effect below does not re-run
+  bar arrive exactly when the hero's own strip leaves, at any height and at
+  any width. It is a module constant so the observer effect below does not re-run
   on every render — a default `[]` written in the parameter list is a new array
   identity each time.
 */
@@ -48,10 +47,9 @@ export function MobileBar({
      already carrying. */
   ctaHref?: string;
 }) {
-  const { locale } = useLocale();
   const { ground } = useActiveChapter();
   const { session, live } = useNextSession();
-  const f = formatNextSession(session, live, locale);
+  const f = formatNextSession(session, live);
   /* covered until proven otherwise: the observer's first callback arrives
      before paint, and starting at `false` would flash the bar over the hero */
   const [covered, setCovered] = useState(true);
@@ -110,7 +108,7 @@ export function MobileBar({
               </span>
             </div>
             <Button href={ctaHref} className="mobile-bar__act">
-              {cta.label[locale]}
+              {cta.label}
             </Button>
           </div>
         </motion.div>

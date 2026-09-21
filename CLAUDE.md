@@ -36,30 +36,35 @@ the render is the fact — judge changes against the running page, not the prose
 Some comments are already stale (`globals.css` and the README still name
 `ui/DuotoneDefs.tsx`; that file is now `ui/PressDefs.tsx`).
 
-## Locale routing
+## One language
 
-Russian is the default and is served from bare paths; English lives under `/en`.
-Both are statically generated from `src/app/[locale]`. The mechanism is entirely
-in `next.config.ts`: `/` and any unreserved path rewrite to `/ru/…`, and `/ru/…`
-permanently redirects back to the bare path, so each page has one canonical URL
-per language.
+Russian, and nothing else. Pages live at `src/app/` and are served from the bare
+paths; `next.config.ts` carries no rewrites and no redirects.
 
-- The `RESERVED` regex in `next.config.ts` lists paths that must **not** be
-  rewritten. The test is "does this file live at the app root or under
-  `[locale]`" — not "is this a metadata route". `opengraph-image` is
-  deliberately absent because ours is per-locale
-  (`src/app/[locale]/opengraph-image.tsx`); adding it 404s the Russian share
-  card while English keeps working.
-- Build hrefs with `localeHref()` / `useLocale().href` from `src/i18n`, never by
-  string concatenation.
+There was an English edition under `/en`, generated from an `src/app/[locale]`
+segment, with Russian rewritten to `/ru/…` internally and redirected back out so
+each page had one canonical URL per language. It is gone: the segment, the
+`src/i18n` module (`localeHref()`, `useLocale()`, `Locale`), the `RESERVED`
+rewrite list, the bar's `RU | EN` toggle and the colophon's link to the other
+edition were all removed, and every `Record<Locale, T>` in `src/content/` was
+collapsed to its Russian side.
+
+- Hrefs are plain paths now. There is no locale to thread through them, so
+  `sectionLink()` and `homeAnchorHref()` in `src/lib/sections.ts` take
+  `(href, route)` and build `/#anchor` directly.
+- `<html lang="ru">` is a literal in the layout, and the head states one
+  `canonical` with no `languages` map and no `hreflang`.
+- Do not reintroduce a language toggle or a second dictionary side without the
+  route to back it: a toggle whose only state is the current one is furniture
+  pretending to be a control.
 
 ## Content layer
 
 `src/content/` is the single source for every fact and every string; components
 hold no copy and no image paths.
 
-- `home.ts` — the page dictionary, Russian-first with an English mirror, typed
-  `L<T> = Record<Locale, T>`.
+- `home.ts` — the page dictionary, plain Russian strings. It was typed
+  `L<T> = Record<Locale, T>` while there was an English mirror; both are gone.
 - `schedule.ts` — groups, sessions, club address/links. The layout's JSON-LD
   derives opening hours from `sessions`, so the page and the search result
   cannot disagree.
@@ -74,17 +79,25 @@ Two conventions live here and must be preserved:
 print a ruled blank and what is still awaited. Do not replace a pending slot
 with plausible-looking copy.
 
-**Bound spaces.** Russian copy binds a non-breaking space before every em dash, after short
-prepositions/conjunctions, and between a figure and its unit. Always write it as
+**No em dash.** Not one, anywhere a reader can see it:
+not in copy, a `<title>`, a description, alt text or an `aria-label`. It used to
+be this manual's main joint and it was taken out of every string; the sentences
+were rebuilt around it (split in two, or rejoined with a colon, a comma or a
+conjunction) rather than having it swapped for a lookalike. Rebuild the sentence
+the same way rather than reintroducing one. The en dash is untouched where it
+sets a range («4–6», «10–9», «5–6 октября»), and `PENDING_MARK` is now «·».
+
+**Bound spaces.** Copy binds a non-breaking space after short
+prepositions/conjunctions and between a figure and its unit. Always write it as
 the escape `\u00A0`, never as a literal NBSP — an editor that normalises whitespace would
-silently undo it. English binds only the em dash and figure+unit. Alt text and
-screen-reader-only strings carry no bound spaces.
+silently undo it. Alt text and screen-reader-only strings carry no bound
+spaces.
 
 ## Styling
 
 Tailwind v4, configured entirely in CSS. Three tiers:
 
-- `src/app/[locale]/globals.css` — `@theme` tokens, `@layer base`, typographic
+- `src/app/globals.css` — `@theme` tokens, `@layer base`, typographic
   roles (`.t-display`, `.t-mono`, …), grounds, rules, layout primitives.
 - `src/styles/primitives.css` — grain, marquee, focus ring, `.sr-only`.
 - `src/styles/sections/*.css` — one file per section, imported by its own
@@ -99,6 +112,14 @@ Vermilion (`--color-shu`) has exactly three jobs: an actual `<Brush>` mark, the
 `<Seal>`, and the reader's own accent (focus ring, `::selection`). It is not a
 label, status, hover, wordmark or ornament colour. Emphasis is carried by a
 rule, a fill, a weight or a ground inversion — never by hue alone.
+
+The one exception is the belt dyes, `--color-obi-*`, printed on the colophon's
+dye card: there the hue **is** the fact being recorded, not emphasis applied to
+one, and a grey standing in for «оранжевый» is the worse mark. Do not put the
+strip back to greyscale. They sit in their own `@theme static` block because
+Tailwind v4 drops theme variables it cannot see used and each patch names its
+dye at runtime (`var(--color-obi-${b.dye})`); they are `background` values for
+that one strip and for nothing else.
 
 The ink ramp is role-typed and the roles are not interchangeable:
 

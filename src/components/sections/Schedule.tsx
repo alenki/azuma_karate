@@ -2,7 +2,6 @@
 
 import "@/styles/sections/schedule.css";
 
-import { useLocale } from "@/i18n/LocaleProvider";
 import { chapters, schedule } from "@/content/home";
 import { club } from "@/content/schedule";
 import { Chapter } from "@/components/layout/Chapter";
@@ -39,15 +38,14 @@ const HEADING_ID = "schedule-title";
  * timetable's, because `Timetable` is rendered only from here.
  */
 export function Schedule() {
-  const { locale } = useLocale();
   const t = schedule;
-  const title = t.title[locale];
+  const title = t.title;
 
   return (
     <Chapter
       id={chapter.id}
       index={chapter.index}
-      title={chapter.title[locale]}
+      title={chapter.title}
       labelledBy={HEADING_ID}
       className="schedule"
     >
@@ -67,7 +65,7 @@ export function Schedule() {
           */}
           <Reveal delay={0.45} y={20} className="schedule__actions">
             <Button variant="ink" size="lg" href={club.telegram} plain className="schedule__cta">
-              {t.telegram[locale]}
+              {t.telegram}
             </Button>
           </Reveal>
         </div>

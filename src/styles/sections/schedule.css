@@ -675,7 +675,7 @@
 }
 /* a day with no class — every printed day currently has one, so this is the
    convention held open for a rest day inside the week rather than something
-   the table prints today. The em dash is content, not ornament, so it is set
+   the table prints today. The middle dot is content, not ornament, so it is set
    in readable ink like everything else. */
 .timetable__empty {
   color: var(--color-ink-2);

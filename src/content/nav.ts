@@ -1,16 +1,16 @@
-import type { Locale } from "@/i18n/config";
 
-export type NavItem = { href: string; label: Record<Locale, string> };
+export type NavItem = { href: string; label: string };
 
 /** Site sections. Only the home page exists in this phase; the rest are future routes. */
 export const navItems: NavItem[] = [
-  { href: "/about", label: { ru: "О клубе", en: "About" } },
-  { href: "/schedule", label: { ru: "Расписание", en: "Schedule" } },
-  { href: "/achievements", label: { ru: "Достижения", en: "Achievements" } },
-  { href: "/contacts", label: { ru: "Контакты", en: "Contacts" } },
+  { href: "/about", label: "О клубе" },
+  { href: "/schedule", label: "Расписание" },
+  { href: "/trainers", label: "Тренеры" },
+  { href: "/achievements", label: "Достижения" },
+  { href: "/contacts", label: "Контакты" },
 ];
 
 export const cta = {
-  label: { ru: "Записаться", en: "Sign up" } as Record<Locale, string>,
+  label: "Записаться",
   href: "#join",
 };

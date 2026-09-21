@@ -2,7 +2,6 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { hero, heroFit } from "@/content/home";
-import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 
 /**
  * The share card — the hero, typeset for a link preview.
@@ -22,6 +21,7 @@ import { defaultLocale, isLocale, type Locale } from "@/i18n/config";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+export const alt = `${hero.line1} ${hero.line2} ${hero.eyebrow}`;
 
 /*
   The sheet's tokens, copied. satori has no cascade and no custom properties, so
@@ -40,23 +40,12 @@ const GUTTER = 64;
 /** `--band-bleed`, 8vw of the card: how far the dry tail runs past the trim. */
 const BLEED = Math.round(size.width * 0.08);
 
-function toLocale(value: string): Locale {
-  return isLocale(value) ? value : defaultLocale;
-}
-
-/* `params` is already resolved here — unlike the image handler below, where it
-   is a promise (Next 16). */
-export function generateImageMetadata({ params }: { params: { locale: string } }) {
-  const locale = toLocale(params.locale);
-  return [
-    {
-      id: locale,
-      size,
-      contentType,
-      alt: `${hero.line1[locale]} ${hero.line2[locale]} — ${hero.eyebrow[locale]}`,
-    },
-  ];
-}
+/*
+  There is no `generateImageMetadata()` here any more. It existed to emit one
+  card per locale, each with its own id and its own alt; with a single edition
+  there is a single card, so `alt` is the plain export above and Next serves
+  this route directly.
+*/
 
 /*
   Google Fonts answers a current browser with WOFF2, and satori reads TTF, OTF
@@ -81,15 +70,13 @@ async function subset(family: string, text: string): Promise<ArrayBuffer> {
   return fetch(file).then((r) => r.arrayBuffer());
 }
 
-export default async function Image({ params }: { params: Promise<{ locale: string }> }) {
-  const locale = toLocale((await params).locale);
-
-  const line1 = hero.line1[locale];
-  const line2 = hero.line2[locale];
-  const trial = hero.trial[locale];
+export default async function Image() {
+  const line1 = hero.line1;
+  const line2 = hero.line2;
+  const trial = hero.trial;
   /* The colophon along the foot: the eyebrow, in the mono voice a reader counts
      rather than reads, so it is set in caps and tracked like the page's own. */
-  const colophon = hero.eyebrow[locale].toUpperCase();
+  const colophon = hero.eyebrow.toUpperCase();
   const wordmark = "SK AZUMA";
   const tag = "karate team";
 
@@ -99,7 +86,7 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     fills the trim. The 128px cap is a height stop, not a taste one — two lines
     of 128 plus the stroke and the two mono bands is exactly 630.
   */
-  const fit = Math.max(heroFit[locale].wide, heroFit[locale].narrow);
+  const fit = Math.max(heroFit.wide, heroFit.narrow);
   const display = Math.min(Math.floor((size.width - GUTTER * 2) / fit), 128);
 
   /* hero.css: band-w = trim + gutter + bleed, band-h = band-w / 14. The mark

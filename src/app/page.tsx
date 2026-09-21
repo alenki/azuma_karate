@@ -1,5 +1,3 @@
-import { notFound } from "next/navigation";
-import { isLocale } from "@/i18n/config";
 import { chapters } from "@/content/home";
 import { ChapterProvider } from "@/components/layout/ChapterContext";
 import { Header } from "@/components/layout/Header";
@@ -16,11 +14,8 @@ import { Join } from "@/components/sections/Join";
  * The home page — «Первая черта».
  * Six chapters of a printed Kyokushin manual, annotated by one red brush.
  */
-export default async function HomePage({ params }: PageProps<"/[locale]">) {
-  const { locale } = await params;
-  if (!isLocale(locale)) notFound();
-
-  const contents = chapters.map((c) => ({ id: c.id, index: c.index, title: c.title[locale] }));
+export default function HomePage() {
+  const contents = chapters.map((c) => ({ id: c.id, index: c.index, title: c.title }));
 
   return (
     <ChapterProvider>

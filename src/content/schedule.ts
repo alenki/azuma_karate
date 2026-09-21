@@ -1,4 +1,3 @@
-import type { Locale } from "@/i18n/config";
 import { pendingFact } from "@/content/home";
 
 /**
@@ -37,17 +36,17 @@ export type GroupId = "kids-4-6" | "kids-6-11" | "teens-12-16" | "adults";
  */
 export type FamilyId = "children" | "adults";
 
-export const families: { id: FamilyId; label: Record<Locale, string> }[] = [
-  { id: "children", label: { ru: "Мальчики и\u00A0девочки", en: "Boys and girls" } },
-  { id: "adults", label: { ru: "Мужчины и\u00A0девушки", en: "Men and women" } },
+export const families: { id: FamilyId; label: string }[] = [
+  { id: "children", label: "Мальчики и\u00A0девочки" },
+  { id: "adults", label: "Мужчины и\u00A0девушки" },
 ];
 
 export type Group = {
   id: GroupId;
-  name: Record<Locale, string>;
-  ages: Record<Locale, string>;
+  name: string;
+  ages: string;
   /** Short line under the group name. */
-  note: Record<Locale, string>;
+  note: string;
   /** Which of the club's two intake families this group belongs to. */
   family: FamilyId | null;
   /**
@@ -64,33 +63,33 @@ export type Group = {
 export const groups: Group[] = [
   {
     id: "kids-4-6",
-    name: { ru: "Первый шаг", en: "First Step" },
-    ages: { ru: "4–6\u00A0лет", en: "ages\u00A04–6" },
-    note: { ru: "Игра, координация, дисциплина. Без спаррингов.", en: "Play, coordination, discipline. No sparring." },
+    name: "Первый шаг",
+    ages: "4–6\u00A0лет",
+    note: "Игра, координация, дисциплина. Без спаррингов.",
     family: "children",
     ageSpan: { from: 4, to: 6 },
   },
   {
     id: "kids-6-11",
-    name: { ru: "Дети", en: "Kids" },
-    ages: { ru: "6–11\u00A0лет", en: "ages\u00A06–11" },
-    note: { ru: "Кихон, ката, первые аттестации.", en: "Kihon, kata, first gradings." },
+    name: "Дети",
+    ages: "6–11\u00A0лет",
+    note: "Кихон, ката, первые аттестации.",
     family: "children",
     ageSpan: { from: 6, to: 11 },
   },
   {
     id: "teens-12-16",
-    name: { ru: "Подростки", en: "Teens" },
-    ages: { ru: "12–16\u00A0лет", en: "ages\u00A012–16" },
-    note: { ru: "Кумитэ в\u00A0защите, соревнования по\u00A0желанию.", en: "Protected kumite, competitions optional." },
+    name: "Подростки",
+    ages: "12–16\u00A0лет",
+    note: "Кумитэ в\u00A0защите, соревнования по\u00A0желанию.",
     family: "children",
     ageSpan: { from: 12, to: 16 },
   },
   {
     id: "adults",
-    name: { ru: "Взрослые", en: "Adults" },
-    ages: { ru: "16+", en: "16+" },
-    note: { ru: "С\u00A0нуля или с\u00A0опытом. Вечерняя группа.", en: "Beginners or experienced. Evening group." },
+    name: "Взрослые",
+    ages: "16+",
+    note: "С\u00A0нуля или с\u00A0опытом. Вечерняя группа.",
     family: "adults",
     ageSpan: { from: 16, to: null },
   },
@@ -119,17 +118,17 @@ export const sessions: Session[] = [
 
 export const club = {
   name: "SK AZUMA",
-  city: { ru: "Нальчик", en: "Nalchik" } as Record<Locale, string>,
+  city: "Нальчик",
   /*
     The republic. It is geography rather than a claim about the club, and it
-    lives here because it is part of ONE address with one home — the contacts
-    page sets the particulars the way a posted address is set (addressee,
-    street, city, republic) and must not retype a line of it into a copy file.
-    Nothing on the home page prints it; a reader on /en outside the republic
-    is who it is for.
+    lives here because it is part of ONE address with one home: anything that
+    sets the particulars the way a posted address is set — addressee, street,
+    city, republic — reads all four from here rather than retyping a line of
+    it into a copy file. Nothing prints it today. The contacts page did, and
+    the fact outlives the page that used it.
   */
-  region: { ru: "Кабардино-Балкария", en: "Kabardino-Balkaria" } as Record<Locale, string>,
-  address: { ru: "ул.\u00A0Кирова,\u00A0157", en: "Kirova St,\u00A0157" } as Record<Locale, string>,
+  region: "Кабардино-Балкария",
+  address: "ул.\u00A0Кирова,\u00A0157",
   /**
    * Approximate coordinates of Nalchik, used to compute the park sunrise — a
    * city-level position is accurate enough for a sunrise time. It is NOT the
@@ -162,7 +161,7 @@ export const club = {
     not taken and a number that does not ring.
   */
   pending: {
-    phone: pendingFact({ ru: "номер уточняется у\u00A0клуба", en: "number to be confirmed with the club" }),
-    coordsLabel: pendingFact({ ru: "координаты зала уточняются", en: "hall coordinates to be confirmed" }),
+    phone: pendingFact("номер уточняется у\u00A0клуба"),
+    coordsLabel: pendingFact("координаты зала уточняются"),
   },
 };

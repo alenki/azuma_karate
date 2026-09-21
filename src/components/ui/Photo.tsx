@@ -2,7 +2,6 @@
 
 import Image, { getImageProps, type ImageProps } from "next/image";
 import { cn } from "@/lib/cn";
-import { useLocale } from "@/i18n/LocaleProvider";
 import { media, type MediaKey } from "@/content/media";
 
 /**
@@ -64,7 +63,6 @@ type PhotoProps = Omit<ImageProps, "src" | "alt" | "width" | "height"> & {
  * so the client's photography can replace the placeholders in one file.
  */
 export function Photo({ slot, className, art, grade = "duotone", fill = true, sizes, priority, ...rest }: PhotoProps) {
-  const { locale } = useLocale();
   const m = media[slot];
   const gradeClass =
     grade === "color"
@@ -88,7 +86,7 @@ export function Photo({ slot, className, art, grade = "duotone", fill = true, si
   */
   if (art) {
     const narrow = media[art.slot];
-    const alt = m.alt[locale];
+    const alt = m.alt;
     const common = { alt, quality: rest.quality as number | undefined };
     const { props: tall } = getImageProps({
       ...common,
@@ -140,7 +138,7 @@ export function Photo({ slot, className, art, grade = "duotone", fill = true, si
   return (
     <Image
       src={m.src}
-      alt={m.alt[locale]}
+      alt={m.alt}
       {...(fill ? { fill: true } : { width: m.width, height: m.height })}
       sizes={sizes ?? "(min-width: 1024px) 50vw, 100vw"}
       priority={priority}

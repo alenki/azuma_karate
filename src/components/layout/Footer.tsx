@@ -2,14 +2,10 @@
 
 import Link from "next/link";
 import { useRef, type CSSProperties } from "react";
-import { localeHref, otherLocale } from "@/i18n/config";
-import { useLocale } from "@/i18n/LocaleProvider";
 import { navItems } from "@/content/nav";
 import { club } from "@/content/schedule";
-import { Logo } from "@/components/brand/Logo";
 import { Kanji } from "@/components/brush/Kanji";
 import { Reveal, Settle } from "@/components/ui/Reveal";
-import { createLiveStore, useLiveStore } from "@/lib/useLiveValue";
 import { useGroundReporter } from "@/components/layout/ChapterContext";
 /* three of the four printed section labels are chapter anchors and one is a
    page — the map and the argument for it are in lib/sections, and the bar
@@ -17,84 +13,51 @@ import { useGroundReporter } from "@/components/layout/ChapterContext";
 import { sectionLink } from "@/lib/sections";
 
 /*
-  The belt ladder.
+  The belt ladder — and the dyes.
 
-  These were printed as seven literal colour chips — orange, blue, yellow,
-  green, brown — which put five brand-foreign hues in the footer of a page whose
-  whole claim is paper, ink and one vermilion. The RANKS are worth keeping; the
-  dyes are not ours to print. That much was right.
+  These were seven literal colour chips once, then seven progress bars (a
+  track with a fill at 14.3%, 28.6% … 100%: the CV skill meter, and it read
+  wrong as well as generic — a 10 кю is not 14% of a black belt), then seven
+  greys. The greys were the rota being applied where it does not reach: on a
+  belt ladder the hue is not an ornament laid over the rank, it is the rank,
+  and «оранжевый» printed in grey is a worse mark than orange. A printer's
+  answer exists and the page is a printed manual — the dye card, the strip of
+  butted patches at the back of a book that lets a lot be named — so the band
+  keeps its construction and gets its real dyes.
 
-  What replaced them was not: seven progress bars, a track with a fill at 14.3%,
-  28.6% … 100%, which is the CV skill meter — the most template-coded widget
-  there is — and it was the colophon's only ornament. It read wrong as well as
-  generic: a 10 кю is not 14% of a black belt.
+  The dyes live in `--color-obi-*` in globals.css, mixed warm and well off
+  full saturation for this press; the argument for the one exception to the
+  colour rota is written there. Each rank hands its own patch the dye, so the
+  ladder below is the single place the order of the belts is stated.
 
-  A printer has the true mark for graduated ink, and this page is a printed
-  manual: the step wedge. Seven flat patches butted into ONE continuous band,
-  stepping from bone at the white belt to solid ink at 黒帯 — so the rank is the
-  POSITION in the band rather than a distance travelled along a bar, and the
-  sentence set directly above it, «Каждый чёрный пояс когда-то был белым.», is
-  literally the strip's two ends. The colour names stay as words, where they
-  belong. The band's paint and its single hairline are in chrome.css.
+  `dye` IS NOT A LEFTOVER TRANSLATION — it is the token key. The patch's colour
+  is `var(--color-obi-white)`, `--color-obi-orange` and so on, named in English
+  in globals.css the way every other custom property there is, and this field is
+  what composes that name at runtime. It was called `en` while the row also
+  carried an English label; the label went with the English edition and the key
+  was renamed to say what it actually is.
 */
 const belts = [
-  { ru: "белый", en: "white", kyu: "10" },
-  { ru: "оранжевый", en: "orange", kyu: "10–9" },
-  { ru: "синий", en: "blue", kyu: "8–7" },
-  { ru: "жёлтый", en: "yellow", kyu: "6–5" },
-  { ru: "зелёный", en: "green", kyu: "4–3" },
-  { ru: "коричневый", en: "brown", kyu: "2–1" },
-  { ru: "чёрный", en: "black", kyu: "дан" },
+  { name: "белый", dye: "white", kyu: "10" },
+  { name: "оранжевый", dye: "orange", kyu: "10–9" },
+  { name: "синий", dye: "blue", kyu: "8–7" },
+  { name: "жёлтый", dye: "yellow", kyu: "6–5" },
+  { name: "зелёный", dye: "green", kyu: "4–3" },
+  { name: "коричневый", dye: "brown", kyu: "2–1" },
+  { name: "чёрный", dye: "black", kyu: "дан" },
 ];
 
-const copy = {
-  ru: {
-    aphorism: "Каждый чёрный пояс когда-то был белым.",
-    belts: "Пояса киокушин",
-    kyu: "кю",
-    sections: "Разделы",
-    contacts: "Контакты",
-    colophon: "Набрано в Нальчике. Прата, Голос, IBM Plex Mono. Иероглифы — KanjiVG (CC BY-SA 3.0). Фотографии — временные, Wikimedia Commons.",
-    lang: "English version",
-    osu: "Осу.",
-    rights: "Все права защищены",
-  },
-  en: {
-    aphorism: "Every black belt was once white.",
-    belts: "Kyokushin belts",
-    kyu: "kyu",
-    sections: "Sections",
-    contacts: "Contacts",
-    colophon: "Set in Nalchik. Prata, Golos Text, IBM Plex Mono. Kanji — KanjiVG (CC BY-SA 3.0). Photographs are temporary, from Wikimedia Commons.",
-    lang: "Русская версия",
-    osu: "Osu.",
-    rights: "All rights reserved",
-  },
+/* `lang` used to stand here too: the link to the other edition, printed last in
+   the particulars. It went with the edition it pointed at. */
+const t = {
+  aphorism: "Каждый чёрный пояс когда-то был белым.",
+  belts: "Пояса киокушин",
+  kyu: "кю",
+  sections: "Разделы",
+  contacts: "Контакты",
 };
 
-/*
-  The imprint dates itself.
-
-  `const year = 2026` would have read 2026 for the life of the site, and on a
-  colophon written as a real imprint — set in Nalchik, typefaces named, KanjiVG
-  licensed — a frozen date is the one line in it guaranteed to become false.
-  The club's own clock already drives the timetable's «сегодня» and the sunrise,
-  so the year comes from the same time zone rather than from the reader's, and
-  through the same store, so the server and the first client render agree and
-  there is no hydration mismatch. It ticks hourly: a year does not need a
-  minute's resolution, and midnight on the 31st is the only moment it matters.
-*/
-const EDITION_YEAR = 2026;
-const yearStore = createLiveStore<number>(
-  () => Number(new Intl.DateTimeFormat("en-US", { timeZone: club.timeZone, year: "numeric" }).format(new Date())),
-  (y) => String(y),
-  60 * 60 * 1000,
-);
-
 export function Footer({ route = "/" }: { route?: string }) {
-  const { locale } = useLocale();
-  const t = copy[locale];
-  const year = useLiveStore(yearStore, EDITION_YEAR);
   /* the colophon is ink too, so the bar has to invert over it like a chapter */
   const ref = useRef<HTMLElement>(null);
   useGroundReporter(ref, "footer", "ink");
@@ -120,20 +83,18 @@ export function Footer({ route = "/" }: { route?: string }) {
                 sub-pixel scale and never travels. */}
             <Settle duration={0.8}>
               <ol className="belt-wedge">
-                {belts.map((b, i) => (
+                {belts.map((b) => (
                   <li
-                    key={b.en}
+                    key={b.dye}
                     className="belt-wedge__rank t-caption"
-                    /* 0% ink at the white belt, 100% at the black — the tone is
-                       computed here rather than in a calc() so the band's ends
-                       are exact whatever the ladder's length becomes */
-                    style={{ "--tone": `${(i / (belts.length - 1)) * 100}%` } as CSSProperties}
+                    /* the rank's own dye, named off the same record that names
+                       the rank — a patch cannot end up a colour the row does
+                       not say, whatever the ladder's length becomes */
+                    style={{ "--dye": `var(--color-obi-${b.dye})` } as CSSProperties}
                   >
                     <span aria-hidden="true" className="belt-wedge__cell" />
-                    <span className="capitalize">{b[locale]}</span>
-                    <span className="text-bone-2">
-                      {b.kyu === "дан" ? (locale === "ru" ? "дан" : "dan") : `${b.kyu} ${t.kyu}`}
-                    </span>
+                    <span className="capitalize">{b.name}</span>
+                    <span className="text-bone-2">{b.kyu === "дан" ? "дан" : `${b.kyu} ${t.kyu}`}</span>
                   </li>
                 ))}
               </ol>
@@ -144,12 +105,12 @@ export function Footer({ route = "/" }: { route?: string }) {
             <p className="footer__col-label t-mono text-bone-2">{t.sections}</p>
             <ul className="footer__list">
               {navItems.map((item) => {
-                const link = sectionLink(item.href, locale, route);
+                const link = sectionLink(item.href, route);
                 return (
                   <li key={item.href}>
                     {link.inPage ? (
                       <a href={link.href} className="footer-link t-caption">
-                        {item.label[locale]}
+                        {item.label}
                       </a>
                     ) : (
                       <Link
@@ -157,7 +118,7 @@ export function Footer({ route = "/" }: { route?: string }) {
                         className="footer-link t-caption"
                         aria-current={link.current ? "page" : undefined}
                       >
-                        {item.label[locale]}
+                        {item.label}
                       </Link>
                     )}
                   </li>
@@ -189,31 +150,13 @@ export function Footer({ route = "/" }: { route?: string }) {
               as facts, the day the club confirms them.
             */}
             <ul className="footer__list t-caption">
-              <li>{club.city[locale]}, {club.address[locale]}</li>
+              <li>{club.city}, {club.address}</li>
               <li><a href={club.telegram} className="footer-link" rel="noopener">Telegram</a></li>
               <li><a href={club.instagram} className="footer-link" rel="noopener">Instagram</a></li>
-              <li className="pt-3">
-                {/* the other language of THIS page — see the same argument in
-                    the bar's RU | EN toggle */}
-                <Link href={localeHref(otherLocale(locale), route)} hrefLang={otherLocale(locale)} className="footer-link">
-                  {t.lang}
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
 
-        {/* the rule runs the trim, edge to edge, like every rule in the manual */}
-        <div className="footer__rule rule" />
-
-        <div className="footer__colophon">
-          <div className="footer__imprint">
-            <Logo tagline />
-            <span className="t-accent text-bone text-2xl leading-none">{t.osu}</span>
-          </div>
-          <p className="t-caption text-bone-2 max-w-[52ch]">{t.colophon}</p>
-        </div>
-        <p className="footer__copyright t-mono text-bone-2">© {year} SK AZUMA · {t.rights}</p>
       </div>
 
       {/* 押忍 printed large in the corner, aria-hidden */}

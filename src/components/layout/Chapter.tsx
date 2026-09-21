@@ -81,7 +81,7 @@ export function Chapter({ id, index, title, ground = "paper", className, numeral
         </div>
       )}
       <span className="sr-only">
-        {title} — {folio}
+        {title}, {folio}
       </span>
       {children}
       {bleed}

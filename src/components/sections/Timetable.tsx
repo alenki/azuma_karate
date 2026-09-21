@@ -3,7 +3,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
-import { useLocale } from "@/i18n/LocaleProvider";
 import { schedule } from "@/content/home";
 import { groups, type GroupId } from "@/content/schedule";
 import { byDay, dayLong, dayShort, groupById, nowInClubTime } from "@/lib/schedule";
@@ -77,7 +76,6 @@ const WEEK = [1, 2, 3, 4, 5] as const;
  * file declares, so each declaration still has exactly one home.
  */
 export function Timetable({ className, highlight, onHighlight }: { className?: string; highlight?: GroupId | null; onHighlight?: (g: GroupId | null) => void }) {
-  const { locale } = useLocale();
   const t = schedule.table;
   const days = byDay();
   /* the club's weekday exists only on the client; the server prints no tick */
@@ -134,7 +132,7 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
         own, so THAT box is the flex item and the button has to fill it —
         exactly the arrangement `.timetable__colwrap` handles for the week.
       */}
-      <p id={bandId} className="t-mono timetable__band-cap">{t.groups[locale]}</p>
+      <p id={bandId} className="t-mono timetable__band-cap">{t.groups}</p>
 
       <Register
         className="timetable__legend"
@@ -169,8 +167,8 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
             <span className="legend__head" aria-hidden="true">
               <span className="legend__dot" />
             </span>
-            <span className="legend__name">{g.name[locale]}</span>
-            <span className="t-mono legend__ages">{g.ages[locale]}</span>
+            <span className="legend__name">{g.name}</span>
+            <span className="t-mono legend__ages">{g.ages}</span>
           </button>
         ))}
       </Register>
@@ -199,10 +197,10 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
               aria-current={isToday ? "date" : undefined}
             >
               <div className="timetable__day">
-                <span className="timetable__dayname">{dayShort(d, locale)}</span>
+                <span className="timetable__dayname">{dayShort(d)}</span>
                 {isToday && (
                   <span className="t-mono timetable__now">
-                    {t.today[locale]}
+                    {t.today}
                     {/*
                       `view`, not `load`: on `load` the mark was drawn the
                       moment the client learned the weekday — which, for a
@@ -227,12 +225,12 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
                       )}
                     >
                       <span className="t-caption block">{s.time}</span>
-                      <span className="timetable__name">{g.name[locale]}</span>
-                      <span className="t-mono timetable__ages">{g.ages[locale]}</span>
+                      <span className="timetable__name">{g.name}</span>
+                      <span className="t-mono timetable__ages">{g.ages}</span>
                     </li>
                   );
                 })}
-                {days.get(d)!.length === 0 && <li className="t-caption timetable__empty">—</li>}
+                {days.get(d)!.length === 0 && <li className="t-caption timetable__empty">·</li>}
               </ul>
             </div>
           );
@@ -273,11 +271,11 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
                 aria-controls={panelId}
                 onClick={() => setOpenDay(open ? null : d)}
               >
-                <span className="timetable__day-name">{dayLong(d, locale)}</span>
+                <span className="timetable__day-name">{dayLong(d)}</span>
                 <span className="timetable__day-state">
                   {isToday && (
                     <span className="t-mono timetable__now">
-                      {t.today[locale]}
+                      {t.today}
                       <Brush kind="tick" className="timetable__tick-inline text-shu" delay={0.25} />
                     </span>
                   )}
@@ -294,8 +292,8 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
                 <span className="t-caption timetable__day-times">
                   {/* the times are read out as part of the row's own name, so
                       they are prefixed the way the column would be headed */}
-                  <span className="sr-only">{t.hours[locale]}: </span>
-                  {list.length > 0 ? list.map((s) => s.time).join(" · ") : "—"}
+                  <span className="sr-only">{t.hours}: </span>
+                  {list.length > 0 ? list.map((s) => s.time).join(" · ") : "·"}
                 </span>
               </button>
               <AnimatePresence initial={false}>
@@ -323,12 +321,12 @@ export function Timetable({ className, highlight, onHighlight }: { className?: s
                             )}
                           >
                             <span className="t-caption timetable__session-time">{s.time}</span>
-                            <span className="timetable__session-name">{g.name[locale]}</span>
-                            <span className="t-mono timetable__session-ages">{g.ages[locale]}</span>
+                            <span className="timetable__session-name">{g.name}</span>
+                            <span className="t-mono timetable__session-ages">{g.ages}</span>
                           </li>
                         );
                       })}
-                      {list.length === 0 && <li className="t-caption timetable__session timetable__session--empty">—</li>}
+                      {list.length === 0 && <li className="t-caption timetable__session timetable__session--empty">·</li>}
                     </ul>
                   </motion.div>
                 )}

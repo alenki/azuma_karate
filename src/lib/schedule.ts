@@ -1,20 +1,13 @@
 import { club, groups, sessions, type FamilyId, type GroupId, type Session } from "@/content/schedule";
-import type { Locale } from "@/i18n/config";
 
-const DAY_SHORT: Record<Locale, string[]> = {
-  ru: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
-  en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-};
-const DAY_LONG: Record<Locale, string[]> = {
-  ru: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"],
-  en: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-};
+const DAY_SHORT: string[] = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+const DAY_LONG: string[] = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
 
-export function dayShort(day: number, locale: Locale) {
-  return DAY_SHORT[locale][day - 1];
+export function dayShort(day: number) {
+  return DAY_SHORT[day - 1];
 }
-export function dayLong(day: number, locale: Locale) {
-  return DAY_LONG[locale][day - 1];
+export function dayLong(day: number) {
+  return DAY_LONG[day - 1];
 }
 export function groupById(id: GroupId) {
   return groups.find((g) => g.id === id)!;
@@ -25,12 +18,12 @@ export function groupsInFamily(family: FamilyId) {
   return groups.filter((g) => g.family === family);
 }
 
-/** Russian binds the space AFTER a one-letter conjunction; English binds nothing here. */
-const AND: Record<Locale, string> = { ru: "и\u00A0", en: "and " };
+/** Russian binds the space AFTER a one-letter conjunction. */
+const AND = "и\u00A0";
 
 /**
  * A family's age bands as running PROSE rather than as a column: «4–6, 6–11
- * и\u00A012–16\u00A0лет», "ages\u00A04–6, 6–11 and 12–16", «16+».
+ * и\u00A012–16\u00A0лет», «16+».
  *
  * IT USED TO BE ONE BAND AT A TIME. Chapter 二 printed the intake as a ruled
  * two-column table — a family ranged left, its bands stacked right — and each
@@ -44,19 +37,19 @@ const AND: Record<Locale, string> = { ru: "и\u00A0", en: "and " };
  * timetable legend reads — so the sentence and the week cannot disagree, and a
  * band is added or moved by editing the groups there and nothing here.
  */
-export function ageBands(family: FamilyId, locale: Locale) {
+export function ageBands(family: FamilyId) {
   const bands = groupsInFamily(family).map((g) => {
-    if (!g.ageSpan) return { text: g.ages[locale], closed: false };
+    if (!g.ageSpan) return { text: g.ages, closed: false };
     const { from, to } = g.ageSpan;
     return to === null ? { text: `${from}+`, closed: false } : { text: `${from}–${to}`, closed: true };
   });
   if (bands.length === 0) return "";
   const head = bands.slice(0, -1).map((b) => b.text).join(", ");
   const tail = bands[bands.length - 1].text;
-  const list = head ? `${head} ${AND[locale]}${tail}` : tail;
+  const list = head ? `${head} ${AND}${tail}` : tail;
   /* every figure in the list is bound to one unit, or none of them is */
   if (!bands.every((b) => b.closed)) return list;
-  return locale === "ru" ? `${list}\u00A0лет` : `ages\u00A0${list}`;
+  return `${list}\u00A0лет`;
 }
 
 /** Current wall-clock in the club's time zone: ISO weekday (1–7) and minutes since midnight. */

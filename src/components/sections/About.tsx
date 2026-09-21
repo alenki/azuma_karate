@@ -2,7 +2,6 @@
 
 import "@/styles/sections/about.css";
 
-import { useLocale } from "@/i18n/LocaleProvider";
 import { about, chapters } from "@/content/home";
 import { families } from "@/content/schedule";
 import { ageBands } from "@/lib/schedule";
@@ -115,7 +114,6 @@ const SAY_BLEED = 0.2;
  * stroke.
  */
 export function About() {
-  const { locale } = useLocale();
   const t = about;
 
   return (
@@ -131,7 +129,7 @@ export function About() {
     <Chapter
       id={chapter.id}
       index={chapter.index}
-      title={chapter.title[locale]}
+      title={chapter.title}
       labelledBy={HEADING_ID}
       ground="paper"
       className="about relative"
@@ -165,13 +163,13 @@ export function About() {
               delay={0.08}
               duration={1.15}
               bleed={SAY_BLEED}
-              lines={[t.name[locale]]}
+              lines={[t.name]}
             />
           </h2>
 
           <div className="about__frame-foot">
             <Reveal delay={0.25} y={22}>
-              <p className="about__lede">{t.lede[locale]}</p>
+              <p className="about__lede">{t.lede}</p>
             </Reveal>
 
             {/*
@@ -186,13 +184,14 @@ export function About() {
               The string is assembled here rather than written into `content/home.ts`:
               the terms are the club's own (`families`) and the figures are read off
               `content/schedule.ts` through `ageBands()`, the same record chapter 三's
-              timetable reads, so the sentence and the week cannot disagree. Bound
-              spaces are built from escapes for the same reason they are everywhere
-              else — see the rule at the head of `content/home.ts`.
+              timetable reads, so the sentence and the week cannot disagree. The
+              label and its ages used to be joined by a bound em dash; the dash is
+              gone from the whole site, so a colon carries the join and this string
+              has no bound space left to build.
             */}
             <Reveal delay={0.42} y={18} duration={0.8}>
               <p className="about__intake">
-                {families.map((f) => `${f.label[locale]}\u00A0— ${ageBands(f.id, locale)}.`).join(" ")}
+                {families.map((f) => `${f.label}: ${ageBands(f.id)}.`).join(" ")}
               </p>
             </Reveal>
           </div>

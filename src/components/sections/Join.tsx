@@ -3,7 +3,6 @@
 import "@/styles/sections/join.css";
 
 import { useId, useRef, useState, type FormEvent } from "react";
-import { useLocale } from "@/i18n/LocaleProvider";
 import { chapters, join } from "@/content/home";
 import { club } from "@/content/schedule";
 import type { KanjiId } from "@/content/kanji";
@@ -23,23 +22,33 @@ type Errors = Partial<Record<Field, string>>;
 const REQUIRED: readonly Field[] = ["name", "age", "contact"];
 
 /**
- * 押忍 — the watermark, and the only thing on this sheet that is not read.
+ * 道 — the watermark, and the only thing on this sheet that is not read.
+ *
+ * ONE GLYPH, AND NOT 押忍. The mark used to be the same two characters the
+ * colophon prints, at the same tone, a few hundred pixels above them — a
+ * repeat rather than a rhyme — and it sat directly behind the title, so what
+ * actually reached the page was two halves of two glyphs poking out of the
+ * display type. 道 appears nowhere else on the site, it is the second half of
+ * 空手道, and on the one sheet that books a first session it names what the
+ * session is the start of. It stands on the right trim, clear of every line,
+ * which is where chapter 二 puts its 東 — and since the redraw below it is also
+ * the head of the column the seal closes.
  *
  * DRAWN, NOT TYPESET, and that is not a stylistic preference. The page ships
- * two Latin faces and one mono and no CJK whatsoever, so a text node here would
- * resolve to Yu Gothic on Windows, Hiragino on macOS, Noto on a Linux box that
- * happens to have it and tofu on one that does not — four different marks at
- * the size of a headline. `content/kanji.ts` already holds both characters as
- * KanjiVG centrelines, and `<Kanji>` already strokes them through the same
- * taper table as the chapter numerals 一…六, so the glyph below is the same
- * printed type as the numeral in the binding margin, on every machine.
+ * two Latin faces and one mono and no CJK whatsoever, so a text node here
+ * would resolve to Yu Gothic on Windows, Hiragino on macOS, Noto on a Linux
+ * box that happens to have it and tofu on one that does not — four different
+ * marks at the size of a headline. `content/kanji.ts` already holds the
+ * character as KanjiVG centrelines, and `<Kanji>` strokes it through the same
+ * taper table as the chapter numerals 一…六, so the glyph is the same printed
+ * type as the numeral in the binding margin, on every machine.
  *
  * It is never DRAWN in the animated sense (`draw` stays false). The one
  * hand-made mark in this chapter is the sensei's brush; a watermark that
  * writes itself in front of the reader is a different claim entirely, and it
  * would also be the second gesture competing with the ensō below it.
  */
-const GHOST: readonly KanjiId[] = ["ou", "su"];
+const GHOST: KanjiId = "do";
 
 /**
  * Chapter 六 / 06 — «Запись». The last plate of the manual, and the one sheet
@@ -60,32 +69,42 @@ const GHOST: readonly KanjiId[] = ["ou", "su"];
  * «Первая тренировка» — and the whole assembled thing is printed back to them
  * before the route out of the page is offered.
  *
- * FIVE THINGS, CENTRED, and the centring is the exception this chapter earns
- * and no other one does. `.wrap` is still the trim and there is still no centred
- * column anywhere in this book — what is centred here is the CONTENT of the last
- * sheet, which is the one sheet a printed manual does centre. Chapter 五 above
- * it is ranged left like every other; the change of axis is how the reader knows
- * the book has ended.
+ * THIS CHAPTER IS A COLUMN, and it is the only one in the book that is. Every
+ * other chapter is trimmed to the page edge; 六 is held in a centred column
+ * and only its ground runs full bleed. The two rules that spanned the whole
+ * trim went with the change — the chapter's opening rule and the hairline at
+ * its foot — because at 1854px wide they read as two long grey dividers
+ * rather than as typesetting, and they were most of what made a sheet that
+ * wide look stretched. The four rules left in the chapter are the register's
+ * own, and none of them divides anything: each one is the control it is drawn
+ * under.
  *
- *   the watermark   押忍, at the size of the sheet, a tone off the ground
- *   the title       «Первая тренировка», over the watermark's lower third
- *   one line        what happens if you press
- *   the entry       four ruled fields, and the ensō closed round the ask
- *   the exit        a hairline, then the Telegram route and what it promises
+ * What stands in the column is unchanged: the same twelve-column field and the
+ * same two masses on it, on a narrower field, so the blanks come down with it.
+ * Before the column there were two other answers and both were wrong in
+ * opposite directions — a 34rem column centred on a 2560 sheet that read as a
+ * form abandoned in a dark room, then every blank run edge to edge, which gave
+ * a nine-letter name a 760px rule and made the one optional field a 1790 x 115
+ * void. See `styles/sections/join.css` for the measurements.
  *
- * THE FORM BLOCK IS CENTRED; ITS ENTRIES ARE NOT. A centred label over a
- * centred input is a thing nobody has ever printed and nobody can fill in — the
- * eye needs one left edge to run down. So the block is centred on the sheet's
- * axis and ranged left inside itself, which is how a form on a centred closing
- * page is set, and the ensō below it returns to the axis and closes it.
+ *   the head      «Первая тренировка» over cols 1–8, its one line under it,
+ *                 道 on the column's right edge
+ *   the register  cols 1–7. Four asks stacked, each of them one line: the
+ *                 label in mono at the binding edge, the blank beside it, one
+ *                 rule under both. Four rules, one length, one rhythm.
+ *   the seal      cols 9–12, hanging from the same line as the register: the
+ *                 ensō with the ask inside it, and under it the Telegram
+ *                 route for a reader who would rather just write, with what
+ *                 the club promises printed under the route that delivers it
  *
  * THE ENSŌ IS DRAWN ONCE AND STAYS DRAWN. It is the chapter's closing mark and
  * never a progress indicator: it does not appear on submit, it does not spin,
- * and it does not withdraw when the slip arrives. The submit lives inside it
- * because the ring is the seal around the last ask in the manual.
+ * and it does not withdraw when the slip arrives. The ask lives inside it
+ * because the ring is the seal around the last question in the manual — and it
+ * is a WORD on the ink now rather than a bone slab, because a hard-edged chip
+ * centred in a red circle is the exact silhouette of a loading spinner.
  */
 export function Join() {
-  const { locale } = useLocale();
   const t = join;
   const uid = useId().replace(/:/g, "");
   const slipRef = useRef<HTMLDivElement>(null);
@@ -96,12 +115,12 @@ export function Join() {
   const [copied, setCopied] = useState(false);
 
   const validate = (field: Field, value: string): string | undefined => {
-    if (field === "name") return value.trim().length >= 2 ? undefined : t.errors.name[locale];
+    if (field === "name") return value.trim().length >= 2 ? undefined : t.errors.name;
     if (field === "age") {
       const n = Number(value.trim());
-      return Number.isInteger(n) && n >= 4 && n <= 99 ? undefined : t.errors.age[locale];
+      return Number.isInteger(n) && n >= 4 && n <= 99 ? undefined : t.errors.age;
     }
-    return value.trim().length >= 4 ? undefined : t.errors.contact[locale];
+    return value.trim().length >= 4 ? undefined : t.errors.contact;
   };
 
   /* An edited entry is a new entry, so the slip withdraws on the first
@@ -123,8 +142,8 @@ export function Join() {
     same string three times instead of changing shape by language.
   */
   const age = (raw: string) => {
-    const forms = t.years[locale];
-    const rule = new Intl.PluralRules(locale).select(Number(raw));
+    const forms = t.years;
+    const rule = new Intl.PluralRules("ru").select(Number(raw));
     const unit = rule === "one" ? forms.one : rule === "few" ? forms.few : forms.many;
     return `${raw}\u00A0${unit}`;
   };
@@ -137,7 +156,7 @@ export function Join() {
   */
   const assemble = () => {
     const who = [values.name.trim(), age(values.age.trim())].join(", ");
-    return [t.opening[locale], [who, values.contact.trim()].join("\n"), values.note.trim()]
+    return [t.opening, [who, values.contact.trim()].join("\n"), values.note.trim()]
       .filter(Boolean)
       .join("\n\n");
   };
@@ -189,33 +208,57 @@ export function Join() {
   */
   const carry = request ? `${club.telegram}?text=${encodeURIComponent(request)}` : club.telegram;
 
+  /*
+    One ask, one line of the register: a label, a blank, and a single rule
+    under both. THE RULE BELONGS TO THE ROW, not to the input, which is the
+    difference between a ruled form and a page of boxes, and it is why the row
+    carries `data-invalid` rather than the control: a proof mark runs the width
+    of the line it marks.
+
+    THE MESSAGE IS TAKEN OUT OF FLOW and hung under the rule, ranged with the
+    ANSWER rather than with the label: it is about what was typed, and set at
+    the binding edge under a mono label it reads as a second line of that
+    label. In flow it moves something whatever you do with it. Left in the
+    blank it pushes the blank's half of the rule down while the label's half
+    stays put, so one line of type breaks the row in two; given a grid row of
+    its own it shoves the remaining asks down the sheet at the exact moment the
+    reader is being told they got something wrong. Absolute inside the blank it
+    reserves nothing and moves nothing, and `--row-gap` is floored at 2rem so
+    the one line it ever takes has somewhere to hang.
+  */
   const field = (name: Field, extra?: Record<string, string | number>) => {
     const id = `${uid}-${name}`;
     const errId = `${id}-err`;
     const err = errors[name];
     return (
-      <div className="join-field">
+      <div className="join-row" data-invalid={err ? "" : undefined}>
         <label htmlFor={id} className="t-mono join-label">
-          {t.fields[name][locale]}
+          {t.fields[name]}
         </label>
-        <input
-          id={id}
-          name={name}
-          type="text"
-          className="join-input"
-          placeholder={t.placeholders[name][locale]}
-          value={values[name]}
-          aria-invalid={err ? true : undefined}
-          aria-describedby={err ? errId : undefined}
-          onChange={(e) => edit(name, e.target.value)}
-          onBlur={() => onBlur(name)}
-          {...extra}
-        />
-        {err && (
-          <p id={errId} role="alert" className="t-caption join-error">
-            {err}
-          </p>
-        )}
+        <div className="join-blank">
+          <input
+            id={id}
+            name={name}
+            type="text"
+            className="join-input"
+            /* Only the contact ask carries one, and it is a FORMAT and not an
+               example: a placeholder is held to the same text tone as the
+               label beside it, so a plausible name sitting in the name blank
+               reads as an answer already given. See `join.placeholders`. */
+            placeholder={name === "contact" ? t.placeholders.contact : undefined}
+            value={values[name]}
+            aria-invalid={err ? true : undefined}
+            aria-describedby={err ? errId : undefined}
+            onChange={(e) => edit(name, e.target.value)}
+            onBlur={() => onBlur(name)}
+            {...extra}
+          />
+          {err && (
+            <p id={errId} role="alert" className="t-caption join-error">
+              {err}
+            </p>
+          )}
+        </div>
       </div>
     );
   };
@@ -224,7 +267,7 @@ export function Join() {
     <Chapter
       id={chapter.id}
       index={chapter.index}
-      title={chapter.title[locale]}
+      title={chapter.title}
       labelledBy={HEADING_ID}
       ground="ink"
       /* `overflow-x-clip`, never `overflow-hidden`: hidden on either axis makes
@@ -235,86 +278,115 @@ export function Join() {
       bleed={<Grain opacity={0.22} />}
     >
       <div className="join__sheet wrap relative z-10">
-        <div className="join__plate">
-          {/* ---- the watermark and the title, in that order and in one box ----
-              The glyphs are positioned OUT of flow so the title alone sets the
-              height of this block. In flow they would be two 400px squares
-              deciding the chapter's proportions, and the mark would stop being
-              a watermark and start being a picture with a caption. */}
-          <div className="join__head">
-            <div className="join__ghost" aria-hidden="true">
-              {GHOST.map((id) => (
-                <Kanji key={id} id={id} className="join__ghost-glyph" weight={5.5} label={null} />
-              ))}
-            </div>
+        {/* ---- the head ----
+            The glyph is positioned OUT of flow so the title and its line alone
+            set the height of this band. In flow it would be a ~350px square
+            deciding the chapter's proportions, and 道 would stop being a
+            watermark and start being a picture with a caption. */}
+        <div className="join__head">
+          <h2 id={HEADING_ID} className="t-chapter join__title">
+            <LineReveal as="span" className="block" lines={[t.title]} />
+          </h2>
 
-            <h2 id={HEADING_ID} className="t-chapter">
-              <LineReveal as="span" className="block" lines={[t.title[locale]]} />
-            </h2>
-          </div>
-
-          <Reveal delay={0.2} className="join__lead-band">
-            <p className="t-lead join__lead">{t.lead[locale]}</p>
+          <Reveal delay={0.16} y={20} className="join__lead-band">
+            <p className="t-lead join__lead">{t.lead}</p>
           </Reveal>
 
-          {/* ---- the entry ----
-              `noValidate`: the browser's own bubbles are a different typeface,
-              a different voice and sometimes a different language from the
-              page, and they cannot be ranged under the rule the field is drawn
-              with. Every message here is `t.errors`, set in the page's type. */}
-          <form noValidate onSubmit={onSubmit} className="join-form">
-            <div className="join-form__pair">
-              <Reveal delay={0.1}>{field("name", { autoComplete: "given-name" })}</Reveal>
-              <Reveal delay={0.16}>{field("age", { inputMode: "numeric", autoComplete: "off", maxLength: 2 })}</Reveal>
-            </div>
-            <Reveal delay={0.22}>{field("contact", { autoComplete: "tel" })}</Reveal>
-            <Reveal delay={0.28}>
-              <div className="join-field">
+          <div className="join__ghost" aria-hidden="true">
+            <Kanji id={GHOST} className="join__ghost-glyph" weight={5.5} label={null} />
+          </div>
+        </div>
+
+        {/* `noValidate`: the browser's own bubbles are a different typeface, a
+            different voice and sometimes a different language from the page,
+            and they cannot be ranged under the rule the field is drawn with.
+            Every message here is `t.errors`, set in the page's type. */}
+        <form noValidate onSubmit={onSubmit} className="join-form">
+          <div className="join-body">
+            {/*
+              ---- the register ----
+              One <Reveal>, not four: the four asks share a rhythm and a left
+              edge, and staggering them turns a ruled form into a hand of cards
+              being dealt. It is a printed block and it arrives as one.
+            */}
+            <Reveal delay={0.06} y={18} className="join-register">
+              {field("name", { autoComplete: "given-name" })}
+              {field("age", { inputMode: "numeric", autoComplete: "off", maxLength: 2 })}
+              {field("contact", { autoComplete: "tel" })}
+
+              <div className="join-row">
                 <label htmlFor={`${uid}-note`} className="t-mono join-label">
-                  {t.fields.note[locale]}
+                  {t.fields.note}
                 </label>
-                <textarea
-                  id={`${uid}-note`}
-                  name="note"
-                  rows={3}
-                  className="join-input join-input--area"
-                  value={values.note}
-                  onChange={(e) => edit("note", e.target.value)}
-                />
+                <div className="join-blank">
+                  <textarea
+                    id={`${uid}-note`}
+                    name="note"
+                    rows={2}
+                    className="join-input join-input--area"
+                    value={values.note}
+                    onChange={(e) => edit("note", e.target.value)}
+                  />
+                </div>
               </div>
             </Reveal>
 
-            {/* ---- the act ---- */}
-            <Reveal delay={0.34} className="join__act-band">
-              <div className="join-act">
-                <Brush kind="enso" className="join-enso" delay={0.5} />
-                <button type="submit" className="join-cta t-mono">
-                  {t.submit[locale]}
-                </button>
-              </div>
-            </Reveal>
-          </form>
+            {/* ---- the seal ----
+                The ask, and the way out for a reader who would rather not fill
+                a sheet in at all. It hangs from the same line as the register
+                and closes on the same right trim the 道 above it closes on, so
+                the two ends of the spread are the two ends of the page. The
+                word «или» is doing real work there: it is the alternative to
+                the form rather than a second control on it, and the trust line
+                stays with it so that what the club promises is printed next to
+                the route that delivers it. */}
+            <div className="join-act">
+              <Settle delay={0.24} className="join-act__press">
+                <div className="join-ring">
+                  <Brush kind="enso" className="join-enso" delay={0.5} />
+                  <button type="submit" className="join-cta t-mono">
+                    {t.submit}
+                  </button>
+                </div>
+              </Settle>
+
+              <Reveal delay={0.32} y={18} className="join-act__exit">
+                <a href={club.telegram} className="join-out t-note" rel="noopener">
+                  <span className="join-out__label">{t.alt}</span>
+                  <span aria-hidden="true" className="join-out__arrow">
+                    →
+                  </span>
+                </a>
+                <p className="t-note join__trust">{t.trust}</p>
+              </Reveal>
+            </div>
+          </div>
 
           {/*
             The slip. It is in the tree from the first paint and empty until the
             reader presses — a live region that mounts already carrying its text
             is announced by some screen readers and missed by others — so at
-            rest it is a zero-height region reserving no band of ink.
+            rest it is a zero-height region reserving no band of ink. It sits
+            OUTSIDE `.join-body`, and that is a layout fact rather than a
+            semantic one: an empty item in a gapped grid is still a row, and an
+            empty row still costs its gap.
+
+            It prints below the spread, so pressing the ask never moves the ask.
           */}
-          <div className="join__slip-region" role="status">
+          <div role="status">
             {request !== null && (
               <Settle mode="load" duration={0.5} className="join-slip">
-                <p className="t-mono join-label">{t.slip[locale]}</p>
+                <p className="t-mono join-slip__cap">{t.slip}</p>
                 <div ref={slipRef} tabIndex={-1} className="t-note join-slip__text">
                   {request}
                 </div>
-                <p className="t-note join-slip__note">{t.slipNote[locale]}</p>
+                <p className="t-note join-slip__note">{t.slipNote}</p>
                 <div className="join-slip__foot">
                   <button type="button" onClick={copyRequest} className="t-mono join-copy">
-                    {copied ? t.copied[locale] : t.copy[locale]}
+                    {copied ? t.copied : t.copy}
                   </button>
                   <a href={carry} rel="noopener" className="join-out t-mono">
-                    <span className="join-out__label">{t.open[locale]}</span>
+                    <span className="join-out__label">{t.open}</span>
                     <span aria-hidden="true" className="join-out__arrow">
                       →
                     </span>
@@ -323,24 +395,7 @@ export function Join() {
               </Settle>
             )}
           </div>
-
-          {/* ---- the exit ----
-              Still «или напишите в Telegram», and the word «или» is doing real
-              work: it is the alternative to filling the sheet in at all, for a
-              reader who would rather just ask. The trust line stays with it
-              rather than following the lead, so that what the club promises is
-              printed next to the route that delivers it. */}
-          <Reveal delay={0.46} className="join__exit">
-            <div className="rule rule--hair join__exit-rule" />
-            <a href={club.telegram} className="join-out t-note" rel="noopener">
-              <span className="join-out__label">{t.alt[locale]}</span>
-              <span aria-hidden="true" className="join-out__arrow">
-                →
-              </span>
-            </a>
-            <p className="t-note join__trust">{t.trust[locale]}</p>
-          </Reveal>
-        </div>
+        </form>
       </div>
     </Chapter>
   );

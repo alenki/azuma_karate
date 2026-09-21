@@ -1,145 +1,213 @@
 /* ------------------------------------------------------------------ */
 /* Chapter 六 — «Запись»: the closing plate, and the one sheet a       */
-/* reader is asked to write on                                          */
-/*                                                                      */
-/* This chapter used to be three bands across the sheet — an invitation */
-/* ranged hard left, a capped field column, and the ensō swung out onto */
-/* the right trim. Then it lost the form entirely and became a single   */
-/* centred ask pointing at «Письмо» on /contacts. It collects again     */
-/* now, and the geometry is neither of those two: the entry stands on   */
-/* the SAME centred axis as the title above it, because the sheet's     */
-/* axis is the thing that says the book has ended and a form does not   */
-/* get to overturn it.                                                  */
-/*                                                                      */
-/* SO THIS ONE SHEET IS CENTRED, and it is the only one in the book     */
-/* that is. `.wrap` is still the trim and there is still no centred     */
-/* COLUMN anywhere — the measure is held on the text in `ch`, exactly   */
-/* as everywhere else. What is centred is the axis of the last sheet,   */
-/* which is the one sheet a printed manual does centre. Chapter 五      */
-/* above it is ranged left like all the rest; the change of axis is how */
-/* a reader who has been told none of this knows the book has ended.    */
-/*                                                                      */
-/* THE FORM BLOCK IS CENTRED; ITS ENTRIES ARE NOT, and that is not an   */
-/* inconsistency, it is what centring a form MEANS. A centred label     */
-/* over a centred input is a thing nobody has ever printed and nobody   */
-/* can fill in: the eye needs one left edge to run down, and a ruled    */
-/* field whose rule starts at a different x on every row is four        */
-/* separate objects instead of a form. So `.join-form` is a block       */
-/* centred on the axis, ranged left inside itself, capped at a real     */
-/* form measure — and `.join-slip` is capped at the SAME measure, so    */
-/* what the reader typed and what it became share one left edge and     */
-/* read as one column rather than two stacked panels.                   */
-/*                                                                      */
-/* Five measured things, and each of them is load-bearing:              */
-/*                                                                      */
-/*   THE WATERMARK SITS OUT OF FLOW, centred on the title and on        */
-/*   nothing else. In flow it would be two ~400px squares deciding the  */
-/*   chapter's proportions, and 押忍 would stop being a watermark and   */
-/*   start being an illustration with a caption under it. Out of flow   */
-/*   the title alone sets the height and the mark overhangs into the    */
-/*   chapter's own padding, top and bottom — which is why --pad-block   */
-/*   and --ghost-glyph are a pair and neither can be retuned alone.     */
-/*   At every tier the overhang is comfortably inside the padding:      */
-/*     390   glyph 152 · title 72  · overhang 40  · padding 112         */
-/*     1440  glyph 288 · title 81  · overhang 104 · padding 160         */
-/*     2560  glyph 432 · title 144 · overhang 144 · padding 256         */
-/*   (the 1440 padding is 160 and not 144: clamp(10rem, 10vw, 16rem)    */
-/*   is floored by its FIRST argument, and 10vw is 144 there.)          */
-/*                                                                      */
-/*   IT IS PAINTED AT z-index -1, NOT 0. A positioned element at z-0    */
-/*   paints ABOVE static in-flow siblings, so the mark would print over */
-/*   the lead where the two overlap. -1 puts it under every line on the */
-/*   sheet and still above the ground, because .join__sheet carries     */
-/*   z-10 and is therefore the stacking context it is measured in.      */
-/*                                                                      */
-/*   ITS TONE IS OPAQUE, mixed from bone INTO ink rather than bone at   */
-/*   7% alpha. Kanji strokes each centreline seven times over — that is */
-/*   what the taper IS — and seven stacked alphas compound into a glyph */
-/*   several times darker than asked for, unevenly, heaviest where the  */
-/*   passes pile up at the entry press. One opaque tone is flat by      */
-/*   construction.                                                      */
-/*                                                                      */
-/*   THE FIELDS ARE RULES, NOT BOXES. A bottom hairline and nothing     */
-/*   else — no panel, no fill, no radius, no border on three sides. A   */
-/*   page of a manual meant to be written on is ruled, and every input  */
-/*   on this site is ruled the same way (`.letter__input` on /contacts  */
-/*   is the same object). The rule is --color-bone-2, 6.6:1 on ink and  */
-/*   far past the 3:1 a component boundary owes 1.4.11, because on this */
-/*   ground the rule IS the control: there is nothing else to see.      */
-/*                                                                      */
-/*   THE RING HOLDS THE WORD AT EVERY WIDTH. It used to take the button */
-/*   back only from 1024 up, because below that the ask had to be the   */
-/*   width of the field column. It is sized from the ring at every tier */
-/*   by --submit-fill now, and the corners clear the ink by ~10px       */
-/*   throughout. 390 is the tight one — ring 216, opening radius 79,    */
-/*   button half-diagonal 70 — so check that width first if either      */
-/*   number is ever retuned.                                            */
-/*                                                                      */
-/* Rules for this chapter that must survive any later edit:             */
-/*   · Quiet type on ink is --color-bone-2. --color-ink-3 never appears */
-/*     on this ground at all, and --color-ink-quiet is a paper tone.    */
-/*   · Red on ink is --color-shu-lift and it has TWO jobs here, both of */
-/*     them on the rota: the ensō, and the reader's own focus ring      */
-/*     (primitives.css re-points --color-accent at it under .ground-ink */
-/*     precisely so a field can be focused legibly on this ground).     */
-/*     Not the hover, not a state, not a rule, and NOT the invalid      */
-/*     field — an invalid rule doubles in weight and goes to full bone, */
-/*     which is how a proof is marked and how `.letter__rule--invalid`  */
-/*     already marks one. The CTA hover is a ground swap, a ~12:1       */
-/*     luminance event legible in greyscale, same as every other        */
-/*     button on the page.                                              */
-/*   · The invalid rule is doubled with a box-shadow rather than a      */
-/*     second pixel of border: a border that grows moves the 44px       */
-/*     target under the reader's thumb at the exact moment they are     */
-/*     being told they got something wrong.                             */
-/*   · The watermark is ornament and is aria-hidden, so no contrast     */
-/*     floor applies to it. That is not licence to lift it: past ~9%    */
-/*     it stops being paper and starts competing with the title.        */
+/* reader is asked to write on                                        */
+/*                                                                    */
+/* THIS CHAPTER IS A COLUMN, AND IT IS THE ONLY ONE IN THE BOOK THAT   */
+/* IS. Every other chapter is trimmed to the page edge; 六 is held in a */
+/* centred column `--sheet-w` wide and only its GROUND runs full       */
+/* bleed. Two things put it there, and the client asked for both: the  */
+/* two rules that ran the whole trim — the chapter's opening rule and  */
+/* the hairline at its foot — read at 1854px as two long grey dividers */
+/* rather than as typesetting, and they were most of what made a sheet */
+/* that wide look stretched. Both are gone. The four rules left in the */
+/* chapter are the register's own and none of them divides anything:   */
+/* each one is the control it is drawn under.                          */
+/*                                                                    */
+/* The history is worth keeping, because the two earlier answers were  */
+/* wrong in opposite directions. It was CENTRED once as a 34rem column */
+/* of fields with a 14rem ring, which on a 2560 sheet left ~850px of   */
+/* bare ink down each flank and read as a small form abandoned in a    */
+/* dark room. The fix for that ran every BLANK edge to edge instead,   */
+/* three abreast on 5 / 2 / 5 columns with the comment on all twelve,  */
+/* which at 1920 gave a nine-letter name a 760px rule and made the one */
+/* optional field a 1790 x 115 void. This is neither: the twelve-      */
+/* column field and the two masses standing on it are exactly the      */
+/* full-trim version, the FIELD is narrower, so the blanks come down   */
+/* with it and the flanks are a page margin rather than a hole.        */
+/*                                                                    */
+/*   THE COLUMN    `--sheet-w` is the content width and `--sheet-box`  */
+/*                 is that plus the two gutters, which is what         */
+/*                 `.join__sheet` is capped at and centred on. The     */
+/*                 60rem FLOOR means nothing below ~1035 moves at all: */
+/*                 the sheet is already narrower than the cap there    */
+/*                 and the chapter stays full bleed exactly as it was. */
+/*   THE HEAD      the title ranged left over cols 1–8, its one line   */
+/*                 under it, 道 on the column's right edge.            */
+/*   THE REGISTER  cols 1–7. Four asks stacked, each one line: the     */
+/*                 label in mono at the binding edge, the blank beside */
+/*                 it, and ONE rule running under both. Four rules,    */
+/*                 one length, one rhythm, all four sharing the left   */
+/*                 edge of the title above them.                       */
+/*   THE SEAL      cols 9–12. The ensō with the ask inside it, and     */
+/*                 under it the Telegram route with the club's promise */
+/*                 beneath it. Column 8 is the gutter between the two, */
+/*                 and the seal closes on the column's right edge,     */
+/*                 which is the edge the 道 above it closes on.        */
+/*   THE BINDING   `.chapter__rail` is re-hung on the COLUMN's left    */
+/*                 edge instead of the viewport's. The numeral is a    */
+/*                 folio and a folio sits in the margin of its own     */
+/*                 page; left at `left: 0` it stood ~310px out in bare */
+/*                 ink, counting a chapter it was nowhere near.        */
+/*                                                                    */
+/* Five measured things, and each of them is load-bearing:             */
+/*                                                                    */
+/*   THE RULE RUNS THE ROW AND IT IS GRADED. It starts on the binding  */
+/*   edge under the label as a LEADER in the ornament tone and steps   */
+/*   up to the control tone under the blank, so the four lines begin   */
+/*   with the title and the lead rather than on a vertical nothing     */
+/*   else in the book stands on, and the reader can still see which    */
+/*   half of each line is the half to write on. Even, it said nothing: */
+/*   the label is set in the same --color-bone-2 a placeholder is, so  */
+/*   «ИМЯ УЧЕНИКА    Тамерлан» read as two pieces of printed matter     */
+/*   with one line under the pair, and the client could not tell where */
+/*   the field was. `.join-row` is a subgrid of the register, which is */
+/*   the only way the label column can be `auto` — sized to            */
+/*   «КОММЕНТАРИЙ (НЕОБЯЗАТЕЛЬНО)», the longest of the four in either   */
+/*   language — and still be ONE column shared by all four rows. A     */
+/*   per-row `auto` would give each row its own label width and the    */
+/*   blanks would start at four different x.                           */
+/*                                                                    */
+/*   THE LABEL IS ALIGNED TO THE INPUT'S TEXT, NOT TO ITS BOX. Its     */
+/*   `line-height: calc(var(--row-h) - 0.5rem)` is the input's height  */
+/*   less its own bottom padding: both texts then centre on the same   */
+/*   y, one line of mono against one line of body. The BOX stretches   */
+/*   to the row while the text stays in that first line, which is how  */
+/*   the leader lands on the same y as the blank's rule even on the    */
+/*   comment row, where the blank is twice as deep. The textarea's     */
+/*   padding-top is solved from the same two numbers, so the label     */
+/*   lands on its FIRST line rather than floating above it.            */
+/*                                                                    */
+/*   THE ERROR IS OUT OF FLOW, hung under the rule at `top: 100%` and  */
+/*   ranged with the ANSWER, not with the label. IN FLOW it moves      */
+/*   something whatever you do with it: left in the blank it pushes    */
+/*   the blank's half of the rule down while the label's half stays    */
+/*   put, so one line of type breaks the row in two; given a grid row  */
+/*   of its own it shoves the remaining asks down the sheet at the     */
+/*   moment the reader is being told they got something wrong. The     */
+/*   positioned ancestor is `.join-blank` and not the row, because a   */
+/*   line of mono set under a mono LABEL at the binding edge reads as  */
+/*   a second line of that label. `--row-gap` is floored at 2rem for   */
+/*   the hang: every message in `t.errors` is one line of `.t-caption` */
+/*   at every width down to 390, and one line is 24px.                 */
+/*                                                                    */
+/*   THE WATERMARK IS ONE GLYPH AND IT IS 道, NOT 押忍. The old mark     */
+/*   was the same two characters the colophon prints, at the same     */
+/*   tone, ~500px above them — a repeat, not a rhyme — and it sat     */
+/*   directly BEHIND the title, so what actually reached the page     */
+/*   was two halves of two glyphs poking out of the display type.     */
+/*   道 appears nowhere else on the site, it is the second half of     */
+/*   空手道, and on the sheet that books a first session it says what    */
+/*   the session is the start of. It is ranged to the COLUMN's right  */
+/*   edge, clear of every line of type, which is the move the 東 makes */
+/*   in chapter 二 — and it now heads the column the seal closes.       */
+/*                                                                    */
+/*   ITS TONE IS OPAQUE, mixed from bone INTO ink rather than bone    */
+/*   at an alpha. <Kanji> strokes each centreline seven times over —  */
+/*   that is what the taper IS — and seven stacked alphas compound    */
+/*   into a glyph several times darker than asked for, unevenly,      */
+/*   heaviest where the passes pile up at the entry press. One        */
+/*   opaque tone is flat by construction. It is painted at z-index    */
+/*   -1, NOT 0: a positioned element at z-0 paints ABOVE static       */
+/*   in-flow siblings, so the mark would print over the head where    */
+/*   they overlap. -1 puts it under every line and still above the    */
+/*   ground, because .join__sheet carries z-10 and is the stacking    */
+/*   context it is measured in.                                       */
+/*                                                                    */
+/* Rules for this chapter that must survive any later edit:           */
+/*   · Quiet type on ink is --color-bone-2. --color-ink-3 never       */
+/*     appears on this ground at all, and --color-ink-quiet is a      */
+/*     paper tone.                                                    */
+/*   · THE BLANK'S RULE IS --color-bone-2 AND THE LABEL'S LEADER IS  */
+/*     --color-rule-dark-strong. Under the blank the rule IS the      */
+/*     control — there is nothing else to see — so it owes the 3:1 of */
+/*     1.4.11 and #a8a196 clears it at 6.6:1. The leader is ~1.9:1    */
+/*     and that is legal only because no control is drawn on it.      */
+/*     Never swap the two and never even them up: the step between    */
+/*     them is the thing that says where the writing goes.            */
+/*   · Red on ink is --color-shu-lift and it has TWO jobs here, both  */
+/*     of them on the rota: the ensō, and the reader's own focus      */
+/*     ring (primitives.css re-points --color-accent at it under      */
+/*     .ground-ink precisely so a field can be focused legibly on     */
+/*     this ground). Not the hover, not a state, and NOT the invalid  */
+/*     row — an invalid rule doubles in weight and goes to full bone, */
+/*     which is how a proof is marked.                                */
+/*   · The second pixel of that proof mark is a box-shadow rather     */
+/*     than a second pixel of border, so nothing moves under the      */
+/*     reader's thumb at the exact moment they are being told they    */
+/*     got something wrong.                                           */
+/*   · The watermark is ornament and is aria-hidden, so no contrast   */
+/*     floor applies to it. That is not licence to lift it: past      */
+/*     ~10% it stops being paper and starts competing with the        */
+/*     title.                                                         */
 /* ------------------------------------------------------------------ */
 
 .join {
   /*
-    Vertical rhythm, unchanged from the spread this replaces: the vw term
-    reaches the old 10rem at exactly 1600, so every width the club has ever
-    seen is untouched and only a sheet wider than that opens up. It is also
-    the room the watermark overhangs into — see the head of this file.
+    Vertical rhythm: the vw term reaches the old 10rem at exactly 1600, so
+    every width the club has ever seen is untouched and only a sheet wider
+    than that opens up. The FOOT is shorter than the head — the colophon
+    below opens on 7rem of its own, and two full pad-blocks between them was
+    330px of bare ink.
   */
   --pad-block: 7rem;
+  --pad-foot: clamp(4rem, 5.5vw, 9rem);
   /* the margin numeral is set on the chapter's opening line, as in 三 */
   --numeral-top: var(--pad-block);
 
-  /* ---- the watermark ---- */
-  /* One glyph. Two of them plus the gap must stay inside the trim at every
-     width; 20vw is ~45% of the sheet each, which is the proportion the mark
-     wants against a title set at 5.6vw. The 9.5rem FLOOR is not cosmetic: at
-     17vw a phone got a 112px mark behind a title that wraps to two lines and
-     covers it completely, so the watermark simply was not on the page at the
-     width most readers will meet it. 9.5rem clears the wrapped title on both
-     flanks and still leaves 19px of trim at 390. */
-  --ghost-glyph: clamp(9.5rem, 20vw, 27rem);
-  --ghost-gap: clamp(0.5rem, 1.5vw, 2rem);
-  /* opaque, never an alpha — see the head of this file */
-  --ghost-tone: color-mix(in oklab, var(--color-bone) 7%, var(--color-ink));
+  /* ---- the column ----
+     The CONTENT width, gutters excluded. 62vw holds the column at a shade
+     under two thirds of the screen from ~1550 up, which is where the trim
+     started to read as stretched; the 92rem ceiling stops a 2560 display
+     simply scaling the same page up. The 60rem FLOOR is the load-bearing
+     one: below ~1035 the box is already wider than the sheet, `min(100%)`
+     takes over and the chapter is full bleed, so every width the club
+     actually works at below that is byte-for-byte what it was. */
+  --sheet-w: clamp(60rem, 62vw, 92rem);
+  --sheet-box: calc(var(--sheet-w) + var(--gutter) * 2);
 
-  /* ---- the entry ----
-     The form measure, and the slip's measure too. 34rem holds the contact
-     placeholder «+7 900 000-00-00 или @username» on one line at every tier
-     without the field turning into a line of a table, and it is narrow enough
-     that a block ranged left inside it still reads as centred on the sheet.
-     The row gap is a FIELD gap and deliberately larger than a line gap: these
-     are separate questions, not the lines of a paragraph. */
-  --form-measure: 34rem;
-  --field-gap: clamp(1.75rem, 2.6vw, 2.5rem);
+  /* ---- the watermark ----
+     One glyph, ranged right, clear of every line of type. The FLOOR is not
+     cosmetic: below it the mark is smaller than the title beside it and
+     stops reading as paper. The vw term is solved against the COLUMN rather
+     than the sheet — 18vw was ~19% of a full trim and would be ~29% of the
+     column, which is a picture rather than a watermark; 12.5vw holds it at
+     the same ~19% of `--sheet-w` from 1280 to 2560. */
+  --ghost-glyph: clamp(8rem, 12.5vw, 18rem);
+  /* opaque, never an alpha — see the head of this file */
+  --ghost-tone: color-mix(in oklab, var(--color-bone) 9%, var(--color-ink));
+
+  /* ---- the register ----
+     One line of the form: the height of the blank, and the gap to the next
+     ask. The gap is deliberately larger than a line gap — these are separate
+     questions, not the lines of a paragraph — and it is floored at 2rem
+     because the error hangs into it. */
+  --row-h: clamp(3rem, 2.4vw, 3.5rem);
+  --row-gap: clamp(2rem, 2.4vw, 3rem);
+  /*
+    The slip's measure, and the slip's alone. What the reader typed is handed
+    back as prose to be READ, so it is held to a reading measure instead of
+    running the seven columns the register is entitled to.
+  */
+  --slip-measure: 62ch;
 
   /* ---- the ring, and the word inside it ----
-     The mark is 500 units wide. Its centreline circle measures ~426 of those
-     and the stroke is 60, so the ring's INNER OPENING is (426 − 60) / 500 ≈
-     0.73 of the box. The button is 0.6 of the box, which is 0.82 of that
-     opening: wider and the ink touches the word, much narrower and this is a
-     large red doughnut with a small sticker in the middle of it, which is how
-     a seal turns into a progress ring. */
-  --enso-size: clamp(13.5rem, 40vw, 14rem);
-  --submit-fill: 0.6;
+     MEASURED FROM THE RENDER, not from the path data. The mark's own comment
+     arithmetic said its inner opening was ~0.73 of the box; the ink actually
+     lands 223 x 204 in a 243px box with a 29px stroke, so the ring is a hand's
+     ellipse rather than a circle and its opening is 0.6 of the box on the
+     SHORT axis. That is the number the disc has to live inside:
+
+       opening  = 0.60 x box        disc = 0.50 x box
+       focus    = disc + 10px       (2px outline at a 3px offset)
+       clear    = (0.0498 x box) - 5px   -- 6.6px at 390, 7.8 at 1440, 10 at 2560
+
+     Size the disc off 0.73 and the bone ground it takes on hover prints OVER
+     the ring's own ink at the top and bottom of the circle. The word is set
+     from the ring rather than from the viewport for the same reason: a label
+     that kept 16px while the ring dropped to its floor would touch the ink on
+     a phone. Re-measure `.join-ring svg`'s getBBox() before retuning either. */
+  --enso-size: min(15rem, 60vw);
+  --submit-fill: 0.5;
 }
 
 @media (min-width: 768px) {
@@ -147,214 +215,331 @@
     --pad-block: clamp(10rem, 10vw, 16rem);
   }
 }
-/* the tuned tiers the ring already had, kept exactly */
+/* The ring grew at every tier with the chapter. Each step is ~1rem so the word
+   inside keeps the same air — the disc and the type are both derived from this
+   number — and the ceiling is set by the four columns it now stands in rather
+   than by the sheet: at 2560 cols 9–12 are 765px and a 19rem ring sits in them
+   with its own margin. */
 @media (min-width: 1024px) {
-  .join {
-    --enso-size: 14rem;
-  }
-}
-@media (min-width: 1600px) {
-  .join {
-    --enso-size: 15rem;
-  }
-}
-@media (min-width: 2000px) {
   .join {
     --enso-size: 16rem;
   }
 }
+@media (min-width: 1600px) {
+  .join {
+    --enso-size: 17rem;
+  }
+}
+@media (min-width: 2000px) {
+  .join {
+    --enso-size: 19rem;
+  }
+}
 
+/*
+  THE SHEET IS THE COLUMN. `.wrap` still reserves the gutter and the ground
+  under it is still full bleed; the cap is on the BOX, gutters included, so
+  the content lands at exactly `--sheet-w` and the gutter survives as the
+  minimum side padding once the viewport drops under the cap.
+*/
 .join__sheet {
-  padding-block: var(--pad-block);
+  max-width: var(--sheet-box);
+  margin-inline: auto;
+  padding-top: var(--pad-block);
+  padding-bottom: var(--pad-foot);
+}
+/*
+  The binding margin follows the column. Specificity beats `.chapter__rail`'s
+  own `left: 0` either way, so this does not depend on which stylesheet the
+  bundler emits first. `max()` is the clamp at the bottom end: once the sheet
+  is narrower than the box the difference goes negative and the rail returns
+  to the page edge, which is where it belongs when the chapter is full bleed.
+*/
+.join .chapter__rail {
+  left: max(0px, calc((100% - var(--sheet-box)) / 2));
 }
 
 /* ------------------------------------------------------------------ */
-/* The plate                                                           */
+/* The head — the title, its line, and 道 on the right trim            */
 /* ------------------------------------------------------------------ */
 /*
-  No `gap`. Each part carries its own step, because the interval between the
-  title and its line is not the interval between the line and the entry, and
-  one gap would make them the same number for no reason but convenience.
+  Positioned, z-index auto — deliberately NOT a stacking context, so the mark
+  inside it is measured against .join__sheet and lands under every line on the
+  sheet rather than only under this heading.
 */
-.join__plate {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-/* ---- the watermark and the title, in one box ---------------------- */
 .join__head {
   position: relative;
-  /* positioned, z-index auto — deliberately NOT a stacking context, so the
-     mark inside it is measured against .join__sheet and lands under every
-     line on the plate rather than only under this heading */
-  width: 100%;
+  display: grid;
+  row-gap: clamp(1.5rem, 2vw, 2.5rem);
+  column-gap: var(--col-gap);
+}
+@media (min-width: 1024px) {
+  .join__head {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+  .join__title {
+    grid-column: 1 / span 8;
+  }
+  .join__lead-band {
+    grid-column: 1 / span 6;
+  }
+}
+.join__title {
+  color: var(--color-bone);
+}
+/* the measure is held on the TEXT, in ch, never on a container */
+.join__lead {
+  max-width: 34ch;
+  color: var(--color-bone-2);
 }
 /*
-  LEFT/RIGHT 0 AND CENTRED BY `justify-content`, never `left: 50%` + a -50%
-  translate. Both centre the box, and the second one silently lies about its
+  RIGHT: 0 AND VERTICALLY CENTRED ON THE HEAD, never `left: 50%` + a -50%
+  translate. Both centre a box, and the second one silently lies about its
   size: an absolutely positioned element with `width: auto` and `left: 50%`
   shrink-to-fits into what is left of the containing block, which is HALF of
-  it. The translate then centres that half-width box, so the composition looks
-  right and the mark is quietly squeezed. Measured at 390 it cost more than
-  half the glyph — the token asked for 152px and the SVG rendered at 84 —
-  while 1440 was correct only because 598px of content happened to fit inside
-  the 668px it was allowed. Every width below ~620 was wrong and none of them
-  looked broken, which is the worst kind of wrong.
+  it. Measured at 390 that cost more than half the glyph — the token asked for
+  152px and the SVG rendered at 84 — and nothing about it looked broken, which
+  is the worst kind of wrong.
 */
 .join__ghost {
   position: absolute;
   top: 50%;
-  left: 0;
   right: 0;
   translate: 0 -50%;
   z-index: -1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ghost-gap);
   color: var(--ghost-tone);
   pointer-events: none;
 }
 .join__ghost-glyph {
-  /* `0 0 auto`: the row is sized to fit the trim at every tier, so a glyph that
-     shrank would mean the sizing above it had gone wrong — better it overflow
-     into the chapter's `overflow-x-clip` where it can be seen and fixed. */
-  flex: 0 0 auto;
+  display: block;
   width: var(--ghost-glyph);
   height: auto;
 }
 
-/* ---- the line ----------------------------------------------------- */
-.join__lead-band {
-  margin-top: clamp(1.75rem, 2.2vw, 3rem);
-}
-/* the measure is held on the TEXT, in ch, never on a container */
-.join__lead {
-  max-width: 32ch;
-  color: var(--color-bone-2);
-}
-
 /* ------------------------------------------------------------------ */
-/* The entry — four ruled fields on the sheet's own axis               */
+/* The spread — the register at cols 1–7, the seal at cols 9–12        */
 /* ------------------------------------------------------------------ */
 /*
-  `text-align: start` undoes the plate's centring for everything inside the
-  form, in one place: labels, the reader's own typing, the error under a rule.
-  It is set here rather than on each part so that a field added later cannot
-  quietly inherit a centred baseline nobody meant it to have.
+  ONE GAP DOES THE WORK THE RULE USED TO. The head and the entry were divided
+  by a 2px rule running the full trim with ~77px above it and ~72px below;
+  with the rule gone the two margins are one, and it is set a little under the
+  pair so the band still reads as a break rather than as a wide paragraph
+  gap.
 */
 .join-form {
-  width: 100%;
-  max-width: var(--form-measure);
-  margin-top: clamp(2.25rem, 3.5vw, 3.25rem);
-  display: grid;
-  gap: var(--field-gap);
-  text-align: start;
+  margin-top: clamp(3.25rem, 5.5vw, 7rem);
 }
 /*
-  Name and age on one line from 560 up, and the age column is FIXED rather
-  than a second 1fr. Two equal columns give a two-character answer the same
-  rule as a name, and a 16rem rule under «6» reads as a field the reader has
-  failed to finish. 8rem is about six characters of the body face — visibly
-  short, which is the instruction.
+  Stacked below 1024 — the register, then the seal under it — and side by side
+  above it, both hanging from the same line. `align-items: start` is what
+  makes them hang: stretched, the seal's flex column would distribute its gap
+  over the register's height and the ring would drift off the top line.
 */
-.join-form__pair {
+.join-body {
   display: grid;
-  gap: var(--field-gap) var(--col-gap);
+  gap: clamp(2.75rem, 4vw, 4rem);
 }
-@media (min-width: 560px) {
-  .join-form__pair {
-    grid-template-columns: minmax(0, 1fr) 8rem;
+@media (min-width: 1024px) {
+  .join-body {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: start;
+  }
+  .join-register {
+    grid-column: 1 / span 7;
+  }
+}
+
+/* ---- the register ---------------------------------------------------- */
+/*
+  ONE grid, FOUR subgrid rows. The parent owns the two tracks so the label
+  column is `auto` once and shared by all four asks; each row re-uses those
+  tracks and carries the rule under both of them. See the head of this file
+  for why the rule is the row's and not the input's.
+*/
+.join-register {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--row-gap);
+}
+.join-row {
+  position: relative;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  row-gap: 0.55rem;
+}
+
+@media (min-width: 768px) {
+  .join-register {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .join-row {
+    row-gap: 0;
+    align-items: start;
   }
 }
 
 .join-label {
   display: block;
   color: var(--color-bone-2);
-  margin-bottom: 0.75rem;
 }
+@media (min-width: 768px) {
+  .join-label {
+    /* the input's height less its own bottom padding: one line of mono and one
+       line of body then centre on the same y. `padding-right` and not a column
+       gap, so the two halves of the rule meet. */
+    line-height: calc(var(--row-h) - 0.5rem);
+    padding-right: var(--col-gap);
+    white-space: nowrap;
+    /* the box stretches to the row so the leader lands on the same y as the
+       blank's rule; the TEXT stays where the line-height above puts it */
+    align-self: stretch;
+    border-bottom: 1px solid var(--color-rule-dark-strong);
+  }
+}
+
+/* a grid item's automatic minimum size is its CONTENT, so an input whose
+   placeholder is wider than its column refuses to shrink and pushes the row
+   past the trim. `min-width: 0` is what lets «+7 900 000-00-00 или @username»
+   sit in the blank instead of widening the register. */
+/*
+  THE HALF OF THE LINE THAT IS THE CONTROL. Stacked under 768 the label sits
+  above the blank, so the leader would be a line drawn through the middle of
+  the row: the label's half is added at 768 with the two-column layout, and
+  down there the blank's rule is the whole of it.
+*/
+.join-blank {
+  position: relative;
+  min-width: 0;
+  border-bottom: 1px solid var(--color-bone-2);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+.join-row:focus-within .join-blank {
+  border-bottom-color: var(--color-bone);
+}
+/*
+  Invalid, marked the way a proof is marked: the rule doubles in weight and
+  goes to full-strength bone. Not red — red on this page is the brush and the
+  reader's own focus ring — and the message under the rule is the actual
+  signal either way. It marks the BLANK and not the whole row, because the
+  blank is what was filled in wrong.
+*/
+.join-row[data-invalid] .join-blank {
+  border-bottom-color: var(--color-bone);
+  box-shadow: 0 1px 0 0 var(--color-bone);
+}
+
+/*
+  THE BLANK IS A BLANK. No panel, no fill, no radius, no border of its own —
+  the row it sits on carries the one rule the ask is drawn with, and a page of
+  a manual meant to be written on is ruled.
+*/
 .join-input {
   width: 100%;
-  height: clamp(3rem, 2.4vw, 3.5rem);
+  height: var(--row-h);
   padding: 0 0 0.5rem;
   color: var(--color-bone);
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--color-bone-2);
   border-radius: 0;
   /* the BODY face at body size. A Didone in a typing surface is hard to read,
      hard to type into and fights the reader's own autocorrect on a phone —
      and nobody fills in a form for a karate club in a display face. */
   font-family: var(--font-body);
   font-size: clamp(1rem, 0.75vw, 1.125rem);
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
   appearance: none;
 }
 /*
-  The comment, and it is sized to be OPTIONAL. `.letter__area` on /contacts is
-  three times this tall because there the letter IS the page; here the comment
-  is the fourth of four asks and the only one nobody has to answer, and an
-  empty 150px panel of ink under a 48px rule reads as a field the reader has
-  failed to fill rather than one they are free to skip. Two field-heights is
-  enough room to see that more than a line is welcome. `rows={3}` sets the
-  intrinsic height and whichever of the two is larger governs, so the box never
-  falls below three lines of whatever the font-size clamp resolves to.
+  The comment. It is the fourth of four asks and the only one nobody has to
+  answer, so it is TWO rows deep and not four: a deep empty panel of ink reads
+  as a field the reader has failed to fill rather than one they are free to
+  skip, and the version before this one was 115px tall and the width of the
+  sheet. Its padding-top is solved from the same two numbers as the label's
+  line-height, so the label lands on the textarea's FIRST line rather than
+  floating above it.
 */
 .join-input--area {
+  display: block;
   height: auto;
-  min-height: clamp(5rem, 6vw, 7rem);
-  padding-block: 0.75rem;
+  min-height: calc(var(--row-h) * 1.8);
+  padding: calc((var(--row-h) - 0.5rem - 1.65em) / 2) 0 0.5rem;
   line-height: 1.65;
   resize: vertical;
 }
 /*
+  The grabber is a browser artifact and it lands ON the rule, at the one end of
+  it: a 10px diagonal notch chewed out of the last of the four lines the sheet
+  is ruled with. The control keeps its drag, the manual keeps its rule.
+*/
+.join-input--area::-webkit-resizer {
+  display: none;
+}
+/*
   PLACEHOLDERS ARE TEXT AND ARE HELD TO THE TEXT FLOOR. `--color-bone-2` is
   #a8a196 — 6.6:1 on ink and 6.7:1 on the worst grained pixel. A dimmer tone
-  composites under 4.5:1 on this ground, and the contact placeholder is the
-  only place the reader is shown what shape an answer takes.
+  composites under 4.5:1 on this ground, and THAT is why only one placeholder
+  is left: a hint that may not be set quieter than the label beside it is not
+  read as a hint. «Тамерлан» and «6» stood in the name and age blanks in the
+  same tone as «ИМЯ УЧЕНИКА» and «ВОЗРАСТ УЧЕНИКА», and read as answers the
+  form had already recorded. `content/home.ts` keeps `contact` alone, whose
+  answer has a shape the reader cannot guess. Do not put the other two back.
 */
 .join-input::placeholder {
   color: var(--color-bone-2);
 }
-.join-input:focus {
-  border-bottom-color: var(--color-bone);
-}
 /*
-  Invalid, marked the way a proof is marked: the rule doubles in weight and
-  goes to full-strength bone. Not red — red on this page is the brush and the
-  reader's own focus ring — and the message below the rule is the actual
-  signal either way. The second pixel is a box-shadow rather than a thicker
-  border, so nothing moves under the reader's thumb at the moment they are
-  being told they got something wrong.
+  Out of flow, hung under the rule and ranged with the ANSWER — see the head of
+  this file. The blank is the positioned ancestor rather than the row, which is
+  what puts the message under what was typed instead of under the label: at the
+  binding edge, in the label's own column, a line of mono under a line of mono
+  reads as a second line of the label.
 */
-.join-input[aria-invalid="true"] {
-  border-bottom-color: var(--color-bone);
-  box-shadow: 0 1px 0 0 var(--color-bone);
-}
 .join-error {
-  margin-top: 0.7rem;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
   color: var(--color-bone);
 }
 
-/* ------------------------------------------------------------------ */
-/* The act — the ensō, with the ask inside it                          */
-/* ------------------------------------------------------------------ */
-/*
-  The ring returns to the sheet's axis: the entry is ranged left inside its
-  block, and the act that closes it is centred again, which is the move that
-  hands the composition back to the chapter. The margin is ON TOP of the
-  form's own row gap — the ask is not a fifth field.
-*/
-.join__act-band {
-  display: flex;
-  justify-content: center;
-  margin-top: clamp(0.75rem, 1.5vw, 1.5rem);
-}
+/* ---- the seal -------------------------------------------------------- */
 .join-act {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: clamp(1.75rem, 2.4vw, 2.75rem);
+}
+/*
+  ANCHORED TO THE RIGHT TRIM, and that is the whole point of putting it in a
+  column of its own. Ranged left in its columns the ring stopped 150px short of
+  the edge every other mark on the sheet closes on — the chapter rule, the foot
+  rule and the 道 above it all reach the trim — so the two rules read as longer
+  than the page they were ruling and the bottom outer corner, which is the
+  corner a reader's eye ends in, was bare ink.
+
+  `align-items: end` on the column, and NOTHING on the type inside it. Both
+  items are pushed to the trim as boxes; `.join-act__exit` then shrink-wraps to
+  its longest line and sets its own lines ranged left inside that box, which is
+  how the route and the promise stay left-ranged like every other line in the
+  book while the block still closes on the edge. The ring and that longest line
+  are within ~10px of the same left edge at every tier, so the column reads as
+  ranged on both sides rather than as one mark pushed out to the margin.
+
+  FOUR COLUMNS, AND NOT THREE. On the full-trim sheet the seal was moved out
+  to cols 10–12 because four columns was 574px against a 275px ring. In the
+  column four columns is 306px at 1440 and 393px at 1998, and three would be
+  224px at 1440 — narrower than the ring standing in it.
+*/
+@media (min-width: 1024px) {
+  .join-act {
+    grid-column: 9 / span 4;
+    align-items: end;
+  }
+}
+.join-ring {
   position: relative;
   display: grid;
   place-items: center;
@@ -371,6 +556,11 @@
   pointer-events: none;
 }
 
+/*
+  The ask. A disc, not a slab — see the head of this file. At rest it is the
+  word alone on the ink with the ensō closed round it; the ring is the
+  control's boundary and carries the 1.4.11 exposure for it.
+*/
 .join-cta {
   position: relative;
   /* above the mark: the ring is drawn behind the word, never over it */
@@ -378,21 +568,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: calc(var(--enso-size) * var(--submit-fill));
-  /* taller than a field, deliberately: a 48px slab in a 164px opening leaves
-     58px of empty ink above and below the word, which is the proportion of a
-     loading ring. At 52–64px the word is a block the circle closes around. */
-  min-height: clamp(3.25rem, 2.8vw, 4rem);
-  padding-inline: 1rem;
+  width: calc(var(--enso-size) * var(--submit-fill));
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  padding-inline: 0.5rem;
   /* .t-mono sets this at --text-micro (11px), which is a label size. This is
      the last ask in the manual and the word the ensō is drawn around, so it is
-     set a step up — capped so that a long Russian label can never outgrow the
-     box the ring holds. */
-  font-size: clamp(0.8125rem, 0.62vw, 1rem);
+     set a step up — and it is scaled off THE RING rather than off the viewport,
+     so «ЗАПИСАТЬСЯ» keeps the same air inside the disc at every tier instead of
+     touching the ink once the ring drops to its floor on a phone. */
+  font-size: clamp(0.6875rem, calc(var(--enso-size) * 0.056), 1rem);
   text-align: center;
-  color: var(--color-ink);
-  background: var(--color-bone);
-  border: 1px solid var(--color-bone);
+  color: var(--color-bone);
+  background: transparent;
+  border: 0;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   transition:
@@ -401,14 +590,17 @@
     transform var(--duration-fast) var(--ease-out);
 }
 /*
-  A ground swap, not a hue. The slab inverts to the chapter's own ink and keeps
-  its bone rule — legible in greyscale, and the same move every other button on
-  the page makes. It stays OPAQUE on purpose: the ensō is drawn behind this
-  word, and a slab that went transparent would show the ring's ink through it.
+  A ground swap, not a hue: the disc comes down bone and the word goes to the
+  chapter's own ink. ~12:1, legible in greyscale, and the same move every
+  other button on the page makes — here it also happens to be a seal being
+  pressed inside the ring that was drawn for it. Focus takes the same
+  inversion rather than relying on the outline alone, because a vermilion
+  outline three pixels inside a vermilion ring is not an indicator.
 */
-.join-cta:hover {
-  background: var(--color-ink);
-  color: var(--color-bone);
+.join-cta:hover,
+.join-cta:focus-visible {
+  background: var(--color-bone);
+  color: var(--color-ink);
 }
 .join-cta:active {
   transform: translateY(1px);
@@ -417,6 +609,23 @@
   .join-cta:active {
     transform: none;
   }
+}
+
+/*
+  The way out, stacked under the seal: the route first, the club's promise
+  under it. It used to be a line anchored at both ends of a five-column span,
+  which put what the club promises out on the right trim with ~200px of ink
+  between it and the route it was promising about. Two lines in one column
+  read as one statement; two ends of a band read as two unrelated captions.
+*/
+.join-act__exit {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.35rem;
+}
+.join__trust {
+  color: var(--color-bone-2);
 }
 
 /* ------------------------------------------------------------------ */
@@ -430,27 +639,23 @@
   reserving no band of ink, which is why the region and the slip are two
   elements and only the inner one has a margin.
 
-  It is capped at --form-measure, the same measure as the form, so the entry
-  and its result share a left edge and read as one column.
+  It prints BELOW the spread rather than inside it, so pressing the ask never
+  moves the ask out from under the reader's pointer.
 
   `user-select: all` is not a flourish, it is the fallback the copy control
   needs: on an insecure origin or with the clipboard refused, one click still
   selects the whole request, and the control says nothing rather than claiming
   a copy it did not make.
 */
-.join__slip-region {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
 .join-slip {
-  width: 100%;
-  max-width: var(--form-measure);
-  margin-top: clamp(2rem, 3vw, 3rem);
-  text-align: start;
+  max-width: var(--slip-measure);
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+}
+.join-slip__cap {
+  color: var(--color-bone-2);
 }
 .join-slip__text {
-  margin-top: 0.25rem;
+  margin-top: 0.75rem;
   padding: clamp(1rem, 1.6vw, 1.5rem);
   color: var(--color-bone);
   border: 1px solid var(--color-rule-dark-strong);
@@ -484,32 +689,6 @@
   border-bottom-color: currentColor;
 }
 
-/* ------------------------------------------------------------------ */
-/* The exit — the rule that closes the manual, and the working route   */
-/* ------------------------------------------------------------------ */
-/*
-  The hairline runs the full width of the trim rather than sitting only under
-  the type it precedes. At 2560 that is a 2376px rule across the foot of the
-  last sheet, which is the mark a printed book ends on; a 34rem line centred
-  under a 2376px plate would read as a divider between two paragraphs.
-*/
-.join__exit {
-  margin-top: clamp(3rem, 5vw, 5.5rem);
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-.join__exit-rule {
-  /* `.rule` carries a height and a colour, never a width: as a flex item it
-     has to be told to span its box or it measures nothing at all */
-  align-self: stretch;
-  margin-bottom: clamp(1.5rem, 2vw, 2.5rem);
-}
-.join__trust {
-  color: var(--color-bone-2);
-}
 
 /* ------------------------------------------------------------------ */
 /* The exit link — and the slip's route out                            */

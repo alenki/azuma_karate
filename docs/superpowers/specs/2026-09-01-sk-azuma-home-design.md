@@ -93,7 +93,7 @@ and 03 no longer show two crops of the same photograph.
 
 **Brush marks are real calligraphy, not path draw-ons.** Every mark is a filled shape generated from a centreline with a pressed head, thinning belly and lifted dry tail (`scratchpad/brush/brush.py` → `src/components/brush/marks.ts`), revealed through an SVG mask whose centreline animates `pathLength`, so ink appears under the bristles. 正 uses KanjiVG stroke order.
 
-## 2. Design tokens (`src/app/[locale]/globals.css` → `@theme`)
+## 2. Design tokens (`src/app/globals.css` → `@theme`)
 
 **Colour** (contrast checked against WCAG AA for text):
 
@@ -135,7 +135,7 @@ Chapters gain structure on a wide sheet rather than stretching: most carry a `mi
 
 ## 4. Global chrome
 
-- **Header** (fixed, `clamp(5rem, 4vw, 6.5rem)`, transparent → 92% paper with blur and a hairline after 24px of scroll; the bar stands on the page grid so the running head is centred on the sheet rather than wherever flex leaves it): wordmark lockup left (text only — there is no figurative mark); four mono links at ≥1280px («О клубе», «Расписание», «Галерея», «Контакты»); a running head «Глава 03 · Группы» (aria-live polite) at ≥1024px driven by the active chapter; a RU | EN toggle whose current locale is inert and whose other locale is the only link, either side of a hairline rule; «Записаться» ink button at ≥768px; «Меню» prints at every width and opens a full-screen paper menu with Prata links, the chapter contents and contacts (Escape closes, scroll locked, Lenis stopped). A skip link is the first focusable element.
+- **Header** (fixed, `clamp(5rem, 4vw, 6.5rem)`, transparent → 92% paper with blur and a hairline after 24px of scroll; the bar stands on the page grid so the running head is centred on the sheet rather than wherever flex leaves it): wordmark lockup left (text only — there is no figurative mark); four mono links at ≥1280px («О клубе», «Расписание», «Галерея», «Контакты»); a running head «Глава 03 · Группы» (aria-live polite) at ≥1024px driven by the active chapter; «Записаться» ink button at ≥768px; «Меню» prints at every width and opens a full-screen paper menu with Prata links, the chapter contents and contacts (Escape closes, scroll locked, Lenis stopped). A skip link is the first focusable element.
 - **Mobile bar.** 56px sticky bottom bar with the live next session and «Записаться», shown after 60% of the first viewport, hidden while chapter ten or the footer is in view.
 - **Footer** (ink): the aphorism «Каждый чёрный пояс когда-то был белым.», the Kyokushin belt list with swatches, sections, contacts (address, coordinates 43°29′ N · 43°36′ E, phone, Telegram, Instagram, language link), the lockup with «Осу.», the colophon (fonts, KanjiVG credit, placeholder-photo note), and 押忍 printed at 8% in the corner.
 
@@ -180,7 +180,7 @@ Shot list for the client: child bowing on the tatami (3:4, calm left third), coa
 
 ## 7. Internationalisation
 
-Routes: `/` (RU, default) and `/en` (EN) from `src/app/[locale]`, both statically generated; `/ru/*` redirects to `/*`. Copy is a typed dictionary keyed by locale; components call `useLocale()`. Russian is the source language; long words are handled by `text-wrap: balance` on headlines, fluid clamp sizes, no `nowrap` on content, and hero sizing verified for «Сначала поклон.» at 1024–1920px.
+Routes: `/` only, statically generated from `src/app/`. The site is Russian and has no second language: an English edition at `/en` was specified here and later withdrawn, together with the `src/app/[locale]` segment, the `/ru/*` redirect, the locale-keyed dictionary and `useLocale()`. Copy is plain strings in `src/content/`. Long words are handled by `text-wrap: balance` on headlines, fluid clamp sizes, no `nowrap` on content, and hero sizing verified for «Сначала поклон.» at 1024–1920px.
 
 ## 8. Accessibility and performance
 

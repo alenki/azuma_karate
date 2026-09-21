@@ -1,12 +1,14 @@
-import type { Locale } from "@/i18n/config";
 import type { MediaKey } from "./media";
 
 /**
  * Home page copy — «Первая черта» / "The First Stroke".
- * Russian is the source language; English follows it line by line.
+ *
+ * The manual is set in Russian and in nothing else. Every string here used to
+ * be a `Record<Locale, string>` with an English mirror beside it, read through
+ * `value[locale]`; the English edition was withdrawn and the pairs were
+ * collapsed to the Russian side, so a string in this file is now just a string
+ * and a consumer prints it directly.
  */
-
-export type L<T> = Record<Locale, T>;
 
 /*
   BOUND SPACES
@@ -14,31 +16,36 @@ export type L<T> = Record<Locale, T>;
   Russian sets much longer words than English and breaks in places a Russian
   typesetter never would. Two of those breaks were visible on the first screen:
   an em dash opening a line («Остаётся / — за характером.») and a one-letter
-  conjunction hanging at a line end («для детей и / взрослых»).
+  conjunction hanging at a line end («для детей и / взрослых»). The first of
+  those two cannot happen any more: no copy on this site sets an em dash.
 
   So the breaks are bound here, in the copy, rather than left to the box. Every
   bound space is written as the escape `\u00A0`, never as a literal character:
   the mark is invisible in an editor, and an editor that normalises whitespace
-  would silently undo it, whereas an escape survives, greps and reviews. Three
-  rules, applied to every RU string that is typeset:
+  would silently undo it, whereas an escape survives, greps and reviews. Two
+  rules, applied to every string that is typeset:
 
-    1. `\u00A0` BEFORE every «—», so a dash can never begin a line.
-    2. `\u00A0` AFTER every one- and two-letter preposition or conjunction
+    1. `\u00A0` AFTER every one- and two-letter preposition or conjunction
        (в с и к у о а я на не по за до из от об для во со), so a short word
        always leaves the line with the word it governs.
-    3. `\u00A0` between a figure and its unit or its abbreviation
+    2. `\u00A0` between a figure and its unit or its abbreviation
        («ул.\u00A0Кирова,\u00A0157», «41\u00A0ученик», «1\u00A0дан», «Илл.\u00A002»),
        and before a «·» or an operator used as a separator — those are dashes
        by another name.
 
-  English binds only what English actually binds: the em dash, and a figure to
-  its unit. No article or preposition is bound in the EN mirror.
-
   Two deliberate exceptions, both because the string is never typeset: matter
   read only by assistive technology (a figure's screen-reader description) and
-  the alt texts in `media.ts` carry no bound spaces. Display headlines are bound at
-  their dashes only — binding a preposition inside a 6rem line would hand the
-  browser an unbreakable run wider than a phone.
+  the alt texts in `media.ts` carry no bound spaces. Display headlines carry none
+  either: binding a preposition inside a 6rem line would hand the browser an
+  unbreakable run wider than a phone.
+
+  NO EM DASH IS SET ANYWHERE A READER CAN SEE ONE. The mark
+  was this manual's main joint, and every string that leaned on one has been
+  rebuilt around it: split into two sentences, or rejoined with a colon, a
+  comma or a conjunction. Nothing was swapped for a lookalike, and the en dash
+  is untouched where it sets a range («4–6», «10–9», «5–6 октября»). Rule 1
+  above used to bind a space before every «—»; there is nothing left for it to
+  bind, so it is gone. Do not put one back.
 */
 
 /*
@@ -53,29 +60,32 @@ export type L<T> = Record<Locale, T>;
 
   A pending fact is marked as such in the model, so a consumer can print the
   label and the ruled line with the value left blank instead of printing an
-  invention. `pendingText()` returns something that is still a
-  `Record<Locale, string>`, so every existing consumer keeps compiling and
-  prints the blank mark rather than the fake name; a consumer that knows this
-  convention calls `isPending()` and draws the ruled blank, with `awaiting` set
-  beside it to say what is still missing and from whom.
+  invention. `pendingText()` carries the blank mark as its `text`, so a
+  consumer that knows nothing of the convention still prints the mark rather
+  than a fake name; one that knows it calls `isPending()` and draws the ruled
+  blank, with `awaiting` set beside it to say what is still missing and from
+  whom.
 
-  `PENDING_MARK` is the em dash, already this manual's mark for "nothing here":
-  the timetable prints it for a day with no session.
+  `PENDING_MARK` is the middle dot, this manual's mark for "nothing here": the
+  timetable prints it for a day with no session. It was an em dash until the
+  dash was taken out of the copy everywhere. No reader has met either mark:
+  every printed day currently has a session, and both pending facts
+  (`club.phone`, `club.coordsLabel`) are unprinted.
 */
-export const PENDING_MARK = "—";
+export const PENDING_MARK = "·";
 
-/** A fact the club has not confirmed. `awaiting` names what is missing, in the reader's language. */
-export type Pending = { pending: true; awaiting: L<string> };
+/** A fact the club has not confirmed. `awaiting` names what is missing. */
+export type Pending = { pending: true; awaiting: string };
 
-/** A per-locale value that is not yet a fact: it reads as the blank mark. */
-export type PendingText = L<string> & Pending;
+/** A value that is not yet a fact: its `text` reads as the blank mark. */
+export type PendingText = { text: string } & Pending;
 
-export function pendingText(awaiting: L<string>): PendingText {
-  return { ru: PENDING_MARK, en: PENDING_MARK, pending: true, awaiting };
+export function pendingText(awaiting: string): PendingText {
+  return { text: PENDING_MARK, pending: true, awaiting };
 }
 
-/** For a fact that is not a per-locale string — a phone number, a coordinate pair. */
-export function pendingFact(awaiting: L<string>): Pending {
+/** For a fact that is not a string a reader sees — a phone number, a coordinate pair. */
+export function pendingFact(awaiting: string): Pending {
   return { pending: true, awaiting };
 }
 
@@ -83,13 +93,13 @@ export function isPending(value: unknown): value is Pending {
   return typeof value === "object" && value !== null && (value as { pending?: unknown }).pending === true;
 }
 
-export const chapters: { id: string; index: number; title: L<string> }[] = [
-  { id: "hero", index: 1, title: { ru: "Первая черта", en: "The first stroke" } },
-  { id: "about", index: 2, title: { ru: "О\u00A0клубе", en: "About" } },
-  { id: "schedule", index: 3, title: { ru: "Расписание", en: "Schedule" } },
-  { id: "sensei", index: 4, title: { ru: "Тренеры", en: "Coaches" } },
-  { id: "results", index: 5, title: { ru: "Хроника", en: "Chronicle" } },
-  { id: "join", index: 6, title: { ru: "Запись", en: "Join" } },
+export const chapters: { id: string; index: number; title: string }[] = [
+  { id: "hero", index: 1, title: "Первая черта" },
+  { id: "about", index: 2, title: "О\u00A0клубе" },
+  { id: "schedule", index: 3, title: "Расписание" },
+  { id: "sensei", index: 4, title: "Тренеры" },
+  { id: "results", index: 5, title: "Хроника" },
+  { id: "join", index: 6, title: "Запись" },
 ];
 
 /**
@@ -124,17 +134,14 @@ export const hero = {
     seen once, at 1200x630, and may carry matter the interior does not.
     Do not delete them, and do not restore them to the sheet.
   */
-  eyebrow: {
-    ru: "СК\u00A0Азума\u00A0· Киокушинкай каратэ\u00A0· Нальчик",
-    en: "SK\u00A0Azuma\u00A0· Kyokushin karate\u00A0· Nalchik",
-  },
-  trial: { ru: "Первая тренировка\u00A0— пробная", en: "The first session is a trial" },
+  eyebrow: "СК\u00A0Азума\u00A0· Киокушинкай каратэ\u00A0· Нальчик",
+  trial: "Первая тренировка пробная",
 
 
   /* The two headline lines are measured in `heroFit` below; they carry no bound
      spaces, and must not, or the measurements stop describing them. */
-  line1: { ru: "Сначала поклон.", en: "First the bow." },
-  line2: { ru: "Потом удар.", en: "Then the strike." },
+  line1: "Сначала поклон.",
+  line2: "Потом удар.",
 
   /*
     The sheet's only prose, and the only commercial sentence on it. It carries
@@ -155,12 +162,9 @@ export const hero = {
     of three words or fewer, and this is a sentence, to be read rather than
     counted.
   */
-  offer: {
-    ru: "Детям с\u00A0четырёх лет и\u00A0взрослым. Первая тренировка\u00A0— пробная.",
-    en: "Children from age four and adults. The first session is a trial.",
-  },
+  offer: "Детям с\u00A0четырёх лет и\u00A0взрослым. Первая тренировка пробная.",
   /* The page's one action. Unchanged, and still the whole label. */
-  ctaPrimary: { ru: "Записаться на\u00A0первую тренировку", en: "Book a first session" },
+  ctaPrimary: "Записаться на\u00A0первую тренировку",
 
   /*
     RETIRED FROM THE HERO, kept for chapter 二 to adopt. It is a good paragraph,
@@ -168,25 +172,22 @@ export const hero = {
     simply belongs one screen later, where a reader who has decided to keep
     reading is asking the question it answers.
   */
-  lead: {
-    ru: "Секция киокушинкай каратэ для\u00A0детей и\u00A0взрослых. Дисциплина, характер и\u00A0настоящая физическая подготовка\u00A0— на\u00A0улице Кирова и\u00A0по\u00A0утрам в\u00A0парке.",
-    en: "A Kyokushin karate club for children and adults. Discipline, character and real physical training\u00A0— on Kirova street and in the park at dawn.",
-  },
-} satisfies Record<string, L<string>>;
+  lead: "Секция киокушинкай каратэ для\u00A0детей и\u00A0взрослых. Дисциплина, характер и\u00A0настоящая физическая подготовка на\u00A0улице Кирова и\u00A0по\u00A0утрам в\u00A0парке.",
+} satisfies Record<string, string>;
 
 /**
  * Width of each headline line set in Prata 400 at −0.01em, in em, measured in
  * the browser against the live face.
  *
  * THE SIZE LAW. The strike is set to `measure / strike`, so «Потом удар.» lands
- * exactly on the right edge of its own column, in either language, at any
- * viewport; the bow is then set to half of that. The column is 0.62 of the trim
+ * exactly on the right edge of its own column, at any viewport; the bow is
+ * then set to half of that. The column is 0.62 of the trim
  * from 1100 up — the rest of the foot is the offer — and the whole trim below
  * it, where the offer stacks underneath instead.
  *
  * Because the bow is half, it fits on one line wherever `bow ÷ 2 ÷ strike ≤ 1`
- * — RU 0.694, EN 0.435 — so NEITHER LINE EVER WRAPS, at any width down to 390,
- * at either share, and the hero's fold guard divides by a constant 1.41
+ * — 0.694 here — so NEITHER LINE EVER WRAPS, at any width down to 390, at
+ * either share, and the hero's fold guard divides by a constant 1.41
  * (0.94 leading × 1.5 lines) rather than by a measured row count.
  *
  * `wide` and `narrow` are the older pair and are kept only because
@@ -200,12 +201,8 @@ export const hero = {
  * re-measuring silently stops the strike landing on the trim. Re-taken against
  * the live face in the hero's full-bleed pass and unchanged to three decimals.
  */
-export const heroFit: Record<Locale, { wide: number; narrow: number; bow: number; strike: number }> = {
-  // measured: «Сначала поклон.» 8.243 · «Потом удар.» 5.942 — padded ~0.6%
-  ru: { wide: 8.36, narrow: 6.04, bow: 8.29, strike: 5.98 },
-  // measured: "First the bow." 6.307 · "Then the strike." 7.249 — here the second line is the longer
-  en: { wide: 7.38, narrow: 7.38, bow: 6.35, strike: 7.30 },
-};
+// measured: «Сначала поклон.» 8.243 · «Потом удар.» 5.942 — padded ~0.6%
+export const heroFit = { wide: 8.36, narrow: 6.04, bow: 8.29, strike: 5.98 };
 
 export const about = {
 
@@ -223,7 +220,7 @@ export const about = {
     `meaning3` while the chapter ran to two frames with a statement each. There
     is one frame now, so the digits pointed at nothing.
   */
-  name: { ru: "Азума", en: "Azuma" },
+  name: "Азума",
   /*
     The chapter's only prose, and it states exactly two things now: what the
     club is, and where and when it trains.
@@ -241,10 +238,7 @@ export const about = {
     the note at the head of this file. Shorten this string by deleting from a
     sentence boundary, never by retyping the part that survives.
   */
-  lede: {
-    ru: "СК\u00A0«Азума»\u00A0— секция киокушинкай каратэ в\u00A0Нальчике. Вечером мы работаем в\u00A0зале, по\u00A0выходным\u00A0— в\u00A0парке, лицом к\u00A0восходу.",
-    en: "SK\u00A0Azuma is a Kyokushin karate club in Nalchik. We train in the hall in the evenings and in the park at weekends, facing the sunrise.",
-  },
+  lede: "СК\u00A0«Азума»: секция киокушинкай каратэ в\u00A0Нальчике. Вечером мы работаем в\u00A0зале, а\u00A0по\u00A0выходным выходим в\u00A0парк, лицом к\u00A0восходу.",
 };
 
 export const sensei = {
@@ -255,8 +249,8 @@ export const sensei = {
     this one string must never carry a bound space — a nbsp here would print
     the name as a single unbreakable line.
   */
-  name: { ru: "Астемир Жамбеев", en: "Astemir Zhambeev" },
-  rank: { ru: "Мастер спорта международного класса", en: "Master of Sport, International Class" },
+  name: "Астемир Жамбеев",
+  rank: "Мастер спорта международного класса",
   /*
     RETIRED HERE: `decree`, `decreeRefLabel` and `decreeRef` — the citation.
 
@@ -291,18 +285,12 @@ export const sensei = {
   */
   registers: [
     {
-      label: { ru: "Спортсмен", en: "Competitor" },
-      body: {
-        ru: "Призёр чемпионатов и\u00A0первенств России по\u00A0киокушин. Лучший спортсмен сезона 2025/26 по\u00A0версии клуба.",
-        en: "Medallist of Russian Kyokushin championships. The club's athlete of the 2025/26 season.",
-      },
+      label: "Спортсмен",
+      body: "Призёр чемпионатов и\u00A0первенств России по\u00A0киокушин. Лучший спортсмен сезона 2025/26 по\u00A0версии клуба.",
     },
     {
-      label: { ru: "Тренер", en: "Coach" },
-      body: {
-        ru: "Основатель и\u00A0главный тренер SK\u00A0AZUMA. Ведёт детские и\u00A0взрослую группы\u00A0— от\u00A0первого поклона до\u00A0чёрного пояса.",
-        en: "Founder and head coach of SK\u00A0AZUMA. He coaches the children's and adult groups\u00A0— from the first bow to the black belt.",
-      },
+      label: "Тренер",
+      body: "Основатель и\u00A0главный тренер SK\u00A0AZUMA. Ведёт детские и\u00A0взрослую группы от\u00A0первого поклона до\u00A0чёрного пояса.",
     },
   ],
   /*
@@ -372,8 +360,8 @@ export const assistant = {
     Split on its space for the two lines of the name, like the head coach's —
     so this string must never carry a bound space either.
   */
-  name: { ru: "Руслан Тхагапсоев", en: "Ruslan Tkhagapsoev" },
-  rank: { ru: "Кандидат в мастера спорта", en: "Candidate Master of Sport" },
+  name: "Руслан Тхагапсоев",
+  rank: "Кандидат в мастера спорта",
   /*
     The same two registers under the same two words the head coach's entry
     uses. That is the point of them: the spread is one register system read
@@ -382,18 +370,12 @@ export const assistant = {
   */
   registers: [
     {
-      label: { ru: "Спортсмен", en: "Competitor" },
-      body: {
-        ru: "Кандидат в\u00A0мастера спорта по\u00A0киокушин. Чёрный пояс, 1\u00A0дан.",
-        en: "Candidate Master of Sport in Kyokushin. Black belt, 1st\u00A0dan.",
-      },
+      label: "Спортсмен",
+      body: "Кандидат в\u00A0мастера спорта по\u00A0киокушин. Чёрный пояс, 1\u00A0дан.",
     },
     {
-      label: { ru: "Тренер", en: "Coach" },
-      body: {
-        ru: "Ассистент главного тренера. Работает с\u00A0детскими группами 4–6 и\u00A06–11\u00A0лет.",
-        en: "Assistant to the head coach. Works with the children's groups, ages\u00A04–6 and 6–11.",
-      },
+      label: "Тренер",
+      body: "Ассистент главного тренера. Работает с\u00A0детскими группами 4–6 и\u00A06–11\u00A0лет.",
     },
   ],
 } as const;
@@ -406,10 +388,10 @@ export const assistant = {
  * Adding a third coach is a content edit; taking the second one away is a
  * deletion, and neither is a change to the component.
  *
- * `sensei` keeps its own export because it is not only a chapter entry: the
- * contacts page prints the club's head coach by name from it
- * (`sections/contacts/Particulars.tsx`), and that row means the FOUNDER, not
- * whoever happens to be first in a list.
+ * `sensei` is named apart from the array because the FOUNDER is a different
+ * fact from «whoever happens to be first in a list», and anything that prints
+ * the club's head coach must read the name rather than index into `coaches`.
+ * Its one reader outside this file was the contacts page, and left with it.
  */
 export const coaches = [sensei, assistant] as const;
 
@@ -419,21 +401,18 @@ export const coaches = [sensei, assistant] as const;
  * the site where a photograph is named.
  */
 export type ChronicleEntry = {
-  date: L<string>;
-  title: L<string>;
-  note: L<string>;
+  date: string;
+  title: string;
+  note: string;
   plate: MediaKey;
 };
 
 export const results = {
-  title: { ru: "Сезон 2025/26", en: "Season 2025/26" },
-  lead: {
-    ru: "Турнир за\u00A0турниром\u00A0— и\u00A0счёт, который в\u00A0додзё ведут по\u00A0пять черт.",
-    en: "Tournament by tournament\u00A0— and the count a dojo keeps five strokes at a time.",
-  },
+  title: "Сезон 2025/26",
+  lead: "Турнир за\u00A0турниром. Счёт в\u00A0додзё ведут по\u00A0пять черт.",
   /* The chronicle moves sideways, which is the one thing about it a reader
      cannot infer from a still frame. One line, printed once, in the masthead. */
-  hint: { ru: "Листайте\u00A0→", en: "Scroll\u00A0→" },
+  hint: "Листайте\u00A0→",
 
   /*
     THE CHRONICLE — the club's own record, newest first, and CONFIRMED.
@@ -449,30 +428,21 @@ export const results = {
   */
   events: [
     {
-      date: { ru: "26\u00A0июля 2025", en: "26\u00A0July 2025" },
-      title: { ru: "RCC Kyokushin Fight\u00A04", en: "RCC Kyokushin Fight\u00A04" },
-      note: {
-        ru: "Профессиональный турнир по\u00A0киокусинкай на\u00A0арене Академии единоборств РМК. Спортсмены клуба взяли призовые места и\u00A0соревновательный опыт.",
-        en: "A professional kyokushin tournament at the RMK combat sports academy. The club's athletes took podium places and real competitive experience.",
-      },
+      date: "26\u00A0июля 2025",
+      title: "RCC Kyokushin Fight\u00A04",
+      note: "Профессиональный турнир по\u00A0киокусинкай на\u00A0арене Академии единоборств РМК. Спортсмены клуба взяли призовые места и\u00A0соревновательный опыт.",
       plate: "kumiteKick",
     },
     {
-      date: { ru: "5–6\u00A0октября 2024", en: "5–6\u00A0October 2024" },
-      title: { ru: "Чемпионат и\u00A0Первенство России", en: "Russian Championship and Youth Championship" },
-      note: {
-        ru: "Спортсмены клуба показали высокий уровень подготовки и\u00A0вернулись с\u00A0большим количеством призовых мест.",
-        en: "The club's athletes showed a high level of preparation and came back with a large number of podium places.",
-      },
+      date: "5–6\u00A0октября 2024",
+      title: "Чемпионат и\u00A0Первенство России",
+      note: "Спортсмены клуба показали высокий уровень подготовки и\u00A0вернулись с\u00A0большим количеством призовых мест.",
       plate: "trophies",
     },
     {
-      date: { ru: "20–23\u00A0февраля 2025", en: "20–23\u00A0February 2025" },
-      title: { ru: "Russian Open Cup 2025", en: "Russian Open Cup 2025" },
-      note: {
-        ru: "Международные соревнования в\u00A0Московском центре боевых искусств\u00A0— от\u00A08\u00A0лет до\u00A0взрослых, весовые категории и\u00A0ката. В\u00A0условиях высокой конкуренции спортсмены клуба достойно представили себя.",
-        en: "An international competition at the Moscow Martial Arts Centre\u00A0— from age\u00A08 to adults, weight categories and kata. Against strong opposition the club's athletes represented themselves well.",
-      },
+      date: "20–23\u00A0февраля 2025",
+      title: "Russian Open Cup 2025",
+      note: "Международные соревнования в\u00A0Московском центре боевых искусств: от\u00A08\u00A0лет до\u00A0взрослых, весовые категории и\u00A0ката. В\u00A0условиях высокой конкуренции спортсмены клуба достойно представили себя.",
       plate: "flyingKick",
     },
   ] satisfies ChronicleEntry[],
@@ -484,19 +454,19 @@ export const results = {
     PLACEHOLDER counts: the club's to confirm, never ours to adjust.
   */
   tallies: [
-    { label: { ru: "Медали сезона", en: "Season medals" }, value: 23 },
-    { label: { ru: "Аттестаций сдано", en: "Gradings passed" }, value: 41 },
-    { label: { ru: "Турниров", en: "Tournaments" }, value: 7 },
+    { label: "Медали сезона", value: 23 },
+    { label: "Аттестаций сдано", value: 41 },
+    { label: "Турниров", value: 7 },
   ],
-  best: { ru: "Лучший спортсмен года\u00A0· сезон\u00A02025–2026", en: "Athlete of the year\u00A0· season\u00A02025–2026" },
+  best: "Лучший спортсмен года\u00A0· сезон\u00A02025–2026",
 };
 
 export const schedule = {
-  title: { ru: "Неделя", en: "The week" },
-  lead: { ru: "Зал на\u00A0Кирова,\u00A0157. Пробная тренировка\u00A0— в\u00A0любой день вашей группы.", en: "The hall at Kirova\u00A0157. A trial session on any day of your group." },
-  route: { ru: "Построить маршрут", en: "Get directions" },
-  telegram: { ru: "Написать в\u00A0Telegram", en: "Message on Telegram" },
-  note: { ru: "Расписание\u00A0— предварительное и\u00A0уточняется у\u00A0тренера.", en: "The timetable is provisional and confirmed with the coach." },
+  title: "Неделя",
+  lead: "Зал на\u00A0Кирова,\u00A0157. Пробная тренировка в\u00A0любой день вашей группы.",
+  route: "Построить маршрут",
+  telegram: "Написать в\u00A0Telegram",
+  note: "Расписание предварительное, уточняйте у\u00A0тренера.",
 
   /*
     The table's own apparatus — the band's caption, today's mark, and the
@@ -509,20 +479,20 @@ export const schedule = {
     preposition or a figure and its unit.
   */
   table: {
-    groups: { ru: "Группы", en: "Groups" },
-    today: { ru: "сегодня", en: "today" },
-    hours: { ru: "Время", en: "Time" },
+    groups: "Группы",
+    today: "сегодня",
+    hours: "Время",
   },
 };
 
 export const join = {
-  title: { ru: "Первая тренировка", en: "The first session" },
+  title: "Первая тренировка",
   /*
     One line, and it states the act and its outcome and nothing else. Nothing
     about price or a free first session is asserted; those are still pending
-    facts and they are answered in the register on /contacts.
+    facts, and a sheet that guessed at either would be inventing one.
   */
-  lead: { ru: "Оставьте заявку\u00A0— мы подберём группу.", en: "Leave a request\u00A0— we will suggest a group." },
+  lead: "Оставьте заявку, и\u00A0мы подберём группу.",
 
   /* ---- the entry ------------------------------------------------- */
   /*
@@ -532,29 +502,38 @@ export const join = {
     the club deciding in advance what a parent is allowed to be worried about.
   */
   fields: {
-    name: { ru: "Имя ученика", en: "Student's name" },
-    age: { ru: "Возраст ученика", en: "Student's age" },
-    contact: { ru: "Телефон или Telegram", en: "Phone or Telegram" },
-    note: { ru: "Комментарий (необязательно)", en: "Comment (optional)" },
+    name: "Имя ученика",
+    age: "Возраст ученика",
+    contact: "Телефон или Telegram",
+    note: "Комментарий (необязательно)",
   },
+  /*
+    ONE PLACEHOLDER, AND IT IS THE ONE THAT TEACHES SOMETHING. «Тамерлан» and
+    «6» used to stand in the name and age blanks. On the ruled register that
+    was a defect and not a hint: a placeholder is text and is held to the same
+    4.5:1 floor as the label beside it, so on ink both land on
+    --color-bone-2 and «ВОЗРАСТ УЧЕНИКА    6» reads as an answer the form has
+    already recorded rather than as an empty blank. The tone cannot be dropped
+    to separate them, so the two decorative ones are gone and the blanks are
+    blank. `contact` stays because it is the one ask whose ANSWER has a shape
+    the reader cannot guess: a number or an @handle, either is fine.
+  */
   placeholders: {
-    name: { ru: "Тамерлан", en: "Tamerlan" },
-    age: { ru: "6", en: "6" },
-    contact: { ru: "+7\u00A0900 000-00-00 или @username", en: "+7\u00A0900 000-00-00 or @username" },
+    contact: "+7\u00A0900 000-00-00 или @username",
   },
   errors: {
-    name: { ru: "Напишите имя", en: "Please enter a name" },
-    age: { ru: "Укажите возраст от\u00A04 до\u00A099", en: "Enter an age from 4 to 99" },
-    contact: { ru: "Оставьте телефон или Telegram", en: "Leave a phone number or Telegram" },
+    name: "Напишите имя",
+    age: "Укажите возраст от\u00A04 до\u00A099",
+    contact: "Оставьте телефон или Telegram",
   },
-  submit: { ru: "Записаться", en: "Sign up" },
+  submit: "Записаться",
 
   /* ---- what the entry becomes ------------------------------------ */
   /*
     THE REQUEST IS ASSEMBLED IN THE READER'S OWN BROWSER AND CARRIED ACROSS BY
-    HAND, which is the same transaction `write` on /contacts performs and for
-    the same reason: there is no bot token, no chat id and no address the club
-    has agreed an enquiry should land in, so nothing here may claim to send.
+    HAND, for one reason: there is no bot token, no chat id and no address the
+    club has agreed an enquiry should land in, so nothing here may claim to
+    send.
 
     `opening` is the ONE line this page contributes to a message that goes out
     in the reader's name, and it is a statement of what they just did rather
@@ -564,26 +543,20 @@ export const join = {
     no word leaves this page unread by the person whose name is on it.
 
     `years` declines the unit: «1 год», «22 года», «7 лет». The consumer picks
-    the form with `Intl.PluralRules`. English has one shape and carries it in
-    all three slots rather than letting the record differ by language.
+    the form with `Intl.PluralRules`, on the "ru" locale, which is the only
+    language this sheet is set in.
   */
-  opening: { ru: "Заявка на\u00A0первую тренировку.", en: "A request for a first session." },
-  years: {
-    ru: { one: "год", few: "года", many: "лет" },
-    en: { one: "year old", few: "years old", many: "years old" },
-  },
-  slip: { ru: "Готовая заявка", en: "Your request" },
-  slipNote: {
-    ru: "Заявка не\u00A0уходит сама\u00A0— откройте Telegram и\u00A0отправьте её.",
-    en: "Nothing leaves this page on its own\u00A0— open Telegram and send it.",
-  },
-  copy: { ru: "Скопировать", en: "Copy" },
-  copied: { ru: "Скопировано", en: "Copied" },
-  open: { ru: "Открыть Telegram", en: "Open Telegram" },
+  opening: "Заявка на\u00A0первую тренировку.",
+  years: { one: "год", few: "года", many: "лет" },
+  slip: "Готовая заявка",
+  slipNote: "Заявка не\u00A0уходит сама. Откройте Telegram и\u00A0отправьте её.",
+  copy: "Скопировать",
+  copied: "Скопировано",
+  open: "Открыть Telegram",
 
   /* ---- the exit --------------------------------------------------- */
-  alt: { ru: "или напишите в\u00A0Telegram", en: "or message us on Telegram" },
-  trust: { ru: "Ответим в\u00A0Telegram в\u00A0течение дня.", en: "We reply on Telegram within the day." },
+  alt: "или напишите в\u00A0Telegram",
+  trust: "Ответим в\u00A0Telegram в\u00A0течение дня.",
 
   /*
     DORMANT, AND KEPT ON PURPOSE.
@@ -602,15 +575,14 @@ export const join = {
     WITH the route, and `privacyLink` is kept split from the lead and the tail
     because it has to wrap an actual policy URL that does not exist yet.
 
-    `content/contacts.ts` still reasons about `join.privacy` and `join.trust`
-    by name. Nothing may start reading the dormant keys again until there is a
-    route behind them.
+    `privacy` and `trust` are kept as dormant keys rather than deleted, and
+    nothing may start reading them again until there is a route behind them.
   */
-  sending: { ru: "Отправляем…", en: "Sending…" },
-  success: { ru: "Осу! Мы получили заявку и\u00A0напишем вам сегодня.", en: "Osu! We have your request and will message you today." },
-  error: { ru: "Не\u00A0отправилось. Напишите нам в\u00A0Telegram\u00A0— ответим сразу.", en: "It did not send. Message us on Telegram\u00A0— we reply right away." },
-  privacy: { ru: "Нажимая «Записаться», вы соглашаетесь на\u00A0обработку персональных данных.", en: "By pressing “Sign up” you agree to the processing of personal data." },
-  privacyLead: { ru: "Нажимая «Записаться», вы соглашаетесь на\u00A0", en: "By pressing “Sign up” you agree to the " },
-  privacyLink: { ru: "обработку персональных данных", en: "processing of personal data" },
-  privacyTail: { ru: ".", en: "." },
+  sending: "Отправляем…",
+  success: "Осу! Мы получили заявку и\u00A0напишем вам сегодня.",
+  error: "Не\u00A0отправилось. Напишите нам в\u00A0Telegram, и\u00A0мы ответим сразу.",
+  privacy: "Нажимая «Записаться», вы соглашаетесь на\u00A0обработку персональных данных.",
+  privacyLead: "Нажимая «Записаться», вы соглашаетесь на\u00A0",
+  privacyLink: "обработку персональных данных",
+  privacyTail: ".",
 };

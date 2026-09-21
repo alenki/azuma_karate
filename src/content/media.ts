@@ -1,4 +1,3 @@
-import type { Locale } from "@/i18n/config";
 
 /**
  * Media manifest
@@ -22,7 +21,7 @@ export type MediaSlot = {
   src: string;
   width: number;
   height: number;
-  alt: Record<Locale, string>;
+  alt: string;
   /** Focal point for object-position, e.g. "50% 30%". */
   focus?: string;
   placeholder: boolean;
@@ -30,7 +29,7 @@ export type MediaSlot = {
 
 const P = "/media/placeholders";
 
-function ph(file: string, width: number, height: number, alt: Record<Locale, string>, focus?: string): MediaSlot {
+function ph(file: string, width: number, height: number, alt: string, focus?: string): MediaSlot {
   return { src: `${P}/${file}`, width, height, alt, focus, placeholder: true };
 }
 
@@ -87,10 +86,7 @@ export const media = {
     right, the weight is heavier than a karate gi's. Both are gaps the client's
     own photography closes.
   */
-  firstScreen: ph("sports-hall-stance.jpg", 2560, 1080, {
-    ru: "Каратист в белом кимоно с чёрным поясом в низкой стойке на татами в спортивном зале",
-    en: "A karateka in a white gi and black belt in a low stance on the tatami of a sports hall",
-  }),
+  firstScreen: ph("sports-hall-stance.jpg", 2560, 1080, "Каратист в белом кимоно с чёрным поясом в низкой стойке на татами в спортивном зале"),
   /*
     The upright cut — the SAME frame, cropped to 0.8:1 rather than a second
     one. That the two cuts were different frames was the reel's convention: the
@@ -106,31 +102,16 @@ export const media = {
     the strip keeps his head, the belt and the braced arm, and loses only the
     reaching hand and the rear foot.
   */
-  firstScreenTall: ph("sports-hall-stance-portrait.jpg", 864, 1080, {
-    ru: "Каратист в белом кимоно с чёрным поясом в низкой стойке в спортивном зале",
-    en: "A karateka in a white gi and black belt in a low stance in a sports hall",
-  }),
+  firstScreenTall: ph("sports-hall-stance-portrait.jpg", 864, 1080, "Каратист в белом кимоно с чёрным поясом в низкой стойке в спортивном зале"),
 
   /* The hero plate is shown inside the first stroke, so it is cropped to a
      letterbox of roughly 5:1. It needs a dark, high-contrast frame whose action
      survives that band, and no bright highlights along its top edge — the
      headline's second line is knocked out of it there. */
-  heroStroke: ph("heavy-bag-kick-bw.jpg", 1600, 1066, {
-    ru: "Удар в прыжке по тяжёлому мешку, чёрно-белое фото",
-    en: "A jumping kick into a heavy bag, black and white",
-  }, "50% 33%"),
-  heroPlate: ph("kick-pairs-portrait.jpg", 1066, 1600, {
-    ru: "Ученик в белом кимоно отрабатывает удар ногой в зале",
-    en: "A student in a white gi practises a kick in the dojo",
-  }, "50% 30%"),
-  seniorSensei: ph("sensei-blue-belt-portrait.jpg", 1067, 1600, {
-    ru: "Старший тренер показывает технику руками",
-    en: "Senior instructor demonstrating hand technique",
-  }, "50% 25%"),
-  kidsKumite: ph("kids-kumite-headgear.jpg", 1458, 1600, {
-    ru: "Дети в шлемах и защите проводят учебный спарринг",
-    en: "Children in headgear and protection during a supervised sparring drill",
-  }, "50% 40%"),
+  heroStroke: ph("heavy-bag-kick-bw.jpg", 1600, 1066, "Удар в прыжке по тяжёлому мешку, чёрно-белое фото", "50% 33%"),
+  heroPlate: ph("kick-pairs-portrait.jpg", 1066, 1600, "Ученик в белом кимоно отрабатывает удар ногой в зале", "50% 30%"),
+  seniorSensei: ph("sensei-blue-belt-portrait.jpg", 1067, 1600, "Старший тренер показывает технику руками", "50% 25%"),
+  kidsKumite: ph("kids-kumite-headgear.jpg", 1458, 1600, "Дети в шлемах и защите проводят учебный спарринг", "50% 40%"),
   /*
     THE CHRONICLE'S PLATES — chapter 五, printed in colour rather than pressed.
 
@@ -168,25 +149,16 @@ export const media = {
     overflow for the focus to spend. They are arithmetic, not taste. See
     `results.css`.
   */
-  kidsPodium: ph("kids-podium-trophies.jpg", 1600, 1337, {
-    ru: "Юные спортсмены с кубками на пьедестале",
-    en: "Young athletes with trophies on the podium",
-  }),
+  kidsPodium: ph("kids-podium-trophies.jpg", 1600, 1337, "Юные спортсмены с кубками на пьедестале"),
   /* chronicle plate. 179px of overflow, so the focus barely moves the frame —
      it only keeps the cups off the right trim. */
-  trophies: ph("trophies-table.jpg", 1600, 1066, {
-    ru: "Кубки и медали на столе перед награждением",
-    en: "Trophies and medals on a table before the awards",
-  }, "62% 50%"),
+  trophies: ph("trophies-table.jpg", 1600, 1066, "Кубки и медали на столе перед награждением", "62% 50%"),
   /* chronicle plate. The tall panel this was solved for kept only 800 columns,
      and the focus decided whether the frame held a fight or half a referee;
      at 4:3 it is a trim rather than a rescue — 60% sets the window at
      [107, 1528], which holds both fighters' heads (≈600 and ≈1250) and drops
      the empty left edge of the hall. */
-  kumiteKick: ph("mawashi-geri-kumite.jpg", 1600, 1066, {
-    ru: "Маваши-гери в кумитэ на татами",
-    en: "Mawashi-geri during kumite on the tatami",
-  }, "60% 50%"),
+  kumiteKick: ph("mawashi-geri-kumite.jpg", 1600, 1066, "Маваши-гери в кумитэ на татами", "60% 50%"),
   /*
     CHAPTER 四 — THE TWO COLOUR PLATES IN THE BOOK.
 
@@ -222,10 +194,7 @@ export const media = {
     a claim about grade — but the chapter names one man and the plate shows
     two, and that is the gap the client's own photograph closes.
   */
-  senseiPlate: ph("knockdown-kumite-kick.jpg", 1200, 1600, {
-    ru: "Бой на турнире по киокушин — удар ногой",
-    en: "Kyokushin tournament fight — a kick lands",
-  }, "50% 20%"),
+  senseiPlate: ph("knockdown-kumite-kick.jpg", 1200, 1600, "Удар ногой в бою на турнире по киокушин", "50% 20%"),
   /*
     THE SECOND COACH'S PLATE — and it is a PLACEHOLDER STANDING BESIDE A
     PLACEHOLDER. The man in the second half of the spread is invented
@@ -261,17 +230,11 @@ export const media = {
     the same row, so they have to look like one commission — the same room or
     the same light, not one studio portrait against one snapshot.
   */
-  assistantPlate: ph("tameshiwari-bricks-vintage.jpg", 1104, 1600, {
-    ru: "Тамэсивари — разбивание кирпичей на показательном выступлении",
-    en: "Tameshiwari — breaking bricks at a demonstration",
-  }, "55% 45%"),
+  assistantPlate: ph("tameshiwari-bricks-vintage.jpg", 1104, 1600, "Тамэсивари, разбивание кирпичей на показательном выступлении", "55% 45%"),
   /* chronicle plate. The 1421-column window sits centred here: the jumper
      spans ≈500–950 and the belt held across his path reaches ≈1200, so the
      default focus keeps the gesture and what it clears in one frame. */
-  flyingKick: ph("flying-kick-dojo.jpg", 1600, 1066, {
-    ru: "Прыжковый удар ногой на тренировке",
-    en: "A jumping kick during training",
-  }),
+  flyingKick: ph("flying-kick-dojo.jpg", 1600, 1066, "Прыжковый удар ногой на тренировке"),
   /*
     THE HERO'S HORIZON — the plate that runs across the foot of chapter 一,
     to the paper edge on three sides and cut by the fold. It is the page's
@@ -292,125 +255,38 @@ export const media = {
     separation between gi and floor, since the duotone press throws away every
     trace of colour. Kicks or a held stance beat anything static.
   */
-  kickWide: ph("kick-dojo-wide.jpg", 1600, 1066, {
-    ru: "Отработка ударов ногами в зале",
-    en: "Kicking drills in the dojo",
-  }, "50% 42%"),
-  kickExchange: ph("kick-exchange.jpg", 1600, 1066, {
-    ru: "Обмен ударами в учебном бою",
-    en: "Exchange of kicks in a training bout",
-  }),
-  stretching: ph("stretching-class-overhead.jpg", 1600, 1066, {
-    ru: "Растяжка всей группы на татами, вид сверху",
-    en: "Whole-class stretching on the tatami, seen from above",
-  }),
-  dojoSign: ph("kyokushin-dojo-sign.jpg", 1600, 1200, {
-    ru: "Вывеска додзё с иероглифами 極真",
-    en: "Dojo sign with the 極真 characters",
-  }),
-  heavyBag: ph("heavy-bag-kick-bw.jpg", 1600, 1066, {
-    ru: "Удар по тяжёлому мешку, чёрно-белое фото",
-    en: "A kick into a heavy bag, black and white",
-  }),
-  sunriseKick: ph("kick-sunrise-silhouette.jpg", 1600, 1066, {
-    ru: "Силуэт удара ногой на рассвете",
-    en: "Silhouette of a kick at sunrise",
-  }, "50% 60%"),
-  sunriseKick2: ph("kicking-sunrise-silhouette-2.jpg", 1600, 1066, {
-    ru: "Утренняя тренировка на рассвете",
-    en: "Morning training at sunrise",
-  }),
-  parkAlley: ph("nalchik-park-autumn-alley.jpg", 1600, 1066, {
-    ru: "Аллея в парке Нальчика осенью",
-    en: "An alley in Nalchik's park in autumn",
-  }),
-  parkWillows: ph("nalchik-park-willows-lake.jpg", 1600, 1066, {
-    ru: "Ивы у озера в курортном парке Нальчика",
-    en: "Willows by the lake in Nalchik's resort park",
-  }),
-  parkBench: ph("nalchik-park-bench-pines.jpg", 1600, 1066, {
-    ru: "Скамейка под соснами в парке Нальчика",
-    en: "A bench under the pines in Nalchik's park",
-  }),
-  parkPath: ph("forest-path-portrait.jpg", 899, 1600, {
-    ru: "Тропинка к реке в парке Нальчика",
-    en: "A path down to the river in Nalchik's park",
-  }, "50% 45%"),
-  roadToElbrus: ph("road-to-elbrus-steppe.jpg", 1600, 1066, {
-    ru: "Дорога к Эльбрусу через степь",
-    en: "The road to Elbrus across the steppe",
-  }, "50% 60%"),
-  caucasusPanorama: ph("caucasus-panorama-kbr.jpg", 1600, 1066, {
-    ru: "Панорама Кавказских гор, Кабардино-Балкария",
-    en: "Panorama of the Caucasus mountains, Kabardino-Balkaria",
-  }),
-  glacierPeak: ph("glacier-peak-dramatic.jpg", 1600, 1068, {
-    ru: "Ледник и вершина в Приэльбрусье",
-    en: "Glacier and peak in the Elbrus region",
-  }),
-  greenValley: ph("green-valley-jila-su.jpg", 1600, 1066, {
-    ru: "Зелёная долина Джилы-Су",
-    en: "The green Jila-Su valley",
-  }),
-  mountainHuman: ph("mountain-and-human.jpg", 1066, 1600, {
-    ru: "Человек в горной долине",
-    en: "A person in a mountain valley",
-  }),
-  duskGrass1: ph("mountain-dusk-grass-1.jpg", 1600, 1066, {
-    ru: "Сумерки в горах, трава на переднем плане",
-    en: "Dusk in the mountains, grass in the foreground",
-  }),
-  duskGrass2: ph("mountain-dusk-grass-2.jpg", 1600, 1066, {
-    ru: "Вечер в горах Кабардино-Балкарии",
-    en: "Evening in the mountains of Kabardino-Balkaria",
-  }),
-  duskGrass3: ph("mountain-dusk-grass-3.jpg", 1600, 900, {
-    ru: "Ночь на склонах горы",
-    en: "Night on a mountain slope",
-  }),
-  ridgeClimbers: ph("ridge-climbers-bw.jpg", 1600, 1600, {
-    ru: "Альпинисты на снежном гребне, чёрно-белое фото",
-    en: "Climbers on a snow ridge, black and white",
-  }),
-  kidsPadsDrill: ph("kids-pads-drill.jpg", 1390, 1600, {
-    ru: "Дети в шлемах и защите в учебном бою",
-    en: "Children in headgear and body protection during a practice bout",
-  }, "50% 35%"),
+  kickWide: ph("kick-dojo-wide.jpg", 1600, 1066, "Отработка ударов ногами в зале", "50% 42%"),
+  kickExchange: ph("kick-exchange.jpg", 1600, 1066, "Обмен ударами в учебном бою"),
+  stretching: ph("stretching-class-overhead.jpg", 1600, 1066, "Растяжка всей группы на татами, вид сверху"),
+  dojoSign: ph("kyokushin-dojo-sign.jpg", 1600, 1200, "Вывеска додзё с иероглифами 極真"),
+  heavyBag: ph("heavy-bag-kick-bw.jpg", 1600, 1066, "Удар по тяжёлому мешку, чёрно-белое фото"),
+  sunriseKick: ph("kick-sunrise-silhouette.jpg", 1600, 1066, "Силуэт удара ногой на рассвете", "50% 60%"),
+  sunriseKick2: ph("kicking-sunrise-silhouette-2.jpg", 1600, 1066, "Утренняя тренировка на рассвете"),
+  parkAlley: ph("nalchik-park-autumn-alley.jpg", 1600, 1066, "Аллея в парке Нальчика осенью"),
+  parkWillows: ph("nalchik-park-willows-lake.jpg", 1600, 1066, "Ивы у озера в курортном парке Нальчика"),
+  parkBench: ph("nalchik-park-bench-pines.jpg", 1600, 1066, "Скамейка под соснами в парке Нальчика"),
+  parkPath: ph("forest-path-portrait.jpg", 899, 1600, "Тропинка к реке в парке Нальчика", "50% 45%"),
+  roadToElbrus: ph("road-to-elbrus-steppe.jpg", 1600, 1066, "Дорога к Эльбрусу через степь", "50% 60%"),
+  caucasusPanorama: ph("caucasus-panorama-kbr.jpg", 1600, 1066, "Панорама Кавказских гор, Кабардино-Балкария"),
+  glacierPeak: ph("glacier-peak-dramatic.jpg", 1600, 1068, "Ледник и вершина в Приэльбрусье"),
+  greenValley: ph("green-valley-jila-su.jpg", 1600, 1066, "Зелёная долина Джилы-Су"),
+  mountainHuman: ph("mountain-and-human.jpg", 1066, 1600, "Человек в горной долине"),
+  duskGrass1: ph("mountain-dusk-grass-1.jpg", 1600, 1066, "Сумерки в горах, трава на переднем плане"),
+  duskGrass2: ph("mountain-dusk-grass-2.jpg", 1600, 1066, "Вечер в горах Кабардино-Балкарии"),
+  duskGrass3: ph("mountain-dusk-grass-3.jpg", 1600, 900, "Ночь на склонах горы"),
+  ridgeClimbers: ph("ridge-climbers-bw.jpg", 1600, 1600, "Альпинисты на снежном гребне, чёрно-белое фото"),
+  kidsPadsDrill: ph("kids-pads-drill.jpg", 1390, 1600, "Дети в шлемах и защите в учебном бою", "50% 35%"),
   /* a 1067x1600 portrait, and — unlike `kidsSparringGear` — not another crop of
      the same frame as `kidsPadsDrill`, so two adjacent bands of chapter 三 no
      longer print the same photograph twice. */
-  kidKicksPad: ph("kid-kicks-pad-coach.jpg", 1067, 1600, {
-    ru: "Ребёнок отрабатывает удар по лапе, которую держит тренер",
-    en: "A child kicking a pad held by the coach",
-  }, "50% 35%"),
-  kidsSparringGear: ph("kids-sparring-gear.jpg", 1066, 1600, {
-    ru: "Дети в защитной экипировке на тренировке",
-    en: "Children in protective gear at training",
-  }, "50% 30%"),
-  kidsYellowBelt: ph("kids-sparring-yellow-belt.jpg", 1600, 1200, {
-    ru: "Юные каратисты с жёлтыми поясами в учебном бою",
-    en: "Young karateka with yellow belts in a practice bout",
-  }),
-  maeGeriGym: ph("mae-geri-gym.jpg", 1600, 1472, {
-    ru: "Мае-гери в спортивном зале",
-    en: "Mae-geri in the gym",
-  }),
-  maeGeriPortrait: ph("mae-geri-jodan-portrait.jpg", 1066, 1600, {
-    ru: "Удар мае-гери дзёдан, вертикальный кадр",
-    en: "Mae-geri jodan, portrait frame",
-  }, "50% 35%"),
-  milkyWay: ph("milky-way-elbrus.jpg", 1066, 1600, {
-    ru: "Млечный путь над Эльбрусом",
-    en: "The Milky Way over Elbrus",
-  }),
-  tikhtengen: ph("tikhtengen-peak.jpg", 1600, 1066, {
-    ru: "Пик Тихтенген, Чегемское ущелье",
-    en: "Tikhtengen peak, Chegem gorge",
-  }),
-  tournamentHall: ph("tournament-hall-tatami.jpg", 1600, 1200, {
-    ru: "Турнирный зал с татами, вид сверху",
-    en: "Tournament hall with tatami, seen from above",
-  }),
+  kidKicksPad: ph("kid-kicks-pad-coach.jpg", 1067, 1600, "Ребёнок отрабатывает удар по лапе, которую держит тренер", "50% 35%"),
+  kidsSparringGear: ph("kids-sparring-gear.jpg", 1066, 1600, "Дети в защитной экипировке на тренировке", "50% 30%"),
+  kidsYellowBelt: ph("kids-sparring-yellow-belt.jpg", 1600, 1200, "Юные каратисты с жёлтыми поясами в учебном бою"),
+  maeGeriGym: ph("mae-geri-gym.jpg", 1600, 1472, "Мае-гери в спортивном зале"),
+  maeGeriPortrait: ph("mae-geri-jodan-portrait.jpg", 1066, 1600, "Удар мае-гери дзёдан, вертикальный кадр", "50% 35%"),
+  milkyWay: ph("milky-way-elbrus.jpg", 1066, 1600, "Млечный путь над Эльбрусом"),
+  tikhtengen: ph("tikhtengen-peak.jpg", 1600, 1066, "Пик Тихтенген, Чегемское ущелье"),
+  tournamentHall: ph("tournament-hall-tatami.jpg", 1600, 1200, "Турнирный зал с татами, вид сверху"),
 } satisfies Record<string, MediaSlot>;
 
 export type MediaKey = keyof typeof media;

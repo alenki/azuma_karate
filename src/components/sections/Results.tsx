@@ -2,7 +2,6 @@
 
 import "@/styles/sections/results.css";
 
-import { useLocale } from "@/i18n/LocaleProvider";
 import { chapters, results, type ChronicleEntry } from "@/content/home";
 import { Chapter } from "@/components/layout/Chapter";
 import { Brush } from "@/components/brush/Brush";
@@ -23,17 +22,16 @@ const HEADING_ID = "results-title";
  * standing above it, so the first thing the reader unrolls is the title.
  */
 function Masthead() {
-  const { locale } = useLocale();
   return (
     <div className="chronicle-head">
       <h2 id={HEADING_ID} className="t-chapter text-bone chronicle-head__title">
-        <LineReveal as="span" className="block" lines={[results.title[locale]]} />
+        <LineReveal as="span" className="block" lines={[results.title]} />
       </h2>
       <Reveal delay={0.2}>
-        <p className="t-lead text-bone-2 chronicle-head__lead">{results.lead[locale]}</p>
+        <p className="t-lead text-bone-2 chronicle-head__lead">{results.lead}</p>
       </Reveal>
       <Reveal delay={0.38}>
-        <p className="t-mono chronicle-head__hint">{results.hint[locale]}</p>
+        <p className="t-mono chronicle-head__hint">{results.hint}</p>
       </Reveal>
     </div>
   );
@@ -55,7 +53,6 @@ function Masthead() {
  * for the test a replacement photograph has to pass.
  */
 function Entry({ entry }: { entry: ChronicleEntry }) {
-  const { locale } = useLocale();
   return (
     <article className="entry">
       <Curtain className="entry__frame" duration={1.05} amount={0.25} from="bottom">
@@ -63,12 +60,12 @@ function Entry({ entry }: { entry: ChronicleEntry }) {
       </Curtain>
 
       <div className="rule entry__rule" />
-      <p className="t-mono entry__date">{entry.date[locale]}</p>
+      <p className="t-mono entry__date">{entry.date}</p>
       <h3 className="t-h3 font-display text-bone entry__title">
-        <LineReveal as="span" className="block" lines={[entry.title[locale]]} duration={0.9} />
+        <LineReveal as="span" className="block" lines={[entry.title]} duration={0.9} />
       </h3>
       <Reveal delay={0.12} y={16} duration={0.8}>
-        <p className="t-caption text-bone-2 entry__note">{entry.note[locale]}</p>
+        <p className="t-caption text-bone-2 entry__note">{entry.note}</p>
       </Reveal>
     </article>
   );
@@ -81,16 +78,15 @@ function Entry({ entry }: { entry: ChronicleEntry }) {
  * chapter and the one place red is doing the job the rota reserves for it.
  */
 function Colophon() {
-  const { locale } = useLocale();
   return (
     <div className="chronicle-foot">
       <Register className="chronicle-foot__board" delay={0.05} stagger={0.1} x={-14} duration={0.75}>
         {results.tallies.map((tally, i) => (
-          <TallyRow key={tally.label.en} label={tally.label[locale]} value={tally.value} index={i} />
+          <TallyRow key={tally.label} label={tally.label} value={tally.value} index={i} />
         ))}
       </Register>
       <Reveal delay={0.1} y={10} duration={0.7} className="chronicle-foot__closing">
-        <p className="t-note chronicle-foot__record">{results.best[locale]}</p>
+        <p className="t-note chronicle-foot__record">{results.best}</p>
         <Brush kind="underline" className="chronicle-foot__mark" delay={0.45} duration={1.1} />
       </Reveal>
     </div>
@@ -121,13 +117,12 @@ function Colophon() {
  * as the rest of the manual does.
  */
 export function Results() {
-  const { locale } = useLocale();
 
   return (
     <Chapter
       id={chapter.id}
       index={chapter.index}
-      title={chapter.title[locale]}
+      title={chapter.title}
       labelledBy={HEADING_ID}
       ground="ink"
       className="results relative"
@@ -136,11 +131,11 @@ export function Results() {
       <Roll
         className="results__roll"
         labelledBy={HEADING_ID}
-        backdrop={<span className="chronicle-mark">{chapter.title[locale]}</span>}
+        backdrop={<span className="chronicle-mark">{chapter.title}</span>}
       >
         {[
           <Masthead key="head" />,
-          ...results.events.map((entry) => <Entry key={entry.title.en} entry={entry} />),
+          ...results.events.map((entry) => <Entry key={entry.title} entry={entry} />),
           <Colophon key="foot" />,
         ]}
       </Roll>

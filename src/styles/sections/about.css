@@ -334,30 +334,27 @@
   letter-spacing: -0.01em;
   color: var(--color-ink);
   /*
-    RAGGED, AND HYPHENATED IN ENGLISH ONLY.
+    RAGGED, AND NOT HYPHENATED.
 
     The column was justified once, with `hyphens: auto`, on the argument that a
     manual justifies. At this size a river is four fingers wide, so the
     justification went and the rag stayed.
 
-    THE HYPHENATION IS SPLIT BY LANGUAGE, and it stays split even though the
-    lede is short again. A note that used to sit here claimed Chrome ships no
-    Russian dictionary, so the declaration was a no-op on every RU string and
-    could be left global. That is not true of the browser: Chromium hyphenates
-    Russian perfectly well, and the merged lede proved it by breaking «оч-ков»
-    and «харак-тер» on consecutive lines — two hyphens in one paragraph, at
-    36px, which is not a thing a Russian manual sets. Those words are cut now
-    and the demonstration is gone with them; the rule is not, because what makes
-    a Russian hyphen wrong here is the size, not that particular copy.
+    THE HYPHENATION WENT WITH IT. A note that used to sit here claimed Chrome
+    ships no Russian dictionary, so `hyphens: auto` was a no-op on every string
+    and could be left global. That is not true of the browser: Chromium
+    hyphenates Russian perfectly well, and the merged lede proved it by
+    breaking «оч-ков» and «харак-тер» on consecutive lines — two hyphens in one
+    paragraph, at 36px, which is not a thing a Russian manual sets. Those words
+    are cut now and the demonstration is gone with them; the rule is not,
+    because what makes a hyphen wrong here is the size, not that particular
+    copy.
 
-    English keeps it, where the breaks are ones a reader does not notice and
-    the rag tightens. Russian takes the rag as it falls. Scoped off `<html
-    lang>`, which `app/[locale]/layout.tsx` sets per locale, so the rule
-    follows the page rather than the component.
+    This was a pair of rules while the sheet had an English edition: `auto`
+    here, overridden to `manual` by a `:lang(ru)` selector that matched the
+    `<html lang>` the layout set per locale. The English edition is gone, so
+    the override always won and it is stated outright instead.
   */
-  hyphens: auto;
-}
-:lang(ru) .about__lede {
   hyphens: manual;
 }
 

@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "../../styles/primitives.css";
+@import "../styles/primitives.css";
 
 /* ------------------------------------------------------------------ */
 /* Design tokens — "Первая черта": paper, ink, one vermilion            */
@@ -82,6 +82,9 @@
   --color-shu: #c41e2a;
   --color-shu-lift: #ec4a54; /* red for dark grounds; 5.01:1 flat, 4.64:1 on grained ink */
   --color-accent: #c41e2a;
+  /* One hue set on this page is not vermilion: the belt dyes, `--color-obi-*`,
+     in their own @theme block below — the exception and the reason it is not
+     an exception to the rule above are argued there. */
 
   /* type */
   --font-display: var(--font-prata), "Prata", "Times New Roman", serif;
@@ -144,6 +147,49 @@
   --measure-prose: 62ch;
   --measure-lead: 46ch;
   --measure-caption: 40ch;
+}
+
+/* ------------------------------------------------------------------ */
+/* The obi — the one hue set on this page that is not vermilion        */
+/* ------------------------------------------------------------------ */
+/*
+  The rota above says emphasis is never carried by hue, and the belt ladder in
+  the colophon obeyed it by printing seven greys: a step wedge running from
+  bone at 白帯 to solid ink at 黒帯, position in the band standing in for
+  rank. The argument was that five brand-foreign dyes had no business in a
+  page made of paper and ink. It was the wrong argument. These are not
+  decoration picked to warm up a footer — the colour IS the rank, the way a
+  sheet of dye lots at the back of a manual is not an ornament but the key,
+  and a reader with an orange belt in a bag at home should be able to find it
+  on this strip. A grey standing in for orange is the worse mark.
+
+  So: seven dyes, mixed for this press rather than sampled off a website. Each
+  is warm-shifted and pulled well off full saturation, so the strip sits in
+  the same light as the paper stock and the ink ground instead of floating
+  above them. They are `background` values for the wedge's patches and nothing
+  else — never a text colour, never a label, never a state. The rota holds
+  everywhere it applied; this is the one place where the hue is itself the
+  fact being printed.
+
+  黒帯 stays a hair above the ink ground (1.14:1) rather than on it: at full
+  density the belt and the page are nearly the same black, which is the whole
+  point of the last step, and the brown above it plus the band's own hairline
+  close the cell so it reads as printed and not as a hole.
+
+  `static`, and a separate block for that reason. Tailwind v4 drops theme
+  variables it cannot see used, and each patch names its dye at runtime —
+  `var(--color-obi-${b.dye})`, built from the same record that names the rank,
+  so the scanner never sees `--color-obi-orange` spelled out anywhere. Without
+  `static` all seven resolve to their fallback and the card prints solid ink.
+*/
+@theme static {
+  --color-obi-white: #e8e1d3;
+  --color-obi-orange: #bf5f27;
+  --color-obi-blue: #345680;
+  --color-obi-yellow: #c9a233;
+  --color-obi-green: #456b39;
+  --color-obi-brown: #66422c;
+  --color-obi-black: #211d1a;
 }
 
 /* ------------------------------------------------------------------ */
@@ -518,25 +564,11 @@
   color: var(--color-bone-2);
 }
 .site-header--ink .nav-link,
-.site-header--ink .menu-toggle,
-.site-header--ink .lang-toggle {
+.site-header--ink .menu-toggle {
   color: var(--color-bone);
 }
 .site-header--ink .nav-link::after {
   background: var(--color-bone);
-}
-.site-header--ink .lang-toggle__current {
-  text-decoration-color: var(--color-bone);
-}
-.site-header--ink .lang-toggle__rule {
-  background: var(--color-rule-dark);
-}
-.site-header--ink .lang-toggle__link {
-  /* #A8A196 on #151311 is 6.6:1 — the ink ramp's own secondary text tone */
-  color: var(--color-bone-2);
-}
-.site-header--ink .lang-toggle__link:hover {
-  color: var(--color-bone);
 }
 /* the CTA inverts with the ground: ink-on-paper becomes bone-on-ink */
 .site-header--ink .btn-ink {
@@ -578,38 +610,6 @@
 .nav-link[aria-current="page"]::after {
   transform: scaleX(1);
 }
-/*
-  RU | EN. The wrapper is no longer the control — only the second token is —
-  so it carries no padding of its own; the link's padding is what makes the
-  hit target (chrome.css §1) and the optical air around the rule at once.
-*/
-.lang-toggle {
-  color: var(--color-ink);
-}
-.lang-toggle__current {
-  /* the current locale is marked by a rule under it, not by a colour (1.4.1
-     anyway) — and the rule is ink, because the chrome gets no accent: the
-     underline IS the mark and it does not need to be red to be one */
-  text-decoration: underline;
-  text-underline-offset: 0.35em;
-  text-decoration-color: var(--color-ink);
-}
-.ground-ink .lang-toggle__current { text-decoration-color: var(--color-bone); }
-.lang-toggle__rule {
-  flex: none;
-  width: 1px;
-  height: 1.1em;
-  background: var(--color-rule);
-}
-.lang-toggle__link {
-  /* #5a554e on #f3efe6 ≈ 6.5:1 — quiet, but read. NEVER --color-ink-3, which
-     is 2.4:1 on this paper and fails even the large-text floor. */
-  color: var(--color-ink-2);
-  transition: color var(--duration-fast) var(--ease-out);
-}
-/* the quiet locale steps up to full ink on hover — a weight change, which is
-   what a printed page has instead of a hue change */
-.lang-toggle__link:hover { color: var(--color-ink); }
 .menu-toggle {
   color: var(--color-ink);
   min-height: 44px;

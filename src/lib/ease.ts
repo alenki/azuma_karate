@@ -2,7 +2,7 @@
  * The four curves the page moves on — one source, four jobs.
  *
  * The numbers are the same ones the `--ease-*` tokens carry in
- * `app/[locale]/globals.css`. They are repeated here rather than read from the
+ * `app/globals.css`. They are repeated here rather than read from the
  * custom properties because Motion needs a tuple and CSS needs a
  * `cubic-bezier()`, and no single value serves both; if a curve is ever
  * retuned, retune it in both places. What must NOT happen again is a component

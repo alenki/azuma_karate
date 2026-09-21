@@ -1,11 +1,11 @@
 # SK AZUMA
 
 Website for SK AZUMA, a Kyokushin karate club in Nalchik (Kabardino-Balkaria).
-Two pages exist: **the home page** and **`/contacts`**. «О клубе», «Расписание»
-and «Галерея» are still navigation targets and are re-pointed at the home
-chapters that already answer them — `src/lib/sections.ts` holds that map and the
-list of sections that have stopped needing it, and each entry is deleted the day
-its page ships.
+**Only the home page exists.** «О клубе», «Расписание», «Достижения» and
+«Контакты» are navigation targets and are re-pointed at the home chapters that
+already answer them — `src/lib/sections.ts` holds that map and the list of
+sections that have stopped needing it, and each entry is deleted the day its
+page ships.
 
 ## Running it
 
@@ -19,13 +19,19 @@ npm start       # serve the production build
 Node 22, npm 11. Stack: Next.js 16 (App Router), React 19, TypeScript,
 Tailwind CSS v4, Motion 13, Lenis.
 
-## Languages
+## Language
 
-Russian is the default language and is served from the bare paths (`/`).
-English lives under `/en`. Both are statically generated from
-`src/app/[locale]`; `/ru/...` permanently redirects to `/...` so every page has
-one canonical URL per language. All copy lives in `src/content/home.ts` as a
-Russian-first dictionary with an English mirror.
+Russian, and only Russian. The pages live at `src/app/` and are served from the
+bare paths, and all copy lives in `src/content/home.ts` as plain strings.
+
+There was an English edition once, under `/en`, generated from an
+`src/app/[locale]` segment with every string held as a `Record<Locale, string>`
+pair and read through `value[locale]`. It was withdrawn: the route segment, the
+`src/i18n` module, the `RU | EN` toggle in the bar, the colophon's link to the
+other edition and the rewrite/redirect machinery in `next.config.ts` all went
+with it, and the dictionaries were collapsed to their Russian side. Nothing
+redirects `/en` or `/ru` any more, because the site has not launched and
+neither prefix was ever indexed.
 
 ## The design
 
@@ -247,7 +253,7 @@ measured 1.65:1 over his shoulder.
 
 If the headline copy or the display face changes, re-measure `heroFit` in
 `src/content/home.ts`: the hero divides its column by those numbers to set the
-type to the exact width in both languages. `--fold-fixed` in `hero.css` is
+type to the exact width. `--fold-fixed` in `hero.css` is
 everything on the sheet that is *not* the headline — re-state it if a row is
 added or removed.
 
@@ -295,62 +301,6 @@ silently; and the reduced-motion block needs `transform: none !important`,
 because the preference cannot be read on the server, the track is briefly pinned
 during hydration, and a stylesheet is the only thing that outranks the inline
 transform Motion leaves behind.
-
-## The contacts page
-
-`/contacts` is the manual's **back matter**, not a seventh chapter. The numerals
-一…六 count the chapters of the home page; a second sheet that restarted the
-count would teach the reader a device that means nothing. So the binding margin
-carries the printer's register mark instead (`ui/RegisterMark`, which until now
-had no call site anywhere in the repo) — where the second pass lines up on the
-first: same press, different sheet.
-
-Three bands, each a different kind of object, and the page's one vermilion is
-spent once per band on a different one of its three sanctioned jobs.
-
-**«Дверь»** — the club's particulars set the way a posted address is set:
-addressee, street, city, republic, with no label on any of them, because an
-address block is recognised by its shape. The **street** is the largest type on
-the page and the city is one step under it; every reader this page is for is
-already in Nalchik, so «НАЛЬЧИК» at poster size would be maximum scale spent on
-zero information. The three routes stand where a sender's details stand on an
-envelope and the **seal** is in the stamp corner — the one job a seal literally
-has, and the only `<Seal>` printed anywhere on the site. One of the three routes
-is a **ruled blank**: the club's phone is `club.pending.phone`, and this is the
-first place in the codebase that draws what the pending convention has always
-described. The fold closes on a rule carrying the hall's live state, which never
-says «открыто» — the club has told us when it *trains*, not when it unlocks.
-
-**«Ваша группа»** — the page's one gesture. The reader types an age and the
-sensei's brush ticks the group they belong in, in the margin beside the row:
-朱筆, the vermilion a teacher corrects a student's sheet with, which is a
-different mark in kind from the ensō that closes the home page. That one is a
-completion; this one is made *because of something the reader wrote*. Three
-things make it a fact rather than an ornament, and all three are the club's own
-data: at **6 and at 16 the mark doubles**, because `content/schedule.ts` says the
-bands overlap on purpose and must not be tidied; under four **the brush
-refuses**, and the floor is read off the youngest band rather than typed; and
-every row prints its own week from the first paint, so marking *narrows* — the
-unchosen rows drop a step down the ink ramp and lose their rules — rather than
-revealing. The band closes on a register of particulars set on leaders, two of
-them ruled blank, each ending in a locator: the chapter of the home page that
-answers it in full, set with that chapter's own binding numeral.
-
-**«Написать в клуб»** — the sheet turns over. The letter is the widest object on
-the page, running the whole trim between two rules, and the reader's name sits
-under it where a signature goes; chapter 六 books a session in a narrow column
-of ruled fields, and this one writes. **It never claims to send.** There is no
-route to post to, so the control says «Собрать письмо», assembles what the
-reader wrote, hands it back ready to copy and becomes «Открыть Telegram» — the
-label tells them before they type rather than after. There is no consent line
-either, because nothing leaves the browser; the day a route exists, the consent
-arrives with it.
-
-The reference the page is drawn from answers six questions down its left edge.
-For this club every one of those answers is unconfirmed, and six ruled blanks in
-a row is not a design, it is an apology — so the questions are kept and the
-answers given back: they are the **subjects**, and choosing one writes the first
-line of the reader's own letter.
 
 ## Before this can go live
 
@@ -457,20 +407,20 @@ Everything below is a placeholder and needs the client's confirmation:
   thing the chapter gave up; if the club wants it back it belongs under the
   rank as a sentence, not as a label, a rule and a blank. The second coach was
   pending too, once, and that is exactly what the entry above replaced.
-- **Sign-up form.** It validates and simulates success; it has no backend yet.
-  The Telegram link is the working route in the meantime. `/contacts` does not
-  repeat that: its control assembles a message and hands it to the reader rather
-  than pretending to post one, so it needs no backend to be honest — but the day
-  one exists, both should use it.
-- **What to bring, and the price.** Both are `pendingFact`s in
-  `src/content/contacts.ts` and both print as a ruled blank in the contacts
-  register with the route to ask beside them. They are the two questions a parent
-  asks straight after «в какую группу»; fill them there and nothing else changes.
+- **Sign-up form.** Chapter 六 validates, assembles the request in the reader's
+  own browser and hands it back to be carried across by hand; it has no backend
+  and never claims to send. The Telegram link is the working route in the
+  meantime, and `join.sending` / `success` / `error` stay dormant until a route
+  exists.
+- **What to bring, and the price.** Both were modelled as `pendingFact`s on the
+  contacts page and went out with it; nothing on the site asks or answers them
+  now. They are the two questions a parent asks straight after «в какую группу»,
+  and they need a home on whichever page ships next.
 - **The phone and the hall's coordinates.** Both were being rendered as facts in
   the colophon — `club.phone` as a live `tel:` to a number that does not ring,
   `coordsLabel` to the arc-minute as though the hall had been surveyed. Both are
-  out of the footer now and the phone prints as a ruled blank on `/contacts`.
-  They come back, as facts, the day the club confirms them.
+  out of the footer now and nothing prints either. They come back, as facts,
+  the day the club confirms them.
 
 ## Frontend aesthetics
 

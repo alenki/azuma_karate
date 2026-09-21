@@ -7,8 +7,6 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/
 import { useLenis } from "lenis/react";
 import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/cn";
-import { localeHref, otherLocale } from "@/i18n/config";
-import { useLocale } from "@/i18n/LocaleProvider";
 import { cta, navItems } from "@/content/nav";
 import { homeAnchorHref, sectionLink } from "@/lib/sections";
 import { club } from "@/content/schedule";
@@ -17,45 +15,34 @@ import { Button } from "@/components/ui/Button";
 import { useActiveChapter } from "./ChapterContext";
 import { EASE_OUT } from "@/lib/ease";
 
-const copy = {
-  // `switchTo` is deliberately written in the language it switches TO — it is
-  // part of the accessible name of an element carrying `lang={other}`, so a
-  // screen reader speaks it in that language's voice. A two-letter code makes
-  // a poor accessible name on its own, but it is what the sighted reader sees,
-  // so the label EXTENDS the visible token rather than replacing it ("EN —
-  // Switch to English"): 2.5.3 Label in Name requires the name to contain the
-  // visible label, and a speech-input user says "click EN".
-  ru: { menu: "Меню", close: "Закрыть", contents: "Содержание", skip: "К содержанию", lang: "Язык", switchTo: "Switch to English" },
-  en: { menu: "Menu", close: "Close", contents: "Contents", skip: "Skip to content", lang: "Language", switchTo: "Переключить на русский" },
-};
+// `lang` and `switchTo` used to live here too, for the RU | EN toggle that
+// stood in the bar's aside. Both went with the English edition.
+const t = { menu: "Меню", close: "Закрыть", contents: "Содержание", skip: "К содержанию" };
 
 export type ChapterLink = { id: string; index: number; title: string };
 
 /*
-  THREE OF THE FOUR PRINTED SECTIONS ARE STILL CHAPTERS. ONE IS A PAGE.
+  THE PRINTED SECTIONS ARE CHAPTERS, NOT ROUTES.
 
-  `navItems` points at /about, /schedule, /achievements and /contacts, and until this
-  month the app had exactly one route, so all four were 404s printed three times
-  over — the bar, the contents page, the colophon. The map that re-points a
-  label at the chapter which already answers it moved to `lib/sections.ts`,
-  together with the list of sections that have stopped needing it: /contacts is
-  a page now and is linked as one.
+  `navItems` points at /about, /schedule, /trainers, /achievements and
+  /contacts, and the app has exactly one route, so all five would be 404s
+  printed three times over — the bar, the contents page, the colophon. The map
+  that re-points a label at the chapter which already answers it lives in
+  `lib/sections.ts`, together with the list of sections that have stopped
+  needing it, which is empty this month.
 
-  The consequence for this file is that a chapter link is no longer always a
-  bare fragment. Off the home page it has to carry the home path with it, or
-  «О клубе» on /contacts points at nothing — which is why `route` is a prop.
-  See the note in `lib/sections.ts` on why it is passed rather than read from
-  `usePathname()`.
+  The consequence for this file is that a chapter link is not always a bare
+  fragment. The day one of the five ships, it has to carry the home path with
+  it off the home page, or «О клубе» over there points at nothing — which is why
+  `route` is a prop. See the note in `lib/sections.ts` on why it is passed
+  rather than read from `usePathname()`.
 */
 
 /** Re-exported for the colophon, which has imported it from here since before
- *  there were two pages to link between. The map itself lives in lib/sections. */
+ *  the map moved out. The map itself lives in lib/sections. */
 export { sectionAnchor } from "@/lib/sections";
 
 export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLink[]; route?: string; ctaHref?: string }) {
-  const { locale, href } = useLocale();
-  const t = copy[locale];
-  const other = otherLocale(locale);
   const { active, ground } = useActiveChapter();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -70,7 +57,7 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
   /*
     THE CONTENTS PAGE CLOSES WHEN ITS HANDLE STOPS BEING PRINTED.
 
-    From 1280 up the four entries are printed in the bar and the handle is not
+    From 1280 up the five entries are printed in the bar and the handle is not
     printed at all (chrome.css §2a). Without this, a reader who opens the
     contents on a phone and rotates it — or drags a desktop window wider — is
     sealed inside a modal whose only visible control has just vanished: the
@@ -208,16 +195,16 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
         */}
         <div className="site-header__bar wrap">
           <div className="site-header__lead">
-            <Link href={href("/")} className="site-header__brand shrink-0">
+            <Link href="/" className="site-header__brand shrink-0">
               <Logo />
             </Link>
           </div>
 
-          {/* three chapter anchors and one page — see lib/sections. Because
-              they resolve to somewhere real they can also say where the reader
-              is, which four dead links could not: a chapter link marks itself
-              `location` while the reader is inside that chapter, and the page
-              link marks itself `page` while the reader is on it.
+          {/* five chapter anchors — see lib/sections. Because they resolve to
+              somewhere real they can also say where the reader is, which five
+              dead links could not: a chapter link marks itself `location`
+              while the reader is inside that chapter, and a section that has
+              shipped as a page marks itself `page` while the reader is on it.
 
               PRINTED FROM 1280 ONLY, and that is done in chrome.css §1 — NOT
               with a `hidden xl:flex` here. The band sets `display` from an
@@ -225,9 +212,9 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
               utility however specific: the utility would have lost and the
               labels would have printed on a 390 sheet. Same trap as the press
               and the contents handle. */}
-          <nav aria-label={locale === "ru" ? "Основная навигация" : "Primary"} className="site-header__nav">
+          <nav aria-label="Основная навигация" className="site-header__nav">
             {navItems.map((item) => {
-              const link = sectionLink(item.href, locale, route);
+              const link = sectionLink(item.href, route);
               const mark = link.live
                 ? link.current
                   ? ("page" as const)
@@ -240,11 +227,11 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
                  belongs to the router, so it is a <Link> and is prefetched */
               return link.inPage ? (
                 <a key={item.href} href={link.href} className="nav-link t-mono" aria-current={mark}>
-                  {item.label[locale]}
+                  {item.label}
                 </a>
               ) : (
                 <Link key={item.href} href={link.href} className="nav-link t-mono" aria-current={mark}>
-                  {item.label[locale]}
+                  {item.label}
                 </Link>
               );
             })}
@@ -260,13 +247,13 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
               the press on a 390 sheet — see chrome.css §1).
 
               1280 is where the nav beside the wordmark starts printing. Above
-              that line the bar already carries the four entries, so a handle
+              that line the bar already carries the five entries, so a handle
               is a second route to them standing beside the first; below it,
               it is the only route there is.
 
               The overlay's other block — the ten numbered chapters — goes with
               it, and that is the cost of this: on a wide sheet nothing lists
-              the chapters, and the colophon lists the same four sections the
+              the chapters, and the colophon lists the same five sections the
               bar does. §2a carries the argument in full.
             */}
             <button
@@ -302,33 +289,12 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
               <span className="menu-toggle__label">{open ? t.close : t.menu}</span>
             </button>
             {/*
-              RU | EN. Two tokens either side of a hairline rule: the locale
-              you are reading, inert, and the one you can go to, a link. It
-              used to be ONE link wrapping both labels, so clicking the token
-              marked as current navigated away from it — a coin-flip target.
-              `lang`/`hrefLang` belong on the anchor alone; the inert token
-              inherits <html lang> and must not claim to be the other language.
+              The RU | EN toggle stood here: two tokens either side of a
+              hairline rule, the language you were reading inert beside the one
+              you could go to. With one edition there is nothing to switch to,
+              and a toggle whose only state is the current one is furniture
+              claiming to be a control, so it is gone rather than disabled.
             */}
-            <div className="lang-toggle t-mono whitespace-nowrap" role="group" aria-label={t.lang}>
-              <span className="lang-toggle__current" aria-current="true">
-                {locale.toUpperCase()}
-              </span>
-              <span aria-hidden="true" className="lang-toggle__rule" />
-              <Link
-                /* the OTHER language of the page the reader is on, not the other
-                   language of the home page: a switch that always landed on «/»
-                   would throw away the reader's place the moment the site had
-                   more than one page in it */
-                href={localeHref(other, route)}
-                hrefLang={other}
-                lang={other}
-                prefetch={false}
-                className="lang-toggle__link"
-                aria-label={`${other.toUpperCase()} — ${t.switchTo}`}
-              >
-                {other.toUpperCase()}
-              </Link>
-            </div>
             {/*
               The press, welded into the corner of the sheet — flush with the
               top trim and with the right one (chrome.css §1). It is LAST in the
@@ -349,12 +315,11 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
               drove through the lockup.
             */}
             {/* Unset, the control is the home chapter, and off the home page it
-                carries the home path with it — «Записаться» belongs to 六 Запись
-                and /contacts deliberately does not re-point it at its own letter,
-                which is a different act. `ctaHref` is the override for a page that
-                does carry its own version of the ask. */}
-            <Button href={ctaHref ?? homeAnchorHref(cta.href, locale, route)} seal={false} className="site-header__cta">
-              {cta.label[locale]}
+                carries the home path with it — «Записаться» belongs to 六 Запись.
+                `ctaHref` is the override for a page that carries its own version
+                of the ask rather than sending a reader back to 六 for it. */}
+            <Button href={ctaHref ?? homeAnchorHref(cta.href, route)} seal={false} className="site-header__cta">
+              {cta.label}
             </Button>
           </div>
         </div>
@@ -384,11 +349,11 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
             <div className="menu__inner wrap">
               <nav aria-label={t.menu} className="menu__nav">
                 {navItems.map((item, i) => {
-                  const link = sectionLink(item.href, locale, route);
+                  const link = sectionLink(item.href, route);
                   const body = (
                     <>
                       <span className="menu__index t-mono">{String(i + 1).padStart(2, "0")}</span>
-                      {item.label[locale]}
+                      {item.label}
                     </>
                   );
                   return (
@@ -422,7 +387,7 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
                   {chapters.map((c) => (
                     <li key={c.id}>
                       <a
-                        href={homeAnchorHref(c.id, locale, route)}
+                        href={homeAnchorHref(c.id, route)}
                         className="menu__chapter t-caption"
                         onClick={() => setOpen(false)}
                       >
@@ -436,12 +401,12 @@ export function Header({ chapters, route = "/", ctaHref }: { chapters: ChapterLi
 
               <div className="menu__foot">
                 <div className="menu__where t-caption">
-                  <span>{club.city[locale]}, {club.address[locale]}</span>
+                  <span>{club.city}, {club.address}</span>
                   <a href={club.telegram} className="btn-text self-start">Telegram</a>
                   <a href={club.instagram} className="btn-text self-start">Instagram</a>
                 </div>
-                <Button href={ctaHref ?? homeAnchorHref(cta.href, locale, route)} size="lg" onClick={() => setOpen(false)}>
-                  {cta.label[locale]}
+                <Button href={ctaHref ?? homeAnchorHref(cta.href, route)} size="lg" onClick={() => setOpen(false)}>
+                  {cta.label}
                 </Button>
               </div>
             </div>
