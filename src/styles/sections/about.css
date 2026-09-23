@@ -75,6 +75,17 @@
 /* The sheet is still the viewport (globals.css: `.wrap` is the trim,   */
 /* not a column), so the statement and the lede run the full width of   */
 /* the screen they are read on.                                         */
+/*                                                                      */
+/* ALL OF THAT IS THE SPREAD, and a spread is a sheet wider than it is  */
+/* tall. A PORTRAIT sheet gets a different composition rather than a    */
+/* squeezed version of this one: the statement is re-solved against the */
+/* display/body RATIO instead of against a line that no longer exists,  */
+/* the frame loses the min-height that turns its band of air into a     */
+/* hole, and 東 goes BEHIND the column, so the name and the matter      */
+/* under it are printed on the mark rather than above and below it. It  */
+/* is one media block at the foot of this file, THE PORTRAIT CUT, cut   */
+/* on the ASPECT of the sheet and not on a width: a phone held sideways */
+/* wants what is written here, and a portrait tablet does not.          */
 /* ------------------------------------------------------------------ */
 
 .about {
@@ -245,11 +256,17 @@
     statement is the only thing at the head of frame 01 asking to be read.
 
     THIS SIZES THE BOX, AND THE BOX IS NOT THE MARK. KanjiVG leaves 東 its own
-    bearings, so the ink covers about 0.75 of the square across and 0.85 of it
-    down — at 475 that is 357 × 404 of actual stroke. The bearings are paid for
-    here rather than scaled away on the glyph, for the reason set out at
-    `.azuma-fig__glyph` below: the wipe clips to the border box, so anything
-    that overflows the box is cut off the mark.
+    bearings, and `getBBox()` against the live brush profile puts the ink at
+    0.172..0.8635 of the square across and 0.113..0.9135 down. That is 0.69 x
+    0.80 of the box, so at 475 the actual stroke is 328 × 380. The note used to
+    read «about 0.75 across and 0.85 down» from an estimate; the portrait cut at
+    the foot of this file solves its whole composition out of these four numbers,
+    so they are measured now. Re-measure if the figure's weight or profile
+    changes.
+
+    The bearings are paid for here rather than scaled away on the glyph, for
+    the reason set out at `.azuma-fig__glyph` below: the wipe clips to the
+    border box, so anything that overflows the box is cut off the mark.
   */
   --wm-size: min(50svh, 37vw);
 
@@ -384,10 +401,213 @@
   pointer-events: none;
 }
 /* below the spread the frame is narrow enough that the mark would stand behind
-   the lede rather than beside it, so it gives up more of its width than height */
+   the lede rather than beside it, so it gives up more of its width than height.
+
+   IT IS SET ON `.about`, NOT ON `.about__watermark`, and that matters now: the
+   portrait cut below floors the frame's height on this token, so
+   `.about__frame` reads it too. A value parked on the watermark would win for
+   the watermark's own `width` and lose for the frame's `min-height`, and the
+   two would silently disagree about how tall the mark is. */
 @media (max-width: 1023px) {
-  .about__watermark {
+  .about {
     --wm-size: min(37svh, 50vw);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* THE PORTRAIT CUT                                                  */
+/*                                                                   */
+/* Everything above composes a SPREAD: a statement ranged left, the  */
+/* stamp in the field beside it, matter at the foot, and one band of */
+/* air holding the three apart. A sheet that is taller than it is    */
+/* wide is not a spread, and three of the chapter's decisions stop   */
+/* meaning what they mean the moment it turns portrait.              */
+/*                                                                   */
+/*   1. `--say` is solved against 12.209em, a line this chapter has  */
+/*      not set for two edits. At 390 the formula lands on 28px      */
+/*      against an 18px lede: a ratio of 1.55 where the spread runs  */
+/*      3.2 (113 over 35.5 at 1512). The chapter whose whole voice   */
+/*      is SCALE arrives on a phone with none, and «Азума» reads as  */
+/*      a subhead.                                                   */
+/*                                                                   */
+/*   2. `min-height` + `space-between` is a LANDSCAPE construction.  */
+/*      It hands the slack to the band of air, which is right when   */
+/*      the matter is wide and wrong when it is a column: at         */
+/*      390 x 844 the frame holds some 270px of matter inside the    */
+/*      726px of `86svh`, so 56% of chapter 二 is one empty band.    */
+/*      That is not the composition's air, it is arithmetic left     */
+/*      over. A portrait TABLET has it worse, not better: 768 x 1024 */
+/*      leaves 629px of nothing.                                     */
+/*                                                                   */
+/*   3. `top: 50%; right: 0` puts the stamp BESIDE the statement on  */
+/*      a spread and BELOW it on a column, which is the one place a  */
+/*      watermark cannot go: 東 lands in the middle of the hole,     */
+/*      too far from the name to be read as a picture of it and too  */
+/*      quiet, at 1.18:1, to be read as anything else.               */
+/*                                                                   */
+/* THE ANSWER IS THE SAME ARGUMENT TURNED NINETY DEGREES. 東 is a    */
+/* picture of the word set beside it; on a column there is no        */
+/* beside, so the words are set ON the picture. The name closes up   */
+/* onto the lede, the column becomes one block, and the mark is      */
+/* printed behind that block: nearly the width of the trim, centred  */
+/* in the trim across and on the column down. There is no band of    */
+/* air left for it to fill and no hole for it to fall into, because  */
+/* every line of the column is printed over the stamp.               */
+/*                                                                   */
+/*        . . . . . . . . . .                                        */
+/*     Азума                   <- the name, closed up onto the lede  */
+/*     СК «Азума»: секция…                                           */
+/*     …лицом к восходу.       <- the column, printed OVER 東        */
+/*     Мальчики и девочки:…                                          */
+/*        . . . . . . . . . .  <- the stamp's head and foot, as far  */
+/*                                above the column as below it       */
+/*                                                                   */
+/* THERE IS NO RULE OVER THE FOOT. There was one while the stamp had */
+/* a field of its own, to close that field off from the matter under */
+/* it. The field is gone, and a hairline struck across the column    */
+/* now would cut straight through the middle of the mark.            */
+/*                                                                   */
+/* IT IS CUT ON ASPECT, NOT ON WIDTH, and that is the whole of the   */
+/* breakpoint. A first pass cut it at `max-width: 767px` — the       */
+/* width at which the binding rail already gives up — and 768 x 1024 */
+/* promptly printed the same hole a pixel the other side of it.      */
+/* What breaks this composition is a frame `86svh` tall over a       */
+/* column of matter, and that is a statement about the sheet's       */
+/* PROPORTIONS. A phone held sideways wants the spread and gets it.  */
+/*                                                                   */
+/* NOTHING LANDSCAPE CHANGES, and nothing here is a second set of    */
+/* numbers to keep in step with the spread either: `--say` states    */
+/* the ratio the spread happens to land on rather than re-deriving   */
+/* a size, so the two agree to within a pixel wherever the media     */
+/* query's edge falls (74.8 against 75.4 at 1023, 105.2 against      */
+/* 106.7 at 1440). The stamp's size is allowed to step: its ROLE     */
+/* steps with it, from a mark in the margin to the ground the column */
+/* is printed on.                                                    */
+/* ---------------------------------------------------------------- */
+@media (max-aspect-ratio: 1 / 1) {
+  .about {
+    /*
+      The frame's own padding, pulled out of `.about__frame` into a token
+      because the floor under the frame's height is measured from it (see
+      `min-height` below). `--pad-top` already spends 100px clearing the fixed
+      bar at phone widths; a second 48px on top of that was air nobody asked
+      for.
+    */
+    --frame-pad: clamp(1rem, 4vw, 2rem);
+
+    /*
+      THE STATEMENT, RE-SOLVED FOR A COLUMN — and solved against the RATIO
+      rather than against the trim.
+
+      Not the trim, because «Азума» set edge to edge is the wordmark the note at
+      `--say` above refuses, and on a 350px trim it would be a wordmark with the
+      stamp printed through it. The ratio is the one thing about this chapter
+      that has to survive the sheet turning: the spread runs 3.2 display to
+      body, and 3.11 is that figure measured off the live render at 1512 (113
+      over 35.5) and then simply stated here instead of being arrived at again
+      by a different route. 56px of «Азума» is about 163px, a little under half
+      the trim at 390. A mark in a field, which is what the spread asks for.
+
+      Because it is expressed in `--lede`, it tracks the spread's own curve for
+      free: the lede is flat at 18px below 766 and then grows at 2.35vw, and
+      3.11 x 2.35vw is 7.31vw against the spread's 7.5vw - 1.3px. The two are
+      within a pixel of each other at every width the media query can end at, so
+      the statement does not step when the composition does.
+
+      The 14.5vw term is the only thing here that is not the ratio, and it is
+      what carries the SMALL phones: below 386 it takes over and holds «Азума»
+      to 46px at 320 rather than letting a fixed 56px eat 58% of a 280px trim.
+    */
+    --say: max(2.5rem, min(calc(3.11 * var(--lede)), 14.5vw));
+
+    /*
+      THE STAMP, printed nearly the full width of the trim and still INSIDE it:
+      bleeding a watermark off the paper edge is what a plate does, and the note
+      at `.about__watermark` above is still the rule.
+
+      Three terms, and each one owns a different sheet. 88vw against a 3.6vw
+      gutter a side leaves the box a hair inside the trim on a PHONE, where the
+      trim is the binding constraint. 42svh is what holds a portrait TABLET,
+      where 88vw would print a mark two thirds of the screen tall. 34rem is the
+      ceiling for a large portrait DISPLAY, and it is not an arbitrary one: the
+      spread's own `min(50svh, 37vw)` lands on 533px at 1440 wide, so 544 is the
+      same mark at the same size, and the two cuts agree about how big 東 is by
+      the time the sheet is big enough for the question to matter.
+    */
+    --wm-size: min(88vw, 42svh, 34rem);
+  }
+
+  .about__frame {
+    /*
+      THE COLUMN'S HEIGHT, FLOORED AT THE MARK'S. `--frame-min` is what
+      manufactures the hole (see 2. at the head of this block), so the frame is
+      not given it. The one floor it keeps is 東's INK plus the frame's own
+      padding: the stamp is absolutely placed, so nothing else makes room for
+      it, and wherever the mark outgrows the column (at 768 x 1024 its ink is
+      344px against 221px of type) `overflow: clip` would take its head and its
+      foot. The ink is 0.9135 - 0.113 of the box; the bearings are the note at
+      `--wm-size` above.
+
+      `center` is what the floor is for. Where the mark is the taller of the
+      two, the column is set in the middle of it rather than hung from its top;
+      where the column is the taller, there is no free space and `center` does
+      nothing at all.
+    */
+    min-height: calc((0.9135 - 0.113) * var(--wm-size) + 2 * var(--frame-pad));
+    justify-content: center;
+    padding-block: var(--frame-pad);
+
+    /*
+      THE NAME CLOSES UP ONTO THE LEDE. The band of air between them was the
+      field the stamp was printed in, and the stamp has moved behind the whole
+      column, so what is left is a heading's own clearance. It is solved in
+      `--say`, so it moves with the name: 23.5px at 390, against the 32px the
+      foot sets between the lede and the intake, which is what makes «Азума»
+      read as the head of the paragraphs under it rather than a third one of
+      them.
+    */
+    gap: calc(var(--say) * 0.42);
+  }
+
+  .about__watermark {
+    /*
+      CENTRED ON THE COLUMN, DOWN, and it is the INK that is centred, not the
+      box. KanjiVG leaves 東 more bearing above than below (0.113 of the square
+      against 0.0865), so the middle of the stroke sits (0.113 + 0.9135) / 2 of
+      the box down rather than half of it. `top` puts that point on the frame's
+      middle, which is the column's middle as well: the padding is equal top
+      and bottom, and the column is either the frame's whole content or set in
+      the centre of it. The 4.5px this pays back at 390 is the difference
+      between a stamp printed under the column and one that has slipped.
+    */
+    top: calc(50% - (0.113 + 0.9135) / 2 * var(--wm-size));
+    translate: 0 0;
+
+    /*
+      AND CENTRED ON THE TRIM, WHICH `right: 0` DOES NOT DO.
+
+      Ranging the mark right is a SPREAD decision: there the stamp is the thing
+      in the margin beside the column, so the trim edge is what it is set to. In
+      the portrait cut the mark is not in the margin, it is the ground the column
+      is printed on, and a ground that runs nearly the whole trim wants to be
+      optically centred in it. The column still ranges left, so the page reads
+      as type ranged left over a stamp centred under it.
+
+      Centring the BOX would not centre the mark: 東 is not centred in its own
+      square. The measured bearings are 0.172 left against 0.1365 right, so a box
+      set flush leans the ink right at every width: 62px of paper to its left
+      against 40px to its right at 390, and 351 against 59 at 767. Solving the
+      two margins equal,
+
+          T - S - R + 0.172 S  =  R + 0.1365 S
+          R = (T - 0.9645 S) / 2
+
+      where T is the trim and S is `--wm-size`. The percentage is what makes it
+      exact: `100%` on `right` resolves against the containing block, which is
+      the frame's padding box and so is the trim itself, with none of the
+      scrollbar that `vw` counts and the sheet does not.
+    */
+    right: calc((100% - 0.9645 * var(--wm-size)) / 2);
   }
 }
 

@@ -531,9 +531,9 @@
   text-wrap: pretty;
 }
 /*
-  The control is `.btn-press` — the same object the header, the contents page,
-  the schedule and the mobile bar print, so the page asks for the one thing it
-  wants in one voice. It is back to the INK form of that object — bone slab,
+  The control is `.btn-press` — the same object the header, the contents page
+  and the schedule print, so the page asks for the one thing it wants in one
+  voice. It is back to the INK form of that object — bone slab,
   `--color-shu-lift` seal — and nothing here says so either: the `.ground-ink`
   rules in chrome.css §0 match again the moment the chapter's ground changes,
   which is the whole mechanism. `--press-h` is the whole size system, so the

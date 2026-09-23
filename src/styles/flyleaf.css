@@ -1,0 +1,139 @@
+/* ------------------------------------------------------------------ */
+/* The flyleaf: the loading screen (components/flyleaf)                */
+/*                                                                    */
+/* The page is counted in, 一 to 十, one numeral per tenth of the     */
+/* load, on a sheet of the book's own paper. 十 is red and means      */
+/* ready; it is pushed toward the reader and the page cuts in.        */
+/*                                                                    */
+/* Every state is an attribute the inline runtime sets on #flyleaf:    */
+/*                                                                    */
+/*   (none)            not armed: display none. No script, no leaf.   */
+/*   data-live         counting                                       */
+/*   data-n=1..10      which numeral is up                            */
+/*   data-stage=push   十 pushed toward the reader                    */
+/*   data-stage=fade   reduced motion: numeral, then paper, fade out  */
+/*   data-stage=gone   the cut: display none                          */
+/*   data-still        reduced motion: nothing scales                 */
+/* ------------------------------------------------------------------ */
+
+.flyleaf {
+  /*
+    The numeral's em box: three fifths of a desktop's height, so it is the
+    whole sheet's one event, and most of a phone's width, where height would
+    run it off the sides.
+  */
+  --em: min(60svh, 86vw);
+
+  position: fixed;
+  inset: 0;
+  /* over the bar (z-50) and the menu (z-45) */
+  z-index: 100;
+  display: none;
+  overflow: hidden;
+}
+.flyleaf[data-live] {
+  display: block;
+}
+.flyleaf[data-stage="gone"] {
+  display: none;
+}
+
+.flyleaf__sheet {
+  position: absolute;
+  left: 50%;
+  /* a touch above the true centre, where the eye puts it */
+  top: 47%;
+  width: var(--em);
+  height: var(--em);
+  max-width: none;
+  translate: -50% -50%;
+  overflow: visible;
+}
+.flyleaf__num {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+}
+/* the push aims at the point where the two strokes of 十 cross (numerals.ts) */
+.flyleaf[data-stage="push"] .flyleaf__num {
+  transform-origin: 49.7% 42.3%;
+}
+
+/* ---- one numeral at a time ---------------------------------------- */
+
+.flyleaf__glyph {
+  display: none;
+  fill: var(--color-ink);
+}
+.flyleaf[data-n="1"] .flyleaf__glyph:nth-child(1),
+.flyleaf[data-n="2"] .flyleaf__glyph:nth-child(2),
+.flyleaf[data-n="3"] .flyleaf__glyph:nth-child(3),
+.flyleaf[data-n="4"] .flyleaf__glyph:nth-child(4),
+.flyleaf[data-n="5"] .flyleaf__glyph:nth-child(5),
+.flyleaf[data-n="6"] .flyleaf__glyph:nth-child(6),
+.flyleaf[data-n="7"] .flyleaf__glyph:nth-child(7),
+.flyleaf[data-n="8"] .flyleaf__glyph:nth-child(8),
+.flyleaf[data-n="9"] .flyleaf__glyph:nth-child(9),
+.flyleaf[data-n="10"] .flyleaf__glyph:nth-child(10) {
+  display: inline;
+}
+/* 十 is the one red mark: the count finished, the page ready */
+.flyleaf[data-n="10"] .flyleaf__glyph {
+  fill: var(--color-shu);
+}
+
+/* the reading, said under its numeral, as small as a folio */
+.flyleaf__read {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 6svh;
+  margin: 0;
+  text-align: center;
+  color: var(--color-ink-quiet);
+  font: 400 clamp(0.75rem, min(1.6svh, 3.5vw), 1.1rem) / 1 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-indent: 0.06em;
+}
+.flyleaf__read span {
+  display: none;
+}
+.flyleaf[data-n="1"] .flyleaf__read span:nth-child(1),
+.flyleaf[data-n="2"] .flyleaf__read span:nth-child(2),
+.flyleaf[data-n="3"] .flyleaf__read span:nth-child(3),
+.flyleaf[data-n="4"] .flyleaf__read span:nth-child(4),
+.flyleaf[data-n="5"] .flyleaf__read span:nth-child(5),
+.flyleaf[data-n="6"] .flyleaf__read span:nth-child(6),
+.flyleaf[data-n="7"] .flyleaf__read span:nth-child(7),
+.flyleaf[data-n="8"] .flyleaf__read span:nth-child(8),
+.flyleaf[data-n="9"] .flyleaf__read span:nth-child(9),
+.flyleaf[data-n="10"] .flyleaf__read span:nth-child(10) {
+  display: inline;
+}
+
+/* ---- reduced motion: the numeral fades first, so a red 十 never hangs
+        over the page, then the paper ----------------------------------- */
+.flyleaf[data-stage="fade"] .flyleaf__sheet,
+.flyleaf[data-stage="fade"] .flyleaf__read {
+  opacity: 0;
+  transition: opacity 180ms linear;
+}
+.flyleaf[data-stage="fade"] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 380ms linear 100ms;
+}
+
+/* A forced-colours theme paints the sheet Canvas and the numerals in its own
+   text colour, which keeps them readable on either ground; 十 keeps nothing
+   of its red there, and should not need to. */
+@media (forced-colors: active) {
+  .flyleaf__glyph,
+  .flyleaf[data-n="10"] .flyleaf__glyph {
+    fill: CanvasText;
+  }
+}
+
+@media print {
+  .flyleaf {
+    display: none !important;
+  }
+}

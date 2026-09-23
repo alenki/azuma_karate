@@ -35,6 +35,16 @@ export const EASE_PRESS = [0.34, 1.56, 0.64, 1] as const;
 export const EASE_INOUT = [0.65, 0, 0.35, 1] as const;
 
 /**
+ * A fifth job, with one caller: something gathering speed INTO a cut. It
+ * starts from rest and is still accelerating when it is cut off, so it never
+ * arrives. The loading screen's last numeral is pushed toward the reader on
+ * it, and at the height of the push the page is there (components/flyleaf).
+ * It has no `--ease-*` twin because no stylesheet uses it: the flyleaf's
+ * runtime is handed it through its config.
+ */
+export const EASE_PUSH = [0.6, 0, 0.9, 0.5] as const;
+
+/**
  * The name a dozen call sites already import. It is `EASE_OUT` — kept as an
  * alias so nothing has to change at once, but new code should say which job it
  * means rather than which curve shape it wants.

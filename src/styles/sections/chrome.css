@@ -3,11 +3,11 @@
 /*                                                                      */
 /* The pieces of furniture that are not chapters: the control the whole */
 /* page is asking the reader to use, the running head printed across    */
-/* the top of every sheet, the contents page that head opens, the bar   */
-/* pinned to the foot of a phone, and the colophon at the end.          */
+/* the top of every sheet, the contents page that head opens, and the   */
+/* colophon at the end.                                                 */
 /*                                                                      */
 /* Most of the paint — `.site-header*`, `.nav-link`, `.menu__link`,     */
-/* `.menu__chapter`, `.skip-link`, `.footer-link`, `.mobile-bar`,       */
+/* `.menu__chapter`, `.skip-link`, `.footer-link`,                      */
 /* `.btn-text` — lives in globals.css and is NOT repeated here. Three   */
 /* things in this file are the exception, and they are marked where     */
 /* they appear: `.btn-press`, `.menu-toggle__*` and `.belt-wedge*` are  */
@@ -26,8 +26,8 @@
 /* One object, four call sites. The hero had a considered CTA and       */
 /* every other instance of the same action was a flat black rectangle;  */
 /* this is the hero's object promoted, so the header, the contents      */
-/* page, the schedule and the mobile bar all print the control that     */
-/* was actually designed. See ui/Button.tsx for the argument.           */
+/* page and the schedule all print the control that was actually        */
+/* designed. See ui/Button.tsx for the argument.                        */
 /*                                                                      */
 /* THE SIZE SYSTEM IS ONE CUSTOM PROPERTY. `--press-h` is the ink       */
 /* half's height floor and the seal's edge at once, because the seal is */
@@ -55,7 +55,7 @@
      shrink-to-fit, and a `0%` basis leaves the label with no content
      contribution to shrink-to-fit from. With `auto` the label is its label in
      the header bar and still fills the row when a call site stretches the
-     control (the mobile bar, the schedule's stacked action). */
+     control (the schedule's stacked action). */
   flex: 1 1 auto;
   display: flex;
   align-items: center;
@@ -96,7 +96,7 @@
 
 /*
   The two halves swap. `:active` is listed beside `:hover` because a thumb
-  never hovers: on the mobile bar the pointer state IS the press state, and a
+  never hovers: on a phone the pointer state IS the press state, and a
   control whose only feedback is a hover is a control with no feedback on the
   device it spends most of its life on. `:where()` keeps the pseudo out of the
   specificity sum so the ground overrides below stay a single class ahead.
@@ -118,18 +118,16 @@
   ground it stands on: the ink half inverts to bone, and the seal steps up to
   `--color-shu-lift`, which is 5.01:1 on #151311 where `--color-shu` is 3.13:1
   — the deep vermilion goes muddy on a black page and the lifted one does not.
-  `.mobile-bar--ink` is listed by hand because the bar is rendered outside
+  `.site-header--ink` is listed by hand because the bar is rendered outside
   <main> and can never inherit `.ground-ink`.
 */
 .ground-ink .btn-press__label,
-.site-header--ink .btn-press__label,
-.mobile-bar--ink .btn-press__label {
+.site-header--ink .btn-press__label {
   background: var(--color-bone);
   color: var(--color-ink);
 }
 .ground-ink .btn-press:where(:hover, :active) .btn-press__label,
-.site-header--ink .btn-press:where(:hover, :active) .btn-press__label,
-.mobile-bar--ink .btn-press:where(:hover, :active) .btn-press__label {
+.site-header--ink .btn-press:where(:hover, :active) .btn-press__label {
   /* transparent, not `--color-ink`: the scrolled bar is 92% ink and an opaque
      block would print as a darker patch inside it */
   background: transparent;
@@ -137,15 +135,13 @@
   box-shadow: inset 0 0 0 1px var(--color-bone);
 }
 .ground-ink .btn-press__seal,
-.site-header--ink .btn-press__seal,
-.mobile-bar--ink .btn-press__seal {
+.site-header--ink .btn-press__seal {
   background: var(--color-shu-lift);
 }
 /* the seal always BRIGHTENS under the pointer, on either ground — on paper by
    stepping shu → shu-lift, and here by taking the lift a little further */
 .ground-ink .btn-press:where(:hover, :active) .btn-press__seal,
-.site-header--ink .btn-press:where(:hover, :active) .btn-press__seal,
-.mobile-bar--ink .btn-press:where(:hover, :active) .btn-press__seal {
+.site-header--ink .btn-press:where(:hover, :active) .btn-press__seal {
   background: color-mix(in oklab, var(--color-shu-lift) 78%, var(--color-bone));
 }
 
@@ -215,10 +211,11 @@
 /* free at every width — 104.8px against a 632px half-share at 1280.    */
 /*                                                                      */
 /* Below 1280 the nav is not printed and the contents handle is, so the */
-/* bar is two tracks: the wordmark ranged left and a 338px cluster      */
-/* ranged right. At 390 — the tightest sheet — they still clear each    */
-/* other by 88px, and nothing scrolls sideways at any width. Below 480  */
-/* the binding stack goes too: see the note on it in §2.                */
+/* bar is two tracks: the wordmark ranged left and the cluster ranged   */
+/* right. Below 768 the press goes too, which leaves the handle alone   */
+/* in that band at a flat 44px whatever state it is in (§2a) — so the   */
+/* narrow sheets are the roomy ones now: 89px of clearance at 320,      */
+/* and nothing scrolls sideways at any width.                           */
 /* ================================================================== */
 
 .site-header__bar {
@@ -256,34 +253,22 @@
 }
 
 /*
-  Under 380 the bar is genuinely full, and it is fullest with the contents
-  page OPEN: the handle then reads «ЗАКРЫТЬ», seven characters where «МЕНЮ»
-  is four, and the right band grows to 167px. Against the 280px trim a 320
-  sheet leaves, that gives the lockup 97px for 130.7px of wordmark — so the
-  last A of SK AZUMA sat on RU. (Worse before the mark came out of the
-  lockup: 178.7px into the same 97px.)
+  A `@media (max-width: 379px)` block stood here and it is gone with the
+  handle's word. Under 380 the bar used to be genuinely full, and fullest with
+  the contents page OPEN: the handle then read «ЗАКРЫТЬ», seven characters
+  where «МЕНЮ» is four, and the right band grew to 167px. Against the 280px
+  trim a 320 sheet leaves, that gave the lockup 97px for 130.7px of wordmark,
+  so the last A of SK AZUMA sat on the handle. The block bought the space back
+  by halving the cluster's gap, pulling the bar's own gap in 4px and stepping
+  the wordmark down to 12.8px.
 
-  The furniture gives up air before the lockup gives up legibility, but not
-  all of it: the cluster's gap halves, the bar's own gap comes in 4px, and
-  only then does the wordmark step down — 12.8px is 99.6px of set text. The
-  two bands then clear each other by 14px at 320 with the page open, and by
-  38px with it shut. Nothing here applies at 380 and up, so the measured
-  band above is untouched.
+  The handle is a 44px square now (§2a) and it is the whole right band below
+  768, where the press is not printed. At 320 that is 130.7 + 16 + 44 = 190.7
+  in 280px of trim: 89px of clearance, the same with the page open as with it
+  shut, because an icon does not change width when it changes state. Nothing
+  is being bought, so nothing is being spent — the wordmark keeps its size on
+  the narrowest sheet there is.
 */
-@media (max-width: 379px) {
-  .site-header__bar {
-    column-gap: 0.75rem;
-  }
-  .site-header__aside {
-    gap: 0.5rem;
-  }
-  .site-header__brand .wordmark {
-    font-size: 0.8rem;
-  }
-  .site-header__brand .wordmark-tag {
-    font-size: 0.5rem;
-  }
-}
 
 /* --- the centre band: the printed nav ------------------------------ */
 /*
@@ -402,9 +387,7 @@
 }
 /*
   On a phone the corner block would be a 5rem slab against a 320px trim, so the
-  bar keeps its gutter there and the CTA is simply not printed at all (it is
-  `md:hidden`'s inverse in Header.tsx — the foot bar carries the action on a
-  phone, which is where a thumb is).
+  bar keeps its gutter there and the CTA is simply not printed at all.
 */
 @media (max-width: 767px) {
   .site-header__aside {
@@ -421,8 +404,9 @@
     lockup. (globals.css opens with the same warning about `@layer base`.) A
     plain rule in the same file, after the one it is overriding, cannot lose.
 
-    Nothing is taken away by hiding it: the foot bar carries the same control
-    on a phone, pinned where a thumb is.
+    Nothing pinned stands in for it on a phone. The ask sits at the foot of
+    the contents page, one tap from any sheet, and is printed in chapters 一
+    and 六.
   */
   .site-header__cta {
     display: none;
@@ -507,24 +491,53 @@
 /* of contents was quieter than the sign-up button on a page organised  */
 /* entirely around chapters.                                            */
 /*                                                                      */
-/* Its mark is the manual's own binding: ten hairlines stacked like the */
-/* edges of ten leaves, one per chapter, with the chapter the reader is */
-/* in drawn full length and in full ink. So the handle states both what */
-/* it opens and where the reader is, and it states the second one by    */
-/* LENGTH and WEIGHT — never by hue. Opening it closes the stack onto   */
-/* its first leaf: the book shut.                                       */
+/* Its mark WAS the manual's own binding: ten hairlines stacked like    */
+/* the edges of ten leaves, one per chapter, with the chapter the       */
+/* reader is in drawn full length and in full ink, so the handle stated */
+/* both what it opened and where the reader was. It is two rules now,   */
+/* and the word beside them is gone with it.                            */
 /*                                                                      */
-/* Not printed below 480. The stack costs the right band 28px, and at   */
-/* 390 with the contents page open («ЗАКРЫТЬ» is seven characters where */
-/* «МЕНЮ» is four) the bar clears its two bands by only 11px — so on    */
-/* the narrowest sheets the handle stays the bare word it is today      */
-/* rather than pushing the lockup off the trim. It is `aria-hidden`     */
-/* ornament, so nothing is lost but the mark.                           */
+/* What the stack bought is on the record: a second statement of the    */
+/* reader's position, made by LENGTH and WEIGHT rather than by hue. It  */
+/* was not free. The mark cost 28px and was therefore not printed at    */
+/* all below 480 (at 390, with «ЗАКРЫТЬ» standing where «МЕНЮ» had      */
+/* been, the bar cleared its two bands by 11px), so on exactly the      */
+/* sheets where the handle is the only navigation there was no mark —   */
+/* a bare mono word in the same size, tracking and ink as everything    */
+/* else in the bar, which is where this section came in. Two rules fit  */
+/* at 320, and the running head and the contents page both state the    */
+/* reader's position anyway. The handle states what it opens.           */
+/*                                                                      */
+/* So it is now an icon control, not a word with an ornament: 44px      */
+/* square, the name carried by `aria-label` (Header.tsx), the rules     */
+/* crossing into an X while the page is open.                           */
 /* ------------------------------------------------------------------ */
 .menu-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  /* square, against the 44px floor globals.css gives it. Nothing inside is
+     text any more, so the band cannot size it and it has to say so itself. */
+  min-width: 44px;
+}
+/*
+  On a phone the handle IS the right band — the press is not printed below 768
+  and the aside gives its negative gutter back there (see `.site-header__cta`
+  below), so this is the last object before the trim, and the wordmark on the
+  other side sits ON the left one. The box holds 12px of slack on each side of
+  the mark (44px of target around a 20px pair, which is what the centring
+  above distributes, NOT the 8px `padding-inline` globals.css gives it — the
+  padding is already inside the floor and buys no width), so -12px puts the
+  rules' own ends exactly on the trim while the target keeps all 44 of it.
+
+  Above 768 the press is the corner object and the handle stands inside the
+  band rather than at its edge, so the rule is scoped to the width where it is
+  the edge.
+*/
+@media (max-width: 767px) {
+  .menu-toggle {
+    margin-right: -0.75rem;
+  }
 }
 /*
   NOT PRINTED FROM 1280 UP. This has been argued both ways in this file and
@@ -563,193 +576,294 @@
     display: none;
   }
 }
+/* the mark's own box, 20px square inside the 44px target. Both rules are
+   taken out of flow so that the pair is symmetric about the box's centre
+   line and the X below needs no second transform origin. */
 .menu-toggle__binding {
-  display: none;
-  flex-direction: column;
-  /* 10 leaves × 1px + 9 gaps × 1px = 19px, whatever the chapter count —
-     which is also why the collapse below can be a flat -2px per index */
-  gap: 1px;
+  position: relative;
   width: 1.25rem;
+  height: 1.25rem;
   flex: none;
 }
-@media (min-width: 480px) {
-  .menu-toggle__binding {
-    display: flex;
-  }
-}
+/*
+  A rule 1px tall at `top: 50%` has its TOP edge on the centre line, not its
+  middle — so the offsets are -3.5 and +2.5, which puts the two rules' own
+  centres at exactly ±3 and leaves the pair 6px apart. Every state below is
+  written as `--y` for that reason: the transform is declared once and the
+  states only move the number, so a rule can never be left behind in a state
+  that forgot to restate it.
+*/
 .menu-toggle__leaf {
-  height: 1px;
-  width: 55%;
-  /* ornament, never text: `--color-ink-3` is 2.4:1 on paper and this is the
-     one kind of mark it is legal for */
-  background: var(--color-ink-3);
-  transition:
-    width var(--duration-fast) var(--ease-out),
-    background-color var(--duration-fast) var(--ease-out),
-    opacity var(--duration-fast) var(--ease-out),
-    transform var(--duration-base) var(--ease-out);
-}
-.menu-toggle__leaf--here {
+  position: absolute;
+  top: 50%;
+  left: 0;
   width: 100%;
-  background: var(--color-ink);
+  height: 1px;
+  /*
+    currentColor, and NOT `--color-ink-3`. The stack this replaces was
+    ornament standing beside a word that carried the meaning, and 2.4:1 is
+    legal for a mark of that kind; these two rules ARE the control, and a
+    control states itself at 3:1 (1.4.11). It also means the ink chapters need
+    no restatement down here at all: globals.css already flips `.menu-toggle`
+    itself to bone, and the rules follow the button they are drawn on.
+  */
+  background: currentColor;
+  transform: translateY(var(--y));
+  transition: transform var(--duration-base) var(--ease-out);
 }
-.menu-toggle:hover .menu-toggle__leaf {
-  background: var(--color-ink-quiet);
+.menu-toggle__leaf:first-child {
+  --y: -3.5px;
 }
-.menu-toggle:hover .menu-toggle__leaf--here {
-  background: var(--color-ink);
-}
-/* the label rules itself under, the same mark `.nav-link` makes and with the
-   same transparent-at-rest underline the contents entries use */
-.menu-toggle__label {
-  text-decoration-line: underline;
-  text-decoration-thickness: 1px;
-  text-decoration-color: transparent;
-  text-underline-offset: 0.35em;
-  transition: text-decoration-color var(--duration-fast) var(--ease-out);
-}
-.menu-toggle:hover .menu-toggle__label,
-.menu-toggle[aria-expanded="true"] .menu-toggle__label {
-  text-decoration-color: currentColor;
+.menu-toggle__leaf:last-child {
+  --y: 2.5px;
 }
 /*
-  Open. Every leaf slides onto the first one's line and fades; the first goes
-  full length and full ink. Leaf i sits at y = 2i px (1px tall, 1px gap), so
-  `-2i` puts each exactly on leaf 0 — the stack closes rather than merely
-  disappearing. Nothing reflows: the leaves stay in flow at 19px.
+  Hover closes the pair by a pixel each: the book closing, stated by the same
+  gesture the open state finishes. No hue and no weight change, so it reads
+  the same on paper and on ink. (`:first-child` makes this 0,4,0 — the open
+  rules below have to match it and then win on order.)
+
+  Scoped to a real pointer. On touch, :hover sticks after the tap, and the pair
+  would land 4px apart instead of on its 6px rest when the contents page is put
+  away.
 */
-.menu-toggle[aria-expanded="true"] .menu-toggle__leaf {
-  opacity: 0;
-  transform: translateY(calc(var(--i) * -2px));
+@media (hover: hover) {
+  .menu-toggle:hover .menu-toggle__leaf:first-child {
+    --y: -2.5px;
+  }
+  .menu-toggle:hover .menu-toggle__leaf:last-child {
+    --y: 1.5px;
+  }
 }
+/*
+  Open: the two rules cross. Both land on the centre line first (-0.5px is
+  half the rule's own height) and then rotate ±45°, so the X is centred in the
+  same 20px box the pair sat in and nothing reflows. It is the whole close
+  mark now that the word is gone, so it is a cross and not a single rule.
+
+  These come AFTER the hover pair and match its specificity on purpose — an X
+  under the pointer must stay an X.
+*/
 .menu-toggle[aria-expanded="true"] .menu-toggle__leaf:first-child {
-  opacity: 1;
-  transform: none;
-  width: 100%;
-  background: var(--color-ink);
+  transform: translateY(-0.5px) rotate(45deg);
 }
-/* the open state is legible without the travel — the stack is simply one rule */
+.menu-toggle[aria-expanded="true"] .menu-toggle__leaf:last-child {
+  transform: translateY(-0.5px) rotate(-45deg);
+}
+/* the open state is legible without the travel — the pair is simply a cross */
 @media (prefers-reduced-motion: reduce) {
   .menu-toggle__leaf {
     transition: none;
   }
 }
-/* on ink. The open panel is always paper (Header.tsx drops `--ink` when the
-   contents page is up), so only the closed states need restating here. */
-.site-header--ink .menu-toggle__leaf {
-  background: color-mix(in oklab, var(--color-bone-2) 55%, transparent);
-}
-.site-header--ink .menu-toggle:hover .menu-toggle__leaf {
-  background: var(--color-bone-2);
-}
-/* last, and the hover form is restated: `--here` alone is one class short of
-   the hover rule above it and would lose the reader's own line under the
-   pointer, which is the one line that must not move */
-.site-header--ink .menu-toggle__leaf--here,
-.site-header--ink .menu-toggle:hover .menu-toggle__leaf--here {
-  background: var(--color-bone);
-}
 
+/* ------------------------------------------------------------------ */
+/* 2b · THE SHEET                                                      */
+/*                                                                      */
+/* Six words and the ask, on one screen, with no scroll anywhere the    */
+/* type can be made to fit instead.                                     */
+/*                                                                      */
+/* What stood here was a three-block grid: five section labels at       */
+/* `clamp(2rem, 7vw, 4.5rem)`, a numbered chapter list under            */
+/* «Содержание», the club's particulars, and a two-column tier   */
+/* from 768 that stood the last two beside the first. It printed 971px  */
+/* of matter into an 844px sheet at 390, so the ask itself was below   */
+/* the fold of a panel the reader had already had to open. Header.tsx   */
+/* carries the argument for what was cut; this file is about the one    */
+/* thing that argument is FOR, which is that what is left has to fit.   */
+/*                                                                      */
+/* IT FITS BY HEIGHT, NOT BY WIDTH. A contents entry is the largest     */
+/* type on the sheet and there are six of them, so the constraint that  */
+/* binds is the viewport's height, and a `vw`-only clamp cannot see it: */
+/* a 390x844 phone and an 844x390 phone are the same sheet to a `7vw`   */
+/* and they are not the same sheet. The size takes the SMALLER of two   */
+/* terms, so the words are as large as the trim allows until the sheet  */
+/* is short, and as large as the column allows after that:              */
+/*                                                                      */
+/*    term     390x844  375x667  360x740  320x568  844x390              */
+/*    12.8vw     49.9     48.0     46.1     41.0    108.0               */
+/*    7.6dvh     64.1     50.7     56.2     43.2     29.6               */
+/*    used       49.9     48.0     46.1     41.0     29.6               */
+/*                                                                      */
+/* 12.8vw is measured, not chosen. «Первая черта» is the longest  */
+/* of the six titles and Prata sets it at 6.77 times its own size, so   */
+/* it needs a trim of 6.77 x fs to stay on one line. Below 555 the      */
+/* gutter is at its 20px floor, so the trim is `100vw - 40px` and the   */
+/* size that just fits is `14.8vw - 5.9px`, which 12.8vw sits under at  */
+/* every width from 320 up (41.0 against 41.4 at the narrowest).        */
+/* There is no headroom at 320, which is why the entry may still wrap   */
+/* rather than being held to one line: a title longer than the longest  */
+/* one there is today must break, not overflow the trim.                */
+/*                                                                      */
+/* `overflow-y: auto` is kept under all of that and it is not dead      */
+/* paint: a 280px-tall window, a 200% page zoom and a fallback face     */
+/* that sets wider than Prata each defeat the arithmetic above, and a   */
+/* contents page that clips is worse than one that scrolls.             */
+/* ------------------------------------------------------------------ */
 .menu {
   /*
-    The entry numbers and the chapter numbers are text a reader reads — they
-    are not aria-hidden — so they take the palette's quiet ink, not
-    `--color-ink-3`, which carried both before this pass and is illegal for
-    text. See the note beside `--color-ink-quiet` in globals.css.
+    The panel is `fixed inset-0` (Header.tsx), so its height IS the viewport
+    and the column inside it can size against `100%` with no dvh/svh
+    arithmetic of its own. Only `--menu-entry` needs to know about dvh.
   */
-  --ink-quiet: var(--color-ink-quiet);
-  /* the display size of a contents entry. Frozen at 4.5rem from 1029px
-     up, which is where the wide tier picks it up again. */
-  --menu-entry: clamp(2rem, 7vw, 4.5rem);
-  --menu-entry-pad: 1rem;
+  display: flex;
+  overflow-y: auto;
+  /* the sheet is a modal: a scroll that reaches its end must not become a
+     scroll of the manual behind it. Lenis is stopped while the panel is open,
+     and this covers the native scroll that is not Lenis's. */
+  overscroll-behavior: contain;
+  --menu-entry: clamp(1.75rem, min(12.8vw, 7.6dvh), 6rem);
 }
 
 .menu__inner {
-  display: grid;
-  row-gap: 3rem;
-  padding-top: calc(var(--header-h) + clamp(1.5rem, 2vw, 3.5rem));
-  padding-bottom: clamp(3rem, 4vw, 6rem);
+  flex: 1;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* the bar is still printed over the sheet and still carries the handle that
+     closes it, so the first word clears it */
+  padding-top: calc(var(--header-h) + clamp(0.75rem, 3.5vh, 2.5rem));
+  padding-bottom: clamp(1.25rem, 3vh, 2.5rem);
 }
 
+/*
+  The six words take every pixel the foot does not.
+
+  `grid-auto-rows: 1fr` over a `flex: 1` track is what makes the stack read as
+  a SET rather than as a list that happens to have six things in it: the rows
+  are equal to each other and they fill the sheet, so the leading between the
+  words is the sheet's own leftover height divided six ways and never a number
+  typed in here. It also means the whole band is the tap target and not just
+  the glyphs in it: at 390 a row is 108px against the 44px floor.
+
+  `minmax(min-content, 1fr)` rather than a bare `1fr`: on a sheet too short for
+  the type a bare `1fr` compresses the rows past the type's own height and
+  overlaps two words. The min-content floor makes the panel scroll instead,
+  which is what the `overflow-y` above is for.
+*/
 .menu__nav {
-  display: flex;
-  flex-direction: column;
+  flex: 1;
+  display: grid;
+  grid-auto-rows: minmax(min-content, 1fr);
+  /* air between the last word and the rule under it, so the six words are a
+     block with a bottom edge rather than a list running into its own foot */
+  padding-bottom: clamp(1rem, 3.5vh, 2.75rem);
 }
+
+.menu__row {
+  display: flex;
+  /* the row is a grid item and the link is its only child: `stretch`, the
+     default, is what hands the link the row's full height */
+  min-width: 0;
+}
+
 .menu__link {
-  display: block;
-  font-size: var(--menu-entry);
-  padding-block: var(--menu-entry-pad);
-}
-.menu__index {
-  margin-right: 1rem;
-  vertical-align: middle;
-  color: var(--ink-quiet);
-}
-
-.menu__contents-label {
-  margin-bottom: 1rem;
-}
-.menu__contents-list {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.menu__chapter-no {
-  margin-right: 0.75rem;
-  color: var(--ink-quiet);
+  align-items: center;
+  width: 100%;
+  font-size: var(--menu-entry);
+  /*
+    `.t-display` sets 0.98, which is leading for a paragraph of display type.
+    One word on its own line does not need the leading pulled in, and the row
+    arithmetic above has already decided the space between two entries.
+  */
+  line-height: 1;
 }
 
+/*
+  EACH ENTRY SITS IN ITS OWN LINE, the way every display line on the page does
+  (ui/LineReveal), so that putting the page away can set the words back into
+  it: Header.tsx sinks `.menu__word` to translateY(125%) rotate(1.5deg) under
+  this clip. At rest the mask prints nothing and moves nothing, and it travels
+  with its row, so the open's rise is exactly what it was.
+
+  Measured, not solved. Prata's ink on a 1em line runs from -0.07em to +1.10em,
+  the underline included (0.80em baseline + 0.28em offset + 1px). The padding
+  opens the clip to -0.12em..+1.16em and the negative margin gives it back, so
+  the row arithmetic above does not move. Header.tsx's CLEARED is tied to
+  these numbers: a new face, a new `text-underline-offset` or a line-height
+  other than 1 on `.menu__link` re-opens both.
+*/
+.menu__mask {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.12em 0.16em;
+  margin-block: -0.12em -0.16em;
+}
+/* a transform does not apply to an inline box, so the word is a block. The
+   tilt pivots on the ranged-left edge, as LineReveal's does. */
+.menu__word {
+  display: block;
+  transform-origin: left center;
+}
+
+/*
+  The leaving sheet's contents are inert from the first frame (Header.tsx),
+  but the paper under them keeps catching taps until it starts to clear, so a
+  tap cannot land on a page link hidden (and on the link path, moving) under
+  opaque paper. A zero-length animation holds the switch to `--menu-let-go`,
+  which Header.tsx writes from the same constant that delays the paper.
+  Motion cannot do this: it sets a value it cannot animate at the start of an
+  exit, whatever the delay says.
+*/
+.menu[data-leaving] {
+  animation: menu-let-go 0s linear var(--menu-let-go, 0s) forwards;
+}
+@keyframes menu-let-go {
+  to {
+    pointer-events: none;
+  }
+}
+
+/*
+  The foot: the two links out of the page, then the ask across the trim.
+
+  The sheet carries no rules at all. Five hairlines once divided the section
+  labels, and a sixth once ran above this foot; the client had both taken
+  out. The nav's bottom padding is what separates the words from the foot.
+*/
 .menu__foot {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: clamp(0.875rem, 2.5vh, 1.5rem);
+  padding-top: clamp(1rem, 3vh, 1.75rem);
 }
-.menu__where {
+.menu__refs {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+/* the ask takes the trim. It is the one control on the sheet and the sheet is
+   a phone, so it is a thumb-width object rather than a button standing in a
+   line of them. */
+.menu__act {
+  width: 100%;
 }
 
-/* 768–1599 — the layout the overlay already had: entries against a
-   narrower stack of contents and particulars. The three blocks are
-   flattened onto one grid (they used to be a column inside a column)
-   so the wide tier can place each of them independently. */
+/*
+  768 and up. The sheet is wide enough that six words ranged left against the
+  full trim begin to read as a column of stubs with a field of bare paper
+  beside them, so the ask stops taking the trim: an 1100px-wide press is not a
+  control, it is a band. `--menu-entry` is height-bound well before this line,
+  so nothing here touches the type.
+*/
 @media (min-width: 768px) {
-  .menu__inner {
-    grid-template-columns: 1.4fr 1fr;
-    /* `auto 1fr` and not `auto auto`: the entries are taller than the two
-       blocks beside them, and without a flexible second row the grid would
-       share the entries' surplus height between both rows and push the
-       particulars away from the contents they belong under. */
-    grid-template-rows: auto 1fr;
-    column-gap: 3rem;
-    row-gap: 2.5rem;
-  }
-  .menu__nav {
-    grid-column: 1;
-    grid-row: 1 / span 2;
-  }
-  .menu__contents {
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .menu__foot {
-    grid-column: 2;
-    grid-row: 2;
+  .menu__act {
+    width: auto;
     align-self: start;
+  }
+  .menu__refs {
+    gap: 2.5rem;
   }
 }
 
 /* ------------------------------------------------------------------ */
-/* There is no wide tier under this line any more.                     */
-/*                                                                      */
-/* The contents page had one — the two-column stack thrown out for the  */
-/* page grid above 1600, three verticals hanging from one top line —    */
-/* and it became unreachable the moment the handle stopped printing at  */
-/* 1280. Paint for a state the page can no longer enter is worse than   */
-/* no paint: it reads as a layout somebody is still keeping true. It is */
-/* in this file's history if the overlay is ever given back to a wide   */
-/* sheet.                                                               */
+/* There is no wide tier past 1280 under this line and there cannot be */
+/* one: the handle is not printed from 1280 up (2a) and Header.tsx     */
+/* shuts the panel on the same query, so this sheet can only ever be   */
+/* seen below that width. The two-column tier that used to stand here  */
+/* outlived its own reachability by several months; it is in this      */
+/* file's history if the overlay is ever given back to a wide sheet.   */
 /* ------------------------------------------------------------------ */
 
 /* ================================================================== */
@@ -973,44 +1087,4 @@
   .footer__list {
     gap: 1rem;
   }
-}
-
-/* ================================================================== */
-/* 4 · THE FOOT MARGIN                                                 */
-/*                                                                      */
-/* The bar pinned to the bottom of a phone. It is the other permanently */
-/* fixed piece of chrome, and it had none of the header's care: one     */
-/* paint state, paper ground, a solid black slab for a button, and no   */
-/* ground variant at all — so across chapters 五 and 十, which run      */
-/* several screens each on a 390px sheet, a cream strip lay welded over */
-/* the bottom of a black page.                                          */
-/*                                                                      */
-/* The ink ground is `.mobile-bar--ink` in globals.css, taken from the  */
-/* same `useActiveChapter().ground` the header reads. What lives here   */
-/* is the bar's layout and the size of the press standing in it: the    */
-/* bar is 56px, so `--press-h` is 56px and the seal is a 56px square    */
-/* flush to the right trim — the control ends exactly where the sheet   */
-/* does, which is what makes it read as a foot margin rather than as a  */
-/* storefront's sticky conversion bar.                                  */
-/* ================================================================== */
-.mobile-bar__row {
-  display: flex;
-  align-items: stretch;
-  height: 3.5rem;
-}
-.mobile-bar__now {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
-  /* the flex child's automatic minimum is its content, and two lines of a
-     live readout would push the CTA off the trim without this */
-  min-width: 0;
-  /* the readout starts on the trim like every other line on the sheet; the
-     right side is only the air before the control, not a second margin */
-  padding-inline: var(--gutter) 1rem;
-}
-.mobile-bar__act {
-  --press-h: 3.5rem;
-  --press-pad: 1.125rem;
 }

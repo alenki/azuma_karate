@@ -43,11 +43,16 @@
 /*                 beneath it. Column 8 is the gutter between the two, */
 /*                 and the seal closes on the column's right edge,     */
 /*                 which is the edge the 道 above it closes on.        */
-/*   THE BINDING   `.chapter__rail` is re-hung on the COLUMN's left    */
-/*                 edge instead of the viewport's. The numeral is a    */
-/*                 folio and a folio sits in the margin of its own     */
-/*                 page; left at `left: 0` it stood ~310px out in bare */
-/*                 ink, counting a chapter it was nowhere near.        */
+/*   THE BINDING   `.chapter__rail` is the PAGE's margin, not the      */
+/*                 column's, so it hangs where the other five hang     */
+/*                 theirs: on the trim, at `left: 0`. The count is     */
+/*                 one vertical running the length of the book and     */
+/*                 a narrower field does not step it in. It was        */
+/*                 re-hung on the COLUMN's left edge once, on the      */
+/*                 reasoning that a folio sits in the margin of its    */
+/*                 own page; what that bought was 六 standing ~215px   */
+/*                 off the trim, the one mark of the count out of      */
+/*                 line with the five above it.                        */
 /*                                                                    */
 /* Five measured things, and each of them is load-bearing:             */
 /*                                                                    */
@@ -247,16 +252,6 @@
   margin-inline: auto;
   padding-top: var(--pad-block);
   padding-bottom: var(--pad-foot);
-}
-/*
-  The binding margin follows the column. Specificity beats `.chapter__rail`'s
-  own `left: 0` either way, so this does not depend on which stylesheet the
-  bundler emits first. `max()` is the clamp at the bottom end: once the sheet
-  is narrower than the box the difference goes negative and the rail returns
-  to the page edge, which is where it belongs when the chapter is full bleed.
-*/
-.join .chapter__rail {
-  left: max(0px, calc((100% - var(--sheet-box)) / 2));
 }
 
 /* ------------------------------------------------------------------ */
@@ -505,6 +500,28 @@
   color: var(--color-bone);
 }
 
+/*
+  THE HONEYPOT, taken off the page.
+
+  NOT `display: none` AND NOT `visibility: hidden`: the crawlers worth
+  catching skip both, and a trap that is skipped is not a trap. Not `.sr-only`
+  either, which is the one hiding technique that would hand the field to a
+  screen reader — the single reader with no way to see it is bait, and the
+  relay answers a filled honeypot with a silent success. Clipped to nothing
+  off the left edge instead, out of the tab ring via `tabIndex` on the input
+  and out of the accessibility tree via `aria-hidden` on this wrapper.
+
+  Absolute, so it costs the register no row and no gap; the chapter's
+  `overflow-x-clip` keeps the offset from reaching the scrollbar.
+*/
+.join-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 /* ---- the seal -------------------------------------------------------- */
 .join-act {
   display: flex;
@@ -539,6 +556,49 @@
     align-items: end;
   }
 }
+/*
+  THE SEAL IS TWO THINGS NOW: the ring, and the sentence saying what pressing
+  it agrees to. They are ONE BOX rather than two children of `.join-act`,
+  because that column's gap is ~2.5rem — the distance between the seal and the
+  alternative to it — and a consent line hung that far below a button stops
+  reading as small print attached to the button and starts reading as a third
+  element of the spread.
+
+  `align-items: inherit`, and not a value of its own: the parent ranges start
+  on a phone and END from 1024 up, where the whole column is anchored to the
+  right trim. The seal has to keep whichever it is handed or the ring leaves
+  the edge that the chapter rule, the foot rule and the 道 all close on.
+*/
+.join-act__press {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: clamp(0.85rem, 1vw, 1.15rem);
+}
+/*
+  Held to 33ch, and that number was measured rather than chosen. The sentence
+  sets three lines at every tier, and its left edge lands within 3px of
+  «Ответим в Telegram в течение дня.» at 1024, 1280, 1440, 1600, 1998 and 2560
+  — the two are both `t-note`, so they scale together and stay ranged on both
+  edges, which is the arrangement the note above `.join-act` describes and the
+  whole reason the ring is out at the trim at all.
+
+  38ch set it in two lines instead, and that was the version to reject: it
+  pushed the left edge ~36px proud of every other line in the column, and one
+  fewer line of legal small print is not worth breaking the one alignment
+  this block is built around. The RING is wider than both below 1600 and
+  narrower at 2560; that predates the consent line and is the ensō's own size
+  ceiling, not something a measure here can fix.
+
+  `--color-bone-2` is secondary TEXT and clears the contrast floor on this
+  ground. Legal small print is the last place on the sheet to reach for
+  `--color-ink-3`, which is ornament and never type.
+*/
+.join-consent {
+  max-width: 33ch;
+  color: var(--color-bone-2);
+}
+
 .join-ring {
   position: relative;
   display: grid;
@@ -612,6 +672,27 @@
 }
 
 /*
+  IN FLIGHT. The word inside the ring changes and NOTHING ELSE MOVES: the ensō
+  does not spin, does not redraw and does not withdraw, because it is the
+  chapter's closing seal and never a progress indicator. That was true when
+  the sheet had no route to post to and it stays true now that it has one.
+
+  The disc dims rather than changing hue, which is the page's rule everywhere:
+  emphasis is a tone, a rule, a weight or a ground inversion, never a colour.
+  The hover inversion is cancelled outright — a control that still lights up
+  under the pointer while refusing the press is a control lying about its
+  state.
+*/
+.join-cta:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+.join-cta:disabled:hover {
+  background: transparent;
+  color: var(--color-bone);
+}
+
+/*
   The way out, stacked under the seal: the route first, the club's promise
   under it. It used to be a line anchored at both ends of a five-column span,
   which put what the club promises out on the right trim with ~200px of ink
@@ -651,6 +732,21 @@
   max-width: var(--slip-measure);
   margin-top: clamp(2.5rem, 4vw, 4rem);
 }
+/*
+  The club's answer, set over the message it is answering about. It is the
+  only line in the chapter whose text depends on what just happened, so it is
+  set at lead size rather than as a caption: a reader who has pressed the last
+  button in the manual should not have to hunt for whether it worked.
+
+  ON THE «carry» OUTCOME THERE IS NO LEAD AT ALL. Nothing was attempted, so
+  there is nothing to report, and the slip prints exactly as it did for the
+  whole life of this chapter before a relay existed.
+*/
+.join-slip__lead {
+  margin-bottom: clamp(1rem, 1.6vw, 1.5rem);
+  color: var(--color-bone);
+}
+
 .join-slip__cap {
   color: var(--color-bone-2);
 }

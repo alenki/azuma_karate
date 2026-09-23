@@ -202,9 +202,27 @@
     color-scheme: light;
   }
 
+  /*
+    The canvas is ink, the sheet is paper. With a background on `html` the
+    canvas stops borrowing body's, so a phone's rubber-band past the end shows
+    the footer's ink instead of a strip of paper under a black colophon. The
+    body still paints the sheet over its own box, and body::before hangs one
+    screen of paper above the top edge so the pull-down at the head stays paper.
+  */
   html {
     scroll-behavior: auto;
     -webkit-text-size-adjust: 100%;
+    background: var(--color-ink);
+  }
+
+  body::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 100%;
+    height: 100vh;
+    background: var(--color-paper);
+    pointer-events: none;
   }
 
   body {
@@ -538,6 +556,42 @@
 .site-header--open {
   background: var(--color-paper);
 }
+/*
+  The contents page being put away (Header.tsx, ContentsSheet). While the
+  leaving sheet is still in the DOM, the bar is printed on it: it holds the
+  sheet's paper until the last word is under its mask, then clears WITH the
+  paper, on the same delay, length and curve, so the bar and the blank leaf
+  under it read as one plane. On an ink ground the bar therefore never goes
+  dark over paper, and the wordmark never prints bone on paper.
+
+  The numbers are not typed here. Header.tsx writes them onto <header> as
+  --menu-ground-at / --menu-ground / --menu-ground-ease from the constants
+  that time the sheet, so the two cannot drift. The switch is the leaving
+  sheet itself, a later sibling of <header>: portal or wrap it, and this
+  silently reverts to the bar's ordinary handoff. Unlayered, so it beats the
+  `duration-500` utility.
+*/
+.site-header:has(~ .menu[data-leaving]) {
+  transition-delay: var(--menu-ground-at);
+  transition-duration: var(--menu-ground);
+  transition-timing-function: var(--menu-ground-ease);
+}
+/* Put away by hand at the top of the page, the bar is going transparent. It
+   gives its paper up at once, under a sheet that is still opaque paper, so the
+   top of the leaf clears as one layer of stock and not as two. Not on a link:
+   the travel crosses scrollY 24 in its first frames, and the bar would dip. */
+.site-header:not(.site-header--scrolled):has(~ .menu[data-leaving="hand"]) {
+  transition-delay: 0s;
+  transition-duration: 0s;
+}
+/* the bar's own ink follows it. Nothing changes unless the ground is ink. */
+.site-header:has(~ .menu[data-leaving]) :is(.wordmark, .wordmark-tag, .menu-toggle) {
+  transition: color var(--menu-ground) var(--menu-ground-ease) var(--menu-ground-at);
+}
+.site-header:has(~ .menu[data-leaving]) .btn-press__label {
+  transition-delay: var(--menu-ground-at);
+  transition-duration: var(--menu-ground);
+}
 
 /* ------------------------------------------------------------------ */
 /* The bar over an ink chapter                                         */
@@ -616,12 +670,25 @@
   padding-inline: 0.5rem;
 }
 /*
-  Contents entries rule themselves under on hover rather than turning red. The
-  underline is declared at rest in `transparent` so the ink fades in without
-  the line's own metrics changing — no reflow, no jump in a long list.
+  A contents entry rules itself under rather than turning red. The underline is
+  declared at rest in `transparent` so the ink fades in without the line's own
+  metrics changing: no reflow, and no jump in a stack of six.
+
+  It carries TWO states on one mark, and that is deliberate. Hovered is the
+  reader's pointer; `aria-current` is where the reader already is — `location`
+  while they are inside that chapter, `page` while they are on that section's
+  own route. Both are the same statement, which is «this entry is the one you
+  are touching», and neither is made by hue: red has three jobs on this page
+  and marking a list is not one of them (1.4.1).
+
+  `.menu__chapter` was the second half of this selector, for the numbered
+  chapter list that stood under the entries. Both lists resolved to the same
+  six anchors; the merged one is `.menu__link` alone. See lib/sections.
+
+  A third state carries the same mark: `[data-chosen]`, the entry just touched
+  while the page is put away (Header.tsx).
 */
-.menu__link,
-.menu__chapter {
+.menu__link {
   color: var(--color-ink);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
@@ -630,8 +697,17 @@
   transition: text-decoration-color var(--duration-fast) var(--ease-out);
 }
 .menu__link:hover,
-.menu__chapter:hover {
+.menu__link[aria-current] {
   text-decoration-color: currentColor;
+}
+/* The entry the reader touched, while the page is put away. It stays ruled
+   after the finger lifts, and the location mark steps aside, so one entry is
+   ruled and not two. */
+.menu__link[data-chosen] {
+  text-decoration-color: currentColor;
+}
+.menu:has(.menu__link[data-chosen]) .menu__link[aria-current]:not([data-chosen]) {
+  text-decoration-color: transparent;
 }
 .skip-link {
   position: fixed;
@@ -685,9 +761,7 @@
 /* today's column, retired when today became a 2px ink rule plus the   */
 /* word plus the tick. The live class is `--now`; this one was dead.   */
 /* ------------------------------------------------------------------ */
-.timetable__cell,
-.timetable__session,
-.timetable__day-row {
+.timetable__cell {
   --tt-cell-ink: var(--color-ink);
   --tt-cell-quiet: var(--color-ink-2);
   --tt-cell-rule: var(--color-rule-hair);
@@ -697,40 +771,46 @@
     color var(--duration-fast) var(--ease-out),
     border-color var(--duration-fast) var(--ease-out);
 }
-/* a day's row on the mobile agenda is a block boundary, not a separation
-   inside one, so it keeps the standard hairline */
-.timetable__day-row { --tt-cell-rule: var(--color-rule); }
 
-.timetable__cell--hi,
-.timetable__session--hi {
+.timetable__cell--hi {
   --tt-cell-ink: var(--color-bone);
   --tt-cell-quiet: var(--color-bone-2);
   --tt-cell-rule: transparent;
   background-color: var(--color-ink);
 }
 
-.timetable__cell--off,
-.timetable__session--off,
-.timetable__day-row--off {
+.timetable__cell--off {
   --tt-cell-ink: var(--color-ink-2);
   --tt-cell-quiet: var(--color-ink-quiet);
+  --tt-cell-rule: transparent;
 }
-/* only the sessions go unruled. A day row on the agenda keeps its rule — the
-   mobile week is MADE of those five lines, and dropping some of them reads
-   as a broken table rather than as a quieted one. */
-.timetable__cell--off,
-.timetable__session--off { --tt-cell-rule: transparent; }
 
-/* The quiet second line of a session, and the agenda of times on a mobile day
-   row. They read their tone off the cell so they invert with it. The
-   transition is declared here rather than inherited because a custom property
-   cannot itself be animated — but the property that consumes it can, and
-   `color` recomputes when the var changes, so this transitions properly. */
-.timetable__ages,
-.timetable__session-ages,
-.timetable__day-times {
+/* The quiet second line of a session. It reads its tone off the cell so it
+   inverts with it. The transition is declared here rather than inherited
+   because a custom property cannot itself be animated — but the property that
+   consumes it can, and `color` recomputes when the var changes, so this
+   transitions properly. */
+.timetable__ages {
   color: var(--tt-cell-quiet);
   transition: color var(--duration-fast) var(--ease-out);
+}
+
+/* ---- the phone's rows ---- */
+/* Nothing on the phone is quieted: it has no filter, so the only thing struck
+   is today. The time and the group's name are the ink the eye lands on; the
+   age band and the weekdays are secondary text, and today's weekday inverts,
+   bone on ink, as a chosen group's sessions do on a wider sheet. */
+.timetable__groupwrap {
+  /* the rule under every row is the standard hairline; the one over the list
+     is the seam's grade, the rule the band draws on a wider sheet */
+  --tt-group-rule: var(--color-rule);
+  --tt-group-seam: var(--color-rule-strong);
+}
+.timetable__group-ages,
+.timetable__slot { color: var(--color-ink-2); }
+.timetable__slot--now {
+  color: var(--color-bone);
+  background-color: var(--color-ink);
 }
 
 /* ---- the register band ---- */
@@ -836,63 +916,6 @@
   background: var(--color-bone);
 }
 
-/* mobile bar */
-.mobile-bar {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  box-shadow: 0 -1px 0 var(--color-rule);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-.mobile-bar__cta {
-  background: var(--color-ink);
-  color: var(--color-paper);
-}
-/* pressed, not reddened: the block inverts to the paper it is printed on, which
-   is a 12:1 change a thumb cannot miss and costs the page none of its accent */
-.mobile-bar__cta:active {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  box-shadow: inset 0 0 0 1px var(--color-ink);
-}
-
-/* ------------------------------------------------------------------ */
-/* The bar over an ink chapter                                         */
-/*                                                                     */
-/* The same argument as `.site-header--ink`: the bar is furniture       */
-/* printed on the page, so it takes the ground behind it. The bottom    */
-/* bar sits over the last two chapters of the book — 五 Results and    */
-/* 十 Join — and on paper values it prints a cream slab across the      */
-/* bottom of a black page.                                             */
-/* ------------------------------------------------------------------ */
-.mobile-bar--ink {
-  background: var(--color-ink);
-  color: var(--color-bone);
-  box-shadow: 0 -1px 0 var(--color-rule-dark);
-}
-/*
-  The one `!important` in this file, and it earns it: the label is printed with
-  a `text-ink-2` utility (#5A554E — 6.4:1 on paper, 2.1:1 on ink) and a utility
-  beats an unlayered rule on the parent, so the ink ramp's own secondary tone
-  has to be aimed at the element itself and marked.
-*/
-.mobile-bar--ink .mobile-bar__label {
-  color: var(--color-bone-2) !important;
-}
-.mobile-bar--ink .mobile-bar__cta {
-  background: var(--color-bone);
-  color: var(--color-ink);
-}
-.mobile-bar--ink .mobile-bar__cta:active {
-  background: transparent;
-  color: var(--color-bone);
-  box-shadow: inset 0 0 0 1px var(--color-bone);
-}
-/* the accent, and the only red the bar gets: #E8404A is 4.7:1 on #151311,
-   where the paper ring (#C41E2A) is 2.1:1 — under the 3:1 focus floor */
-.mobile-bar--ink :where(a, button):focus-visible {
-  outline-color: var(--color-shu-lift);
-}
-
 /* ------------------------------------------------------------------ */
 /* Buttons                                                             */
 /*                                                                     */
@@ -950,7 +973,7 @@
   /*
     The header is fixed, so an anchor jump would otherwise land the chapter's
     own title behind it. One declaration here covers every in-page link on the
-    site — the nav, the contents menu, the mobile bar and each chapter's own
+    site — the nav, the contents menu and each chapter's own
     "see also" links — and the extra 1.5rem keeps the running head clear of the
     bar rather than flush against it.
   */

@@ -41,15 +41,15 @@ type ButtonProps = {
   about paper, ink and one vermilion with no printerly reasoning behind it.
 
   So the hero's object is the control now, and the header CTA, the contents
-  page's CTA, the schedule's Telegram CTA and the mobile bar all print it. The
-  variant is still called `ink` because the ink half is still what it is: a
-  block of solid ink with a label knocked out of it. What changed is that the
-  second pass is on it.
+  page's CTA and the schedule's Telegram CTA all print it. The variant is
+  still called `ink` because the ink half is still what it is: a block of
+  solid ink with a label knocked out of it. What changed is that the second
+  pass is on it.
 
   `--press-h` is the whole size system: the label's height floor AND the seal's
   edge, because the seal is square. Set it from the call site's stylesheet —
-  chrome.css does it for the header at 44/48/56px and for the mobile bar at
-  56 — and the two halves stay in register at every width.
+  chrome.css does it for the header at 44/48/56px — and the two halves stay
+  in register at every width.
 */
 const PRESS = "btn btn-press select-none cursor-pointer";
 

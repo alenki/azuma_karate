@@ -73,33 +73,6 @@ function toMinutes(time: string) {
   return h * 60 + m;
 }
 
-export type NextSession = Session & { /** 0 = today, 1 = tomorrow … */ inDays: number; isToday: boolean };
-
-/**
- * The next session from a given moment. A session still counts while it is
- * running (until its end), so the strip says "today, 17:00" during class.
- */
-export function nextSession(date = new Date()): NextSession {
-  const { day, minutes } = nowInClubTime(date);
-  let best: NextSession | null = null;
-  for (const s of sessions) {
-    let inDays = (s.day - day + 7) % 7;
-    const start = toMinutes(s.time);
-    if (inDays === 0 && start + s.minutes <= minutes) inDays = 7;
-    const score = inDays * 1440 + start;
-    if (!best || score < best.inDays * 1440 + toMinutes(best.time)) {
-      best = { ...s, inDays, isToday: inDays === 0 };
-    }
-  }
-  return best!;
-}
-
-/** Static first slot for server rendering (no clock on the server). */
-export function firstSession(): NextSession {
-  const s = [...sessions].sort((a, b) => a.day - b.day || toMinutes(a.time) - toMinutes(b.time))[0];
-  return { ...s, inDays: 0, isToday: false };
-}
-
 /** Timetable grouped by ISO weekday, sorted by time. */
 export function byDay() {
   const map = new Map<number, Session[]>();
@@ -107,4 +80,32 @@ export function byDay() {
   for (const s of sessions) map.get(s.day)!.push(s);
   for (const list of map.values()) list.sort((a, b) => toMinutes(a.time) - toMinutes(b.time));
   return map;
+}
+
+/**
+ * The same week turned on its side: each group with one line per distinct
+ * start time, the line's ISO weekdays in order and the lines in time order. A
+ * group that trains at 19:30 on Tuesday and 20:30 on Monday is two lines, and
+ * a group with no session at all is left out rather than printed empty.
+ *
+ * Only the days in `week` are read, the days the caller actually prints. A
+ * session outside it would otherwise make a line with a time and no day on
+ * it, where the day-by-day table simply has no column for it.
+ */
+export function byGroup(week: readonly number[]) {
+  return groups
+    .map((group) => {
+      const days = new Map<string, number[]>();
+      for (const s of sessions) {
+        if (s.group !== group.id || !week.includes(s.day)) continue;
+        const list = days.get(s.time) ?? [];
+        list.push(s.day);
+        days.set(s.time, list);
+      }
+      const lines = [...days]
+        .map(([time, list]) => ({ time, days: list.sort((a, b) => a - b) }))
+        .sort((a, b) => toMinutes(a.time) - toMinutes(b.time));
+      return { group, lines };
+    })
+    .filter((row) => row.lines.length > 0);
 }

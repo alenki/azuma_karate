@@ -407,11 +407,45 @@ Everything below is a placeholder and needs the client's confirmation:
   thing the chapter gave up; if the club wants it back it belongs under the
   rank as a sentence, not as a label, a rule and a blank. The second coach was
   pending too, once, and that is exactly what the entry above replaced.
-- **Sign-up form.** Chapter 六 validates, assembles the request in the reader's
-  own browser and hands it back to be carried across by hand; it has no backend
-  and never claims to send. The Telegram link is the working route in the
-  meantime, and `join.sending` / `success` / `error` stay dormant until a route
-  exists.
+- **Sign-up form.** Chapter 六 now POSTs to a Telegram bot. What is missing is
+  the club's own credentials, and until they exist the sheet degrades to what
+  it always did: assemble the request, print it, and let the reader carry it
+  into Telegram by hand.
+
+  **To finish it:** make a bot with @BotFather, add it to the group that should
+  receive the заявки, get that group's (negative) chat id from `getUpdates`,
+  then copy `public/api/config.example.php` to `azuma-telegram-config.php`
+  **one directory above the web root** and fill in both values. That file's own
+  header comment carries the full walkthrough. Nothing else needs editing, and
+  the token must never enter this repo: `.gitignore` covers both its filename
+  and the rate-limit counter beside it.
+
+  **Verify it from the server, not from a laptop.** The relay is the first
+  thing on this site that depends on outbound network access from the host, and
+  api.telegram.org being reachable from a Russian datacentre is an assumption
+  rather than a fact. `config.example.php` ends with a one-line `getMe` check
+  that proves the token and the reachability together. If the host cannot
+  reach Telegram, the form still works: the reader gets the slip and the human
+  route, and nothing on the page claims a send that did not happen.
+
+  **Why the endpoint is PHP.** The hosting is shared (Apache and PHP, no Node),
+  so `next build` has to become a static export, and under `output: 'export'`
+  a Next route handler is GET-only and rendered to a file at build time. There
+  is no runtime to POST to. `public/api/send.php` is that route: same origin,
+  no CORS, no third party holding the name and age of somebody's child. It
+  validates every field again server-side, builds the message itself from
+  `public/api/join-message.json` (generated out of `src/content/home.ts` by
+  `scripts/gen-join-message.ts`, so the receipt and the coach's copy cannot
+  drift), and defends itself with a honeypot, a dwell-time floor, per-field
+  caps and a file-backed per-IP rate limit.
+
+  **The static export is NOT done and is deliberately left out.** Flipping
+  `output: 'export'` forces `images.unoptimized`, which kills the AVIF/WebP
+  pipeline and the `getImageProps` art direction in `ui/Photo.tsx` — every
+  plate on a photography-led page gets heavier and softer. That needs its own
+  decision (pre-generated variants, or a custom loader), not a silent side
+  effect of wiring up a form. The relay works either way.
+
 - **What to bring, and the price.** Both were modelled as `pendingFact`s on the
   contacts page and went out with it; nothing on the site asks or answers them
   now. They are the two questions a parent asks straight after «в какую группу»,

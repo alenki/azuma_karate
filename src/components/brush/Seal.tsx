@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useId } from "react";
 import { cn } from "@/lib/cn";
+import { useFlyleafOpen } from "@/lib/useFlyleafOpen";
 import { useStillness } from "@/lib/useStillness";
 import { KanjiStrokes } from "@/components/brush/Kanji";
 import { pressVariant, seedHash, sealPress } from "@/components/ui/PressDefs";
@@ -44,15 +45,17 @@ export function Seal({
   const id = useId().replace(/:/g, "");
   const reduced = useStillness();
   const press = sealPress(pressVariant(seedHash(seed ?? id)));
+  const open = useFlyleafOpen(trigger === "load");
   const target = { scale: 1, rotate: -6, opacity: 1 };
+  const unpressed = { scale: 1.3, rotate: -8, opacity: 0 };
   return (
     <motion.div
       className={cn("seal relative aspect-square", className)}
       role={label ? "img" : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
-      initial={{ scale: 1.3, rotate: -8, opacity: 0 }}
-      {...(trigger === "load" ? { animate: target } : { whileInView: target, viewport: { once: true, margin: "-10% 0px" } })}
+      initial={unpressed}
+      {...(trigger === "load" ? { animate: open ? target : unpressed } : { whileInView: target, viewport: { once: true, margin: "-10% 0px" } })}
       transition={{
         duration: reduced ? 0 : 0.32,
         delay: reduced ? 0 : delay,

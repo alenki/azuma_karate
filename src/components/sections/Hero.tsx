@@ -9,6 +9,7 @@ import { LineReveal } from "@/components/ui/LineReveal";
 import { Settle } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
 import { Photo } from "@/components/ui/Photo";
+import { useFlyleafOpen } from "@/lib/useFlyleafOpen";
 import { useStillness } from "@/lib/useStillness";
 import { EASE_OUT } from "@/lib/ease";
 import "@/styles/sections/hero.css";
@@ -103,6 +104,8 @@ export function Hero() {
   const line1 = hero.line1;
   const line2 = hero.line2;
   const still = useStillness();
+  /* the clock below starts when the reader first sees the sheet, not at mount */
+  const open = useFlyleafOpen();
 
   return (
     <Chapter
@@ -150,7 +153,7 @@ export function Hero() {
       <motion.div
         className="hero__plate"
         initial={{ scale: still ? 1 : PLATE_SETTLE }}
-        animate={{ scale: 1 }}
+        animate={{ scale: open || still ? 1 : PLATE_SETTLE }}
         transition={{ duration: still ? 0 : 1.9, ease: EASE_OUT }}
       >
         <Photo
@@ -228,9 +231,9 @@ export function Hero() {
           a sentence, to be read rather than counted.
 
           The control is the press — the same object the header, the contents
-          page, the schedule and the mobile bar print — so the page asks for the
-          one thing it wants in one voice, and its vermilion arrow tile is the
-          seal, which is job two of the three red is allowed.
+          page and the schedule print — so the page asks for the one thing it
+          wants in one voice, and its vermilion arrow tile is the seal, which
+          is job two of the three red is allowed.
         */}
         <div className="hero__offer">
           <Settle mode="load" delay={T.offer} duration={0.55}>

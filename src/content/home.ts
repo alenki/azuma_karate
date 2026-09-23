@@ -469,19 +469,17 @@ export const schedule = {
   note: "Расписание предварительное, уточняйте у\u00A0тренера.",
 
   /*
-    The table's own apparatus — the band's caption, today's mark, and the
-    sr-only heading on the mobile agenda's times. These were a `copy` object
-    inside `Timetable.tsx`; a component holding three strings is a second
-    content layer, and the band's caption is printed now rather than being an
-    aria-label only.
+    The table's own apparatus: the band's caption and today's mark. These
+    were a `copy` object inside `Timetable.tsx`; a component holding its own
+    strings is a second content layer, and the band's caption is printed now
+    rather than being an aria-label only.
 
-    No bound spaces are due here: none of the three carries an em dash, a short
-    preposition or a figure and its unit.
+    No bound spaces are due here: neither carries a short preposition or a
+    figure and its unit.
   */
   table: {
     groups: "Группы",
     today: "сегодня",
-    hours: "Время",
   },
 };
 
@@ -530,25 +528,36 @@ export const join = {
 
   /* ---- what the entry becomes ------------------------------------ */
   /*
-    THE REQUEST IS ASSEMBLED IN THE READER'S OWN BROWSER AND CARRIED ACROSS BY
-    HAND, for one reason: there is no bot token, no chat id and no address the
-    club has agreed an enquiry should land in, so nothing here may claim to
-    send.
+    THE MESSAGE IS ASSEMBLED TWICE FROM THESE TWO KEYS, and that is the only
+    string in the manual kept in two hands. The browser builds it to print the
+    receipt; `public/api/send.php` builds it again to send, because a client
+    that posted finished text would be an open relay into the coach's phone
+    and the next thing through it would be a scam link.
 
-    `opening` is the ONE line this page contributes to a message that goes out
-    in the reader's name, and it is a statement of what they just did rather
-    than a sentence put in their mouth — they pressed «Записаться» on a sheet
-    headed «Первая тренировка». Their four answers follow it verbatim, and the
-    whole thing is printed back to them on the slip BEFORE they carry it, so
-    no word leaves this page unread by the person whose name is on it.
+    The two cannot drift: `scripts/gen-join-message.ts` writes `opening` and
+    `years` out to `public/api/join-message.json`, and the relay reads nothing
+    else. Reword either key and run the script, or the coach keeps receiving
+    last month's sentence.
 
-    `years` declines the unit: «1 год», «22 года», «7 лет». The consumer picks
-    the form with `Intl.PluralRules`, on the "ru" locale, which is the only
-    language this sheet is set in.
+    `opening` is the ONE line this page contributes to a message made of
+    somebody else's answers, and it states what the reader just did rather
+    than putting a sentence in their mouth: they pressed «Записаться» on a
+    sheet headed «Первая тренировка». Their four answers follow it verbatim.
+
+    IT NO LONGER GOES OUT IN THE READER'S NAME. It is sent by the club's own
+    bot from the club's own server, which is a different claim from the one
+    this chapter used to make. What has not changed is that nothing leaves
+    unread: `receipt` prints the sent message back on the sheet, so the text
+    on the page and the text on the coach's phone are one string.
+
+    `years` declines the unit: «1 год», «22 года», «7 лет». Both sides pick
+    the same slot, `Intl.PluralRules` on the "ru" locale in the browser and
+    the same rule written out longhand in `ru_years()`.
   */
   opening: "Заявка на\u00A0первую тренировку.",
   years: { one: "год", few: "года", many: "лет" },
   slip: "Готовая заявка",
+  receipt: "Отправленная заявка",
   slipNote: "Заявка не\u00A0уходит сама. Откройте Telegram и\u00A0отправьте её.",
   copy: "Скопировать",
   copied: "Скопировано",
@@ -559,24 +568,31 @@ export const join = {
   trust: "Ответим в\u00A0Telegram в\u00A0течение дня.",
 
   /*
-    DORMANT, AND KEPT ON PURPOSE.
+    LIVE SINCE THE RELAY LANDED, and dormant for as long as this chapter had
+    nowhere to post to. `public/api/send.php` is that route, so each of these
+    finally has something true to say.
 
-    `sending` / `success` / `error` describe a POST, and this chapter performs
-    none: the request is assembled in the browser and handed to the reader.
-    The day a route exists the submit awaits it, `success` finally has
-    something true to say, and the slip becomes the fallback rather than the
-    outcome.
+    `sending` is the ask's label in flight. `success` heads the receipt.
+    `error` heads the FALLBACK rather than an error page: a failed send prints
+    the old slip under it, with the copy control and the Telegram route, so a
+    reader whose request did not go through is left exactly where they stood
+    before any of this existed instead of at a dead end.
 
-    `privacy` and its three parts are the 152-ФЗ consent. No consent is printed
-    on this sheet, and that is not an oversight: consent covers the PROCESSING
-    of personal data, and nothing typed here leaves the reader's own browser. A
-    legal sentence printed where no data is processed is a false statement in
-    the one register where false statements matter most. The consent arrives
-    WITH the route, and `privacyLink` is kept split from the lead and the tail
-    because it has to wrap an actual policy URL that does not exist yet.
+    A relay answering «unconfigured», which is what it does until the club's
+    bot token is on the server, is NOT a failure and prints no error at all.
+    It prints the slip alone. Nothing went wrong, nothing was sent, and the
+    page says neither.
 
-    `privacy` and `trust` are kept as dormant keys rather than deleted, and
-    nothing may start reading them again until there is a route behind them.
+    `privacy` is the 152-ФЗ consent and it prints now. It could not before:
+    consent covers the PROCESSING of personal data, and while nothing typed
+    here left the reader's own browser the sentence would have been a false
+    statement in the one register where false statements matter most. Data
+    leaves the page now, so it is true, and it is set under the ask.
+
+    `privacyLead` / `privacyLink` / `privacyTail` STAY DORMANT. They are the
+    same sentence split so its middle can be wrapped in a link, and there is
+    no policy page to link to. The day there is one, the consumer swaps
+    `privacy` for the three parts and nothing else on the sheet moves.
   */
   sending: "Отправляем…",
   success: "Осу! Мы получили заявку и\u00A0напишем вам сегодня.",

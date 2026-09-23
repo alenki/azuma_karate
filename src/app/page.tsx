@@ -2,7 +2,6 @@ import { chapters } from "@/content/home";
 import { ChapterProvider } from "@/components/layout/ChapterContext";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { MobileBar } from "@/components/layout/MobileBar";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
 import { Schedule } from "@/components/sections/Schedule";
@@ -29,7 +28,15 @@ export default function HomePage() {
         <Join />
       </main>
       <Footer />
-      <MobileBar />
+      {/*
+        The fourth slot held the bar pinned to the foot of a phone, and it is
+        kept, empty, on purpose. React numbers every useId under this provider
+        by how many siblings it has, and each unseeded <Brush> takes its hand
+        from that id: three children instead of four renumbers everything in
+        <main> and redraws the strokes on every sheet. It is the same rule that
+        keeps <body> at three children in the layout.
+      */}
+      {null}
     </ChapterProvider>
   );
 }

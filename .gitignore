@@ -146,3 +146,10 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# The Telegram relay's secrets and its rate-limit counter. The filled config
+# belongs ABOVE the web root on the server and must never reach the repo;
+# these patterns are a seatbelt for the day someone copies it in place to
+# test. See public/api/config.example.php.
+azuma-telegram-config.php
+azuma-join-rate.json

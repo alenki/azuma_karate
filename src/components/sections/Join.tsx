@@ -2,7 +2,7 @@
 
 import "@/styles/sections/join.css";
 
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { chapters, join } from "@/content/home";
 import { club } from "@/content/schedule";
 import type { KanjiId } from "@/content/kanji";
@@ -20,6 +20,32 @@ type Field = "name" | "age" | "contact";
 type Errors = Partial<Record<Field, string>>;
 
 const REQUIRED: readonly Field[] = ["name", "age", "contact"];
+
+/**
+ * Where the заявка is posted.
+ *
+ * `/api/send.php` is a RELATIVE path on purpose: the relay ships in `public/`
+ * and lands next to the exported page, so the request is same-origin and
+ * there is no CORS preflight, no second host and no way for the endpoint to
+ * be reached from anywhere but this site.
+ *
+ * Setting `NEXT_PUBLIC_JOIN_ENDPOINT` to an EMPTY STRING turns the relay off
+ * and restores exactly what this chapter did before one existed: the message
+ * is assembled, printed, and carried by hand. That is the right setting for
+ * `next dev`, where the .php is served as its own source text, and it is also
+ * the honest setting for a deploy where the club has not set up the bot yet.
+ */
+const ENDPOINT = process.env.NEXT_PUBLIC_JOIN_ENDPOINT ?? "/api/send.php";
+
+/**
+ * What became of a pressed заявка. `text` is the message as the READER sees
+ * it; the one that travelled was built by the relay from the raw fields.
+ *
+ *   sent    the relay confirmed it
+ *   carry   nothing is answering there, so nothing was attempted
+ *   failed  the relay answered and said no
+ */
+type Outcome = { kind: "sent" | "carry" | "failed"; text: string };
 
 /**
  * 道 — the watermark, and the only thing on this sheet that is not read.
@@ -54,20 +80,40 @@ const GHOST: KanjiId = "do";
  * Chapter 六 / 06 — «Запись». The last plate of the manual, and the one sheet
  * a reader is asked to write on.
  *
- * WHAT IT DOES, AND THE ONE THING IT DOES NOT. Four asks — name, age, a way to
- * answer, and whatever else the reader wants to say — assembled into a message
- * and handed back to them, with the route that reaches a human under it. There
- * is no fetch, no route to post to, no bot token and no chat id, so this
- * chapter never claims to send: `join.sending` / `success` / `error` are
- * dormant and documented as such in `content/home.ts`, and the moment a route
- * exists the submit awaits it and the slip becomes the fallback rather than
- * the outcome.
+ * IT SENDS NOW. For most of this chapter's life it could not: four asks were
+ * assembled into a message, printed back to the reader, and handed to them to
+ * carry into Telegram by hand, because there was no bot token, no chat id and
+ * no address the club had agreed an enquiry should land in. There is now.
+ * `public/api/send.php` posts the message to the club's own bot, and the three
+ * strings that described a POST while this chapter performed none —
+ * `join.sending` / `success` / `error` — are finally saying something true.
  *
- * Nothing goes out in the reader's name that they have not read first.
- * `join.opening` is the single line this page contributes to the message, it
- * states only what they just did — pressed «Записаться» on a sheet headed
- * «Первая тренировка» — and the whole assembled thing is printed back to them
- * before the route out of the page is offered.
+ * WHY THE ROUTE IS A PHP FILE AND NOT A ROUTE HANDLER. The club's hosting is
+ * shared: Apache and PHP, no Node. `next build` has to be a static export, and
+ * under `output: 'export'` a Next route handler is GET-only and rendered to a
+ * file at build time. There is no runtime to POST to. The relay's own header
+ * comment carries the rest.
+ *
+ * THE SLIP DID NOT GO AWAY, IT CHANGED JOB. It used to be the outcome; it is
+ * now the fallback, and which of the three things it prints is the whole state
+ * machine of this chapter:
+ *
+ *   sent    the relay confirmed. `success` over a RECEIPT of the message,
+ *           because the reader should still see every word that went out in
+ *           their name even though they no longer carry it.
+ *   carry   there is no relay answering: no endpoint configured, or a reply
+ *           that is not ours. Prints the old slip and NOTHING ELSE. Nothing
+ *           failed and nothing was sent, so the page claims neither.
+ *   failed  the relay answered and said no. `error` over the old slip, with
+ *           the copy control and the Telegram route under it, so a reader
+ *           whose request did not go through is left exactly where they stood
+ *           before any of this existed rather than at a dead end.
+ *
+ * WHAT GOES OVER THE WIRE IS THE FOUR RAW ANSWERS, never the assembled text.
+ * A relay that accepted finished text would be an open relay into the coach's
+ * phone. The message is built twice from one source — here for the receipt,
+ * in PHP for the send — and `scripts/gen-join-message.ts` is what stops the
+ * two drifting.
  *
  * THIS CHAPTER IS A COLUMN, and it is the only one in the book that is. Every
  * other chapter is trimmed to the page edge; 六 is held in a centred column
@@ -79,48 +125,74 @@ const GHOST: KanjiId = "do";
  * own, and none of them divides anything: each one is the control it is drawn
  * under.
  *
- * What stands in the column is unchanged: the same twelve-column field and the
- * same two masses on it, on a narrower field, so the blanks come down with it.
- * Before the column there were two other answers and both were wrong in
- * opposite directions — a 34rem column centred on a 2560 sheet that read as a
- * form abandoned in a dark room, then every blank run edge to edge, which gave
- * a nine-letter name a 760px rule and made the one optional field a 1790 x 115
- * void. See `styles/sections/join.css` for the measurements.
- *
  *   the head      «Первая тренировка» over cols 1–8, its one line under it,
  *                 道 on the column's right edge
  *   the register  cols 1–7. Four asks stacked, each of them one line: the
  *                 label in mono at the binding edge, the blank beside it, one
  *                 rule under both. Four rules, one length, one rhythm.
  *   the seal      cols 9–12, hanging from the same line as the register: the
- *                 ensō with the ask inside it, and under it the Telegram
- *                 route for a reader who would rather just write, with what
- *                 the club promises printed under the route that delivers it
+ *                 ensō with the ask inside it, the 152-ФЗ consent under the
+ *                 ask it is about, and under that the Telegram route for a
+ *                 reader who would rather just write, with what the club
+ *                 promises printed under the route that delivers it
  *
  * THE ENSŌ IS DRAWN ONCE AND STAYS DRAWN. It is the chapter's closing mark and
  * never a progress indicator: it does not appear on submit, it does not spin,
- * and it does not withdraw when the slip arrives. The ask lives inside it
- * because the ring is the seal around the last question in the manual — and it
- * is a WORD on the ink now rather than a bone slab, because a hard-edged chip
- * centred in a red circle is the exact silhouette of a loading spinner.
+ * and it does not withdraw when the slip arrives. That rule survived the relay
+ * intact — an in-flight submit changes the WORD inside the ring and nothing
+ * else, because a ring that started turning the moment a form was posted is
+ * the one reading of this mark the chapter has refused from the start.
  */
 export function Join() {
   const t = join;
   const uid = useId().replace(/:/g, "");
   const slipRef = useRef<HTMLDivElement>(null);
+  const honeypotRef = useRef<HTMLInputElement>(null);
+
+  /*
+    WHEN THE SHEET WAS OPENED, and deliberately not when the first key was
+    pressed. The relay drops anything filled in under three seconds, and
+    measuring from the first keystroke would put a parent whose browser
+    autofills their name and phone inside that window — dropped silently,
+    which is the worst way to lose a заявка. Chapter 六 is the last of six on
+    a long page, so a human has always spent far more than three seconds
+    getting here.
+
+    SET IN AN EFFECT AND NOT IN RENDER. `Date.now()` is impure and the compiler
+    rejects it there, correctly. The ref therefore starts at 0, which makes
+    the elapsed time astronomical rather than zero if a press somehow beat the
+    effect — that is the safe direction to fail in, because the other one
+    drops a real заявка without telling anyone.
+  */
+  const openedAt = useRef(0);
+  useEffect(() => {
+    openedAt.current = Date.now();
+  }, []);
 
   const [values, setValues] = useState({ name: "", age: "", contact: "", note: "" });
   const [errors, setErrors] = useState<Errors>({});
-  const [request, setRequest] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [pending, setPending] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  /*
+    THE SAME THREE RULES THE RELAY APPLIES, and they have to stay the same
+    three or the two ends of this disagree and the reader is shown a generic
+    failure for an answer the page told them was fine.
+
+    The age test is DIGITS ONLY rather than `Number.isInteger`, which is the
+    one that used to differ: `maxLength` is 2, so «7.» fits, and
+    `Number.isInteger(Number("7."))` is true while the relay's `ctype_digit`
+    says no.
+  */
   const validate = (field: Field, value: string): string | undefined => {
-    if (field === "name") return value.trim().length >= 2 ? undefined : t.errors.name;
+    const v = value.trim();
+    if (field === "name") return v.length >= 2 && v.length <= 80 ? undefined : t.errors.name;
     if (field === "age") {
-      const n = Number(value.trim());
-      return Number.isInteger(n) && n >= 4 && n <= 99 ? undefined : t.errors.age;
+      const n = /^[0-9]{1,2}$/.test(v) ? Number(v) : NaN;
+      return n >= 4 && n <= 99 ? undefined : t.errors.age;
     }
-    return value.trim().length >= 4 ? undefined : t.errors.contact;
+    return v.length >= 4 && v.length <= 120 ? undefined : t.errors.contact;
   };
 
   /* An edited entry is a new entry, so the slip withdraws on the first
@@ -128,7 +200,7 @@ export function Join() {
      stale message standing on the sheet and read as a dead control. */
   const edit = (field: Field | "note", value: string) => {
     setValues((v) => ({ ...v, [field]: value }));
-    setRequest(null);
+    setOutcome(null);
     setCopied(false);
     if (field !== "note" && errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
   };
@@ -137,15 +209,20 @@ export function Join() {
 
   /*
     «7 лет», «22 года», «1 год». The unit is declined by `Intl.PluralRules`
-    rather than by a hand-rolled modulo, and English falls through `other` to
-    the same slot Russian uses for «лет» — which is why that record carries the
-    same string three times instead of changing shape by language.
+    rather than by a hand-rolled modulo, and the relay declines it again with
+    the same rule written longhand in PHP.
+
+    IT PRINTS THE PARSED NUMBER, not the raw string, and that is what keeps
+    the two sides identical: the relay casts to int, so «07» reaches the coach
+    as «7 лет», and a receipt reading «07 лет» would be a receipt for a
+    message that was never sent.
   */
   const age = (raw: string) => {
+    const n = Number(raw);
     const forms = t.years;
-    const rule = new Intl.PluralRules("ru").select(Number(raw));
+    const rule = new Intl.PluralRules("ru").select(n);
     const unit = rule === "one" ? forms.one : rule === "few" ? forms.few : forms.many;
-    return `${raw}\u00A0${unit}`;
+    return `${n}\u00A0${unit}`;
   };
 
   /*
@@ -153,6 +230,10 @@ export function Join() {
     their own four answers and nothing else — no form numbers, no "sent from",
     no subject line. Every line a page adds here is a line the coach has to
     read past and the parent would have had to delete.
+
+    This copy is for the READER: it is what the receipt and the slip print.
+    The one that actually travels is built by the relay, from the same two
+    strings, out of the raw fields posted below.
   */
   const assemble = () => {
     const who = [values.name.trim(), age(values.age.trim())].join(", ");
@@ -161,8 +242,13 @@ export function Join() {
       .join("\n\n");
   };
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    /* A second press while the first is in flight would post the same заявка
+       twice. The button is disabled too; this is the guard for the Enter key
+       that beats the re-render. */
+    if (pending) return;
+
     const next: Errors = {};
     REQUIRED.forEach((f) => {
       const msg = validate(f, values[f]);
@@ -172,22 +258,78 @@ export function Join() {
 
     const firstBad = REQUIRED.find((f) => next[f]);
     if (firstBad) {
-      setRequest(null);
+      setOutcome(null);
       document.getElementById(`${uid}-${firstBad}`)?.focus();
       return;
     }
 
-    setRequest(assemble());
+    const text = assemble();
     setCopied(false);
+
     /* focus follows the reader to the thing that just appeared, or a keyboard
        user is left standing on a control that seems to have done nothing */
-    requestAnimationFrame(() => slipRef.current?.focus());
+    const land = (kind: Outcome["kind"]) => {
+      setOutcome({ kind, text });
+      requestAnimationFrame(() => slipRef.current?.focus());
+    };
+
+    /* `NEXT_PUBLIC_JOIN_ENDPOINT=""` turns the relay off and restores exactly
+       what this chapter did before it existed. It is the honest setting for a
+       local dev server, where `public/api/send.php` is served as its own
+       source text rather than executed. */
+    if (!ENDPOINT) {
+      land("carry");
+      return;
+    }
+
+    setOutcome(null);
+    setPending(true);
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          age: values.age.trim(),
+          contact: values.contact.trim(),
+          note: values.note.trim(),
+          /* the honeypot and the dwell time: see the relay */
+          subject: honeypotRef.current?.value ?? "",
+          elapsed: Date.now() - openedAt.current,
+        }),
+      });
+
+      const data: unknown = await res.json().catch(() => null);
+      const body = (data && typeof data === "object" ? data : {}) as {
+        ok?: unknown;
+        code?: unknown;
+      };
+
+      /*
+        A REPLY THAT IS NOT OURS IS «carry», NOT «failed», and the distinction
+        is the point of having three outcomes. No `ok` boolean means nothing
+        is answering on the other end: a 404, an Apache error page, or a dev
+        server handing back the PHP source. Nothing was attempted, so the page
+        prints the slip and says nothing about sending. Only a relay that
+        answered and said no is a failure.
+      */
+      if (res.ok && body.ok === true) land("sent");
+      else if (typeof body.ok !== "boolean") land("carry");
+      else if (body.code === "unconfigured") land("carry");
+      else land("failed");
+    } catch {
+      /* the network, or an origin that refused. There IS a relay in
+         production, so this one is a real failure and says so. */
+      land("failed");
+    } finally {
+      setPending(false);
+    }
   };
 
   const copyRequest = async () => {
-    if (!request) return;
+    if (!outcome) return;
     try {
-      await navigator.clipboard.writeText(request);
+      await navigator.clipboard.writeText(outcome.text);
       setCopied(true);
     } catch {
       /* no clipboard permission, or an insecure origin. The slip is
@@ -202,11 +344,11 @@ export function Join() {
     `?text=` is a best effort and never the mechanism. Telegram prefills the
     message box from it on the clients that honour it and silently opens a bare
     chat on the ones that do not, so the slip above the link — the message,
-    printed, with a control that copies it — is what actually carries the
-    request across. Which is also why `slipNote` says the request does not
-    leave on its own: that is true on every client, not only the unlucky ones.
+    printed, with a control that copies it — is what actually carries a request
+    the relay could not. Which is also why `slipNote` says the request does not
+    leave on its own: on the fallback path that is true on every client.
   */
-  const carry = request ? `${club.telegram}?text=${encodeURIComponent(request)}` : club.telegram;
+  const carry = outcome ? `${club.telegram}?text=${encodeURIComponent(outcome.text)}` : club.telegram;
 
   /*
     One ask, one line of the register: a label, a blank, and a single rule
@@ -329,25 +471,53 @@ export function Join() {
                   />
                 </div>
               </div>
+
+              {/*
+                THE HONEYPOT. A fifth blank that no reader ever meets: taken
+                off the page with a clip rather than `display: none`, which
+                some bots skip, hidden from assistive technology with
+                `aria-hidden` and off the tab ring with `tabIndex`. It is not
+                `.sr-only` — that is the one hiding technique that would put
+                it in front of the exact reader least able to tell it is a
+                trap. Anything in it was typed by something reading the DOM.
+              */}
+              <div className="join-hp" aria-hidden="true">
+                <label htmlFor={`${uid}-subject`}>Тема</label>
+                <input
+                  ref={honeypotRef}
+                  id={`${uid}-subject`}
+                  name="subject"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
             </Reveal>
 
             {/* ---- the seal ----
-                The ask, and the way out for a reader who would rather not fill
-                a sheet in at all. It hangs from the same line as the register
-                and closes on the same right trim the 道 above it closes on, so
-                the two ends of the spread are the two ends of the page. The
-                word «или» is doing real work there: it is the alternative to
-                the form rather than a second control on it, and the trust line
-                stays with it so that what the club promises is printed next to
-                the route that delivers it. */}
+                The ask, what pressing it consents to, and the way out for a
+                reader who would rather not fill a sheet in at all. It hangs
+                from the same line as the register and closes on the same
+                right trim the 道 above it closes on, so the two ends of the
+                spread are the two ends of the page. The word «или» is doing
+                real work there: it is the alternative to the form rather than
+                a second control on it, and the trust line stays with it so
+                that what the club promises is printed next to the route that
+                delivers it. */}
             <div className="join-act">
               <Settle delay={0.24} className="join-act__press">
                 <div className="join-ring">
                   <Brush kind="enso" className="join-enso" delay={0.5} />
-                  <button type="submit" className="join-cta t-mono">
-                    {t.submit}
+                  <button type="submit" className="join-cta t-mono" disabled={pending}>
+                    {pending ? t.sending : t.submit}
                   </button>
                 </div>
+                {/* The 152-ФЗ consent, and it is set UNDER THE ASK because
+                    the sentence names that button. It could not be printed
+                    at all until the relay existed: consent covers processing,
+                    and while nothing left the browser there was nothing to
+                    consent to. See the note in `join` in `content/home.ts`. */}
+                <p className="t-note join-consent">{t.privacy}</p>
               </Settle>
 
               <Reveal delay={0.32} y={18} className="join-act__exit">
@@ -363,35 +533,53 @@ export function Join() {
           </div>
 
           {/*
-            The slip. It is in the tree from the first paint and empty until the
-            reader presses — a live region that mounts already carrying its text
-            is announced by some screen readers and missed by others — so at
-            rest it is a zero-height region reserving no band of ink. It sits
-            OUTSIDE `.join-body`, and that is a layout fact rather than a
-            semantic one: an empty item in a gapped grid is still a row, and an
-            empty row still costs its gap.
+            The slip. It is in the tree from the first paint and empty until
+            the reader presses — a live region that mounts already carrying
+            its text is announced by some screen readers and missed by others
+            — so at rest it is a zero-height region reserving no band of ink.
+            It sits OUTSIDE `.join-body`, and that is a layout fact rather
+            than a semantic one: an empty item in a gapped grid is still a
+            row, and an empty row still costs its gap.
 
-            It prints below the spread, so pressing the ask never moves the ask.
+            It prints below the spread, so pressing the ask never moves the
+            ask.
+
+            THREE OUTCOMES, ONE BLOCK. A sent request prints the club's answer
+            over a receipt and stops there: there is nothing left to carry, so
+            offering a copy control and a route out would be inviting the
+            reader to send it a second time. The other two keep the carry
+            apparatus, and only `failed` admits to a failure.
           */}
           <div role="status">
-            {request !== null && (
+            {outcome && (
               <Settle mode="load" duration={0.5} className="join-slip">
-                <p className="t-mono join-slip__cap">{t.slip}</p>
+                {outcome.kind !== "carry" && (
+                  <p className="t-lead join-slip__lead">
+                    {outcome.kind === "sent" ? t.success : t.error}
+                  </p>
+                )}
+                <p className="t-mono join-slip__cap">
+                  {outcome.kind === "sent" ? t.receipt : t.slip}
+                </p>
                 <div ref={slipRef} tabIndex={-1} className="t-note join-slip__text">
-                  {request}
+                  {outcome.text}
                 </div>
-                <p className="t-note join-slip__note">{t.slipNote}</p>
-                <div className="join-slip__foot">
-                  <button type="button" onClick={copyRequest} className="t-mono join-copy">
-                    {copied ? t.copied : t.copy}
-                  </button>
-                  <a href={carry} rel="noopener" className="join-out t-mono">
-                    <span className="join-out__label">{t.open}</span>
-                    <span aria-hidden="true" className="join-out__arrow">
-                      →
-                    </span>
-                  </a>
-                </div>
+                {outcome.kind !== "sent" && (
+                  <>
+                    <p className="t-note join-slip__note">{t.slipNote}</p>
+                    <div className="join-slip__foot">
+                      <button type="button" onClick={copyRequest} className="t-mono join-copy">
+                        {copied ? t.copied : t.copy}
+                      </button>
+                      <a href={carry} rel="noopener" className="join-out t-mono">
+                        <span className="join-out__label">{t.open}</span>
+                        <span aria-hidden="true" className="join-out__arrow">
+                          →
+                        </span>
+                      </a>
+                    </div>
+                  </>
+                )}
               </Settle>
             )}
           </div>

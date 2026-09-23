@@ -13,7 +13,7 @@ import { pendingFact } from "@/content/home";
  *
  * Every TIME below is still placeholder and must be confirmed before launch,
  * as are the group names — the club gave us bands, not names. One data source
- * drives the timetable, the JSON-LD opening hours and the "next session" strip.
+ * drives both the timetable and the JSON-LD opening hours.
  *
  * Typeset strings here follow the BOUND SPACES rule stated in `home.ts`: a
  * non-breaking space is written as the escape `\u00A0`, and binds a figure to

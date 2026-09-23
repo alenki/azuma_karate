@@ -3,6 +3,7 @@
 import { motion, useInView } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { useFlyleafOpen } from "@/lib/useFlyleafOpen";
 import { useStillness } from "@/lib/useStillness";
 import { EASE_INOUT, EASE_OUT } from "@/lib/ease";
 
@@ -94,7 +95,9 @@ export function Curtain({
 }: CurtainProps) {
   const [ref, inView] = usePlateInView(margin, amount);
   const reduced = useStillness();
-  const shown = mode === "load" || inView;
+  /* `load` waits for the flyleaf to lift, so a plate is never opened unseen */
+  const seen = useFlyleafOpen(mode === "load");
+  const shown = mode === "load" ? seen : inView;
   const closed = INSET[from];
   const open = "inset(0% 0% 0% 0%)";
   return (

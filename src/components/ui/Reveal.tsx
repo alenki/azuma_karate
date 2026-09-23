@@ -2,6 +2,7 @@
 
 import { motion, type HTMLMotionProps } from "motion/react";
 import { Children, type ReactNode } from "react";
+import { useFlyleafOpen } from "@/lib/useFlyleafOpen";
 import { EASE_OUT, EASE_PRESS } from "@/lib/ease";
 
 /*
@@ -40,7 +41,11 @@ type ArrivalProps = {
   delay?: number;
   /** Seconds. */
   duration?: number;
-  /** Trigger on mount (`load`) or when scrolled into view (`view`). */
+  /**
+   * Trigger when the reader first sees the page (`load`: the moment the
+   * flyleaf lifts, or mount if it already has) or when scrolled into view
+   * (`view`).
+   */
   mode?: "load" | "view";
   /** Viewport margin for `view` mode. */
   margin?: string;
@@ -75,12 +80,14 @@ export function Reveal({
   once = true,
   ...rest
 }: RevealProps) {
+  const open = useFlyleafOpen(mode === "load");
   const target = { opacity: 1, y: 0 };
+  const hidden = { opacity: 0, y };
   return (
     <motion.div
-      initial={{ opacity: 0, y }}
+      initial={hidden}
       {...(mode === "load"
-        ? { animate: target }
+        ? { animate: open ? target : hidden }
         : { whileInView: target, viewport: { once, margin, amount } })}
       transition={{ duration, delay, ease: EASE_OUT }}
       {...rest}
@@ -135,12 +142,13 @@ export function Register({
     rest: { opacity: 0, x },
     run: { opacity: 1, x: 0, transition: { duration, ease: EASE_OUT } },
   };
+  const open = useFlyleafOpen(mode === "load");
   return (
     <motion.div
       initial="rest"
       variants={row}
       {...(mode === "load"
-        ? { animate: "run" }
+        ? { animate: open ? "run" : "rest" }
         : { whileInView: "run", viewport: { once, margin, amount } })}
       {...rest}
     >
@@ -182,12 +190,14 @@ export function Settle({
   once = true,
   ...rest
 }: SettleProps) {
+  const open = useFlyleafOpen(mode === "load");
   const target = { opacity: 1, scale: 1 };
+  const hidden = { opacity: 0, scale: from };
   return (
     <motion.div
-      initial={{ opacity: 0, scale: from }}
+      initial={hidden}
       {...(mode === "load"
-        ? { animate: target }
+        ? { animate: open ? target : hidden }
         : { whileInView: target, viewport: { once, margin, amount } })}
       transition={{
         /* opacity must not overshoot; the impression must. */

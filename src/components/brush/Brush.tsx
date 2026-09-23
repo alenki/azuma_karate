@@ -3,6 +3,7 @@
 import { motion, useInView } from "motion/react";
 import { useId, useRef } from "react";
 import { cn } from "@/lib/cn";
+import { useFlyleafOpen } from "@/lib/useFlyleafOpen";
 import { useStillness } from "@/lib/useStillness";
 import { dryMask, inkFilter, pressVariant, seedHash, seedSigned } from "@/components/ui/PressDefs";
 import { brushMarks, type BrushKind } from "./marks";
@@ -27,7 +28,7 @@ type BrushProps = {
   className?: string;
   /** Seconds before the brush touches the paper. */
   delay?: number;
-  /** `view` draws once when scrolled into view; `load` draws on mount; `manual` follows `active`. */
+  /** `view` draws once when scrolled into view; `load` draws once the page is seen; `manual` follows `active`. */
   trigger?: "view" | "load" | "manual";
   /** For `manual`: drawn when true, un-drawn when false. */
   active?: boolean;
@@ -90,6 +91,7 @@ export function Brush({
   const reduced = useStillness();
   const ref = useRef<SVGSVGElement>(null);
   const inView = useInView(ref, { once: true, margin: margin as never });
+  const open = useFlyleafOpen(trigger === "load");
 
   const hand = seedHash(seed ?? id);
   /* a hand does not keep time either — ±7% on the gesture, which is what turns a
@@ -97,7 +99,8 @@ export function Brush({
   const total = (duration ?? DURATIONS[kind]) * (1 + seedSigned(hand, 6) * 0.07);
   const per = total / mark.strokes.length;
 
-  const drawing = trigger === "load" ? true : trigger === "manual" ? active : inView;
+  /* `load` is when the reader first sees the page: the flyleaf lifting */
+  const drawing = trigger === "load" ? open : trigger === "manual" ? active : inView;
   const impression = pressVariant(hand);
   const ink = inkFilter(kind, impression);
   const dry = dryMask(kind, impression);

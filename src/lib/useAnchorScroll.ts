@@ -31,7 +31,7 @@ function isPlainLeftClick(event: MouseEvent) {
  * Makes every in-page anchor travel instead of teleport.
  *
  * The wheel is smoothed by Lenis, but a native anchor jump is not: the nav,
- * the contents menu, the mobile bar and each chapter's exit links all snapped
+ * the contents menu and each chapter's exit links all snapped
  * the page to their target in one frame, so the two ways of moving through
  * the manual felt like two different sites. This is one delegated listener on
  * the document rather than a handler on each of the fifteen links, so a

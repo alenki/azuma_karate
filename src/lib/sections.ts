@@ -1,4 +1,4 @@
-
+import { navItems, type NavItem } from "@/content/nav";
 /*
   THE PRINTED SECTIONS ARE CHAPTERS, NOT ROUTES.
   ----------------------------------------------
@@ -76,6 +76,103 @@ export function sectionLink(routeHref: string, route: string): SectionLink {
   }
   if (route === "/") return { href: `#${anchor}`, live: false, anchor, current: false, inPage: true };
   return { href: `/#${anchor}`, live: false, anchor, current: false, inPage: false };
+}
+
+/* ------------------------------------------------------------------ */
+/* THE CONTENTS PAGE LISTS EACH DESTINATION EXACTLY ONCE.               */
+/*                                                                      */
+/* The phone's contents overlay used to print two lists: the five       */
+/* section labels above, and the chapters below them under the heading  */
+/* «Содержание». With `LIVE_ROUTES` empty, every one of those five      */
+/* labels resolves through `sectionLink()` to a chapter anchor, so the  */
+/* overlay was printing eleven links to six places — `#about`,          */
+/* `#schedule`, `#sensei`, `#results` and `#join` twice each, under two */
+/* different numbering systems that disagreed about what `03` meant     */
+/* («Тренеры» in one list, «Расписание» in the other) and under two     */
+/* different names for one chapter («Достижения» over «Хроника»).       */
+/*                                                                      */
+/* The fix is not to delete one of the lists, because each of them is   */
+/* right about something the other is not: the chapters are what the    */
+/* page actually contains, and the section labels are where those       */
+/* chapters are going the day they ship as routes. So the two are       */
+/* MERGED here, on the anchor they share, and the merge is what makes   */
+/* the duplicate structurally impossible rather than merely absent this */
+/* month:                                                               */
+/*                                                                      */
+/*   · a chapter with no shipped page is itself, at its own fragment,   */
+/*     under its own title;                                             */
+/*   · a chapter whose section HAS shipped takes that page's label and  */
+/*     that page's path, because the page is now the better answer to   */
+/*     the same question;                                               */
+/*   · a shipped page that answers no chapter is appended, in nav       */
+/*     order, because nothing above it is going to print it.            */
+/*                                                                      */
+/* One entry per destination at every stage of the phase plan, and the  */
+/* day `/about` ships the overlay re-points itself with no edit here.   */
+/* ------------------------------------------------------------------ */
+export type ContentsEntry = {
+  /** The chapter this entry stands for: the key the reading observer marks. */
+  anchor: string;
+  /** What is printed. The chapter's own title, unless a page has taken over. */
+  label: string;
+  href: string;
+  /** True when the entry points at a page rather than at a chapter. */
+  live: boolean;
+  /** Whether the reader is ON this entry's page right now. */
+  current: boolean;
+  /** A bare `#fragment`, which is the only case the delegated scroller owns. */
+  inPage: boolean;
+};
+
+export function contentsEntries(
+  chapters: readonly { id: string; index: number; title: string }[],
+  route: string,
+): ContentsEntry[] {
+  /*
+    Only LIVE sections are indexed. A section still re-pointed at a chapter IS
+    that chapter, and entering it here would put it back in the list twice,
+    which is the whole thing this function exists to prevent.
+  */
+  const shipped = new Map<string, NavItem>();
+  for (const item of navItems) {
+    if (LIVE_ROUTES.has(item.href)) shipped.set(sectionAnchor(item.href), item);
+  }
+
+  const entries: ContentsEntry[] = chapters.map((c) => {
+    const page = shipped.get(c.id);
+    if (!page) {
+      return {
+        anchor: c.id,
+        label: c.title,
+        href: homeAnchorHref(c.id, route),
+        live: false,
+        current: false,
+        inPage: route === "/",
+      };
+    }
+    /* claimed, so the sweep below does not append it a second time */
+    shipped.delete(c.id);
+    return {
+      anchor: c.id,
+      label: page.label,
+      href: page.href,
+      live: true,
+      current: route === page.href,
+      inPage: false,
+    };
+  });
+
+  /* Walked in `navItems` order rather than in the map's, so the tail of the
+     contents page is in the order the sections are declared, not in whatever
+     order the chapters happened to claim them. */
+  for (const item of navItems) {
+    const a = sectionAnchor(item.href);
+    if (!shipped.has(a)) continue;
+    shipped.delete(a);
+    entries.push({ anchor: a, label: item.label, href: item.href, live: true, current: route === item.href, inPage: false });
+  }
+
+  return entries;
 }
 
 /**

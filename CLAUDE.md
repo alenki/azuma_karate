@@ -181,13 +181,78 @@ hands back the expression rather than the resolved pixel value.
 - **No `Math.random()` anywhere in render.** The hand's jitter is a pure function
   of a seed (FNV-1a + splitmix32), seeded from the call site or React's `useId`,
   so server and client produce identical markup.
-- Clock-driven values (next session, sunrise, today) go through
+- `useId` is numbered by sibling COUNT as well as position, so removing a child
+  above a mark redraws every unseeded `<Brush>` below it. `page.tsx` keeps an
+  empty `{null}` in the slot the phone's foot bar used to fill, for that reason.
+- Clock-driven values (today's weekday in the timetable) go through
   `lib/useLiveValue.ts` — a module-scope store read with `useSyncExternalStore`,
   with the server value passed in.
+
+## The flyleaf (loading screen)
+
+`components/flyleaf/`: the page is counted in the way a Kyokushin class counts
+its repetitions, 一 to 十, one large numeral per tenth of the load on the book's
+own paper, its Russian reading (`content/count.ts`) small at the foot. 十 is the
+one red mark and means ready; it is pushed toward the reader and the page cuts
+in. The numerals are Shippori Mincho outlines carried as paths
+(`numerals.ts`), because a loader cannot wait for a Japanese web font. It is a
+server component printed at the head of `<body>`, and everything that moves is
+`run.ts`, serialised with `Function.prototype.toString` into the inline script
+right after it.
+
+- **`mode="load"` means "when the flyleaf lifts", not "on mount".** LineReveal,
+  Reveal/Register/Settle, Curtain, Brush (`trigger="load"`), Seal and the hero
+  plate all read `useFlyleafOpen()`. Anything new that animates on arrival must
+  too, or it plays unseen under the sheet. The hook answers `false` on the
+  server and while hydrating, and `true` when no flyleaf ran at all (blocked,
+  no script): a missing leaf must never hold an entrance forever.
+- The count cannot run ahead of the page: shares of it are released by
+  DOMContentLoaded, window load + fonts and the hero plate's decode, 九 holds
+  until React has hydrated (`FlyleafCue`), and a 10s ceiling from navigation
+  start releases 十 regardless. The beat keeps a cached page from flashing.
+- It runs on EVERY full load, reloads and `#anchor` URLs included: the owner
+  asked for exactly that. A tap, wheel, key or focus move after 0.4s skips
+  straight to the page (on click, so a tap never presses what lies beneath).
+  Reduced motion gets the same count with nothing scaling, then a fade.
+- `run.ts` is shipped as the compiler emits it: keep it self-contained,
+  function declarations, no optional chaining, nothing from module scope.
+  Curves come in through its config from `lib/ease` (it uses `EASE_PUSH`,
+  the one curve with no CSS twin), never `getComputedStyle`.
+- It is `display: none` until the script sets `data-live`, so no-JS and CSP
+  readers never meet it. The node is never removed; `data-stage="gone"` hides
+  it. In a headless capture, wait about 3s or emulate reduced motion.
+- `<body>` in the layout keeps exactly three children, the new nodes grouped
+  in one fragment: every `useId` on the page, and so the hand of every
+  unseeded `<Brush>`, derives from MotionProvider's slot there.
 
 ## Before launch
 
 `NEXT_PUBLIC_SITE_URL` must be set or every absolute URL in the head (canonical,
 `og:url`, `og:image`) points at localhost. Photography, the logo lockup, the
-schedule, prices, medal counts, reviews and the sign-up backend are all
-placeholders — see the README's "Before this can go live".
+schedule, prices, medal counts and reviews are all placeholders — see the
+README's "Before this can go live".
+
+**The sign-up form has a backend now.** Chapter 六 POSTs to
+`public/api/send.php`, which relays to a Telegram bot. It is PHP and not a
+route handler because the hosting is shared: no Node, so the build has to
+become a static export, and an exported route handler is GET-only. Two things
+are outstanding and both are in the README: the club's bot token and chat id
+(a PHP file above the web root, never in this repo), and the `output: 'export'`
+switch itself, which is deliberately NOT flipped because it forces
+`images.unoptimized` and would quietly degrade every plate on the page.
+
+Three rules the relay depends on:
+
+- **The browser posts the four raw answers, never the assembled message.** A
+  relay that accepted finished text would be an open relay into the coach's
+  phone. The message is built server-side.
+- **The message exists in two places and only one of them is authored.**
+  `join.opening` and `join.years` in `content/home.ts` are the source;
+  `scripts/gen-join-message.ts` writes them to `public/api/join-message.json`
+  for the relay. Reword either and re-run the script, or the receipt on the
+  page and the message on the coach's phone drift apart.
+- **The page never claims a send it did not make.** Three outcomes, not two:
+  `sent` prints a receipt, `failed` prints the error over the old carry-by-hand
+  slip, and `carry` — nothing answering at that endpoint, including a relay
+  with no token yet — prints the slip alone and says nothing at all. The
+  152-ФЗ consent line prints only because data now genuinely leaves the page.

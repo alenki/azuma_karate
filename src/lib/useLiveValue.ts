@@ -8,8 +8,8 @@ export type LiveStore<T> = {
 };
 
 /**
- * A clock-driven value that only exists on the client — the next session,
- * today's weekday, today's sunrise.
+ * A clock-driven value that only exists on the client: today's weekday, which
+ * the timetable marks.
  *
  * The store lives outside React (module scope), so the cached snapshot stays
  * referentially stable between ticks without an effect that calls setState.

@@ -63,7 +63,8 @@
 /* lines at 1280 and on one from 1600 up.                               */
 /*                                                                      */
 /* Colour note: informational mono in this chapter (the age band under  */
-/* a session, the em dash for a day with no class, the «сегодня» mark)  */
+/* a session, the middle dot for a day with no class, the «сегодня»     */
+/* mark)                                                                */
 /* is --color-ink-2, 6.9:1 on paper. It must never be --color-ink-3,    */
 /* which measures 2.399:1 — below the 3:1 large-text floor — and is     */
 /* reserved for aria-hidden ornament.                                   */
@@ -79,18 +80,17 @@
 /* — a flex row of five mono labels with a 2rem margin under it, 148px  */
 /* tall and three ragged rows on a phone, standing between the reader   */
 /* and the thing they came for. It is four ruled cells now, sharing the */
-/* week's bleed from 1280 and carrying the whole of a group: the name   */
-/* in the display face, the age band, and the club's own line about     */
-/* the group, which had been sitting unprinted in                       */
-/* `content/schedule.ts` since that file was written.                   */
+/* week's bleed from 1280 and carrying the group's name in the display  */
+/* face and its age band.                                               */
 /*                                                                      */
 /* THE SEAM IS DRAWN ONCE. The band's bottom rule is                    */
 /* --color-rule-strong and it IS the table's top rule: `.timetable__col`*/
-/* dropped to `border-block-end` and `.timetable__days` dropped its     */
-/* `border-block-start`, or the two would stack as a 2px double. Every  */
-/* rule of the band is a border on the BUTTON, never on the container,  */
-/* for the reason set out above — a container's border prints at full   */
-/* strength before the first cell arrives.                              */
+/* dropped to `border-block-end`, or the two would stack as a 2px       */
+/* double. Every rule of the band is a border on the BUTTON, never on   */
+/* the container, for the reason set out above — a container's border   */
+/* prints at full strength before the first cell arrives. Below 768     */
+/* the band is not printed and the phone's rows draw that rule          */
+/* themselves (see the foot of this file).                              */
 /*                                                                      */
 /* Its own internal verticals will not line up with the table's six,   */
 /* because four groups are not five days. That is answered by GRADE,    */
@@ -98,8 +98,8 @@
 /* table uses --color-rule, so the two read as two orders of division   */
 /* rather than as a failed alignment.                                   */
 /*                                                                      */
-/* Colour and transition for `.timetable__cell`, `.timetable__session`, */
-/* `.timetable__day-row` and every `.legend__*` class live in           */
+/* Colour and transition for `.timetable__cell`, the phone's rows and   */
+/* every `.legend__*` class live in                                     */
 /* `globals.css`; this file owns geometry and type size, so the two     */
 /* never declare the same property. Where one line needs both — a       */
 /* hairline is a `border`, which carries a width AND a colour — this    */
@@ -126,9 +126,12 @@
   --sch-pad-bottom: 10rem;
 
   /* the space between the chapter's two blocks — opener and table. The
-     markup used to hardcode mt-12 and md:mt-20; those exact values are the
-     first two tiers. */
-  --sch-table-gap: 3rem;
+     markup used to hardcode md:mt-20, which is the 768 tier. Below 768 it is
+     4.5rem rather than the old 3rem: the band's caption used to stand in this
+     air and no longer prints there, and today's word and tick hang in it
+     instead, over their slot. The phone's top rule therefore lands where the
+     band's did. */
+  --sch-table-gap: 4.5rem;
   /* the margin numeral hangs level with the chapter's opening title */
   --numeral-top: var(--sch-pad-top);
 
@@ -145,8 +148,8 @@
   --tt-day-gap: 1rem;
   /* the brush tick under today's weekday (was `w-10`) */
   --tt-tick-w: 2.5rem;
-  /* the same mark on a phone, where it is set beside the word instead of
-     under a column head there is no room for */
+  /* the same mark on a phone, where it hangs under the word over today's
+     slot rather than under a column head */
   --tt-tick-w-sm: 2rem;
   /* a session row (was `gap-2` on the list, `py-2` on the row) */
   --tt-row-gap: 0.5rem;
@@ -169,22 +172,26 @@
   --tt-band-dot: 0.5rem;
   /* the band's caption to its top rule */
   --tt-band-cap-mb: 0.75rem;
-  /* the scroller's cell below 768. Like --tt-day-pad below, this one never
-     moves at a wider tier: the block it sizes stops printing at 768.
 
-     11.25rem is measured, not chosen: «Утренние в парке» sets 144px at the
-     1rem name size, and 32px of cell padding makes 176px the narrowest cell
-     that keeps every one of the five names on a single line. The extra 4px is
-     the only slack. It puts two whole cells and the edge of a third on a
-     390pt screen — the band's own "there is more this way". */
-  --tt-band-cell-w: 11.25rem;
+  /* the phone's rows. None of these moves at a wider tier: the block they
+     size stops printing at 768.
 
-  /* the mobile week: a day's row, and a session inside an open day. These
-     two are the only tokens here that never move at a wider tier, because
-     the block they size stops printing at 768. */
-  --tt-day-pad: 0.875rem;
-  --tt-session-pad: 0.55rem;
-
+     A line is the time and then five weekday slots. The time's column holds
+     «20:30» at the caption size with a clear step before Monday; a slot grows
+     with the phone up to --tt-slot-max and no further, so at 320 to 390 the
+     five slots fill the measure and on a wider phone the days keep their
+     spacing instead of scattering across the sheet. */
+  --tt-group-name: 1.25rem;
+  --tt-group-pad-top: 1.125rem;
+  --tt-group-pad-bottom: 1rem;
+  --tt-group-head-gap: 0.625rem;
+  --tt-line-gap: 0.375rem;
+  --tt-time-w: 3.5rem;
+  --tt-slot-max: 3.5rem;
+  --tt-slot-gap: 0.5rem;
+  /* the ink either side of today's weekday where it is struck. Less than
+     --tt-slot-gap, so a struck Monday stays clear of the time before it */
+  --tt-now-pad: 0.375rem;
 }
 
 @media (min-width: 768px) {
@@ -463,52 +470,24 @@
 }
 
 /*
-  Below 768 the band is a bled scroller: one row of four cells, well under the
-  148px and three ragged rows the old legend cost — so the week, not its key,
-  is what a phone meets first.
-
-  A scroller rather than a two-up grid, for two reasons. Four cells two-up is
-  two rows of the band's tallest cell, TALLER than the one row this replaces.
-  And the band stays one idea at every width instead of becoming a different
-  object on a phone. What is off-screen is declared by the cut edge: the track
-  bleeds, so the last cell is visibly mid-cell at the trim rather than ending
-  neatly there.
-
-  The track bleeds and then pays the gutter back as padding: the first cell's
-  leading rule therefore stands on the trim, with every other rule in the
-  chapter, while a cell scrolls OFF the sheet rather than being clipped 20px
-  short of it.
+  Below 768 the band is not printed. It used to be a bled scroller there, four
+  cells of which two and a half fitted a 390 screen, each with an empty square
+  in its corner: on a phone that read as a carousel cut off by mistake rather
+  than as the table's key. The phone prints the week by group, so the groups
+  are its rows and the band has nothing left to name or to strike.
 */
 @media (max-width: 767px) {
+  .timetable__band-cap,
   .timetable__legend {
-    margin-inline: calc(var(--gutter) * -1);
-    padding-inline: var(--gutter);
-    /*
-      `overflow-x: auto` computes `overflow-y` to `auto` as well, which would
-      clip the focus ring — 2px of outline at 3px of offset, exactly 5px past
-      the cell's border box, top and bottom. The padding buys that back inside
-      the scrollport and the negative margin returns it to the page, so the
-      seam with the table does not move by a pixel.
-    */
-    padding-block: 5px;
-    margin-block: -5px;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scroll-snap-type: x proximity;
-    scroll-padding-inline: var(--gutter);
-  }
-  /* the 5px above is taken out of the caption's gap; give it back */
-  .timetable__band-cap { margin-block-end: calc(var(--tt-band-cap-mb) + 5px); }
-  .legend__cellwrap {
-    flex: 0 0 var(--tt-band-cell-w);
-    scroll-snap-align: start;
+    display: none;
   }
 }
 
 /* the week. Five equal columns — the club's training days; see `WEEK` in
    `Timetable.tsx` for why the weekend is not printed — each carrying its own
    ruling. The note at the head of this file says why the rules are not a grid
-   gap any more. Below 768 it is not printed at all; the mobile week is. */
+   gap any more. Below 768 it is not printed at all; the phone prints the
+   week by group instead (see the foot of this file). */
 .timetable__week {
   display: none;
 }
@@ -682,146 +661,133 @@
 }
 
 /* ---------------------------------------------------------------- */
-/* The mobile week                                                   */
+/* The phone: the week by group                                      */
 /*                                                                   */
-/* Below 768 the five columns will not fit, but the five days must    */
-/* still be a printed table rather than a disclosure widget. What was */
-/* here was built entirely out of inline utilities — `border-b`,      */
-/* `py-4`, `font-display text-xl` and a bare unlabelled integer at    */
-/* the right margin — so it used none of the tokens above and looked  */
-/* like a default accordion dropped into a typeset manual.            */
-/*                                                                    */
-/* It is an AGENDA now: every day prints its own session times on its */
-/* row, so a parent reads the whole week in one glance and taps only  */
-/* to find out which group is in the hall at 18:00. That is the thing */
-/* the desktop table does and the old accordion did not — and it also */
-/* retires the naked digit, which counted something the row never     */
-/* named. A day with no class prints the em dash, the same convention */
-/* the desktop column uses.                                           */
+/* Below 768 the five columns will not fit, and the accordion that   */
+/* used to stand in for them (a row per day, its bare times under    */
+/* it, the groups behind a tap) is gone. The week is printed on its  */
+/* side: a row per group, a line per start time, and the weekdays in */
+/* five slots that stand on the same verticals down the page. See    */
+/* THE PHONE in `Timetable.tsx`.                                     */
+/*                                                                   */
+/* The ruling rides the rows, for the reason given at the head of    */
+/* this file: each row's wrapper carries the rule under it and the   */
+/* first one carries the rule over the list, so no line prints       */
+/* before the row it closes. The top rule takes the strong grade,    */
+/* the seam the band draws on a wider sheet.                         */
 /* ---------------------------------------------------------------- */
-/* no top rule: the band's seam is the mobile week's top rule, exactly as it
-   is the desktop table's — drawn once, by the band. */
 @media (min-width: 768px) {
-  .timetable__days {
+  .timetable__groups {
     display: none;
   }
 }
-.timetable__day-row {
-  border-block-end: 1px solid var(--color-rule);
+/* the rules' colours come from `globals.css`, as the band's do; the
+   fallbacks keep this file legible on its own */
+.timetable__groupwrap {
+  border-block-end: 1px solid var(--tt-group-rule, var(--color-rule));
 }
-/* today, marked exactly as the desktop column is: a 2px ink rule capping the
-   row, and the tick beside the word */
-.timetable__day-row--now {
-  box-shadow: inset 0 2px 0 var(--color-ink);
+.timetable__groupwrap:first-child {
+  border-block-start: 1px solid var(--tt-group-seam, var(--color-rule-strong));
+}
+/* also the positioning context for today's annotation, which the first row
+   carries and hangs above itself */
+.timetable__group {
+  position: relative;
+  padding-block: var(--tt-group-pad-top) var(--tt-group-pad-bottom);
+}
+/* the group in the display face, its age band beside it on one baseline */
+.timetable__group-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.75rem;
+  margin-block-end: var(--tt-group-head-gap);
+}
+.timetable__group-name {
+  font-family: var(--font-display);
+  font-size: var(--tt-group-name);
+  line-height: 1.15;
 }
 
-.timetable__day-btn {
+/* one start time and the days it is kept. Today's annotation uses the same
+   grid, so its word stands over its slot. */
+.timetable__line,
+.timetable__today {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: var(--tt-time-w) repeat(5, minmax(0, var(--tt-slot-max)));
+  column-gap: var(--tt-slot-gap);
+}
+.timetable__line {
   align-items: baseline;
-  column-gap: 1rem;
-  row-gap: 0.35rem;
-  inline-size: 100%;
-  padding-block: var(--tt-day-pad);
-  text-align: start;
-  cursor: pointer;
-  /* the day, the state and the agenda are one target — 48px at the smallest
-     tier before the times line is counted */
-  min-block-size: 2.75rem;
 }
-.timetable__day-name {
-  grid-column: 1;
-  font-family: var(--font-display);
-  font-size: var(--tt-day-size);
-  line-height: 1.1;
+.timetable__line + .timetable__line {
+  margin-block-start: var(--tt-line-gap);
 }
-.timetable__day-state {
-  grid-column: 2;
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
+.timetable__line-time,
+.timetable__slot {
+  white-space: nowrap;
 }
-/* the word and its mark, set side by side. Scoped to the mobile row: in the
-   desktop column the same label carries an ABSOLUTELY positioned tick, and
-   turning that span into a flex box there would change what `.timetable__day`
-   takes its baseline from. */
-.timetable__day-state .timetable__now {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+/*
+  Today's weekday, struck wherever a group trains on it: the ground inverts,
+  the same mark the band's chosen cell wears on a wider sheet, and the phone
+  has no filter for it to be confused with. It used to be only a step of
+  weight and one of ink, which at the caption size nobody could see, so the
+  word above the list stood over a column the page never drew. The struck
+  days ARE that column now.
+
+  Nothing moves when the client learns the day after mount. The ink hugs the
+  word rather than filling the slot (`justify-self`), the inline padding is
+  handed back by an equal negative margin so the letters stay on the vertical
+  the rows share, and the box is one line tall, as tall as the time beside
+  it. Plex Mono keeps one advance width across its weights.
+*/
+.timetable__slot--now {
+  justify-self: start;
+  padding-inline: var(--tt-now-pad);
+  margin-inline: calc(var(--tt-now-pad) * -1);
+  font-weight: 500;
 }
-/* the agenda line, under the day's name and across both fields. Its tone is
-   token-driven from `globals.css` so a day holding no session for the chosen
-   group quiets with its row. */
-.timetable__day-times {
-  grid-column: 1 / -1;
+
+/*
+  Today, over its slot. The box is absolutely placed in the air between the
+  opener and the list (`--sch-table-gap` is sized to hold it), so the server's
+  render and a weekend print the same table at the same height. The word and
+  the tick stand on the list's top rule, over the column of struck days they
+  name. The first row carries the box, and a row's padding box starts under
+  the 1px rule its wrapper draws, so `bottom: 100%` stands the box on the
+  rule's lower edge.
+
+  There is no cap here any more. The desktop column's 2px of ink was laid
+  on the rule over this slot, and on a phone it capped a column nobody could
+  see; with the days struck it would be a fourth mark saying the same thing.
+*/
+.timetable__today {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
 }
-/* the same mark as the desktop column, set beside the word instead of under
-   a column head there is no room for on a phone. The height is derived from
-   the mark's own 300 × 140 viewBox for the reason given further up. */
+.timetable__today-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding-block-end: 0.5rem;
+  white-space: nowrap;
+}
+/* on the last slot the word is ranged to the slot's end, so it stops at the
+   trim on a 320 screen instead of running past it; the tick keeps to the
+   slot's start, over the weekday it marks */
+.timetable__today-mark--end {
+  align-items: flex-end;
+}
+.timetable__today-mark--end .timetable__tick-inline {
+  align-self: flex-start;
+}
+/* the mark's height is derived from its own 300 × 140 viewBox, for the
+   reason given at `.timetable__tick` */
 .timetable__tick-inline {
   display: block;
   flex: none;
   inline-size: var(--tt-tick-w-sm);
   block-size: calc(var(--tt-tick-w-sm) * 140 / 300);
-}
-/* open / closed, drawn as the manual's own disclosure: two hairlines, one of
-   which turns. The same mark `ui/Accordion` uses, so the two behave alike. */
-.timetable__mark {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  inline-size: 1rem;
-  block-size: 1rem;
-  /* a graphical state indicator, so it clears the 3:1 non-text floor —
-     ink-quiet is 5:1, ink-3 would be 2.4:1 and is ornament only */
-  color: var(--color-ink-quiet);
-}
-.timetable__mark-bar {
-  position: absolute;
-  display: block;
-  inline-size: 1rem;
-  block-size: 1px;
-  background: currentColor;
-}
-
-.timetable__panel {
-  overflow: hidden;
-}
-.timetable__sessions {
-  margin: 0;
-  padding: 0 0 var(--tt-day-pad);
-  list-style: none;
-}
-.timetable__session {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: baseline;
-  column-gap: 1rem;
-  padding-block: var(--tt-session-pad);
-  /* the same air the desktop cell takes for its struck ground, given back the
-     same way, so a row's type stands on the vertical it stood on before */
-  padding-inline: var(--tt-session-pad);
-  margin-inline: calc(var(--tt-session-pad) * -1);
-  /* a separation inside a block, like the desktop cell rule */
-  border-block-start: 1px solid var(--tt-cell-rule, var(--color-rule-hair));
-}
-/* a time is one figure and never breaks across two lines */
-.timetable__session-time {
-  white-space: nowrap;
-}
-.timetable__session-name {
-  font-size: var(--tt-name-size);
-  line-height: 1.375;
-}
-/* tone from `globals.css`, so it inverts with a struck session */
-.timetable__session-ages {
-  text-align: end;
-}
-.timetable__session--empty {
-  display: block;
-  color: var(--color-ink-2);
 }

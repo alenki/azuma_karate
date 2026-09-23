@@ -3,6 +3,7 @@
 import { motion, useInView } from "motion/react";
 import { useRef, type ElementType, type ReactNode, type Ref } from "react";
 import { cn } from "@/lib/cn";
+import { useFlyleafOpen } from "@/lib/useFlyleafOpen";
 import { EASE_OUT } from "@/lib/ease";
 
 type LineRevealProps = {
@@ -64,7 +65,10 @@ export function LineReveal({
 }: LineRevealProps) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: margin as never, amount });
-  const shown = mode === "load" ? true : inView;
+  /* "load" means when the reader first sees the page, which is when the
+     flyleaf lifts rather than when this mounts under it (lib/useFlyleafOpen) */
+  const open = useFlyleafOpen(mode === "load");
+  const shown = mode === "load" ? open : inView;
 
   const derived = lines.map((l) => (typeof l === "string" ? l : "")).join(" ").trim();
   const text = label === null ? "" : (label ?? derived);

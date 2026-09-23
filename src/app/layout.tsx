@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Golos_Text, IBM_Plex_Mono, Prata } from "next/font/google";
 import { club, sessions } from "@/content/schedule";
+import { Flyleaf } from "@/components/flyleaf/Flyleaf";
+import { FlyleafCue } from "@/components/flyleaf/FlyleafCue";
 import { MotionProvider } from "@/components/providers/MotionProvider";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { PressDefs } from "@/components/ui/PressDefs";
@@ -199,7 +201,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           /* `<` is escaped so a copy string can never close this element early. */
           dangerouslySetInnerHTML={{ __html: JSON.stringify(clubSchema()).replace(/</g, "\\u003c") }}
         />
-        <PressDefs />
+        {/*
+          ONE slot, on purpose. <body> has three children and MotionProvider is
+          the third, and React derives every useId on the page from that
+          position: add a sibling here and each unseeded <Brush> (chapter 四's
+          一, the enso in 六, Results' underline) silently re-rolls its hand.
+          The loading screen comes before any visible content, so it is the
+          first thing painted and its script runs before anything below it is
+          parsed.
+        */}
+        <>
+          <PressDefs />
+          <Flyleaf />
+          <FlyleafCue />
+        </>
         <MotionProvider>
           <SmoothScroll>{children}</SmoothScroll>
         </MotionProvider>
